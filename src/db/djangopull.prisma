@@ -1,0 +1,452 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model account_emailaddress {
+  id                        Int                         @id @default(autoincrement())
+  email                     String                      @unique @db.VarChar(254)
+  verified                  Boolean
+  primary                   Boolean
+  user_id                   BigInt
+  users_user                users_user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "account_emailaddress_user_id_2c513194_fk_users_user_user_id")
+  account_emailconfirmation account_emailconfirmation[]
+
+  @@index([email], map: "account_emailaddress_email_03be32b2_like")
+  @@index([user_id], map: "account_emailaddress_user_id_2c513194")
+}
+
+model account_emailconfirmation {
+  id                   Int                  @id @default(autoincrement())
+  created              DateTime             @db.Timestamptz(6)
+  sent                 DateTime?            @db.Timestamptz(6)
+  key                  String               @unique @db.VarChar(64)
+  email_address_id     Int
+  account_emailaddress account_emailaddress @relation(fields: [email_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_emailconfirm_email_address_id_5b7f8c58_fk_account_e")
+
+  @@index([email_address_id], map: "account_emailconfirmation_email_address_id_5b7f8c58")
+  @@index([key], map: "account_emailconfirmation_key_f43612bd_like")
+}
+
+model auth_group {
+  id                     Int                      @id @default(autoincrement())
+  name                   String                   @unique @db.VarChar(150)
+  auth_group_permissions auth_group_permissions[]
+  users_user_groups      users_user_groups[]
+
+  @@index([name], map: "auth_group_name_a6ea08ec_like")
+}
+
+model auth_group_permissions {
+  id              BigInt          @id @default(autoincrement())
+  group_id        Int
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm")
+  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
+
+  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
+  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
+}
+
+model auth_permission {
+  id                          Int                           @id @default(autoincrement())
+  name                        String                        @db.VarChar(255)
+  content_type_id             Int
+  codename                    String                        @db.VarChar(100)
+  django_content_type         django_content_type           @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_co")
+  auth_group_permissions      auth_group_permissions[]
+  users_user_user_permissions users_user_user_permissions[]
+
+  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
+  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+}
+
+model django_admin_log {
+  id                  Int                  @id @default(autoincrement())
+  action_time         DateTime             @db.Timestamptz(6)
+  object_id           String?
+  object_repr         String               @db.VarChar(200)
+  action_flag         Int                  @db.SmallInt
+  change_message      String
+  content_type_id     Int?
+  user_id             BigInt
+  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_co")
+  users_user          users_user           @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk_users_user_user_id")
+
+  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
+  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
+}
+
+model django_content_type {
+  id               Int                @id @default(autoincrement())
+  app_label        String             @db.VarChar(100)
+  model            String             @db.VarChar(100)
+  auth_permission  auth_permission[]
+  django_admin_log django_admin_log[]
+
+  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
+}
+
+model django_migrations {
+  id      BigInt   @id @default(autoincrement())
+  app     String   @db.VarChar(255)
+  name    String   @db.VarChar(255)
+  applied DateTime @db.Timestamptz(6)
+}
+
+model django_session {
+  session_key  String   @id @db.VarChar(40)
+  session_data String
+  expire_date  DateTime @db.Timestamptz(6)
+
+  @@index([expire_date], map: "django_session_expire_date_a5c62663")
+  @@index([session_key], map: "django_session_session_key_c0390e0f_like")
+}
+
+model django_site {
+  id     Int    @id @default(autoincrement())
+  domain String @unique(map: "django_site_domain_a2e37b91_uniq") @db.VarChar(100)
+  name   String @db.VarChar(50)
+
+  @@index([domain], map: "django_site_domain_a2e37b91_like")
+}
+
+model employees_attendance {
+  attendance_id      BigInt             @id @default(autoincrement())
+  id                 String             @unique @db.VarChar(20)
+  date               DateTime           @db.Date
+  punch_in           DateTime           @db.Time(6)
+  punch_out          DateTime?          @db.Time(6)
+  employee_id        BigInt
+  employees_employee employees_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_attendance_employee_id_450daa06_fk_employees")
+
+  @@index([employee_id], map: "employees_attendance_employee_id_450daa06")
+  @@index([id], map: "employees_attendance_id_7b341ae6_like")
+}
+
+model employees_client {
+  client_id         BigInt              @id @default(autoincrement())
+  id                String              @unique @db.VarChar(7)
+  company           String              @db.VarChar(255)
+  position          String              @db.VarChar(100)
+  contact_id        BigInt              @unique
+  users_user        users_user          @relation(fields: [contact_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_client_contact_id_646151ab_fk_users_user_user_id")
+  employees_project employees_project[]
+
+  @@index([id], map: "employees_client_id_d9dd0436_like")
+}
+
+model employees_department {
+  department_id                                                             BigInt               @id @default(autoincrement())
+  id                                                                        String               @unique @db.VarChar(7)
+  name                                                                      String               @unique @db.VarChar(50)
+  hod_id                                                                    BigInt?              @unique
+  employees_employee_employees_department_hod_idToemployees_employee        employees_employee?  @relation("employees_department_hod_idToemployees_employee", fields: [hod_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_department_hod_id_37a39b77_fk_employees")
+  employees_employee_employees_departmentToemployees_employee_department_id employees_employee[] @relation("employees_departmentToemployees_employee_department_id")
+
+  @@index([id], map: "employees_department_id_813ca7f1_like")
+  @@index([name], map: "employees_department_name_74e89247_like")
+}
+
+model employees_employee {
+  employee_id                                                                            BigInt                       @id @default(autoincrement())
+  id                                                                                     String                       @unique @db.VarChar(7)
+  is_hr                                                                                  Boolean
+  is_md                                                                                  Boolean
+  date_employed                                                                          DateTime                     @db.Date
+  date_updated                                                                           DateTime                     @db.Date
+  department_id                                                                          BigInt?
+  job_id                                                                                 BigInt?
+  supervisor_id                                                                          BigInt?
+  user_id                                                                                BigInt                       @unique
+  employees_department_employees_departmentToemployees_employee_department_id            employees_department?        @relation("employees_departmentToemployees_employee_department_id", fields: [department_id], references: [department_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_employee_department_id_410c23c8_fk_employees")
+  jobs_job                                                                               jobs_job?                    @relation(fields: [job_id], references: [job_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_employee_job_id_92cc001d_fk_jobs_job_job_id")
+  employees_employee                                                                     employees_employee?          @relation("employees_employeeToemployees_employee", fields: [supervisor_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_employee_supervisor_id_624b662d_fk_employees")
+  users_user                                                                             users_user                   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_employee_user_id_27bed289_fk_users_user_user_id")
+  employees_attendance                                                                   employees_attendance[]
+  employees_department_employees_department_hod_idToemployees_employee                   employees_department?        @relation("employees_department_hod_idToemployees_employee")
+  other_employees_employee                                                               employees_employee[]         @relation("employees_employeeToemployees_employee")
+  employees_project                                                                      employees_project[]
+  employees_project_leaders                                                              employees_project_leaders[]
+  employees_project_team                                                                 employees_project_team[]
+  employees_projectfile                                                                  employees_projectfile[]
+  employees_task                                                                         employees_task[]
+  employees_task_followers                                                               employees_task_followers[]
+  employees_task_leaders                                                                 employees_task_leaders[]
+  leaves_leave_employees_employeeToleaves_leave_created_by_id                            leaves_leave[]               @relation("employees_employeeToleaves_leave_created_by_id")
+  leaves_leave_employees_employeeToleaves_leave_employee_id                              leaves_leave[]               @relation("employees_employeeToleaves_leave_employee_id")
+  leaves_overtime_employees_employeeToleaves_overtime_created_by_id                      leaves_overtime[]            @relation("employees_employeeToleaves_overtime_created_by_id")
+  leaves_overtime_employees_employeeToleaves_overtime_employee_id                        leaves_overtime[]            @relation("employees_employeeToleaves_overtime_employee_id")
+  notifications_notification_employees_employeeTonotifications_notification_recipient_id notifications_notification[] @relation("employees_employeeTonotifications_notification_recipient_id")
+  notifications_notification_employees_employeeTonotifications_notification_sender_id    notifications_notification[] @relation("employees_employeeTonotifications_notification_sender_id")
+
+  @@index([department_id], map: "employees_employee_department_id_410c23c8")
+  @@index([id], map: "employees_employee_id_94fc05e1_like")
+  @@index([job_id], map: "employees_employee_job_id_92cc001d")
+  @@index([supervisor_id], map: "employees_employee_supervisor_id_624b662d")
+}
+
+model employees_holiday {
+  holiday_id BigInt   @id @default(autoincrement())
+  id         String   @unique @db.VarChar(7)
+  name       String   @db.VarChar(100)
+  date       DateTime @db.Date
+
+  @@unique([name, date], map: "employees_holiday_name_date_b3b11a54_uniq")
+  @@index([id], map: "employees_holiday_id_16250860_like")
+}
+
+model employees_project {
+  project_id                BigInt                      @id @default(autoincrement())
+  id                        String                      @unique @db.VarChar(7)
+  name                      String                      @unique @db.VarChar(255)
+  start_date                DateTime                    @db.Date
+  end_date                  DateTime                    @db.Date
+  initial_cost              Float
+  rate                      Float
+  priority                  String                      @db.VarChar(1)
+  description               String?
+  completed                 Boolean
+  client_id                 BigInt?
+  created_by_id             BigInt?
+  employees_client          employees_client?           @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_client_id_4d14a636_fk_employees")
+  employees_employee        employees_employee?         @relation(fields: [created_by_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_created_by_id_59445c61_fk_employees")
+  employees_project_leaders employees_project_leaders[]
+  employees_project_team    employees_project_team[]
+  employees_projectfile     employees_projectfile[]
+  employees_task            employees_task[]
+
+  @@index([client_id], map: "employees_project_client_id_4d14a636")
+  @@index([created_by_id], map: "employees_project_created_by_id_59445c61")
+  @@index([id], map: "employees_project_id_4c1f9d86_like")
+  @@index([name], map: "employees_project_name_650b8a6a_like")
+}
+
+model employees_project_leaders {
+  id                 BigInt             @id @default(autoincrement())
+  project_id         BigInt
+  employee_id        BigInt
+  employees_employee employees_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_le_employee_id_ce674b33_fk_employees")
+  employees_project  employees_project  @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_le_project_id_d827ddaa_fk_employees")
+
+  @@unique([project_id, employee_id], map: "employees_project_leaders_project_id_employee_id_416fc776_uniq")
+  @@index([employee_id], map: "employees_project_leaders_employee_id_ce674b33")
+  @@index([project_id], map: "employees_project_leaders_project_id_d827ddaa")
+}
+
+model employees_project_team {
+  id                 BigInt             @id @default(autoincrement())
+  project_id         BigInt
+  employee_id        BigInt
+  employees_employee employees_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_te_employee_id_40dc44cf_fk_employees")
+  employees_project  employees_project  @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_project_te_project_id_36d6b2d9_fk_employees")
+
+  @@unique([project_id, employee_id], map: "employees_project_team_project_id_employee_id_49403d80_uniq")
+  @@index([employee_id], map: "employees_project_team_employee_id_40dc44cf")
+  @@index([project_id], map: "employees_project_team_project_id_36d6b2d9")
+}
+
+model employees_projectfile {
+  id                 BigInt              @id @default(autoincrement())
+  file               String              @db.VarChar(100)
+  project_id         BigInt
+  file_type          String              @db.VarChar(50)
+  uploaded_by_id     BigInt?
+  name               String              @db.VarChar(255)
+  date               DateTime            @db.Timestamptz(6)
+  employees_project  employees_project   @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_projectfil_project_id_4fbc7142_fk_employees")
+  employees_employee employees_employee? @relation(fields: [uploaded_by_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_projectfil_uploaded_by_id_c39202cd_fk_employees")
+
+  @@index([project_id], map: "employees_projectfile_project_id_4fbc7142")
+  @@index([uploaded_by_id], map: "employees_projectfile_uploaded_by_id_c39202cd")
+}
+
+model employees_task {
+  task_id                  BigInt                     @id @default(autoincrement())
+  id                       String                     @unique @db.VarChar(7)
+  name                     String                     @unique @db.VarChar(255)
+  description              String?
+  priority                 String                     @db.VarChar(1)
+  create_date              DateTime                   @db.Date
+  due_date                 DateTime                   @db.Date
+  completed                Boolean
+  verified                 Boolean
+  created_by_id            BigInt?
+  project_id               BigInt
+  employees_employee       employees_employee?        @relation(fields: [created_by_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_created_by_id_be83ca84_fk_employees")
+  employees_project        employees_project          @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_project_id_d8a6fca9_fk_employees")
+  employees_task_followers employees_task_followers[]
+  employees_task_leaders   employees_task_leaders[]
+
+  @@index([created_by_id], map: "employees_task_created_by_id_be83ca84")
+  @@index([id], map: "employees_task_id_1ecee9e3_like")
+  @@index([name], map: "employees_task_name_3e711a2e_like")
+  @@index([project_id], map: "employees_task_project_id_d8a6fca9")
+}
+
+model employees_task_followers {
+  id                 BigInt             @id @default(autoincrement())
+  task_id            BigInt
+  employee_id        BigInt
+  employees_employee employees_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_follo_employee_id_8a94fa2d_fk_employees")
+  employees_task     employees_task     @relation(fields: [task_id], references: [task_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_follo_task_id_7a960cb4_fk_employees")
+
+  @@unique([task_id, employee_id], map: "employees_task_followers_task_id_employee_id_e9c179fa_uniq")
+  @@index([employee_id], map: "employees_task_followers_employee_id_8a94fa2d")
+  @@index([task_id], map: "employees_task_followers_task_id_7a960cb4")
+}
+
+model employees_task_leaders {
+  id                 BigInt             @id @default(autoincrement())
+  task_id            BigInt
+  employee_id        BigInt
+  employees_employee employees_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_leade_employee_id_ddcf190f_fk_employees")
+  employees_task     employees_task     @relation(fields: [task_id], references: [task_id], onDelete: NoAction, onUpdate: NoAction, map: "employees_task_leade_task_id_e29a4945_fk_employees")
+
+  @@unique([task_id, employee_id], map: "employees_task_leaders_task_id_employee_id_9fb685eb_uniq")
+  @@index([employee_id], map: "employees_task_leaders_employee_id_ddcf190f")
+  @@index([task_id], map: "employees_task_leaders_task_id_e29a4945")
+}
+
+model jobs_job {
+  job_id             BigInt               @id @default(autoincrement())
+  id                 String               @unique @db.VarChar(7)
+  name               String               @unique @db.VarChar(50)
+  employees_employee employees_employee[]
+
+  @@index([id], map: "jobs_job_id_e5bc7a75_like")
+  @@index([name], map: "jobs_job_name_84b28495_like")
+}
+
+model leaves_leave {
+  leave_id                                                          BigInt              @id @default(autoincrement())
+  id                                                                String              @unique @db.VarChar(10)
+  leave_type                                                        String              @db.VarChar(3)
+  start_date                                                        DateTime            @db.Date
+  end_date                                                          DateTime            @db.Date
+  reason                                                            String
+  a_s                                                               String              @db.VarChar(1)
+  a_hod                                                             String              @db.VarChar(1)
+  a_hr                                                              String              @db.VarChar(1)
+  a_md                                                              String              @db.VarChar(1)
+  date_updated                                                      DateTime            @db.Timestamptz(6)
+  date_requested                                                    DateTime            @db.Timestamptz(6)
+  created_by_id                                                     BigInt?
+  employee_id                                                       BigInt
+  employees_employee_employees_employeeToleaves_leave_created_by_id employees_employee? @relation("employees_employeeToleaves_leave_created_by_id", fields: [created_by_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "leaves_leave_created_by_id_b0033dd7_fk_employees")
+  employees_employee_employees_employeeToleaves_leave_employee_id   employees_employee  @relation("employees_employeeToleaves_leave_employee_id", fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "leaves_leave_employee_id_4949fe61_fk_employees")
+
+  @@index([created_by_id], map: "leaves_leave_created_by_id_b0033dd7")
+  @@index([employee_id], map: "leaves_leave_employee_id_4949fe61")
+  @@index([id], map: "leaves_leave_id_48922b86_like")
+}
+
+model leaves_overtime {
+  overtime_id                                                          BigInt              @id @default(autoincrement())
+  id                                                                   String              @unique @db.VarChar(10)
+  overtime_type                                                        String              @db.VarChar(3)
+  date                                                                 DateTime            @db.Date
+  hours                                                                Int
+  reason                                                               String
+  a_s                                                                  String              @db.VarChar(1)
+  a_hod                                                                String              @db.VarChar(1)
+  a_hr                                                                 String              @db.VarChar(1)
+  a_md                                                                 String              @db.VarChar(1)
+  date_updated                                                         DateTime            @db.Timestamptz(6)
+  date_requested                                                       DateTime            @db.Timestamptz(6)
+  created_by_id                                                        BigInt?
+  employee_id                                                          BigInt
+  employees_employee_employees_employeeToleaves_overtime_created_by_id employees_employee? @relation("employees_employeeToleaves_overtime_created_by_id", fields: [created_by_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "leaves_overtime_created_by_id_c1ada1d2_fk_employees")
+  employees_employee_employees_employeeToleaves_overtime_employee_id   employees_employee  @relation("employees_employeeToleaves_overtime_employee_id", fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "leaves_overtime_employee_id_6eb2a19e_fk_employees")
+
+  @@index([created_by_id], map: "leaves_overtime_created_by_id_c1ada1d2")
+  @@index([employee_id], map: "leaves_overtime_employee_id_6eb2a19e")
+  @@index([id], map: "leaves_overtime_id_7b7e229e_like")
+}
+
+model notifications_notification {
+  id                                                                             BigInt              @id @default(autoincrement())
+  type                                                                           String              @map("_type") @db.VarChar(1)
+  message                                                                        String
+  message_id                                                                     String              @db.VarChar(10)
+  read                                                                           Boolean
+  date_sent                                                                      DateTime            @db.Timestamptz(6)
+  recipient_id                                                                   BigInt?
+  sender_id                                                                      BigInt?
+  employees_employee_employees_employeeTonotifications_notification_recipient_id employees_employee? @relation("employees_employeeTonotifications_notification_recipient_id", fields: [recipient_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_notifi_recipient_id_d055f3f0_fk_employees")
+  employees_employee_employees_employeeTonotifications_notification_sender_id    employees_employee? @relation("employees_employeeTonotifications_notification_sender_id", fields: [sender_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_notifi_sender_id_feea9ca3_fk_employees")
+
+  @@index([recipient_id], map: "notifications_notification_recipient_id_d055f3f0")
+  @@index([sender_id], map: "notifications_notification_sender_id_feea9ca3")
+}
+
+model users_profile {
+  profile_id    BigInt     @id @default(autoincrement())
+  id            String     @unique @db.VarChar(7)
+  image         String     @db.VarChar(100)
+  gender        String     @db.VarChar(1)
+  address       String?
+  date_of_birth DateTime?  @db.Date
+  phone         String?    @db.VarChar(20)
+  state         String?    @db.VarChar(100)
+  city          String?    @db.VarChar(100)
+  date_updated  DateTime   @db.Timestamptz(6)
+  date_created  DateTime   @db.Timestamptz(6)
+  user_id       BigInt     @unique
+  users_user    users_user @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "users_profile_user_id_2112e78d_fk_users_user_user_id")
+
+  @@index([id], map: "users_profile_id_172ea214_like")
+}
+
+model users_user {
+  password                    String                        @db.VarChar(128)
+  last_login                  DateTime?                     @db.Timestamptz(6)
+  is_superuser                Boolean
+  user_id                     BigInt                        @id @default(autoincrement())
+  id                          String                        @unique @db.VarChar(7)
+  email                       String                        @unique @db.VarChar(255)
+  first_name                  String                        @db.VarChar(150)
+  last_name                   String                        @db.VarChar(150)
+  is_active                   Boolean
+  is_admin                    Boolean
+  date_joined                 DateTime                      @db.Timestamptz(6)
+  account_emailaddress        account_emailaddress[]
+  django_admin_log            django_admin_log[]
+  employees_client            employees_client?
+  employees_employee          employees_employee?
+  users_profile               users_profile?
+  users_user_groups           users_user_groups[]
+  users_user_user_permissions users_user_user_permissions[]
+
+  @@index([email], map: "users_user_email_243f6e77_like")
+  @@index([id], map: "users_user_id_7386ac76_like")
+}
+
+model users_user_groups {
+  id         BigInt     @id @default(autoincrement())
+  user_id    BigInt
+  group_id   Int
+  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_groups_group_id_9afc8d0e_fk_auth_group_id")
+  users_user users_user @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_groups_user_id_5f6f5a90_fk_users_user_user_id")
+
+  @@unique([user_id, group_id], map: "users_user_groups_user_id_group_id_b88eab82_uniq")
+  @@index([group_id], map: "users_user_groups_group_id_9afc8d0e")
+  @@index([user_id], map: "users_user_groups_user_id_5f6f5a90")
+}
+
+model users_user_user_permissions {
+  id              BigInt          @id @default(autoincrement())
+  user_id         BigInt
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_user_perm_permission_id_0b93982e_fk_auth_perm")
+  users_user      users_user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_user_perm_user_id_20aca447_fk_users_use")
+
+  @@unique([user_id, permission_id], map: "users_user_user_permissions_user_id_permission_id_43338c45_uniq")
+  @@index([permission_id], map: "users_user_user_permissions_permission_id_0b93982e")
+  @@index([user_id], map: "users_user_user_permissions_user_id_20aca447")
+}

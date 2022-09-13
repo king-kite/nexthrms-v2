@@ -1,0 +1,160 @@
+import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { FaEye } from 'react-icons/fa';
+
+import { EMPLOYEE_PAGE_URL } from '../../config/routes';
+import { EmployeeType } from '../../types';
+
+const heads: TableHeadType = [
+	{ value: 'first name' },
+	{ value: 'last name' },
+	{ value: 'email' },
+	{ value: 'department' },
+	{ value: 'status' },
+	{ value: 'date employed' },
+	{ type: 'actions', value: 'view' },
+];
+
+const getRows = (data: EmployeeType[]): TableRowType[] =>
+	data.map((employee) => ({
+		id: employee.id,
+		rows: [
+			{
+				link: EMPLOYEE_PAGE_URL(employee.id),
+				value: employee.user.firstName || '---',
+			},
+			{ value: employee.user.lastName || '---' },
+			{ value: employee.user.email || '---' },
+			{ value: employee.department?.name || '---' },
+			{
+				options: {
+					bg:
+						employee.leaves.length > 1
+							? 'warning'
+							: employee.user.isActive
+							? 'green'
+							: 'danger',
+				},
+				type: 'badge',
+				value:
+					employee.leaves.length > 1
+						? 'on leave'
+						: employee.user.isActive
+						? 'active'
+						: 'inactive',
+			},
+			{
+				value: employee.dateEmployed
+					? new Date(employee.dateEmployed).toLocaleDateString('en-CA')
+					: '---',
+			},
+			{
+				type: 'actions',
+				value: [
+					{
+						color: 'primary',
+						icon: FaEye,
+						link: EMPLOYEE_PAGE_URL(employee.id),
+					},
+				],
+			},
+		],
+	}));
+
+type TableType = {
+	employees: EmployeeType[];
+};
+
+const EmployeeTable = ({ employees }: TableType) => {
+	const [rows, setRows] = useState<TableRowType[]>([]);
+	const [activeRow, setActiveRow] = useState<
+		'all' | 'active' | 'on leave' | 'inactive'
+	>('all');
+
+	useEffect(() => {
+		let finalList;
+		if (activeRow === 'on leave') {
+			finalList = employees.filter((employee) => employee.leaves.length > 1);
+		} else if (activeRow === 'active') {
+			finalList = employees.filter(
+				(employee) => employee.user.isActive === true
+			);
+		} else if (activeRow === 'inactive') {
+			finalList = employees.filter(
+				(employee) => employee.user.isActive === false
+			);
+		} else {
+			finalList = employees;
+		}
+		setRows(getRows(finalList));
+	}, [activeRow, employees]);
+
+	return (
+		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+			<Table
+				heads={heads}
+				rows={rows}
+				renderActionLinkAs={({ link, props, children }) => (
+					<Link href={link}>
+						<a className={props.className} style={props.style}>
+							{children}
+						</a>
+					</Link>
+				)}
+				split={{
+					actions: [
+						{
+							active: activeRow === 'all',
+							onClick: () => {
+								setRows(getRows(employees));
+								setActiveRow('all');
+							},
+							title: 'all',
+						},
+						{
+							active: activeRow === 'active',
+							onClick: () => {
+								setRows(
+									getRows(employees).filter(
+										(row: TableRowType) => row.rows[4].value === 'active' && row
+									)
+								);
+								setActiveRow('active');
+							},
+							title: 'active',
+						},
+						{
+							active: activeRow === 'on leave',
+							onClick: () => {
+								setRows(
+									getRows(employees).filter(
+										(row: TableRowType) =>
+											row.rows[4].value === 'on leave' && row
+									)
+								);
+								setActiveRow('on leave');
+							},
+							title: 'on leave',
+						},
+						{
+							active: activeRow === 'inactive',
+							onClick: () => {
+								setRows(
+									getRows(employees).filter(
+										(row: TableRowType) =>
+											row.rows[4].value === 'inactive' && row
+									)
+								);
+								setActiveRow('inactive');
+							},
+							title: 'inactive',
+						},
+					],
+				}}
+			/>
+		</div>
+	);
+};
+
+export default EmployeeTable;

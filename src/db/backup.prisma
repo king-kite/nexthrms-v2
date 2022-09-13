@@ -1,0 +1,408 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// TODO: Add indexes
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Attendance {
+  id       String    @id @default(uuid()) @db.Uuid
+  date     DateTime  @default(now())
+  punchIn  DateTime  @map("punch_in") @db.Time()
+  punchOut DateTime? @map("punch_out") @db.Time()
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("attendance")
+}
+
+model Client {
+  id       String @id @default(uuid()) @db.Uuid
+  company  String @db.VarChar(255)
+  position String @db.VarChar(100)
+
+  contact   User   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contactId String @unique @map("contact_id") @db.Uuid
+
+  projects Project[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("clients")
+}
+
+model Department {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(50)
+
+  hod   Employee? @relation("departmentHod", fields: [hodId], references: [id], onDelete: SetNull)
+  hodId String?   @unique @map("hod_id") @db.Uuid
+
+  employees Employee[] @relation("departmentEmployees")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("departments")
+}
+
+model Employee {
+  id           String      @id @default(uuid()) @db.Uuid
+  department   Department? @relation("departmentEmployees", fields: [departmentId], references: [id], onDelete: SetNull)
+  departmentId String?     @map("department_id") @db.Uuid
+
+  hod Department? @relation("departmentHod")
+
+  jobId String? @map("job_id") @db.Uuid
+  job   Job?    @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique @map("user_id") @db.Uuid
+
+  supervisorId String?   @map("supervisor_id") @db.Uuid
+  supervisor   Employee? @relation("otheremployees", fields: [supervisorId], references: [id], onDelete: SetNull)
+
+  employees Employee[] @relation("otheremployees")
+
+  attendance Attendance[]
+
+  projectFiles        ProjectFile[]
+  projectTeam         ProjectTeam[]
+  ProjectTask         ProjectTask[]
+  ProjectTaskFollower ProjectTaskFollower[]
+
+  leaves          Leave[] @relation("employeeLeaves")
+  createdByLeaves Leave[] @relation("createdByLeaves")
+
+  overtime          Overtime[] @relation("employeeOvertime")
+  createdByOvertime Overtime[] @relation("createdByOvertime")
+
+  dateEmployed DateTime @default(now()) @map("date_employed")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("employees")
+}
+
+model Job {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(50)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  employees Employee[]
+
+  @@map("jobs")
+}
+
+model Holiday {
+  id   String   @id @default(uuid()) @db.Uuid
+  name String   @db.VarChar(100)
+  date DateTime @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([name, date])
+  @@map("holiday")
+}
+
+model Leave {
+  id       String       @id @default(uuid()) @db.Uuid
+  reason   String
+  type     LeaveChoices @default(CAUSAL)
+  approved Boolean      @default(false)
+
+  // {
+  // 	a_s: LeaveDecisions,
+  // 	a_hod: LeaveDecisions,
+  // 	a_hr: LeaveDecisions,
+  // 	a_md: LeaveDecisions,
+  // }
+
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeLeaves", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  createdById String?   @map("created_by") @db.Uuid
+  createdBy   Employee? @relation("createdByLeaves", fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("leaves")
+}
+
+model Notification {
+  id        String              @id @default(uuid()) @db.Uuid
+  title     String              @default("This is a title")
+  message   String
+  messageId String?             @map("message_id") @db.Uuid
+  read      Boolean             @default(false)
+  type      NotificationChoices
+
+  sender   User   @relation("notificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  senderId String @map("sender_id") @db.Uuid
+
+  recipient   User   @relation("notificationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipientId String @map("recipient_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notifications")
+}
+
+model Overtime {
+  id       String          @id @default(uuid()) @db.Uuid
+  type     OvertimeChoices @default(VOLUNTARY)
+  date     DateTime
+  hours    Int
+  reason   String
+  approved Boolean         @default(false)
+
+  // {
+  // 	a_s: LeaveDecisions,
+  // 	a_hod: LeaveDecisions,
+  // 	a_hr: LeaveDecisions,
+  // 	a_md: LeaveDecisions,
+  // }
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeOvertime", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  createdById String?   @map("created_by") @db.Uuid
+  createdBy   Employee? @relation("createdByOvertime", fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("overtime")
+}
+
+model Profile {
+  id      String    @id @default(uuid()) @db.Uuid
+  dob     DateTime?
+  gender  Gender    @default(MALE)
+  image   String    @default("/images/default.png")
+  address String?
+  city    String?   @db.VarChar(20)
+  phone   String?   @db.VarChar(20)
+  state   String?   @db.VarChar(100)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique @map("user_id") @db.Uuid
+
+  @@map("users_profile")
+}
+
+model Project {
+  id          String          @id @default(uuid()) @db.Uuid
+  completed   Boolean         @default(false)
+  description String
+  initialCost Float           @default(0) @map("initial_cost")
+  name        String          @unique @db.VarChar(255)
+  priority    ProjectPriority @default(HIGH)
+  rate        Float           @default(0)
+  startDate   DateTime        @default(now()) @map("start_date")
+  endDate     DateTime        @map("end_date")
+
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientId String? @map("client_id") @db.Uuid
+
+  team ProjectTeam[]
+
+  projectFiles ProjectFile[]
+  ProjectTask  ProjectTask[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
+
+model ProjectFile {
+  id       String          @id @default(uuid()) @db.Uuid
+  file     String
+  fileType ProjectFileType @default(DOCUMENT) @map("file_type")
+
+  name String   @db.VarChar(255)
+  date DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String  @map("project_id") @db.Uuid
+
+  employee   Employee? @relation(fields: [uploadedBy], references: [id], onDelete: SetNull)
+  uploadedBy String?   @map("uploaded_by") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("projects_files")
+}
+
+model ProjectTeam {
+  id       String  @id @default(uuid()) @db.Uuid
+  isLeader Boolean @default(false) @map("is_leader")
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  projectId String  @map("project_id") @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([projectId, employeeId])
+  @@map("projects_team")
+}
+
+model ProjectTask {
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String          @db.VarChar(255)
+  description String
+  completed   Boolean         @default(false)
+  verified    Boolean         @default(false)
+  priority    ProjectPriority @default(HIGH)
+
+  followers ProjectTaskFollower[]
+
+  dueDate   DateTime @map("due_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdById String    @map("created_by") @db.Uuid
+  createdBy   Employee? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  projectId String  @map("project_id") @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("projects_tasks")
+}
+
+model ProjectTaskFollower {
+  id       String  @id @default(uuid()) @db.Uuid
+  isLeader Boolean @default(false) @map("is_leader")
+
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @map("employee_id") @db.Uuid
+
+  task   ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String      @map("task_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([taskId, employeeId])
+  @@map("projects_tasks_followers")
+}
+
+model Token {
+  id      String            @id @default(uuid()) @db.Uuid
+  uid     String // Represents the user's id
+  type    VerificationToken // Represents the type of token Token i.e for email verification or password reset
+  token   String            @unique
+  expires DateTime          @db.Date
+
+  @@unique([uid, token]) // The same user can't have the same token
+  @@map("tokens")
+}
+
+model User {
+  id        String @id @default(uuid()) @db.Uuid
+  email     String @unique @db.VarChar(255)
+  firstName String @default("") @map("first_name") @db.VarChar(150)
+  lastName  String @default("") @map("last_name") @db.VarChar(150)
+
+  isActive        Boolean @default(true) @map("is_active")
+  isAdmin         Boolean @default(false) @map("is_admin")
+  isEmailVerified Boolean @default(false) @map("email_verified")
+  isSuperUser     Boolean @default(false) @map("is_superuser")
+
+  password String @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  client    Client?
+  employee  Employee?
+  profile   Profile?
+  sender    Notification[] @relation("notificationSender")
+  recipient Notification[] @relation("notificationRecipient")
+
+  @@map("users")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum LeaveChoices {
+  ANNUAL
+  CAUSAL
+  HOSPITALIZATION
+  LOP
+  MATERNITY
+  PATERNITY
+  SICK
+}
+
+enum LeaveDecisions {
+  APPROVED
+  DENIED
+  OPTIONAL
+  PENDING
+}
+
+enum NotificationChoices {
+  LEAVE
+  OVERTIME
+}
+
+enum OvertimeChoices {
+  COMPULSORY
+  HOLIDAY
+  VOLUNTARY
+}
+
+enum ProjectPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ProjectFileType {
+  AUDIO
+  DOCUMENT
+  IMAGE
+  MSEXCEL
+  MSWORD
+  PDF
+  VIDEO
+  TXT
+}
+
+enum VerificationToken {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}

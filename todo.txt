@@ -1,0 +1,2 @@
+Remove the verify server route
+Fix bug in project page, where i should to click the pen icon twice to show the data.

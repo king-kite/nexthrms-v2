@@ -1,0 +1,9 @@
+export const CLIENTS = 'clients';
+export const DEPARTMENTS = 'departments';
+export const EMPLOYEES = 'employees';
+export const HOLIDAYS = 'holidays';
+export const JOBS = 'jobs';
+export const NOTIFICATIONS = 'notifications';
+export const PROFILE = 'profile';
+export const PROJECTS = 'projects';
+export const USERS = 'users';
