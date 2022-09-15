@@ -7,7 +7,13 @@ import { useAlertContext } from '../../../store/contexts';
 import { useEditProjectMutation } from '../../../store/queries';
 import { ProjectType } from '../../../types';
 
-const ProjectDetail = ({ data }: { data: ProjectType }) => {
+const ProjectDetail = ({
+	data,
+	progress = 0,
+}: {
+	data: ProjectType;
+	progress?: number;
+}) => {
 	const start_date = data ? new Date(data.startDate) : undefined;
 	const end_date = data ? new Date(data.endDate) : undefined;
 	const hours =
@@ -125,8 +131,8 @@ const ProjectDetail = ({ data }: { data: ProjectType }) => {
 								containerColor="bg-white"
 								border="border-none"
 								title="Progress"
-								result={0.4}
-								value="40%"
+								result={progress}
+								value={progress + '%'}
 							/>
 						</li>
 					</ul>

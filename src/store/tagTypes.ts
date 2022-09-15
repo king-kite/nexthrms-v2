@@ -7,5 +7,6 @@ export const NOTIFICATIONS = 'notifications';
 export const PROFILE = 'profile';
 export const PROJECT_FILES = 'project_files';
 export const PROJECT_TASKS = 'project_tasks';
+export const PROJECT_TEAM = 'project_team';
 export const PROJECTS = 'projects';
 export const USERS = 'users';

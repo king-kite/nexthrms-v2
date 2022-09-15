@@ -11,6 +11,8 @@ import {
 	PROJECT_FILE_URL,
 	PROJECT_FILES_URL,
 	PROJECT_TASKS_URL,
+	PROJECT_TEAM_URL,
+	PROJECT_TEAM_MEMBER_URL,
 } from '../../config';
 import {
 	BaseResponseType,
@@ -21,8 +23,10 @@ import {
 	GetProjectsResponseType,
 	GetProjectFilesResponseType,
 	GetProjectTasksResponseType,
+	GetProjectTeamResponseType,
 	ProjectType,
 	ProjectFileType,
+	ProjectTeamType,
 	SuccessResponseType,
 } from '../../types';
 import { axiosInstance } from '../../utils';
@@ -564,6 +568,257 @@ export function useDeleteProjectFileMutation(
 
 // ****** Project File Queries ******
 
+// ****** Project Team Queries ******
+
+// get project team
+export function useGetProjectTeamQuery(
+	{
+		id,
+		limit = DEFAULT_PAGINATION_SIZE,
+		offset = 0,
+		search = '',
+		onError,
+	}: {
+		id: string;
+		limit?: number;
+		offset?: number;
+		search?: string;
+		onError?: ({
+			status,
+			message,
+		}: {
+			status: number;
+			message: string;
+		}) => void;
+	},
+	options?: {
+		onSuccess?: (data: GetProjectTeamResponseType['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => GetProjectTeamResponseType['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.PROJECT_TEAM, { id }],
+		() =>
+			axiosInstance
+				.get(
+					`${PROJECT_TEAM_URL(
+						id
+					)}?limit=${limit}&offset=${offset}&search=${search}`
+				)
+				.then(
+					(response: AxiosResponse<GetProjectTeamResponseType>) =>
+						response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message ||
+							'An error occurred. Unable to get project team.',
+					});
+			},
+			enabled: !!id,
+			...options,
+		}
+	);
+	return query;
+}
+
+// appoint project team leader
+export function useAppointProjectTeamLeaderMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (
+			response: SuccessResponseType<ProjectTeamType>['data']
+		) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: {
+			projectId: string;
+			id: string;
+			data: {
+				employeeId: string;
+				isLeader: boolean;
+			};
+		}) =>
+			axiosInstance
+				.put(PROJECT_TEAM_MEMBER_URL(query.projectId, query.id), query.data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) =>
+						response.data.data
+				),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TEAM]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to update team member.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const appointMember = React.useCallback(
+		({
+			decision,
+			...query
+		}: {
+			decision: 'appoint' | 'remove';
+			projectId: string;
+			id: string;
+			data: {
+				employeeId: string;
+				isLeader: boolean;
+			};
+		}) => {
+			openModal({
+				closeOnButtonClick: false,
+				header:
+					decision === 'appoint'
+						? 'Appoint Team Leader?'
+						: 'Re-Appoint Team Leader?',
+				color: 'danger',
+				message:
+					'Do you want to ' +
+					(decision === 'appoint' ? 'appoint' : 're-appoint') +
+					' team leader?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(query);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { appointMember, ...mutation };
+}
+
+// delete project team member
+export function useDeleteProjectTeamMemberMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: { projectId: string; id: string }) =>
+			axiosInstance
+				.delete(PROJECT_TEAM_MEMBER_URL(query.projectId, query.id))
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TEAM]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to remove project team member.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteMember = React.useCallback(
+		(query: { projectId: string; id: string }) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Remove Team Member?',
+				color: 'danger',
+				message: 'Do you want to remove the team member?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(query);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { deleteMember, ...mutation };
+}
+
+// ****** Project Team Queries ******
+
 // ****** Project Task Queries ******
 
 // get project tasks
@@ -614,7 +869,7 @@ export function useGetProjectTasksQuery(
 						status: error?.status || 500,
 						message:
 							error?.message ||
-							'An error occurred. Unable to get project files.',
+							'An error occurred. Unable to get project tasks.',
 					});
 			},
 			enabled: !!id,

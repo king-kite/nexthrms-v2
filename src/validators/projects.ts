@@ -16,7 +16,7 @@ export const projectCreateSchema = Joi.object({
 	team: Joi.array()
 		.items(
 			Joi.object({
-				id: Joi.string().uuid().optional().allow('').label('Team Member ID'),
+				// id: Joi.string().uuid().optional().allow('').label('Team Member ID'),
 				employeeId: Joi.string().uuid().required().label('Employee ID'),
 				isLeader: Joi.boolean()
 					.optional()
@@ -46,4 +46,21 @@ export const projectFileCreateSchema = Joi.object({
 		.required()
 		.label('Type'),
 	size: Joi.number().required().label('Size'),
+});
+
+export const projectTeamCreateSchema = Joi.object({
+	team: Joi.array()
+		.items(
+			Joi.object({
+				employeeId: Joi.string().uuid().required().label('Employee ID'),
+				isLeader: Joi.boolean().optional().label('Is Team Leader'),
+			})
+		)
+		.required()
+		.label('Team'),
+});
+
+export const projectTeamMemberUpdateSchema = Joi.object({
+	employeeId: Joi.string().uuid().required().label('Employee ID'),
+	isLeader: Joi.boolean().optional().label('Is Team Leader'),
 });

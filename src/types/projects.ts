@@ -1,29 +1,17 @@
-import { SuccessResponseType } from './base';
+import {
+	BaseResponseType,
+	PaginatedResponseType,
+	SuccessResponseType,
+} from './base';
 
 // ****** Project ******
-export type ProjectTeamType = {
-	id: string;
-	employee: {
-		id: string;
-		user: {
-			firstName: string;
-			lastName: string;
-			email: string;
-			profile: {
-				image: string;
-			};
-		};
-		job: {
-			name: string;
-		} | null;
-	};
-	isLeader: boolean;
-};
 
 export type ProjectType = {
 	id: string;
 	client: {
 		id: string;
+		company: string;
+		position: string;
 		contact: {
 			firstName: string;
 			lastName: string;
@@ -81,6 +69,40 @@ export type GetProjectsResponseType = SuccessResponseType<{
 	ongoing: number;
 }>;
 // ****** Project ******
+
+// ****** Project Team ******
+export type ProjectTeamType = {
+	id: string;
+	employee: {
+		id: string;
+		user: {
+			firstName: string;
+			lastName: string;
+			email: string;
+			profile: {
+				image: string;
+			};
+		};
+		job: {
+			name: string;
+		} | null;
+	};
+	isLeader: boolean;
+};
+
+export type GetProjectTeamResponseType = PaginatedResponseType<
+	ProjectTeamType[]
+>;
+
+export type CreateProjectTeamQueryType = {
+	team: {
+		employeeId: string;
+		isLeader: boolean;
+	}[];
+};
+
+export type CreateProjectTeamResponseType = BaseResponseType;
+// ****** Project Team ******
 
 // ****** Project File ******
 export type ProjectFileCategoryType =

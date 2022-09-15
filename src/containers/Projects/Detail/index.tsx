@@ -1,6 +1,6 @@
 import { Button } from '@king-kite/react-kit';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FaPen, FaTasks, FaTrash, FaUsers } from 'react-icons/fa';
 
 import { Container, Modal, TabNavigator } from '../../../components/common';
@@ -149,6 +149,13 @@ const Detail = ({
 		},
 	];
 
+	const progress = useMemo(() => {
+		if (tasks && tasks.total > 0 && tasks.completed > 0) {
+			return tasks.completed / tasks.total;
+		}
+		return 0;
+	}, [tasks]);
+
 	return (
 		<Container
 			background="bg-gray-100 overflow-y-hidden"
@@ -263,7 +270,7 @@ const Detail = ({
 							</div>
 						</div>
 
-						<ProjectDetail data={data} />
+						<ProjectDetail data={data} progress={progress} />
 					</div>
 					<Modal
 						close={() => setModalVisible(false)}
