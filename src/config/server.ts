@@ -61,20 +61,17 @@ export const OVERTIME_ADMIN_EXPORT_URL = (_type: string) =>
 
 export const PROJECTS_URL = `${ROOT_URL}/projects/`;
 export const PROJECT_URL = (id: string) => `${ROOT_URL}/projects/${id}/`;
-export const PROJECT_COMPLETED_URL = (id: string) =>
-	`${ROOT_URL}/projects/${id}/completed/`;
 export const PROJECT_EMPLOYEES_URL = (id: string) =>
 	`${ROOT_URL}/projects/${id}/employees/`;
 export const PROJECT_FILES_URL = (id: string) =>
 	`${ROOT_URL}/projects/${id}/files/`;
-export const PROJECT_FILE_URL = (project_id: string, id: number) =>
+export const PROJECT_FILE_URL = (project_id: string, id: string) =>
 	`${ROOT_URL}/projects/${project_id}/files/${id}/`;
-
-export const TASKS_URL = (project_id: string) =>
+export const PROJECT_TASKS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/`;
-export const TASK_URL = (pid: string, id: string) =>
+export const PROJECT_TASK_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/`;
-export const TASK_COMPLETED_URL = (pid: string, id: string) =>
+export const PROJECT_TASK_COMPLETED_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/completed/`;
 
 // Employees URLs Stop

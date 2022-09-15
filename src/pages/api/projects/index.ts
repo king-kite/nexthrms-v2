@@ -25,8 +25,6 @@ export default auth()
 		const project = await prisma.project.create({
 			data: {
 				...data,
-				name: data.name.toLowerCase(),
-				// completed: data.completed || false,
 				client: data.client
 					? {
 							connect: {

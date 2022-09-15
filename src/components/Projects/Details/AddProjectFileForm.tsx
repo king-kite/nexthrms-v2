@@ -1,131 +1,156 @@
-import { useCallback, useEffect, useState } from "react";
-import { isErrorWithData, isFormError } from "../../../store";
-import { open as alertModalOpen } from "../../../store/features/alert-modal-slice";
-import { useCreateProjectFileMutation } from "../../../store/features/projects-slice";
-import { useAppDispatch, useFormInput } from "../../../hooks";
-import { validateForm } from "../../../utils";
-import { Button, File, Input } from "../../controls";
+import { Alert, Button, File, Input } from '@king-kite/react-kit';
+import { useCallback, useRef, useState } from 'react';
 
-const AddProjectFileForm = ({ 
-  accept = "application/*, image/*",
-  project_id, 
-  onClose, 
-  label,
-  type
+import { useAlertModalContext } from '../../../store/contexts';
+import { useCreateProjectFileMutation } from '../../../store/queries';
+import { CreateProjectFileErrorResponseType } from '../../../types';
+import { handleJoiErrors, projectFileCreateSchema } from '../../../validators';
+
+const AddProjectFileForm = ({
+	accept = 'application/*, image/*',
+	projectId,
+	onClose,
+	label,
+	type,
 }: {
-  accept?: string;
-  label?: string; 
-  project_id: string; 
-  onClose: () => void;
-  type: "application" | "image"
+	accept?: string;
+	label?: string;
+	projectId: string;
+	onClose: () => void;
+	type: 'application' | 'image';
 }) => {
-	const [formErrors, setFormErrors] = useState<{name?: string; file?: string}>({
-		name: undefined, file: undefined
-	})
+	const formRef = useRef<HTMLFormElement | null>(null);
 
-	const dispatch = useAppDispatch();
+	const { open } = useAlertModalContext();
+	const [formErrors, setFormErrors] =
+		useState<CreateProjectFileErrorResponseType>();
 
-	const name = useFormInput("", {
-		onChange: () => setFormErrors({ ...formErrors, name: undefined })
-	})
+	const { mutate: createProjectFile, isLoading } = useCreateProjectFileMutation(
+		{
+			onError(err) {
+				setFormErrors((prevState) => ({ ...prevState, ...err }));
+			},
+			onSuccess() {
+				onClose();
+				open({
+					header: 'File Added',
+					color: 'success',
+					message: 'File was added to project successfully',
+				});
+			},
+		}
+	);
 
-	const file = useFormInput("", {
-		onChange: () => setFormErrors({ ...formErrors, file: undefined})
-	})
+	const handleSubmit = useCallback(
+		async (form: { name: string; file: File }) => {
+			setFormErrors(undefined);
+			const fileType = form.file.type.split('/')[0];
+			if (fileType !== type) {
+				return setFormErrors({
+					file: 'Invalid file! Unable to upload data.',
+				});
+			}
+			const fileSize = form.file.size;
+			const fileValue = '/images/default.png';
+			try {
+				const valid = await projectFileCreateSchema.validateAsync({
+					name: form.name,
+					file: fileValue,
+					size: fileSize,
+					type: 'IMAGE',
+				});
+				createProjectFile({
+					projectId,
+					data: valid,
+				});
+			} catch (error) {
+				const err = handleJoiErrors<CreateProjectFileErrorResponseType>(error);
+				setFormErrors((prevState) => {
+					if (err)
+						return {
+							...prevState,
+							...err,
+						};
+					return {
+						...prevState,
+						message: (err as any)?.message || 'Unable to upload file.',
+					};
+				});
+			}
+		},
+		[createProjectFile, projectId, type]
+	);
 
-  const nameReset = name.reset;
-  const fileReset = file.reset;
-
-	const [createProjectFile, { error, status, isLoading }] = useCreateProjectFileMutation()
-
-	const handleSubmit = useCallback((form: { name: any; file: any }) => {
-		const {valid, result} = validateForm(form, ["name"])
-    if (valid && project_id && project_id !== "") {
-      const fileType = form.file.type.split("/")[0]
-      if (fileType === type) createProjectFile({project_id, data: form})
-      else setFormErrors((prevState) => ({...prevState, file: "Invalid file type"}))
-    }
-		else setFormErrors(result)
-	}, [createProjectFile, project_id, type])
-
-	const fileError =
-    typeof formErrors?.file === "string" ?
-    formErrors?.file : "";
-
-  const errors = isFormError<{name?: string; file?: string;}>(error) ? error.data : undefined
-
-  useEffect(() => {
-  	if (isErrorWithData(error) && (error.data.detail || error.data.error)) {
-  		dispatch(alertModalOpen({
-  			header: "Upload Failed",
-  			color: "danger",
-  			message: String(error.data.detail || error.data.error || "Unable to upload file")
-  		}))
-  	}
-  }, [error])
-
-  useEffect(() => {
-  	if (status === "fulfilled") {
-  		dispatch(alertModalOpen({
-  			header: "File Added",
-  			color: "success",
-  			message: "File was added to project successfully"
-  		}))
-      onClose()
-      nameReset()
-      fileReset()
-  	}
-  }, [dispatch, status, nameReset, fileReset, onClose])
+	const removeErrors = useCallback(
+		(name: string) => {
+			if (Object(formErrors)[name]) {
+				setFormErrors((prevState) => ({
+					...prevState,
+					name: undefined,
+				}));
+			}
+		},
+		[formErrors]
+	);
 
 	return (
-		<form onSubmit={(e) => {
-			e.preventDefault()
-			handleSubmit({name: name.value, file: file.value})
-		}} className="p-4">
+		<form
+			ref={formRef}
+			onSubmit={(e) => {
+				e.preventDefault();
+				if (formRef.current)
+					handleSubmit({
+						name: formRef.current.fileName.value,
+						file: formRef.current.file.files[0],
+					});
+			}}
+			className="p-4"
+		>
+			{formErrors?.message && (
+				<div className="pb-4 w-full">
+					<Alert
+						type="danger"
+						message={formErrors?.message}
+						onClose={() => removeErrors('message')}
+					/>
+				</div>
+			)}
 			<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
-        <div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
-          <div className="w-full md:w-1/2 lg:w-1/3">
-            <File
-              accept={accept}
-              disabled={isLoading}
-              error={fileError || errors?.file}
-              label={label || "File"}
-              onChange={file.onChange}
-              placeholder={`upload ${label || "file"}`}
-              required
-              value={file.value?.name || ""}
-            />
-          </div>
-        </div>
-        <div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
-          <Input
-          	badge={{
-          		bg: "info",
-          		title: "optional"
-          	}}
-            disabled={isLoading}
-            error={formErrors?.name || errors?.name || ""}
-            label="File Name"
-            onChange={name.onChange}
-            placeholder="Enter file name"
-            required={false}
-            value={name.value}
-          />
-        </div>
-      </div>
+				<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
+					<div className="w-full md:w-1/2 lg:w-1/3">
+						<File
+							accept={accept}
+							disabled={isLoading}
+							error={formErrors?.file}
+							label={label || 'File'}
+							name="file"
+							onChange={() => removeErrors('file')}
+							placeholder={`Upload ${label || 'file'}`}
+						/>
+					</div>
+				</div>
+				<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
+					<Input
+						disabled={isLoading}
+						error={formErrors?.name}
+						label="File Name"
+						name="fileName"
+						onChange={() => removeErrors('name')}
+						placeholder="Enter file name"
+					/>
+				</div>
+			</div>
 			<div className="flex items-center justify-center my-4 sm:my-5 md:mt-8">
-        <div className="w-full sm:w-1/2 md:w-1/3">
-          <Button
-            disabled={isLoading}
-            loader
-            loading={isLoading}
-            title="upload"
-            type="submit"
-          />
-        </div>
-      </div>
+				<div className="w-full sm:w-1/2 md:w-1/3">
+					<Button
+						disabled={isLoading}
+						title={isLoading ? 'Uploading...' : 'Upload'}
+						type="submit"
+					/>
+				</div>
+			</div>
 		</form>
-	)
-}
+	);
+};
 
-export default AddProjectFileForm
+export default AddProjectFileForm;

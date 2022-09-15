@@ -192,7 +192,7 @@ export type _ProjectType = {
 		name: string;
 		completed: boolean;
 	}[];
-	files: ProjectFileType[];
+	files: _ProjectFileType[];
 };
 
 export type ProjectCreateType = {
@@ -286,7 +286,7 @@ export type TaskCreateErrorType = {
 	description: string;
 };
 
-export type ProjectFileType = {
+export type _ProjectFileType = {
 	id: number;
 	project: {
 		id: string;

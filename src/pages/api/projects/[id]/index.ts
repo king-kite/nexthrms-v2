@@ -39,8 +39,6 @@ export default auth()
 			where: { id: req.query.id as string },
 			data: {
 				...data,
-				name: data.name.toLowerCase(),
-				// completed: data.completed || false,
 				client: data.client
 					? {
 							connect: {

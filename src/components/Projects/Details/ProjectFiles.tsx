@@ -1,12 +1,13 @@
+import { Button } from '@king-kite/react-kit';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
 import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
+
+import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
 import { ProjectFileType } from '../../../types';
 import { getTime, downloadFile } from '../../../utils';
-import { Button } from '../../controls';
-import Form from './AddProjectFileForm';
 
 export type ProjectFilesProps = {
 	files: ProjectFileType[];
@@ -35,8 +36,8 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 					<Form
 						accept=".doc,.docx,.pdf"
 						type="application"
-						label="file"
-						project_id={id || ''}
+						label="File"
+						projectId={id}
 						onClose={() => setVisible(false)}
 					/>
 				</div>
@@ -45,17 +46,17 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 					<div className="w-2/3 sm:w-1/3 md:w-1/4">
 						<Button
 							onClick={() => setVisible(true)}
-							IconLeft={FaFileUpload}
+							iconLeft={FaFileUpload}
 							rounded="rounded-lg"
-							title="add file"
+							title="Add File"
 						/>
 					</div>
 				</div>
 			)}
-			{files && files.length > 0 ? (
+			{files.length > 0 ? (
 				<ul className="divide-y divide-gray-500 divide-opacity-50 mt-2">
 					{files.map((file, index) => {
-						const date = new Date(file.date);
+						const date = new Date(file.updatedAt);
 						const time = getTime(
 							`${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
 						);
@@ -77,16 +78,16 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 										{file.name}
 									</h5>
 									<span>
-										{file.uploaded_by && (
+										{file.employee && (
 											<Link
 												href={
-													file.uploaded_by.id
-														? EMPLOYEE_PAGE_URL(file.uploaded_by.id)
+													file.employee.id
+														? EMPLOYEE_PAGE_URL(file.employee.id)
 														: '#'
 												}
 												className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
 											>
-												{file.uploaded_by.name}
+												{file.employee.user.firstName}
 											</Link>
 										)}
 										<span className="mx-1 text-gray-700 text-sm">

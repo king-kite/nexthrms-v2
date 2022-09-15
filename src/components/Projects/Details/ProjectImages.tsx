@@ -1,13 +1,14 @@
+import { Button } from '@king-kite/react-kit';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
 import { FaTimes, FaFileUpload } from 'react-icons/fa';
+
+import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
 import { ProjectFileType } from '../../../types';
 import { getTime, downloadFile } from '../../../utils';
-import { Button } from '../../controls';
-import Form from './AddProjectFileForm';
 
 export type ProjectImagesProps = {
 	files: ProjectFileType[];
@@ -36,8 +37,8 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 					<Form
 						accept="image/*"
 						type="image"
-						label="image"
-						project_id={id || ''}
+						label="Image"
+						projectId={id || ''}
 						onClose={() => setVisible(false)}
 					/>
 				</div>
@@ -45,18 +46,18 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 				<div className="flex justify-start my-2 w-full px-3">
 					<div className="w-2/3 sm:w-1/3 md:w-1/4">
 						<Button
-							IconLeft={FaFileUpload}
+							iconLeft={FaFileUpload}
 							onClick={() => setVisible(true)}
 							rounded="rounded-lg"
-							title="add image"
+							title="Add Image"
 						/>
 					</div>
 				</div>
 			)}
-			{files && files.length > 0 ? (
+			{files.length > 0 ? (
 				<div className="gap-4 grid grid-cols-2 p-3 md:gap-5 md:grid-cols-3 lg:gap-6">
 					{files.map((file, index) => {
-						const date = new Date(file.date);
+						const date = new Date(file.updatedAt);
 						const time = getTime(
 							`${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
 						);
@@ -84,16 +85,16 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 									{file.name.slice(0, 40)}
 									{file.name.length > 40 ? '...' : ''}
 								</p>
-								{file.uploaded_by && (
+								{file.employee && (
 									<Link
 										href={
-											file.uploaded_by.id
-												? EMPLOYEE_PAGE_URL(file.uploaded_by.id)
+											file.employee.id
+												? EMPLOYEE_PAGE_URL(file.employee.id)
 												: '#'
 										}
 										className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
 									>
-										{file.uploaded_by.name}
+										{file.employee.user.firstName}
 									</Link>
 								)}
 								<p className="text-gray-700 text-sm">

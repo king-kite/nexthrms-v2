@@ -28,3 +28,22 @@ export const projectCreateSchema = Joi.object({
 		.label('Team'),
 	client: Joi.string().uuid().optional().allow('').label('Client ID'),
 });
+
+export const projectFileCreateSchema = Joi.object({
+	name: Joi.string().required().label('Name'),
+	file: Joi.string().required().label('File'),
+	type: Joi.string()
+		.valid(
+			'AUDIO',
+			'DOCUMENT',
+			'IMAGE',
+			'MSEXCEL',
+			'MSWORD',
+			'PDF',
+			'VIDEO',
+			'TXT'
+		)
+		.required()
+		.label('Type'),
+	size: Joi.number().required().label('Size'),
+});

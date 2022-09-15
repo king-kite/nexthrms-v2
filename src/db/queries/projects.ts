@@ -163,11 +163,12 @@ export const getProject = async (id: string) => {
 
 // ******** File Queries Start **********
 
-export const fileSelectQuery: Prisma.ProjectFileSelect = {
+export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 	id: true,
 	name: true,
 	file: true,
-	fileType: true,
+	size: true,
+	type: true,
 	project: {
 		select: {
 			id: true,
@@ -189,75 +190,42 @@ export const fileSelectQuery: Prisma.ProjectFileSelect = {
 	updatedAt: true,
 };
 
-export const getFilesQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
-	search = undefined,
+export const getProjectFilesQuery = ({
 	id,
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectFileFindManyArgs => {
 	const query: Prisma.ProjectFileFindManyArgs = {
-		skip: offset,
-		take: limit,
 		orderBy: {
-			project: {
-				name: 'asc' as const,
-			},
+			updatedAt: 'asc' as const,
 		},
-		select: fileSelectQuery,
-		where: search
-			? {
-					projectId: id,
-					OR: [
-						{
-							name: {
-								contains: search,
-								mode: 'insensitive',
-							},
-						},
-						{
-							project: {
-								name: {
-									contains: search,
-									mode: 'insensitive',
-								},
-							},
-						},
-					],
-			  }
-			: {
-					projectId: id,
-			  },
+		select: projectFileSelectQuery,
+		where: {
+			projectId: id,
+		},
 	};
 
 	return query;
 };
 
-export const getFiles = async (
+export const getProjectFiles = async (
 	params: ParamsType & {
 		id: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
-		search: undefined,
 		id: '',
 	}
 ) => {
-	const query = getFilesQuery({ ...params });
+	const query = getProjectFilesQuery({ ...params });
 
-	const [total, result] = await prisma.$transaction([
-		prisma.projectFile.count({ where: query.where }),
-		prisma.projectFile.findMany(query),
-	]);
+	const result = await prisma.projectFile.findMany(query);
 
-	return { total, result };
+	return { result };
 };
 
-export const getFile = async (id: string) => {
+export const getProjectFile = async (id: string) => {
 	const file = await prisma.projectFile.findUnique({
 		where: { id },
-		select: fileSelectQuery,
+		select: projectFileSelectQuery,
 	});
 	return file;
 };
@@ -310,7 +278,7 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 	},
 };
 
-export const getTasksQuery = ({
+export const getProjectTasksQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	search = undefined,
@@ -353,7 +321,7 @@ export const getTasksQuery = ({
 	return query;
 };
 
-export const getTasks = async (
+export const getProjectTasks = async (
 	params: ParamsType & {
 		id: string;
 	} = {
@@ -363,7 +331,7 @@ export const getTasks = async (
 		id: '',
 	}
 ) => {
-	const query = getTasksQuery({ ...params });
+	const query = getProjectTasksQuery({ ...params });
 
 	const [total, result, completed, ongoing] = await prisma.$transaction([
 		prisma.projectTask.count({ where: query.where }),
@@ -383,7 +351,7 @@ export const getTasks = async (
 	return { total, result, completed, ongoing };
 };
 
-export const getTask = async (id: string) => {
+export const getProjectTask = async (id: string) => {
 	const task = await prisma.projectTask.findUnique({
 		where: { id },
 		select: taskSelectQuery,

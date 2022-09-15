@@ -1,2 +1,7 @@
-Remove the verify server route
-Fix bug in project page, where i should to click the pen icon twice to show the data.
+1. Remove the verify server route
+2. Fix bug in project page, where i should to click the pen icon twice to show the data.
+3. In the employee and project form, have the select fields input the data after their
+-- respective data is loaded
+4. Delete Project File.
+5. Make Project Progress bar work.
+6. Use Firebase for file storage.

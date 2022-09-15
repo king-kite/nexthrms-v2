@@ -1,42 +1,46 @@
-import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { FaEye, FaPen, FaTrash } from "react-icons/fa";
-import { PROJECT_TASKS_PAGE_URL, PROJECT_TEAM_PAGE_URL } from "../../../config";
-import { isErrorWithData, isFormError } from "../../../store";
-import {
-	open as modalOpen,
-	close as modalClose,
-} from "../../../store/features/modal-slice";
-import { useGetProjectQuery } from "../../../store/features/projects-slice";
-import {
-	useAppDispatch,
-	useAppSelector,
-	useUpdateProject,
-	useDeleteProject
-} from "../../../hooks";
+import { Button } from '@king-kite/react-kit';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { FaPen, FaTasks, FaTrash, FaUsers } from 'react-icons/fa';
+
+import { Container, Modal, TabNavigator } from '../../../components/common';
 import {
 	Form,
 	ProjectDetail,
 	ProjectFiles,
 	ProjectImages,
 	Task,
-} from "../../../components/Projects";
-import { Container, Modal, TabNavigator } from "../../../components/common";
-import { Button } from "../../../components/controls";
+} from '../../../components/Projects';
 import {
-	ProjectCreateType,
-	ProjectCreateErrorType,
-} from "../../../types/employees";
-import { createProject } from "../../../utils/projects";
+	DEFAULT_PAGINATION_SIZE,
+	PROJECT_TASKS_PAGE_URL,
+	PROJECT_TEAM_PAGE_URL,
+} from '../../../config';
+import { useAlertContext } from '../../../store/contexts';
+import {
+	useGetProjectQuery,
+	useGetProjectFilesQuery,
+	useGetProjectTasksQuery,
+	useEditProjectMutation,
+	useDeleteProjectMutation,
+} from '../../../store/queries';
+import {
+	CreateProjectErrorResponseType,
+	CreateProjectQueryType,
+	GetProjectFilesResponseType,
+	GetProjectTasksResponseType,
+	ProjectType,
+	SuccessResponseType,
+} from '../../../types';
 
 const Tasks = ({
 	tasks,
 }: {
 	tasks: {
-    id: string;
-    name: string;
-    completed: boolean;
-  }[]
+		id: string;
+		name: string;
+		completed: boolean;
+	}[];
 }) => {
 	return tasks && tasks.length > 0 ? (
 		<ul>
@@ -53,132 +57,155 @@ const Tasks = ({
 	);
 };
 
-const Detail = () => {
-	const { id } = useParams();
-	const { data, error, refetch, isLoading, isFetching } = useGetProjectQuery(
-		id || "",
+const Detail = ({
+	projectFiles,
+	project,
+	projectTasks,
+}: {
+	project: SuccessResponseType<ProjectType>['data'];
+	projectFiles: GetProjectFilesResponseType['data'];
+	projectTasks: GetProjectTasksResponseType['data'];
+}) => {
+	const router = useRouter();
+	const id = router.query.id as string;
+
+	const [modalVisible, setModalVisible] = useState(false);
+	const [formErrors, setFormErrors] =
+		useState<CreateProjectErrorResponseType>();
+
+	const { open: showAlert } = useAlertContext();
+
+	const { data, refetch, isLoading, isFetching } = useGetProjectQuery(
+		{ id },
 		{
-			skip: id === undefined,
+			initialData() {
+				return project;
+			},
+		}
+	);
+	const { data: tasks, refetch: tasksRefetch } = useGetProjectTasksQuery(
+		{
+			id,
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		{
+			initialData() {
+				return projectTasks;
+			},
 		}
 	);
 
-	const dispatch = useAppDispatch();
-	const modalVisible = useAppSelector((state) => state.modal.visible);
+	const { data: files, refetch: filesRefetch } = useGetProjectFilesQuery(
+		{ id },
+		{
+			initialData() {
+				return projectFiles;
+			},
+		}
+	);
 
-	const updateProject = useUpdateProject();
-	const deleteProject = useDeleteProject()
+	const { mutate: updateProject, isLoading: editLoading } =
+		useEditProjectMutation({
+			onSuccess() {
+				showAlert({
+					message: 'Project updated successfully!',
+					type: 'success',
+				});
+				setModalVisible(false);
+			},
+			onError(err) {
+				setFormErrors((prevState) => ({ ...prevState, ...err }));
+			},
+		});
+	const { deleteProject, isLoading: delLoading } = useDeleteProjectMutation({
+		onSuccess() {
+			router.back();
+		},
+	});
 
 	const screens = [
-		{ title: "all tasks", component: <Tasks tasks={data && data.tasks ? data.tasks : []} /> },
+		{ title: 'all tasks', component: <Tasks tasks={tasks?.result || []} /> },
 		{
-			title: "completed tasks",
+			title: 'completed tasks',
 			component: (
 				<Tasks
 					tasks={
-						data ? data.tasks.filter((task) => task.completed === true) : []
+						tasks ? tasks.result.filter((task) => task.completed === true) : []
 					}
 				/>
 			),
 		},
 		{
-			title: "pending tasks",
+			title: 'pending tasks',
 			component: (
 				<Tasks
 					tasks={
-						data ? data.tasks.filter((task) => task.completed === false) : []
+						tasks ? tasks.result.filter((task) => task.completed === false) : []
 					}
 				/>
 			),
 		},
 	];
 
-	const navigate = useNavigate()
-
-	useEffect(() => {
-		if (updateProject.success) {
-			dispatch(modalClose());
-		}
-	}, [dispatch, updateProject.success]);
-
-	useEffect(() => {
-		if (deleteProject.success) {
-			navigate(-1)
-			deleteProject.reset()
-		}
-	}, [deleteProject.success, navigate])
-
 	return (
 		<Container
 			background="bg-gray-100 overflow-y-hidden"
 			heading="Project Information"
 			loading={isLoading}
-			disabledLoading={!isLoading && isFetching}
 			refresh={{
-				onClick: refetch,
+				onClick: () => {
+					refetch();
+					filesRefetch();
+					tasksRefetch();
+				},
 				loading: isFetching,
 			}}
 			icon
-			error={
-				isErrorWithData(error)
-					? {
-							statusCode: error?.status || 500,
-							title: String(error.data?.detail || error.data?.error || ""),
-					  }
-					: undefined
-			}
-			title={data ? data.name : ""}
 		>
 			{data && (
-				<div className="p-2">
-					<div className="flex flex-wrap items-center w-full sm:px-4 lg:justify-end">
+				<>
+					<div className="flex flex-wrap items-center w-full lg:justify-end">
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
-								IconLeft={FaEye}
+								iconLeft={FaTasks}
 								rounded="rounded-xl"
-								disabled={updateProject.isLoading}
-								title="manage tasks"
-								link={PROJECT_TASKS_PAGE_URL(id || "")}
+								title="Manage Tasks"
+								link={PROJECT_TASKS_PAGE_URL(id)}
 							/>
 						</div>
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
-								IconLeft={FaEye}
+								iconLeft={FaUsers}
 								rounded="rounded-xl"
-								disabled={updateProject.isLoading}
-								title="manage team"
-								link={PROJECT_TEAM_PAGE_URL(id || "")}
+								title="Manage Team"
+								link={PROJECT_TEAM_PAGE_URL(id)}
 							/>
 						</div>
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
-								IconLeft={FaPen}
-								onClick={() => dispatch(modalOpen())}
+								iconLeft={FaPen}
+								onClick={() => setModalVisible(true)}
 								rounded="rounded-xl"
-								disabled={updateProject.isLoading}
-								loading={updateProject.isLoading}
-								loader
-								title="edit project"
+								disabled={editLoading}
+								title={editLoading ? 'Editing Project...' : 'Edit Project'}
 							/>
 						</div>
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
 								bg="bg-red-600 hover:bg-red-500"
 								focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-								IconLeft={FaTrash}
+								iconLeft={FaTrash}
 								rounded="rounded-xl"
-								title="delete project"
-								disabled={deleteProject.isLoading}
-								loading={deleteProject.isLoading}
-								loader
-								onClick={id !== undefined ? () => {
-									deleteProject.reset();
-									deleteProject.onSubmit(id) 
-								} : undefined}
+								title={delLoading ? 'Deleting Project...' : 'Delete Project'}
+								disabled={delLoading}
+								onClick={() => deleteProject(id)}
 							/>
 						</div>
 					</div>
 					<div className="flex flex-col items-center lg:flex-row lg:items-start">
-						<div className="py-2 w-full sm:px-4 lg:w-2/3">
+						<div className="py-2 w-full sm:px-4 lg:pl-0 lg:w-2/3">
 							<div className="bg-white p-4 rounded-md shadow-lg">
 								<div className="my-2">
 									<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
@@ -187,11 +214,11 @@ const Detail = () => {
 								</div>
 								<div className="my-1">
 									<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
-										1{" "}
+										{tasks?.ongoing || 0}{' '}
 										<span className="font-bold text-gray-600">open tasks</span>,
 									</span>
 									<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
-										9{" "}
+										{tasks?.completed || 0}{' '}
 										<span className="font-bold text-gray-600">
 											tasks completed
 										</span>
@@ -206,20 +233,16 @@ const Detail = () => {
 
 							<ProjectImages
 								files={
-									data?.files && data?.files.length > 0
-										? data.files.filter(
-												(file) => file.file_type.split("/")[0] === "image" && file
-										  )
+									files
+										? files.result.filter((file) => file.type === 'IMAGE')
 										: []
 								}
 							/>
 
 							<ProjectFiles
 								files={
-									data?.files && data?.files.length > 0
-										? data.files.filter(
-												(file) => file.file_type.split("/")[0] !== "image" && file
-										  )
+									files
+										? files.result.filter((file) => file.type !== 'IMAGE')
 										: []
 								}
 							/>
@@ -233,44 +256,26 @@ const Detail = () => {
 										caps
 										color="text-primary-500"
 										focus="focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-										link={PROJECT_TASKS_PAGE_URL(id || "")}
+										link={PROJECT_TASKS_PAGE_URL(id)}
 										title="See all"
 									/>
 								</div>
 							</div>
 						</div>
 
-						<ProjectDetail
-							changePriority={(priority: string) => {
-								if (priority !== data.priority) {
-									const project = { ...createProject(data), priority };
-									if (id) updateProject.onSubmit(id, project);
-								}
-							}}
-							data={data}
-							loading={updateProject.isLoading}
-						/>
+						<ProjectDetail data={data} />
 					</div>
 					<Modal
-						close={() => dispatch(modalClose())}
+						close={() => setModalVisible(false)}
 						component={
 							<Form
-								initState={{
-									...createProject(data),
-									leaders: data.leaders.map((leader) => leader.id),
-									team: data.team.map((member) => member.id),
-								}}
+								initState={data}
 								editMode
-								errors={
-									updateProject.error &&
-									isFormError<ProjectCreateErrorType>(updateProject.error)
-										? updateProject.error.data
-										: undefined
-								}
-								loading={updateProject.isLoading}
-								onSubmit={(form: ProjectCreateType) =>
-									updateProject.onSubmit(data.id, form)
-								}
+								errors={formErrors}
+								loading={editLoading}
+								onSubmit={(form: CreateProjectQueryType) => {
+									if (data) updateProject({ id: data.id, data: form });
+								}}
 							/>
 						}
 						keepVisible
@@ -278,7 +283,7 @@ const Detail = () => {
 						title="Edit Project"
 						visible={modalVisible}
 					/>
-				</div>
+				</>
 			)}
 		</Container>
 	);

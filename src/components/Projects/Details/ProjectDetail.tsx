@@ -21,16 +21,16 @@ const ProjectDetail = ({ data }: { data: ProjectType }) => {
 
 	const { open: showAlert } = useAlertContext();
 
-	const { isLoading, mutate: editProject } = useEditProjectMutation({
+	const { mutate: editProject } = useEditProjectMutation({
 		onError({ message }) {
 			showAlert({ type: 'danger', message });
 		},
 	});
 
 	return data ? (
-		<div className="py-2 w-full sm:px-4 lg:w-1/3">
+		<div className="py-2 w-full sm:px-4 lg:pr-0 lg:w-1/3">
 			<div className="flex flex-col items-center md:flex-row md:items-start lg:flex-col lg:items-center">
-				<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full md:mr-6 md:w-[55%] lg:mr-0 lg:w-full">
+				<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full md:mr-6 md:w-[55%] lg:mr-0 lg:mt-0 lg:w-full">
 					<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 						project details
 					</h3>
@@ -86,7 +86,6 @@ const ProjectDetail = ({ data }: { data: ProjectType }) => {
 											? 'text-yellow-700'
 											: 'text-green-700'
 									}
-									disabled={isLoading}
 									onChange={({ target: { value } }) => {
 										editProject({
 											id: data.id,
@@ -147,6 +146,7 @@ const ProjectDetail = ({ data }: { data: ProjectType }) => {
 									<div className="w-[15%]">
 										<div className="h-[30px] mx-1 relative w-[30px] rounded-full">
 											<Image
+												className="h-[30px] rounded-full w-[30px]"
 												src={
 													leader.employee.user.profile?.image || DEFAULT_IMAGE
 												}
@@ -187,8 +187,9 @@ const ProjectDetail = ({ data }: { data: ProjectType }) => {
 									className="flex items-start rounded-md px-1 py-2 odd:bg-gray-100"
 								>
 									<div className="w-[15%]">
-										<div className="h-[30px] mx-1 w-[30px] rounded-full">
+										<div className="h-[30px] mx-1 relative w-[30px] rounded-full">
 											<Image
+												className="h-[30px] rounded-full w-[30px]"
 												src={
 													member.employee.user.profile?.image || DEFAULT_IMAGE
 												}
