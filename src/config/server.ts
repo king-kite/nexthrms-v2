@@ -73,6 +73,10 @@ export const PROJECT_TASKS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/`;
 export const PROJECT_TASK_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/`;
+export const PROJECT_TASK_FOLLOWERS_URL = (pid: string, id: string) =>
+	`${ROOT_URL}/projects/${pid}/tasks/${id}/followers/`;
+export const PROJECT_TASK_FOLLOWER_URL = (pid: string, taskId: string,id:string) =>
+	`${ROOT_URL}/projects/${pid}/tasks/${taskId}/followers/${id}/`;
 
 // Employees URLs Stop
 

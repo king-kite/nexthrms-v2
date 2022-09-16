@@ -1,4 +1,4 @@
-import { PaginatedResponseType, SuccessResponseType } from './base';
+import { SuccessResponseType } from './base';
 
 export type ClientType = {
 	id: string;

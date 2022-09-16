@@ -64,3 +64,28 @@ export const projectTeamMemberUpdateSchema = Joi.object({
 	employeeId: Joi.string().uuid().required().label('Employee ID'),
 	isLeader: Joi.boolean().optional().label('Is Team Leader'),
 });
+
+export const taskCreateSchema = Joi.object({
+	name: Joi.string().required().label('Name'),
+	description: Joi.string().required().allow('').label('Description'),
+	priority: Joi.string()
+		.optional()
+		.valid('HIGH', 'MEDIUM', 'LOW')
+		.default('HIGH')
+		.label('Priority'),
+	dueDate: Joi.date().required().label('Due Date'),
+	completed: Joi.boolean().optional().label('Completed'),
+	followers: Joi.array()
+		.items(
+			Joi.object({
+				// id: Joi.string().uuid().optional().allow('').label('Team Member ID'),
+				employeeId: Joi.string().uuid().required().label('Employee ID'),
+				isLeader: Joi.boolean()
+					.optional()
+					.default(false)
+					.label('Is Task Leader'),
+			})
+		)
+		.optional()
+		.label('Followers'),
+});

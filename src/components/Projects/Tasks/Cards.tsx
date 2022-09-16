@@ -14,7 +14,7 @@ type CardsType = {
 }
 
 const Cards = ({ completed, total, pending }: CardsType) => (
-	<div className="gap-4 grid grid-col-1 lg:grid-cols-3 my-1 px-2 py-4">
+	<div className="gap-4 grid grid-col-1 lg:grid-cols-3 py-4">
 		<Card 
 			{...cards[0]}
 			value={total}

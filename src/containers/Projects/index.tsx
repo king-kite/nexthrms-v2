@@ -119,7 +119,7 @@ const Projects = ({
 			}
 		>
 			<Cards
-				total={data?.total || 10}
+				total={data?.total || 0}
 				ongoing={data?.ongoing || 0}
 				completed={data?.completed || 0}
 			/>

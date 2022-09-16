@@ -1,32 +1,32 @@
-import { prisma, getProjectTeam } from '../../../../../db';
-import { auth } from '../../../../../middlewares';
-import { CreateProjectTeamQueryType } from '../../../../../types';
+import { prisma, getTaskFollowers } from '../../../../../../../db';
+import { auth } from '../../../../../../../middlewares';
+import { CreateProjectTeamQueryType } from '../../../../../../../types';
 import {
 	projectTeamCreateSchema,
 	validateParams,
-} from '../../../../../validators';
+} from '../../../../../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
 		const params = validateParams(req.query);
-		const team = await getProjectTeam({
+		const followers = await getTaskFollowers({
 			...params,
-			id: req.query.id as string,
+			id: req.query.taskId as string,
 		});
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Fetched team successfully. A total of ' + team.total,
-			data: team,
+			message: 'Fetched Task Followers successfully',
+			data: followers,
 		});
 	})
 	.post(async (req, res) => {
 		const data: CreateProjectTeamQueryType =
 			await projectTeamCreateSchema.validateAsync({ ...req.body });
 
-		await prisma.projectTeam.createMany({
+		await prisma.projectTaskFollower.createMany({
 			data: data.team.map((member) => ({
-				projectId: req.query.id as string,
+				taskId: req.query.taskId as string,
 				employeeId: member.employeeId,
 				isLeader: member.isLeader,
 			})),
@@ -35,6 +35,6 @@ export default auth()
 
 		return res.status(201).json({
 			status: 'success',
-			message: 'Team members added successfully!',
+			message: 'Task followers added successfully!',
 		});
 	});

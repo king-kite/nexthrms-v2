@@ -11,6 +11,9 @@ import {
 	PROJECT_FILE_URL,
 	PROJECT_FILES_URL,
 	PROJECT_TASKS_URL,
+	PROJECT_TASK_URL,
+	PROJECT_TASK_FOLLOWERS_URL,
+	PROJECT_TASK_FOLLOWER_URL,
 	PROJECT_TEAM_URL,
 	PROJECT_TEAM_MEMBER_URL,
 } from '../../config';
@@ -28,6 +31,9 @@ import {
 	ProjectFileType,
 	ProjectTeamType,
 	SuccessResponseType,
+	CreateProjectTaskErrorResponseType,
+	ProjectTaskType,
+	CreateProjectTaskQueryType,
 } from '../../types';
 import { axiosInstance } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
@@ -360,7 +366,9 @@ export function useMarkProjectMutation(
 						title: 'cancel',
 					},
 					{
-						bg: 'bg-red-600 hover:bg-red-500',
+						bg: project.completed
+							? 'bg-yellow-600 hover:bg-yellow-500'
+							: 'bg-green-600 hover:bg-green-500',
 						caps: true,
 						onClick: () => {
 							showLoader();
@@ -879,4 +887,614 @@ export function useGetProjectTasksQuery(
 	return query;
 }
 
+// get project tasks
+export function useGetProjectTaskQuery(
+	{
+		projectId,
+		id,
+		onError,
+	}: {
+		projectId: string;
+		id: string;
+		onError?: ({
+			status,
+			message,
+		}: {
+			status: number;
+			message: string;
+		}) => void;
+	},
+	options?: {
+		onSuccess?: (data: SuccessResponseType<ProjectTaskType>['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => SuccessResponseType<ProjectTaskType>['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.PROJECT_TASKS, { projectId, id }],
+		() =>
+			axiosInstance
+				.get(PROJECT_TASK_URL(projectId, id))
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
+						response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message ||
+							'An error occurred. Unable to get project task.',
+					});
+			},
+			enabled: !!id,
+			...options,
+		}
+	);
+	return query;
+}
+
+// delete project task
+export function useDeleteProjectTaskMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: { projectId: string; id: string }) =>
+			axiosInstance
+				.delete(PROJECT_TASK_URL(query.projectId, query.id))
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to delete project task.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteTask = React.useCallback(
+		(query: { projectId: string; id: string }) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Delete Project Task?',
+				color: 'danger',
+				message: 'Do you want to delete this project task?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(query);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { deleteTask, ...mutation };
+}
+
+// create project task
+export function useCreateProjectTaskMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (
+			e: CreateProjectTaskErrorResponseType & { message?: string }
+		) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: ProjectTaskType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(query: { projectId: string; data: CreateProjectTaskQueryType }) =>
+			axiosInstance
+				.post(PROJECT_TASKS_URL(query.projectId), query.data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
+						response.data.data
+				),
+		{
+			onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(error) {
+				if (options?.onError) {
+					const err =
+						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					options.onError({
+						...err?.data,
+						message: err?.message || (error as any)?.message,
+					});
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}
+
+// edit project task
+export function useEditProjectTaskMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (
+			e: CreateProjectTaskErrorResponseType & { message?: string }
+		) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: ProjectTaskType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(query: {
+			projectId: string;
+			id: string;
+			data: CreateProjectTaskQueryType;
+		}) =>
+			axiosInstance
+				.put(PROJECT_TASK_URL(query.projectId, query.id), query.data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
+						response.data.data
+				),
+		{
+			onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(error) {
+				if (options?.onError) {
+					const err =
+						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					options.onError({
+						...err?.data,
+						message: err?.message || (error as any)?.message,
+					});
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}
+
+// mark task completed
+export function useMarkProjectTaskMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (
+			e: CreateProjectTaskErrorResponseType & { message?: string }
+		) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: ProjectTaskType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: {
+			projectId: string;
+			id: string;
+			data: CreateProjectTaskQueryType;
+		}) =>
+			axiosInstance
+				.put(PROJECT_TASK_URL(query.projectId, query.id), query.data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
+						response.data.data
+				),
+		{
+			onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
+				queryClient.invalidateQueries([
+					tags.PROJECTS,
+					{ id: variables.projectId },
+				]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(error) {
+				if (options?.onError) {
+					const err =
+						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					options.onError({
+						...err?.data,
+						message: err?.message || (error as any)?.message,
+					});
+				}
+			},
+			onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const markTask = React.useCallback(
+		({ id, followers, project, updatedAt, ...task }: ProjectTaskType) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Mark ' + (!task.completed ? 'Completed?' : 'Ongoing?'),
+				color: task.completed ? 'warning' : 'success',
+				message:
+					'Do you want to mark this task as ' +
+					(!task.completed ? 'completed?' : 'ongoing?'),
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: task.completed
+							? 'bg-yellow-600 hover:bg-yellow-500'
+							: 'bg-green-600 hover:bg-green-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate({
+								id,
+								projectId: project.id,
+								data: {
+									...task,
+									completed: !task.completed,
+									dueDate: new Date(task.dueDate).toLocaleDateString('en-CA'),
+								},
+							});
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { markTask, ...mutation };
+}
+
 // ****** Project Task Queries ******
+
+// ****** Project Task Followers ******
+
+// get project team
+export function useGetProjectTaskFollowersQuery(
+	{
+		projectId,
+		id,
+		limit = DEFAULT_PAGINATION_SIZE,
+		offset = 0,
+		search = '',
+		onError,
+	}: {
+		projectId: string;
+		id: string;
+		limit?: number;
+		offset?: number;
+		search?: string;
+		onError?: ({
+			status,
+			message,
+		}: {
+			status: number;
+			message: string;
+		}) => void;
+	},
+	options?: {
+		onSuccess?: (data: GetProjectTeamResponseType['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => GetProjectTeamResponseType['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.PROJECT_TASKS_FOLLOWERS, { projectId, id }],
+		() =>
+			axiosInstance
+				.get(
+					`${PROJECT_TASK_FOLLOWERS_URL(
+						projectId,
+						id
+					)}?limit=${limit}&offset=${offset}&search=${search}`
+				)
+				.then(
+					(response: AxiosResponse<GetProjectTeamResponseType>) =>
+						response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message ||
+							'An error occurred. Unable to get project task followers.',
+					});
+			},
+			enabled: !!id,
+			...options,
+		}
+	);
+	return query;
+}
+
+// appoint project task leader
+export function useAppointProjectTaskLeaderMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (
+			response: SuccessResponseType<ProjectTeamType>['data']
+		) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: {
+			projectId: string;
+			taskId: string;
+			id: string;
+			data: {
+				employeeId: string;
+				isLeader: boolean;
+			};
+		}) =>
+			axiosInstance
+				.put(
+					PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id),
+					query.data
+				)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) =>
+						response.data.data
+				),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([
+					tags.PROJECT_TASKS_FOLLOWERS,
+					{ projectId: variables.projectId, id: variables.taskId },
+				]);
+				queryClient.invalidateQueries([
+					tags.PROJECT_TASKS,
+					{ projectId: variables.projectId, id: variables.taskId },
+				]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to update task follower.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const appointFollower = React.useCallback(
+		({
+			decision,
+			...query
+		}: {
+			decision: 'appoint' | 'remove';
+			projectId: string;
+			taskId: string;
+			id: string;
+			data: {
+				employeeId: string;
+				isLeader: boolean;
+			};
+		}) => {
+			openModal({
+				closeOnButtonClick: false,
+				header:
+					decision === 'appoint'
+						? 'Appoint Task Leader?'
+						: 'Re-Appoint Task Leader?',
+				color: 'danger',
+				message:
+					'Do you want to ' +
+					(decision === 'appoint' ? 'appoint' : 're-appoint') +
+					' team leader?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(query);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { appointFollower, ...mutation };
+}
+
+// delete project task follower
+export function useDeleteProjectTaskLeaderMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(query: { projectId: string; taskId: string; id: string }) =>
+			axiosInstance
+				.delete(
+					PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id)
+				)
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([
+					tags.PROJECT_TASKS_FOLLOWERS,
+					{
+						taskId: variables.taskId,
+						projectId: variables.projectId,
+					},
+				]);
+				queryClient.invalidateQueries([
+					tags.PROJECT_TASKS,
+					{ projectId: variables.projectId, id: variables.taskId },
+				]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to remove task follower.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteFollower = React.useCallback(
+		(query: { projectId: string; taskId: string; id: string }) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Remove Task Follower?',
+				color: 'danger',
+				message: 'Do you want to remove this task follower?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(query);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { deleteFollower, ...mutation };
+}
+
+// ****** Project Task Followers ******

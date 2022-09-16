@@ -65,7 +65,7 @@ const getRows = (
 			},
 			{
 				options: {
-					bg: project.completed ? 'warning' : 'green',
+					bg: project.completed ? 'green' : 'warning',
 				},
 				type: 'badge',
 				value: project.completed ? 'completed' : 'ongoing',

@@ -1,4 +1,5 @@
 import { Button } from '@king-kite/react-kit';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { FaPen, FaTasks, FaTrash, FaUsers } from 'react-icons/fa';
@@ -179,6 +180,13 @@ const Detail = ({
 								iconLeft={FaTasks}
 								rounded="rounded-xl"
 								title="Manage Tasks"
+								renderLinkAs={(props) => {
+									return (
+										<Link href={props.link || '#'}>
+											<a {...props}>{props.children}</a>
+										</Link>
+									);
+								}}
 								link={PROJECT_TASKS_PAGE_URL(id)}
 							/>
 						</div>
@@ -187,6 +195,13 @@ const Detail = ({
 								iconLeft={FaUsers}
 								rounded="rounded-xl"
 								title="Manage Team"
+								renderLinkAs={(props) => {
+									return (
+										<Link href={props.link || '#'}>
+											<a {...props}>{props.children}</a>
+										</Link>
+									);
+								}}
 								link={PROJECT_TEAM_PAGE_URL(id)}
 							/>
 						</div>
@@ -264,6 +279,13 @@ const Detail = ({
 										color="text-primary-500"
 										focus="focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
 										link={PROJECT_TASKS_PAGE_URL(id)}
+										renderLinkAs={(props) => {
+											return (
+												<Link href={props.link || '#'}>
+													<a {...props}>{props.children}</a>
+												</Link>
+											);
+										}}
 										title="See all"
 									/>
 								</div>

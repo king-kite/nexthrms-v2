@@ -186,4 +186,25 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 	completed: number;
 	ongoing: number;
 }>;
+
+export type CreateProjectTaskQueryType = {
+	name: string;
+	description: string;
+	dueDate: Date | string;
+	priority: 'HIGH' | 'MEDIUM' | 'LOW';
+	followers?: {
+		employeeId: string;
+		isLeader?: boolean;
+	}[];
+	completed?: boolean;
+};
+
+export type CreateProjectTaskErrorResponseType = {
+	message?: string;
+	name?: string;
+	description?: string;
+	dueDate?: string;
+	priority?: string;
+	followers?: string;
+};
 // ****** Project Tasks ******
