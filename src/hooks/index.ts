@@ -9,5 +9,3 @@ export { default as useOutClick } from "./useOutClick";
 export { default as usePagination } from "./usePagination";
 
 export * from "./controls";
-export * from "./employees";
-export * from "./projects";

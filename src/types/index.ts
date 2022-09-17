@@ -9,4 +9,3 @@ export * from './jobs';
 export type { LeaveType, GetLeavesDataType } from './leaves';
 export * from './notifications';
 export * from './projects';
-export * from './user';
