@@ -1,7 +1,7 @@
 import {
 	prisma,
 	getTaskFollower,
-	taskSelectQuery as selectQuery,
+	taskFollowerSelectQuery as selectQuery,
 } from '../../../../../../../db';
 import { auth } from '../../../../../../../middlewares';
 import { projectTeamMemberUpdateSchema } from '../../../../../../../validators';

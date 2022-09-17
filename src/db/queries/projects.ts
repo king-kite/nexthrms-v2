@@ -461,11 +461,13 @@ export const getProjectTasks = async (
 		prisma.projectTask.findMany(query),
 		prisma.projectTask.count({
 			where: {
+				projectId: query.where?.projectId,
 				completed: true,
 			},
 		}),
 		prisma.projectTask.count({
 			where: {
+				projectId: query.where?.projectId,
 				completed: false,
 			},
 		}),

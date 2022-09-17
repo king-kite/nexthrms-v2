@@ -1231,7 +1231,7 @@ export function useMarkProjectTaskMutation(
 
 // ****** Project Task Followers ******
 
-// get project team
+// get Task followers
 export function useGetProjectTaskFollowersQuery(
 	{
 		projectId,
@@ -1379,7 +1379,7 @@ export function useAppointProjectTaskLeaderMutation(
 					decision === 'appoint'
 						? 'Appoint Task Leader?'
 						: 'Re-Appoint Task Leader?',
-				color: 'danger',
+				color: decision === 'appoint' ? 'success' : 'danger',
 				message:
 					'Do you want to ' +
 					(decision === 'appoint' ? 'appoint' : 're-appoint') +
@@ -1392,7 +1392,10 @@ export function useAppointProjectTaskLeaderMutation(
 						title: 'cancel',
 					},
 					{
-						bg: 'bg-red-600 hover:bg-red-500',
+						bg:
+							decision === 'appoint'
+								? 'bg-green-600 hover:bg-green-500'
+								: 'bg-red-600 hover:bg-red-500',
 						caps: true,
 						onClick: () => {
 							showLoader();
@@ -1410,7 +1413,7 @@ export function useAppointProjectTaskLeaderMutation(
 }
 
 // delete project task follower
-export function useDeleteProjectTaskLeaderMutation(
+export function useDeleteProjectTaskFollowerMutation(
 	options?: {
 		onSuccess?: () => void;
 		onError?: (error: { message: string }) => void;

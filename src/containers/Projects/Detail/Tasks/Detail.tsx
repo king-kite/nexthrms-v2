@@ -1,124 +1,115 @@
-import { useCallback, useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { FaPen, FaTrash } from "react-icons/fa";
-import { isErrorWithData } from "../../../../store"
-import { DEFAULT_IMAGE, EMPLOYEE_PAGE_URL } from "../../../../config"
-import { open as alertModalOpen } from "../../../../store/features/alert-modal-slice"
-import { open as modalOpen, close as modalClose } from "../../../../store/features/modal-slice";
-import { useGetTaskQuery } from "../../../../store/features/projects-slice"
-import { useAppDispatch, useAppSelector, useDeleteTask, useUpdateTask } from "../../../../hooks"
-import { Container, Modal, PersonCard } from "../../../../components/common";
-import { Button } from "../../../../components/controls"
-import { TaskForm } from "../../../../components/Projects"
-import { TaskCreateType, TaskFormInitStateType } from "../../../../types/employees"
+import { Button } from '@king-kite/react-kit';
+import { useRouter } from 'next/router';
+import { useMemo, useState } from 'react';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
+import { DEFAULT_IMAGE, EMPLOYEE_PAGE_URL } from '../../../../config';
+import { Container, Modal, PersonCard } from '../../../../components/common';
+import { TaskForm } from '../../../../components/Projects';
+import { useAlertContext } from '../../../../store/contexts';
+import {
+	useGetProjectTaskQuery,
+	useEditProjectTaskMutation,
+	useAppointProjectTaskLeaderMutation,
+	useDeleteProjectTaskMutation,
+	useDeleteProjectTaskFollowerMutation,
+} from '../../../../store/queries';
+import {
+	CreateProjectTaskErrorResponseType,
+	ProjectTaskType,
+} from '../../../../types';
 
-const Detail = () => {
-	const {id, task_id} = useParams()
+const Detail = ({ task }: { task: ProjectTaskType }) => {
+	const [errors, setErrors] = useState<CreateProjectTaskErrorResponseType>();
+	const [modalVisible, setModalVisible] = useState(false);
 
-	const { data, error, isLoading, isFetching, refetch } = useGetTaskQuery({
-		project_id: id || "", id: task_id || ""
-	}, {
-		skip: id === undefined || task_id === undefined
-	})
+	const router = useRouter();
+	const { id, task_id: taskId } = router.query as {
+		id: string;
+		task_id: string;
+	};
 
-	const dispatch = useAppDispatch()
-	const modalVisible = useAppSelector(state => state.modal.visible)
+	const { open } = useAlertContext();
 
-	const updateTask = useUpdateTask()
-	const deleteTask = useDeleteTask()
-
-	const handleRemoveEmployee = useCallback((employee_id: string) => {
-		if (employee_id) {
-			const newLeaders = data ? data.leaders.filter(leader => leader.id !== employee_id) : []
-			const newTeam = data ? data.followers.filter(member => member.id !== employee_id) : []
-			const createData = {
-				name: data?.name || "",
-				description: data?.description || "",
-				priority: data?.priority || "L",
-				due_date: data?.due_date || "",
-				leaders: newLeaders.map(leader => ({id: leader.id})),
-				followers: newTeam.map(member => ({id: member.id})),
-			}
-			dispatch(alertModalOpen({
-				color: "danger",
-				header: "Remove Task Follower",
-				message: "Do you wish to remove this follower?",
-				decisions: [
-					{
-						bg: "bg-gray-500 hover:bg-gray-400",
-						caps: true,
-						focus: "",
-						onClick: () => {},
-						title: "Cancel"
-					},
-					{
-						bg: "bg-red-600 hover:bg-red-500",
-						caps: true,
-						focus: "",
-						onClick: id && task_id ? () => updateTask.onSubmit(id, task_id, createData) : () => {},
-						title: "Proceed"
-					},
-				]
-			}))
+	const { data, isLoading, isFetching, refetch } = useGetProjectTaskQuery(
+		{
+			projectId: id,
+			id: taskId,
+		},
+		{
+			initialData() {
+				return task;
+			},
 		}
-	}, [dispatch, updateTask, data, id, task_id])
+	);
 
-	const appointLeader = useCallback((employee_id: string, appoint: boolean) => {
-		if (employee_id) {
-			let newLeaders;
-			if (appoint === true) {
-				newLeaders = data ? [...data.leaders] : []
-				const emp = data ? data.followers.find(member => member.id === employee_id) : undefined
-				if (emp) newLeaders.push(emp)
-			} else {
-				newLeaders = data ? data.leaders.filter(leader => leader.id !== employee_id) : undefined
-			}
+	const { mutate: updateTask, isLoading: editLoading } =
+		useEditProjectTaskMutation({
+			onSuccess() {
+				open({
+					type: 'success',
+					message: 'Task was updated successfully',
+				});
+				setModalVisible(false);
+			},
+			onError(err) {
+				setErrors((prevState) => ({
+					...prevState,
+					...err,
+				}));
+			},
+		});
 
-			if (newLeaders) {
-				const createData = {
-					name: data?.name || "",
-					description: data?.description || "",
-					priority: data?.priority || "L",
-					due_date: data?.due_date || "",
-					leaders: newLeaders.map(leader => ({id: leader.id})),
-					followers: data ? data.followers.map(member => ({id: member.id})) : [],
-				}
-				dispatch(alertModalOpen({
-					color: "warning",
-					header: appoint ? "Add New Leader?" : "Remove Leader?",
-					message: appoint ? "Do you wish to appoint this member as a leader?" : "Click Proceed to continue",
-					decisions: [
-						{
-							bg: "bg-gray-500 hover:bg-gray-400",
-							caps: true,
-							focus: "",
-							onClick: () => {},
-							title: "Cancel"
-						},
-						{
-							bg: "bg-yellow-600 hover:bg-yellow-500",
-							caps: true,
-							focus: "",
-							onClick: id && task_id ? () => updateTask.onSubmit(id, task_id, createData) : () => {},
-							title: "Proceed"
-						},
-					]
-				}))
-			}
+	const { deleteFollower, isLoading: delFolLoading } =
+		useDeleteProjectTaskFollowerMutation({
+			onSuccess() {
+				open({
+					type: 'success',
+					message: 'Task was updated successfully',
+				});
+				setModalVisible(false);
+			},
+			onError(err) {
+				setErrors((prevState) => ({
+					...prevState,
+					...err,
+				}));
+			},
+		});
+
+	const { appointFollower, isLoading: appointLoading } =
+		useAppointProjectTaskLeaderMutation({
+			onSuccess() {
+				open({
+					type: 'success',
+					message: 'Employee was re-appointed successfully!',
+				});
+			},
+		});
+
+	const { deleteTask } = useDeleteProjectTaskMutation({
+		onSuccess() {
+			router.back();
+			open({
+				type: 'success',
+				message: 'Task was deleted successfully!',
+			});
+		},
+	});
+
+	const leaders = useMemo(() => {
+		if (data && data.followers) {
+			return data.followers.filter((follower) => follower.isLeader === true);
 		}
-	}, [dispatch, updateTask, id, task_id, data])
+		return [];
+	}, [data]);
 
-	useEffect(() => {
-		if (updateTask.success === true) {
-			dispatch(modalClose());
-			dispatch(alertModalOpen({
-				header: "Task Updated",
-				color: "success",
-				message: "Task Updated Successfully!"
-			}))
+	const followers = useMemo(() => {
+		if (data && data.followers) {
+			return data.followers.filter((follower) => follower.isLeader === false);
 		}
-	}, [dispatch, updateTask.success])
+		return [];
+	}, [data]);
 
 	return (
 		<Container
@@ -129,34 +120,29 @@ const Detail = () => {
 				onClick: refetch,
 			}}
 			disabledLoading={!isLoading && isFetching}
-			error={error && isErrorWithData(error) ? {
-				statusCode: error.status || 500,
-				title: String(error.data?.detail || error.data?.error || "")
-				} : undefined
-			}
 			icon
 			loading={isLoading}
 			title={data ? data.name : undefined}
 		>
 			{data && (
-				<div className="p-2 w-full">
+				<div className="w-full">
 					<div className="flex flex-wrap items-center w-full sm:px-4 lg:justify-end">
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
-								IconLeft={FaPen}
-								onClick={() => dispatch(modalOpen())}
+								iconLeft={FaPen}
+								onClick={() => setModalVisible(true)}
 								rounded="rounded-xl"
-								title="edit task"
+								title="Edit Task"
 							/>
 						</div>
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 							<Button
 								bg="bg-red-600 hover:bg-red-500"
 								focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-								IconLeft={FaTrash}
+								iconLeft={FaTrash}
 								rounded="rounded-xl"
-								title="delete task"
-								onClick={id !== undefined && task_id !== undefined ? () => deleteTask.onSubmit(id, task_id) : undefined}
+								title="Delete Task"
+								onClick={() => deleteTask({ projectId: id, id: taskId })}
 							/>
 						</div>
 					</div>
@@ -169,13 +155,16 @@ const Detail = () => {
 							</div>
 							<div className="my-1">
 								<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
-									5{" "}
-									<span className="font-bold mx-2 text-gray-600">followers</span>,
+									{data.followers.length}
+									<span className="font-bold mx-2 text-gray-600">
+										followers
+									</span>
+									,
 								</span>
 							</div>
 							<div className="my-1">
 								<p className="font-semibold my-2 text-left text-sm text-gray-600 md:text-base">
-									{data.description || ""}
+									{data.description || ''}
 								</p>
 							</div>
 						</div>
@@ -185,47 +174,63 @@ const Detail = () => {
 									Task Leaders
 								</h3>
 							</div>
-							{data && data.leaders && data.leaders.length > 0 ? (
+							{leaders.length > 0 ? (
 								<div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-4">
-									{data.leaders.map((leader, index) => (
-										<PersonCard 
+									{leaders.map((leader, index) => (
+										<PersonCard
 											key={index}
 											title="Team Leader"
-											name={leader.full_name || "-----"}
-											label={leader.job || "-----"}
-											image={{src: leader?.image || DEFAULT_IMAGE}}
+											name={
+												leader.employee.user.firstName +
+												' ' +
+												leader.employee.user.lastName
+											}
+											label={leader.employee.job?.name || '-----'}
+											image={{
+												src:
+													leader.employee.user.profile?.image || DEFAULT_IMAGE,
+											}}
 											options={[
 												{
-													bg: "bg-white hover:bg-red-100",
-													border: "border border-red-500 hover:border-red-600",
-													color: "text-red-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
-													onClick: () => appointLeader(leader.id, false),
-													title: "Remove Leader",
+													bg: 'bg-white hover:bg-red-100',
+													border: 'border border-red-500 hover:border-red-600',
+													color: 'text-red-500',
+													disabled: appointLoading,
+													onClick: () =>
+														appointFollower({
+															decision: 'remove',
+															projectId: id,
+															taskId,
+															id: leader.id,
+															data: {
+																employeeId: leader.employee.id,
+																isLeader: false,
+															},
+														}),
+													title: 'Remove Leader',
 												},
 											]}
 											actions={[
 												{
-													bg: "bg-white hover:bg-blue-100",
-													border: "border border-primary-500 hover:border-primary-600",
-													color: "text-primary-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
-													link: EMPLOYEE_PAGE_URL(leader.id),
-													title: "view profile",
+													bg: 'bg-white hover:bg-blue-100',
+													border:
+														'border border-primary-500 hover:border-primary-600',
+													color: 'text-primary-500',
+													link: EMPLOYEE_PAGE_URL(leader.employee.id),
+													title: 'view profile',
 												},
 												{
-													bg: "bg-white hover:bg-red-100",
-													border: "border border-red-500 hover:border-red-600",
-													color: "text-red-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
-													onClick: () => handleRemoveEmployee(leader.id),
-													title: "Remove"
+													bg: 'bg-white hover:bg-red-100',
+													border: 'border border-red-500 hover:border-red-600',
+													color: 'text-red-500',
+													disabled: delFolLoading,
+													onClick: () =>
+														deleteFollower({
+															id: leader.id,
+															taskId,
+															projectId: id,
+														}),
+													title: 'Remove',
 												},
 											]}
 										/>
@@ -243,51 +248,68 @@ const Detail = () => {
 									Task Followers
 								</h3>
 							</div>
-							{data && data.followers && data.followers.length > 0 ? (
+							{followers.length > 0 ? (
 								<div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-4">
-									{data.followers.map((member, index) => (
-										<PersonCard 
+									{followers.map((member, index) => (
+										<PersonCard
 											key={index}
 											title="Task follower"
-											name={member.full_name || "-----"}
-											label={member.job || "-----"}
-											image={{src: member?.image || DEFAULT_IMAGE}}
+											name={
+												member.employee.user.firstName +
+												' ' +
+												member.employee.user.lastName
+											}
+											label={member.employee.job?.name || '-----'}
+											image={{
+												src:
+													member.employee.user.profile?.image || DEFAULT_IMAGE,
+											}}
 											options={[
 												{
-													bg: "bg-white hover:bg-blue-100",
-													border: "border border-primary-500 hover:border-primary-600",
-													color: "text-primary-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
-													onClick: () => appointLeader(member.id, true),
-													title: "Appoint Leader",
+													bg: 'bg-white hover:bg-blue-100',
+													border:
+														'border border-primary-500 hover:border-primary-600',
+													color: 'text-primary-500',
+													disabled: appointLoading,
+													onClick: () =>
+														appointFollower({
+															decision: 'appoint',
+															projectId: id,
+															taskId,
+															id: member.id,
+															data: {
+																employeeId: member.employee.id,
+																isLeader: true,
+															},
+														}),
+													title: 'Appoint Leader',
 												},
 											]}
 											actions={[
 												{
-													bg: "bg-white hover:bg-blue-100",
-													border: "border border-primary-500 hover:border-primary-600",
-													color: "text-primary-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
+													bg: 'bg-white hover:bg-blue-100',
+													border:
+														'border border-primary-500 hover:border-primary-600',
+													color: 'text-primary-500',
 													link: EMPLOYEE_PAGE_URL(member.id),
-													title: "view profile",
+													title: 'view profile',
 												},
 												{
-													bg: "bg-white hover:bg-red-100",
-													border: "border border-red-500 hover:border-red-600",
-													color: "text-red-500",
-													disabled: updateTask.isLoading || deleteTask.isLoading,
-													loading: updateTask.isLoading || deleteTask.isLoading,
-													loader: true,
-													onClick: () => handleRemoveEmployee(member.id),
-													title: "Remove"
+													bg: 'bg-white hover:bg-red-100',
+													border: 'border border-red-500 hover:border-red-600',
+													color: 'text-red-500',
+													disabled: delFolLoading,
+													onClick: () =>
+														deleteFollower({
+															id: member.id,
+															taskId,
+															projectId: id,
+														}),
+													title: 'Remove',
 												},
 											]}
 										/>
-									))}	
+									))}
 								</div>
 							) : (
 								<p className="text-gray-700 text-sm md:text-base">
@@ -297,24 +319,22 @@ const Detail = () => {
 						</div>
 					</div>
 					<Modal
-						close={() => dispatch(modalClose())}
-						component={<TaskForm
-								initState={{
-									name: data?.name || "",
-									description: data?.description || "",
-									leaders: data ?  data.leaders.map(leader => leader.id) : [],
-									followers: data ?  data.followers.map(follower => follower.id) : [],
-									priority: data.priority || "H",
-									due_date: data.due_date || "",
-								}}
+						close={() => setModalVisible(false)}
+						component={
+							<TaskForm
+								initState={data}
 								editMode
-								errors={updateTask.error}
-								onSubmit={(form: TaskCreateType) => {
-									if (id && task_id)
-										updateTask.onSubmit(id, task_id, form)
+								errors={errors}
+								onSubmit={(form) => {
+									updateTask({
+										projectId: id,
+										id: taskId,
+										data: form,
+									});
 								}}
-								loading={updateTask.isLoading}
-							/>}
+								loading={editLoading}
+							/>
+						}
 						description="Fill in the form below to update the task"
 						title="Update Task"
 						visible={modalVisible}
@@ -322,7 +342,7 @@ const Detail = () => {
 				</div>
 			)}
 		</Container>
-	)
-}
+	);
+};
 
-export default Detail
+export default Detail;
