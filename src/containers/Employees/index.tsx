@@ -78,7 +78,6 @@ const Employees = ({
 				loading: employees.isFetching,
 				onClick: employees.refetch,
 			}}
-			disabledLoading={!employees.isLoading && employees.isFetching}
 			paginate={
 				employees.data
 					? {

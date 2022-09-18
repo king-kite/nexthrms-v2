@@ -1,7 +1,10 @@
 1. Remove the verify server route
-2. Fix bug in project page, where i should to click the pen icon twice to show the data.
-3. In the employee and project form, have the select fields input the data after their
+2. Fix bug in project and task page, where i should to click the pen icon twice to show the data.
+3. In the employee, task and project form, have the select fields input the data after their
 -- respective data is loaded
 4. Delete Project File.
 5. Make Project Progress bar work.
 6. Use Firebase for file storage.
+7. Add indexes to the database schema.
+8. Check the [slug] pages to see if the item being fetched is null and redirect to 404 page.
+9. Have the alert faded in and out

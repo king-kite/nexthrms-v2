@@ -85,7 +85,7 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	},
 	leaves: {
 		where: {
-			approved: true,
+			status: 'APPROVED',
 			startDate: {
 				lte: new Date(),
 			},
@@ -94,7 +94,7 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 			},
 		},
 		select: {
-			approved: true,
+			status: true,
 			reason: true,
 			startDate: true,
 			endDate: true,
@@ -185,7 +185,7 @@ export const getEmployees = async (
 				where: {
 					leaves: {
 						every: {
-							approved: true,
+							status: 'APPROVED',
 							startDate: {
 								lte: new Date(),
 							},

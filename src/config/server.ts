@@ -41,12 +41,12 @@ export const EMPLOYEE_EXPORT_URL = (_type: string) =>
 export const HOLIDAYS_URL = `${ROOT_URL}/holidays/`;
 export const HOLIDAY_URL = (id: string) => `${ROOT_URL}/holidays/${id}/`;
 
-export const LEAVES_URL = `${ROOT_URL}/leaves/`;
-export const LEAVE_DETAIL_URL = (id: string) => `${LEAVES_URL}${id}/`;
+export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;
+export const LEAVE_URL = (id: string) => `${LEAVES_URL}${id}/`;
 
-export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/`;
-export const LEAVE_ADMIN_DETAIL_URL = (id: string) =>
-	`${ROOT_URL}/leaves/admin/${id}/`;
+export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/all/`;
+export const LEAVE_ADMIN_URL = (id: string) =>
+	`${ROOT_URL}/leaves/admin/all/${id}/`;
 export const LEAVE_ADMIN_EXPORT_URL = (_type: string) =>
 	`${ROOT_URL}/leaves/admin/export/${_type}/`;
 
@@ -75,8 +75,11 @@ export const PROJECT_TASK_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/`;
 export const PROJECT_TASK_FOLLOWERS_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/followers/`;
-export const PROJECT_TASK_FOLLOWER_URL = (pid: string, taskId: string,id:string) =>
-	`${ROOT_URL}/projects/${pid}/tasks/${taskId}/followers/${id}/`;
+export const PROJECT_TASK_FOLLOWER_URL = (
+	pid: string,
+	taskId: string,
+	id: string
+) => `${ROOT_URL}/projects/${pid}/tasks/${taskId}/followers/${id}/`;
 
 // Employees URLs Stop
 

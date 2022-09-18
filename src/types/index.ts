@@ -6,6 +6,6 @@ export * from './departments';
 export * from './employees';
 export * from './holidays';
 export * from './jobs';
-export type { LeaveType, GetLeavesDataType } from './leaves';
+export * from './leaves';
 export * from './notifications';
 export * from './projects';

@@ -93,4 +93,10 @@ export const getTime = (time: string): string => {
 	return `${hour}:${fixZeroDigit(minute)} ${suffix}`;
 };
 
+export function getNoOfDays(start: Date | string, end: Date | string): number {
+	const startDate = new Date(start).getTime();
+	const endDate = new Date(end).getTime();
+	return (endDate - startDate) / (1000 * 60 * 60 * 24);
+}
+
 export default getDate;

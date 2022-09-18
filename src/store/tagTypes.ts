@@ -3,6 +3,7 @@ export const DEPARTMENTS = 'departments';
 export const EMPLOYEES = 'employees';
 export const HOLIDAYS = 'holidays';
 export const JOBS = 'jobs';
+export const LEAVES = 'leaves';
 export const NOTIFICATIONS = 'notifications';
 export const PROFILE = 'profile';
 export const PROJECT_FILES = 'project_files';
