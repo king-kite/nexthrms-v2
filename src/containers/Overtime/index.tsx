@@ -1,133 +1,122 @@
-import { useCallback, useEffect, useState } from "react";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { DEFAULT_PAGINATION_SIZE } from "../../config"
-import { isErrorWithData, isFormError } from "../../store";
-import { logout } from "../../store/features/auth-slice";
+import { useCallback, useState } from 'react';
+
+import { Container, Modal } from '../../components/common';
+import { Cards, Form, Topbar, OvertimeTable } from '../../components/Overtime';
+import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAlertContext } from '../../store/contexts';
 import {
-	useGetOvertimeQuery,
+	useGetAllOvertimeQuery,
 	useRequestOvertimeMutation,
-} from "../../store/features/leaves-slice";
-import { open as alertModalOpen } from "../../store/features/alert-modal-slice";
+} from '../../store/queries';
 import {
-	close as modalClose,
-	open as modalOpen,
-} from "../../store/features/modal-slice";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import { OvertimeCreateType, OvertimeCreateErrorType } from "../../types/leaves";
-import { Container, Modal } from "../../components/common";
-import { Cards, Form, Topbar, OvertimeTable } from "../../components/Overtime";
+	CreateOvertimeQueryType,
+	CreateOvertimeErrorResponseType,
+	GetAllOvertimeResponseType,
+} from '../../types';
 
-
-const Overtime = () => {
-	const [dateQuery, setDateQuery] = useState({ from: "", to: "" });
+const Overtime = ({
+	overtime,
+}: {
+	overtime: GetAllOvertimeResponseType['data'];
+}) => {
+	const [dateQuery, setDateQuery] = useState({ from: '', to: '' });
+	const [errors, setErrors] = useState<
+		CreateOvertimeErrorResponseType & {
+			message?: string;
+		}
+	>();
 	const [offset, setOffset] = useState(0);
+	const [modalVisible, setModalVisible] = useState(false);
 
-	const dispatch = useAppDispatch();
-	const modalVisible = useAppSelector((state) => state.modal.visible);
+	const { open } = useAlertContext();
 
-	const overtime = useGetOvertimeQuery({
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset,
-		from: dateQuery.from,
-		to: dateQuery.to,
+	const { data, isLoading, isFetching, refetch } = useGetAllOvertimeQuery(
+		{
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset,
+		},
+		{
+			initialData() {
+				return overtime;
+			},
+		}
+	);
+
+	const {
+		mutate: requestOvertime,
+		isLoading: createLoading,
+		isSuccess,
+	} = useRequestOvertimeMutation({
+		onSuccess() {
+			setModalVisible(false);
+			open({
+				type: 'success',
+				message: 'Your request for overtime was sent!',
+			});
+		},
+		onError: (err) => {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
 	});
-	const [requestOvertime, { error, status, isLoading }] = useRequestOvertimeMutation();
 
-	useEffect(() => {
-		if (isErrorWithData(error)) {
-			if (error?.status === 401) dispatch(logout());
-			else if (error.data?.error || error.data?.detail) {
-				dispatch(
-					alertModalOpen({
-						color: "danger",
-						decisions: [
-							{
-								color: "danger",
-								title: "OK",
-							},
-						],
-						Icon: FaTimesCircle,
-						header: "Request Rejected",
-						message:
-							error.data?.detail || error.data?.error || "Your request for overtime was rejected.",
-					})
-				);
-			}
-		}
-	}, [dispatch, error]);
-
-	useEffect(() => {
-		if (status === "fulfilled") {
-			dispatch(modalClose());
-			dispatch(
-				alertModalOpen({
-					color: "success",
-					decisions: [
-						{
-							color: "success",
-							title: "OK",
-						},
-					],
-					Icon: FaCheckCircle,
-					header: "Request Submitted",
-					message: "Your request for overtime was submitted successfully.",
-				})
-			);
-		}
-	}, [dispatch, status]);
-
-	const handleSubmit = useCallback((form: OvertimeCreateType) => {
-		requestOvertime(form);
-	},[requestOvertime]);
+	const handleSubmit = useCallback(
+		(form: CreateOvertimeQueryType) => {
+			setErrors(undefined);
+			requestOvertime(form);
+		},
+		[requestOvertime]
+	);
 
 	return (
 		<Container
 			heading="Overtime"
-			error={isErrorWithData(overtime.error) ? {
-				statusCode: overtime.error.status || 500,
-				title: String(overtime.error.data.detail || overtime.error.data.error || "")
-			} : undefined}
 			refresh={{
-				loading: overtime.isFetching,
+				loading: isFetching,
 				onClick: () => {
-					setDateQuery({ from: "", to: "" });
-					overtime.refetch();
+					setDateQuery({ from: '', to: '' });
+					refetch();
 				},
 			}}
-			disabledLoading={!overtime.isLoading && overtime.isFetching}
-			loading={overtime.isLoading}
-			paginate={overtime.data ? {
-				loading: overtime.isFetching, setOffset, offset,
-				totalItems: overtime.data.count
-			} : undefined}
+			loading={isLoading}
+			paginate={
+				data
+					? {
+							loading: isFetching,
+							setOffset,
+							offset,
+							totalItems: data.total,
+					  }
+					: undefined
+			}
 		>
 			<Cards
-				approved={overtime.data?.approved_count || 0}
-				denied={overtime.data?.denied_count || 0}
-				pending={overtime.data?.pending_count || 0}
+				approved={data?.approved || 0}
+				denied={data?.denied || 0}
+				pending={data?.pending || 0}
 			/>
 			<Topbar
-				loading={overtime.isFetching}
 				adminView={false}
+				loading={isFetching}
 				dateSubmit={({ fromDate, toDate }) =>
 					setDateQuery({ from: fromDate, to: toDate })
 				}
-				openModal={() => dispatch(modalOpen())}
+				openModal={() => setModalVisible(true)}
 			/>
-			<OvertimeTable
-				overtime={overtime.data?.results || []}
-			/>
+			<OvertimeTable overtime={data?.result || []} />
 			<Modal
-				close={() => dispatch(modalClose())}
+				close={() => setModalVisible(false)}
 				component={
 					<Form
-						errors={isFormError<OvertimeCreateErrorType>(error) ? error.data : undefined}
-						loading={isLoading}
+						errors={errors}
+						loading={createLoading}
+						success={isSuccess}
 						onSubmit={handleSubmit}
-						success={status === "fulfilled"}
 					/>
 				}
-				description="Fill in the form below to request overtime"
+				description="Fill in the form below to request a overtime"
 				keepVisible
 				title="Request Overtime"
 				visible={modalVisible}

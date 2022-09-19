@@ -178,12 +178,13 @@ model Overtime {
   createdById String?   @map("created_by") @db.Uuid
   createdBy   Employee? @relation("createdByOvertime", fields: [createdById], references: [id], onDelete: SetNull)
 
-  approvedById String    @map("approved_by") @db.Uuid
+  approvedById String?   @map("approved_by") @db.Uuid
   approvedBy   Employee? @relation("approvedByOvertime", fields: [approvedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([date, employeeId])
   @@map("overtime")
 }
 

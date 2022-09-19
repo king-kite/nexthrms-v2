@@ -1,145 +1,128 @@
-import { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
-import { ADMIN_OVERTIME_DETAIL_PAGE_URL } from "../../../config/routes";
-import { OvertimeType } from "../../../types/leaves";
-import { getDate } from "../../../utils";
-import Table, { HeadType, RowType } from "../../controls/Table";
+import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { FaEye } from 'react-icons/fa';
 
-const heads: HeadType = [
-  { value: "employee name" },
-  { value: "type" },
-  { value: "date" },
-  { value: "hours" },
-  { value: "status" },
-  { value: "date requested" },
-  { type: "actions", value: "view" },
+import { ADMIN_OVERTIME_DETAIL_PAGE_URL } from '../../../config/routes';
+import { OvertimeType } from '../../../types';
+import { getDate } from '../../../utils';
+
+const heads: TableHeadType = [
+	{ value: 'employee name' },
+	{ value: 'type' },
+	{ value: 'date' },
+	{ value: 'hours' },
+	{ value: 'status' },
+	{ value: 'last update' },
+	{ type: 'actions', value: 'view' },
 ];
 
-const getRows = (data: OvertimeType[]): RowType[] =>
-  data.map((overtime) => [
-    {
-      link: ADMIN_OVERTIME_DETAIL_PAGE_URL(overtime.id),
-      value: overtime.user
-        ? `${overtime.user.first_name} ${overtime.user.last_name}`
-        : "---",
-    },
-    { value: overtime.overtime_type.name || "---" },
-    { value: overtime.date || "---" },
-    { value: overtime.hours || "---" },
-    {
-      options: {
-        bg:
-          overtime.admin_status === "approved"
-            ? "success"
-            : overtime.admin_status === "denied"
-            ? "error"
-            : overtime.admin_status === "pending"
-            ? "warning"
-            : "info",
-      },
-      type: "badge",
-      value: overtime.admin_status || "not needed",
-    },
-    {
-      value: overtime.date_requested ? getDate(overtime.date_requested, true) : "---",
-    },
-    {
-      type: "actions",
-      value: [
-        {
-          color: "primary",
-          Icon: FaEye,
-          link: ADMIN_OVERTIME_DETAIL_PAGE_URL(overtime.id),
-        },
-      ],
-    },
-  ]);
+const getRows = (data: OvertimeType[]): TableRowType[] =>
+	data.map((item) => ({
+		id: item.id,
+		rows: [
+			{
+				link: ADMIN_OVERTIME_DETAIL_PAGE_URL(item.id),
+				value: item.employee.user.firstName + ' ' + item.employee.user.lastName,
+			},
+			{
+				value: item.type,
+			},
+			{ value: getDate(item.date, true) },
+			{ value: item.hours },
+			{
+				options: {
+					bg:
+						item.status === 'APPROVED'
+							? 'success'
+							: item.status === 'DENIED'
+							? 'error'
+							: item.status === 'EXPIRED'
+							? 'info'
+							: 'warning',
+				},
+				type: 'badge',
+				value: item.status,
+			},
+			{
+				value: item.updatedAt ? getDate(item.updatedAt, true) : '---',
+			},
+			{
+				type: 'actions',
+				value: [
+					{
+						color: 'primary',
+						icon: FaEye,
+						link: ADMIN_OVERTIME_DETAIL_PAGE_URL(item.id),
+					},
+				],
+			},
+		],
+	}));
 
 type TableType = {
-  overtime: OvertimeType[];
-  setStatus: (e: "" | "approved" | "denied" | "pending") => void;
+	overtime: OvertimeType[];
 };
 
-const OvertimeTable = ({ overtime, setStatus }: TableType) => {
-  const [rows, setRows] = useState<RowType[]>([]);
-  const [activeRow, setActiveRow] = useState<
-    "all" | "approved" | "denied" | "pending"
-  >("all");
+const OvertimeTable = ({ overtime }: TableType) => {
+	const [rows, setRows] = useState<TableRowType[]>([]);
+	const [activeRow, setActiveRow] = useState<
+		'all' | 'approved' | 'denied' | 'pending'
+	>('all');
 
-  useEffect(() => {
-    let finalList;
-    if (activeRow === "denied") {
-      finalList = overtime.filter((ovt) => ovt.admin_status === "denied");
-    } else if (activeRow === "approved") {
-      finalList = overtime.filter((ovt) => ovt.admin_status === "approved");
-    } else if (activeRow === "pending") {
-      finalList = overtime.filter((ovt) => ovt.admin_status === "pending");
-    } else {
-      finalList = overtime;
-    }
-    setRows(getRows(finalList));
-  }, [activeRow, overtime]);
+	useEffect(() => {
+		let finalList;
+		if (activeRow === 'denied') {
+			finalList = overtime.filter((item) => item.status === 'DENIED');
+		} else if (activeRow === 'approved') {
+			finalList = overtime.filter((item) => item.status === 'APPROVED');
+		} else if (activeRow === 'pending') {
+			finalList = overtime.filter((item) => item.status === 'PENDING');
+		} else {
+			finalList = overtime;
+		}
+		setRows(getRows(finalList));
+	}, [activeRow, overtime]);
 
-  return (
-    <div className="mt-4 rounded-lg p-2 md:p-3 lg:p-4">
-      <Table
-        heads={heads}
-        rows={rows}
-        split={{
-          actions: [
-            {
-              active: activeRow === "all",
-              onClick: () => {
-                setRows(getRows(overtime));
-                setActiveRow("all");
-                setStatus("");
-              },
-              title: "all",
-            },
-            {
-              active: activeRow === "approved",
-              onClick: () => {
-                setRows(
-                  getRows(overtime).filter(
-                    (row: RowType) => row[4].value === "approved" && row
-                  )
-                );
-                setActiveRow("approved");
-                setStatus("approved");
-              },
-              title: "approved",
-            },
-            {
-              active: activeRow === "denied",
-              onClick: () => {
-                setRows(
-                  getRows(overtime).filter(
-                    (row: RowType) => row[4].value === "denied" && row
-                  )
-                );
-                setActiveRow("denied");
-                setStatus("denied");
-              },
-              title: "denied",
-            },
-            {
-              active: activeRow === "pending",
-              onClick: () => {
-                setRows(
-                  getRows(overtime).filter(
-                    (row: RowType) => row[4].value === "pending" && row
-                  )
-                );
-                setActiveRow("pending");
-                setStatus("pending");
-              },
-              title: "pending",
-            },
-          ],
-        }}
-      />
-    </div>
-  );
+	return (
+		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+			<Table
+				heads={heads}
+				rows={rows}
+				renderActionLinkAs={({ link, props, children }) => (
+					<Link href={link}>
+						<a className={props.className} style={props.style}>
+							{children}
+						</a>
+					</Link>
+				)}
+				split={{
+					actions: [
+						{
+							active: activeRow === 'all',
+							onClick: () => setActiveRow('all'),
+							title: 'all',
+						},
+						{
+							active: activeRow === 'approved',
+							onClick: () => setActiveRow('approved'),
+							title: 'approved',
+						},
+						{
+							active: activeRow === 'denied',
+							onClick: () => setActiveRow('denied'),
+							title: 'denied',
+						},
+						{
+							active: activeRow === 'pending',
+							onClick: () => setActiveRow('pending'),
+							title: 'pending',
+						},
+					],
+				}}
+			/>
+		</div>
+	);
 };
 
 export default OvertimeTable;

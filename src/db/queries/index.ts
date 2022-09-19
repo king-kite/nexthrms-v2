@@ -5,4 +5,5 @@ export * from './employees';
 export * from './holidays';
 export * from './jobs';
 export * from './leaves';
+export * from './overtime';
 export * from './projects';

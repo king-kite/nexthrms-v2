@@ -28,7 +28,7 @@ const Form: FC<FormProps> = ({
 	errors,
 	loading,
 	onSubmit,
-	success
+	success,
 }) => {
 	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
 	const [form, setForm] = useState<
@@ -38,6 +38,7 @@ const Form: FC<FormProps> = ({
 	>(
 		initState
 			? {
+					employee: initState.employee.id,
 					endDate: getDate(initState.endDate, true) as string,
 					startDate: getDate(initState.startDate, true) as string,
 					noOfDays: getNoOfDays(
@@ -71,17 +72,18 @@ const Form: FC<FormProps> = ({
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 
 	useEffect(() => {
-		if (success) setForm({
-			endDate: getNextDate(getDate(), 1, true) as string,
-			startDate: getDate(undefined, true) as string,
-			noOfDays: getNoOfDays(
-				getDate(undefined, true),
-				getNextDate(getDate(), 1)
-			),
-			reason: '',
-			type: 'CASUAL',
-		})
-	}, [success])
+		if (success)
+			setForm({
+				endDate: getNextDate(getDate(), 1, true) as string,
+				startDate: getDate(undefined, true) as string,
+				noOfDays: getNoOfDays(
+					getDate(undefined, true),
+					getNextDate(getDate(), 1)
+				),
+				reason: '',
+				type: 'CASUAL',
+			});
+	}, [success]);
 
 	useEffect(() => {
 		if (getDate(form.startDate) < getDate()) {
@@ -107,7 +109,7 @@ const Form: FC<FormProps> = ({
 				[name]: value,
 			}));
 
-			if (Object(form)[name])
+			if (Object(formErrors)[name])
 				setErrors((prevState) => ({
 					...prevState,
 					[name]: '',
@@ -142,12 +144,12 @@ const Form: FC<FormProps> = ({
 				}));
 			}
 		},
-		[form]
+		[form, formErrors]
 	);
 
 	const handleSubmit = useCallback(
 		async (form: CreateLeaveQueryType) => {
-			setErrors(undefined)
+			setErrors(undefined);
 			try {
 				const valid: CreateLeaveQueryType =
 					await leaveCreateSchema.validateAsync(form);
@@ -176,7 +178,7 @@ const Form: FC<FormProps> = ({
 					type: form.type,
 				};
 				if (adminView && form.employee) data.employee = form.employee;
-				onSubmit(data);
+				handleSubmit(data);
 			}}
 			className="p-4"
 		>
@@ -248,7 +250,6 @@ const Form: FC<FormProps> = ({
 									  )
 									: []
 							}
-							required={false}
 							value={form?.employee || ''}
 						/>
 					</div>

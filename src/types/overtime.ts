@@ -18,19 +18,12 @@ type EmployeeType = {
 	} | null;
 };
 
-export type LeaveType = {
+export type OvertimeType = {
 	id: string;
-	startDate: Date | string;
-	endDate: Date | string;
+	date: Date | string;
+	hours: number;
 	reason: string;
-	type:
-		| 'ANNUAL'
-		| 'CASUAL'
-		| 'HOSPITALIZATION'
-		| 'LOP'
-		| 'MATERNITY'
-		| 'PATERNITY'
-		| 'SICK';
+	type: 'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY';
 	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
@@ -39,33 +32,26 @@ export type LeaveType = {
 	createdBy: EmployeeType;
 };
 
-export type GetLeavesResponseType = SuccessResponseType<{
+export type GetAllOvertimeResponseType = SuccessResponseType<{
 	approved: number;
 	pending: number;
 	denied: number;
 	total: number;
-	result: LeaveType[];
+	result: OvertimeType[];
 }>;
 
-export type CreateLeaveQueryType = {
+export type CreateOvertimeQueryType = {
 	employee?: string;
-	startDate: string;
-	endDate: string;
+	date: Date | string;
+	hours: number;
 	reason: string;
-	type:
-		| 'ANNUAL'
-		| 'CASUAL'
-		| 'HOSPITALIZATION'
-		| 'LOP'
-		| 'MATERNITY'
-		| 'PATERNITY'
-		| 'SICK';
+	type: 'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY';
 };
 
-export type CreateLeaveErrorResponseType = {
+export type CreateOvertimeErrorResponseType = {
 	type?: string;
 	reason?: string;
-	endDate?: string;
-	startDate?: string;
+	hours?: string;
+	date?: string;
 	employee?: string;
 };

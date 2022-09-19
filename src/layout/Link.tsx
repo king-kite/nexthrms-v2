@@ -30,7 +30,6 @@ export const SimpleLink: FC<SimpleProps> = ({
 		pathname !== '/' && pathname.slice(-1) !== '/' ? pathname + '/' : pathname;
 
 	const active1 = href === _pathname;
-	console.log('PATHNAME >> ', _pathname)
 	// TODO: Figure out active 2 later
 	const active2 =
 		href !== '/' && _pathname !== '/' && _pathname.startsWith(href);
