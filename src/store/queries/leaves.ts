@@ -9,6 +9,7 @@ import {
 	LEAVE_URL,
 	LEAVES_URL,
 	LEAVES_ADMIN_URL,
+	LEAVE_ADMIN_URL,
 } from '../../config';
 import {
 	BaseResponseType,
@@ -25,9 +26,11 @@ import { handleAxiosErrors } from '../../validators';
 export function useGetLeaveQuery(
 	{
 		id,
+		admin,
 		onError,
 	}: {
 		id: string;
+		admin?: boolean;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -37,7 +40,7 @@ export function useGetLeaveQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.LEAVES, { id }],
+		admin ? [tags.LEAVES_ADMIN, { id }] : [tags.LEAVES, { id }],
 		() =>
 			axiosInstance
 				.get(LEAVE_URL(id))
@@ -174,16 +177,20 @@ export function useRequestLeaveUpdateMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(query: { id: string; data: CreateLeaveQueryType }) =>
+		(query: { id: string; admin?: boolean; data: CreateLeaveQueryType }) =>
 			axiosInstance
-				.put(LEAVE_URL(query.id), query.data)
+				.put(
+					query.admin ? LEAVE_ADMIN_URL(query.id) : LEAVE_URL(query.id),
+					query.data
+				)
 				.then(
 					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
 						response.data.data
 				),
 		{
-			async onSuccess() {
-				queryClient.invalidateQueries([tags.LEAVES]);
+			async onSuccess(data, variables) {
+				if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
+				else queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
@@ -398,11 +405,11 @@ export function useApproveLeaveMutation(
 	const mutation = useMutation(
 		(query: { id: string; approval: 'APPROVED' | 'DENIED' }) =>
 			axiosInstance
-				.post(LEAVE_URL(query.id), { approval: query.approval })
+				.post(LEAVE_ADMIN_URL(query.id), { approval: query.approval })
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
-				queryClient.invalidateQueries([tags.LEAVES]);
+				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 				if (options?.onRequestComplete) {

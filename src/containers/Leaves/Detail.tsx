@@ -33,7 +33,7 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const { open } = useAlertContext();
 
 	const { data, isFetching, isLoading, refetch } = useGetLeaveQuery(
-		{ id },
+		{ id, admin },
 		{
 			initialData() {
 				return leave;
@@ -63,7 +63,7 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const { mutate: updateLeave, isLoading: editLoading } =
 		useRequestLeaveUpdateMutation({
 			onSuccess() {
-				setModalVisible(false)
+				setModalVisible(false);
 				open({
 					type: 'success',
 					message: 'Leave request was updated successfully!',
@@ -80,9 +80,9 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const handleSubmit = useCallback(
 		(form: CreateLeaveQueryType) => {
 			setErrors(undefined);
-			updateLeave({ id, data: form });
+			updateLeave({ id, admin, data: form });
 		},
-		[updateLeave, id]
+		[updateLeave, admin, id]
 	);
 
 	// TODO: Change the type from any to ButtonType

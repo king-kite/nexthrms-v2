@@ -9,6 +9,7 @@ import {
 	OVERTIME_ADMIN_URL,
 	OVERTIME_URL,
 	OVERTIME_DETAIL_URL,
+	OVERTIME_ADMIN_DETAIL_URL,
 } from '../../config';
 import {
 	BaseResponseType,
@@ -25,9 +26,11 @@ import { handleAxiosErrors } from '../../validators';
 export function useGetOvertimeQuery(
 	{
 		id,
+		admin,
 		onError,
 	}: {
 		id: string;
+		admin?: boolean;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -37,7 +40,7 @@ export function useGetOvertimeQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.OVERTIME, { id }],
+		admin ? [tags.OVERTIME_ADMIN, { id }] : [tags.OVERTIME, { id }],
 		() =>
 			axiosInstance
 				.get(OVERTIME_DETAIL_URL(id))
@@ -177,16 +180,22 @@ export function useRequestOvertimeUpdateMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(query: { id: string; data: CreateOvertimeQueryType }) =>
+		(query: { id: string; admin?: boolean; data: CreateOvertimeQueryType }) =>
 			axiosInstance
-				.put(OVERTIME_DETAIL_URL(query.id), query.data)
+				.put(
+					query.admin
+						? OVERTIME_ADMIN_DETAIL_URL(query.id)
+						: OVERTIME_DETAIL_URL(query.id),
+					query.data
+				)
 				.then(
 					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
 						response.data.data
 				),
 		{
-			async onSuccess() {
-				queryClient.invalidateQueries([tags.OVERTIME]);
+			async onSuccess(data, variables) {
+				if (!variables.admin) queryClient.invalidateQueries([tags.OVERTIME]);
+				else queryClient.invalidateQueries([tags.OVERTIME_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
@@ -403,11 +412,11 @@ export function useApproveOvertimeMutation(
 	const mutation = useMutation(
 		(query: { id: string; approval: 'APPROVED' | 'DENIED' }) =>
 			axiosInstance
-				.post(OVERTIME_DETAIL_URL(query.id), { approval: query.approval })
+				.post(OVERTIME_ADMIN_DETAIL_URL(query.id), { approval: query.approval })
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
-				queryClient.invalidateQueries([tags.OVERTIME]);
+				queryClient.invalidateQueries([tags.OVERTIME_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 				if (options?.onRequestComplete) {

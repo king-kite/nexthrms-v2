@@ -4,7 +4,10 @@ import {
 	overtimeSelectQuery as selectQuery,
 } from '../../../../db';
 import { auth } from '../../../../middlewares';
-import { overtimeCreateSchema } from '../../../../validators';
+import {
+	overtimeApprovalSchema,
+	overtimeCreateSchema,
+} from '../../../../validators';
 import { CreateOvertimeQueryType } from '../../../../types';
 
 export default auth()
@@ -15,6 +18,30 @@ export default auth()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched overtime successfully!',
+			data: overtime,
+		});
+	})
+	.post(async (req, res) => {
+		const {
+			approval,
+		}: {
+			approval: 'APPROVED' | 'DENIED';
+		} = await overtimeApprovalSchema.validateAsync({ ...req.body });
+		const overtime = await prisma.overtime.update({
+			where: {
+				id: req.query.id as string,
+			},
+			data: {
+				status: approval,
+			},
+			select: selectQuery,
+		});
+
+		return res.status(200).json({
+			status: 'success',
+			mesage:
+				'Request for overtime was ' +
+				(approval === 'DENIED' ? 'denied!' : 'approved!'),
 			data: overtime,
 		});
 	})
@@ -31,13 +58,27 @@ export default auth()
 				...req.body,
 			});
 
+		if (!employee) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'Employee ID is required!',
+			});
+		}
+
 		// TODO: Check if the user has an approved/pending overtime
 
 		const overtime = await prisma.overtime.update({
 			where: {
 				id: req.query.id as string,
 			},
-			data,
+			data: {
+				...data,
+				employee: {
+					connect: {
+						id: employee,
+					},
+				},
+			},
 			select: selectQuery,
 		});
 

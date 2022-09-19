@@ -43,8 +43,8 @@ export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;
 export const LEAVE_URL = (id: string) => `${LEAVES_URL}${id}/`;
 
 export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/`;
-// export const LEAVE_ADMIN_URL = (id: string) =>
-// 	`${ROOT_URL}/leaves/admin/${id}/`;
+export const LEAVE_ADMIN_URL = (id: string) =>
+	`${ROOT_URL}/leaves/admin/${id}/`;
 export const LEAVE_ADMIN_EXPORT_URL = (_type: string) =>
 	`${ROOT_URL}/leaves/admin/export/${_type}/`;
 
@@ -52,8 +52,8 @@ export const OVERTIME_URL = `${ROOT_URL}/overtime/all/`;
 export const OVERTIME_DETAIL_URL = (id: string) => `${OVERTIME_URL}${id}/`;
 
 export const OVERTIME_ADMIN_URL = `${ROOT_URL}/overtime/admin/`;
-// export const OVERTIME_ADMIN_DETAIL_URL = (id: string) =>
-// 	`${ROOT_URL}/overtime/admin/${id}/`;
+export const OVERTIME_ADMIN_DETAIL_URL = (id: string) =>
+	`${ROOT_URL}/overtime/admin/${id}/`;
 export const OVERTIME_ADMIN_EXPORT_URL = (_type: string) =>
 	`${ROOT_URL}/overtime/admin/export/${_type}/`;
 

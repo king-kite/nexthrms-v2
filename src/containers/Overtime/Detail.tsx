@@ -39,7 +39,7 @@ const Detail = ({
 	const { open } = useAlertContext();
 
 	const { data, isFetching, isLoading, refetch } = useGetOvertimeQuery(
-		{ id },
+		{ id, admin},
 		{
 			initialData() {
 				return overtime;
@@ -86,9 +86,9 @@ const Detail = ({
 	const handleSubmit = useCallback(
 		(form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
-			updateOvertime({ id, data: form });
+			updateOvertime({ id, admin, data: form });
 		},
-		[updateOvertime, id]
+		[updateOvertime, id, admin]
 	);
 
 	// TODO: Change the type from any to ButtonType
