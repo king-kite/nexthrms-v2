@@ -4,7 +4,12 @@ import React from 'react';
 
 import { useAlertModalContext } from '../contexts';
 import * as tags from '../tagTypes';
-import { DEFAULT_PAGINATION_SIZE, LEAVE_URL, LEAVES_URL } from '../../config';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	LEAVE_URL,
+	LEAVES_URL,
+	LEAVES_ADMIN_URL,
+} from '../../config';
 import {
 	BaseResponseType,
 	GetLeavesResponseType,
@@ -239,7 +244,7 @@ export function useDeleteLeaveMutation(
 				}
 			},
 			onSettled() {
-				close()
+				close();
 			},
 			...queryOptions,
 		}
@@ -275,6 +280,103 @@ export function useDeleteLeaveMutation(
 	);
 
 	return { deleteLeave, ...mutation };
+}
+
+// ****** Admin URLs Start ******
+
+// get leaves
+export function useGetLeavesAdminQuery(
+	{
+		limit = DEFAULT_PAGINATION_SIZE,
+		offset = 0,
+		search = '',
+		onError,
+	}: {
+		limit?: number;
+		offset?: number;
+		search?: string;
+		onError?: (error: { status: number; message: string }) => void;
+	},
+	options?: {
+		onSuccess?: (data: GetLeavesResponseType['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => GetLeavesResponseType['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.LEAVES_ADMIN, { limit, offset, search }],
+		() =>
+			axiosInstance
+				.get(
+					`${LEAVES_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`
+				)
+				.then(
+					(response: AxiosResponse<GetLeavesResponseType>) => response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message || 'An error occurred. Unable to get leaves.',
+					});
+			},
+			...options,
+		}
+	);
+	return query;
+}
+
+// create leave
+export function useCreateLeaveMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (
+			err: CreateLeaveErrorResponseType & {
+				message?: string;
+			}
+		) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: LeaveType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(data: CreateLeaveQueryType) =>
+			axiosInstance
+				.post(LEAVES_ADMIN_URL, data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
+						response.data.data
+				),
+		{
+			async onSuccess() {
+				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors<CreateLeaveErrorResponseType>(err);
+					options.onError({
+						...error?.data,
+						message:
+							error?.message || 'An error occurred. Unable to create leave!',
+					});
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
 }
 
 // approve leave
@@ -331,3 +433,5 @@ export function useApproveLeaveMutation(
 
 	return mutation;
 }
+
+// ****** Admin URLs Stop ******

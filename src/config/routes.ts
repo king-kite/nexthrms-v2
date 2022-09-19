@@ -14,9 +14,9 @@ export const CLIENT_PAGE_URL = (slug: string) => `/clients/${slug}/`;
 
 // Employees Section
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
-export const ADMIN_LEAVES_PAGE_URL = '/employees/admin/leaves/';
+export const ADMIN_LEAVES_PAGE_URL = '/employees/leaves/admin/';
 export const ADMIN_LEAVE_DETAIL_PAGE_URL = (slug: string) =>
-	`/employees/admin/leaves/${slug}/`;
+	`/employees/leaves/admin/${slug}/`;
 export const ADMIN_OVERTIME_PAGE_URL = '/employees/admin/overtime/';
 export const ADMIN_OVERTIME_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/admin/overtime/${slug}/`;

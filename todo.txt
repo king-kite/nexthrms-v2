@@ -8,3 +8,5 @@
 7. Add indexes to the database schema.
 8. Check the [slug] pages to see if the item being fetched is null and redirect to 404 page.
 9. Have the alert faded in and out
+10. In Sidebar, Have the links array objects have active keys checking the pathanem for their
+-- values

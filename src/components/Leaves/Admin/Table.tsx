@@ -65,10 +65,9 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 
 type TableType = {
 	leaves: LeaveType[];
-	setStatus: (e: '' | 'approved' | 'denied' | 'pending') => void;
 };
 
-const LeaveTable = ({ leaves, setStatus }: TableType) => {
+const LeaveTable = ({ leaves }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<
 		'all' | 'approved' | 'denied' | 'pending'
@@ -89,7 +88,7 @@ const LeaveTable = ({ leaves, setStatus }: TableType) => {
 	}, [activeRow, leaves]);
 
 	return (
-		<div className="mt-4 rounded-lg p-2 md:p-3 lg:p-4">
+		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 			<Table
 				heads={heads}
 				rows={rows}
@@ -104,35 +103,22 @@ const LeaveTable = ({ leaves, setStatus }: TableType) => {
 					actions: [
 						{
 							active: activeRow === 'all',
-							onClick: () => {
-								setRows(getRows(leaves));
-								setActiveRow('all');
-								setStatus('');
-							},
+							onClick: () => setActiveRow('all'),
 							title: 'all',
 						},
 						{
 							active: activeRow === 'approved',
-							onClick: () => {
-								setActiveRow('approved');
-								setStatus('approved');
-							},
+							onClick: () => setActiveRow('approved'),
 							title: 'approved',
 						},
 						{
 							active: activeRow === 'denied',
-							onClick: () => {
-								setActiveRow('denied');
-								setStatus('denied');
-							},
+							onClick: () => setActiveRow('denied'),
 							title: 'denied',
 						},
 						{
 							active: activeRow === 'pending',
-							onClick: () => {
-								setActiveRow('pending');
-								setStatus('pending');
-							},
+							onClick: () => setActiveRow('pending'),
 							title: 'pending',
 						},
 					],

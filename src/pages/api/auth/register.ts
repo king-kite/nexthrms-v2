@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { prisma } from '../../../db';
@@ -36,12 +37,28 @@ async function handler(
 
 		const hash = await hashPassword(valid.password);
 
-		const data = {
+		// TODO: Create Job called CEO
+		const data: Prisma.UserCreateInput = {
 			...valid,
 			email: valid.email.toLowerCase().trim(),
 			password: hash,
 			profile: {
 				create: {},
+			},
+			employee: {
+				create: {
+					dateEmployed: new Date(),
+					job: {
+						connectOrCreate: {
+							where: {
+								name: 'CEO',
+							},
+							create: {
+								name: 'CEO',
+							},
+						},
+					},
+				},
 			},
 		};
 

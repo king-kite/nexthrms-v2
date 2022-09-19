@@ -34,6 +34,7 @@ const Form = ({
 			<InputButton
 				buttonProps={{
 					disabled: loading,
+					padding: 'pl-2 pr-4 py-[0.54rem]',
 					title: 'Search',
 					type: 'submit',
 				}}

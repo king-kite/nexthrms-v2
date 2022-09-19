@@ -56,6 +56,8 @@ export const leaveSelectQuery: Prisma.LeaveSelect = {
 	createdAt: true,
 };
 
+// ****** Personal Leaves Start ******
+
 export const getLeavesQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
@@ -109,3 +111,89 @@ export const getLeave = async (id: string) => {
 	});
 	return leave;
 };
+
+// ****** Personal Leaves Stop ******
+
+// ****** Admin Leaves Start ******
+
+// TODO: ADD PERMISSIONS
+export const getLeavesAdminQuery = ({
+	offset = 0,
+	limit = DEFAULT_PAGINATION_SIZE,
+	search,
+}: ParamsType): Prisma.LeaveFindManyArgs => {
+	const query: Prisma.LeaveFindManyArgs = {
+		skip: offset,
+		take: limit,
+		orderBy: {
+			createdAt: 'desc',
+		},
+		where: search
+			? {
+					OR: [
+						{
+							employee: {
+								user: {
+									firstName: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+							},
+						},
+						{
+							employee: {
+								user: {
+									lastName: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+							},
+						},
+						{
+							employee: {
+								user: {
+									email: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+							},
+						},
+					],
+			  }
+			: {},
+		select: leaveSelectQuery,
+	};
+
+	return query;
+};
+
+export const getLeavesAdmin = async (
+	params: ParamsType = {
+		limit: DEFAULT_PAGINATION_SIZE,
+		offset: 0,
+		search: '',
+	}
+): Promise<{
+	approved: number;
+	pending: number;
+	denied: number;
+	total: number;
+	result: Leave[] | LeaveType[];
+}> => {
+	const query = getLeavesAdminQuery({ ...params });
+
+	const [total, result, approved, pending, denied] = await prisma.$transaction([
+		prisma.leave.count({ where: query.where }),
+		prisma.leave.findMany(query),
+		prisma.leave.count({ where: { status: 'APPROVED' } }),
+		prisma.leave.count({ where: { status: 'PENDING' } }),
+		prisma.leave.count({ where: { status: 'DENIED' } }),
+	]);
+
+	return { total, approved, pending, denied, result };
+};
+
+// ****** Admin Leaves Stop ******

@@ -97,10 +97,7 @@ const LeaveTable = ({ leaves }: TableType) => {
 					actions: [
 						{
 							active: activeRow === 'all',
-							onClick: () => {
-								setRows(getRows(leaves));
-								setActiveRow('all');
-							},
+							onClick: () => setActiveRow('all'),
 							title: 'all',
 						},
 						{

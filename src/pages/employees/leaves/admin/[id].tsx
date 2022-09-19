@@ -2,13 +2,13 @@ import { InferGetServerSidePropsType } from 'next';
 import Error from 'next/error';
 import { ParsedUrlQuery } from 'querystring';
 
-import { LOGIN_PAGE_URL } from '../../../config';
-import Leave from '../../../containers/Leaves/Detail';
-import { getLeave } from '../../../db';
-import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps, LeaveType } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import { LOGIN_PAGE_URL } from '../../../../config';
+import Leave from '../../../../containers/Leaves/Detail';
+import { getLeave } from '../../../../db';
+import { authPage } from '../../../../middlewares';
+import { ExtendedGetServerSideProps, LeaveType } from '../../../../types';
+import { Title } from '../../../../utils';
+import { serializeUserData } from '../../../../utils/serializers';
 
 const Page = ({
 	error,
@@ -19,8 +19,8 @@ const Page = ({
 			<Error title={error.title} statusCode={error.statusCode} />
 		) : (
 			<>
-				<Title title="My Leave Request" />
-				<Leave leave={leave} />
+				<Title title="Employee Leave Request" />
+				<Leave admin leave={leave} />
 			</>
 		)}
 	</>

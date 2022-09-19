@@ -193,7 +193,7 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 									: 'Anonymous'}
 							</p>
 							<span className="capitalize italic text-gray-300 text-tiny tracking-white md:text-xs">
-								{data?.employee?.job?.name || 'user'}
+								{data.employee?.job?.name || 'user'}
 							</span>
 						</>
 					)}
