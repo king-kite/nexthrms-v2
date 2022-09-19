@@ -64,12 +64,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	const { id } = params as IParams;
 
 	const auth = serializeUserData(req.user);
-	const leave: OvertimeType = JSON.parse(JSON.stringify(await getOvertime(id)));
+	const overtime: OvertimeType = JSON.parse(
+		JSON.stringify(await getOvertime(id))
+	);
 
 	return {
 		props: {
 			auth,
-			leave,
+			overtime,
 		},
 	};
 };

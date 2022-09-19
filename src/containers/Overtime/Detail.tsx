@@ -17,7 +17,7 @@ import {
 	CreateOvertimeQueryType,
 	OvertimeType,
 } from '../../types';
-import { getDate, getNextDate, getNoOfDays } from '../../utils';
+import { getDate } from '../../utils';
 
 type ErrorType = CreateOvertimeErrorResponseType & {
 	message?: string;
