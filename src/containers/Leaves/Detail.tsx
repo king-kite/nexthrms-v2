@@ -1,273 +1,310 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { isErrorWithData } from "../../store";
-import { logout } from "../../store/features/auth-slice";
-import { open as alertModalOpen } from "../../store/features/alert-modal-slice";
+import { InfoComp } from '@king-kite/react-kit';
+import { useRouter } from 'next/router';
+import { useCallback, useState } from 'react';
+
+import { Container, InfoTopBar, Modal } from '../../components/common';
+import { Form } from '../../components/Leaves';
+import { DEFAULT_IMAGE } from '../../config';
+import { useAlertContext } from '../../store/contexts';
 import {
 	useGetLeaveQuery,
 	useApproveLeaveMutation,
-} from "../../store/features/leaves-slice";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import { getDate } from "../../utils";
-import { Container, InfoComp, InfoTopBar } from "../../components/common";
+	useDeleteLeaveMutation,
+	useRequestLeaveUpdateMutation,
+} from '../../store/queries';
+import {
+	CreateLeaveErrorResponseType,
+	CreateLeaveQueryType,
+	LeaveType,
+} from '../../types';
+import { getDate, getNextDate, getNoOfDays } from '../../utils';
 
-const Detail = ({ admin }: { admin?: boolean }) => {
-	const { id } = useParams();
-	const leave = useGetLeaveQuery(id || "", {
-		skip: typeof id === undefined,
-	});
-	const [approveLeave, approve] = useApproveLeaveMutation();
+type ErrorType = CreateLeaveErrorResponseType & {
+	message?: string;
+};
 
-	const dispatch = useAppDispatch();
-	const data = useAppSelector((state) => state.auth.data);
+const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
+	const router = useRouter();
+	const id = router.query.id as string;
 
-	const [loading, setLoading] = useState(true);
-	const [action, setAction] = useState<"approved" | "denied">("approved");
+	const [modalVisible, setModalVisible] = useState(false);
+	const [errors, setErrors] = useState<ErrorType>();
 
-	useEffect(() => {
-		if (leave.data || leave.error) setLoading(false);
-		const err =
-			leave.error && "status" in leave.error && leave.error?.status === 401;
-		if (err === true) dispatch(logout());
-	}, [dispatch, leave.data, leave.error]);
+	const { open } = useAlertContext();
 
-	useEffect(() => {
-		if (approve.status === "fulfilled" || approve.status === "rejected") {
-			const status = approve.status === "fulfilled" ? true : false;
-			dispatch(
-				alertModalOpen({
-					color: !status
-						? "danger"
-						: action === "approved"
-						? "success"
-						: "warning",
-					header: !status
-						? "Forbidden"
-						: action === "approved"
-						? "Approved"
-						: "Denied",
-					message:
-						!status && isErrorWithData(approve.error)
-							? approve.error.data?.error || approve.error.data?.detail
-								? String(
-										approve?.error?.data.error || approve.error.data?.detail
-								  )
-								: "Something went wrong!"
-							: approve.data
-							? String(approve?.data?.detail || "Action successful!")
-							: "Request Completed",
-				})
-			);
-			if (approve.status === "rejected") {
-				const err =
-					approve.error &&
-					"status" in approve.error &&
-					approve.error?.status === 401;
-				if (err === true) dispatch(logout());
-			}
+	const { data, isFetching, isLoading, refetch } = useGetLeaveQuery(
+		{ id },
+		{
+			initialData() {
+				return leave;
+			},
 		}
-	}, [action, approve, dispatch]);
+	);
+	const { mutate: approveLeave, isLoading: appLoading } =
+		useApproveLeaveMutation({
+			onRequestComplete({ message, error }) {
+				open({
+					type: error ? 'danger' : 'success',
+					message: error || message,
+				});
+			},
+		});
+	const { deleteLeave } = useDeleteLeaveMutation({
+		onSuccess() {
+			router.back();
+		},
+		onError({ message }) {
+			open({
+				type: 'danger',
+				message,
+			});
+		},
+	});
+	const { mutate: updateLeave, isLoading: editLoading } =
+		useRequestLeaveUpdateMutation({
+			onSuccess() {
+				setModalVisible(false)
+				open({
+					type: 'success',
+					message: 'Leave request was updated successfully!',
+				});
+			},
+			onError(err) {
+				setErrors((prevState) => ({
+					...prevState,
+					...err,
+				}));
+			},
+		});
+
+	const handleSubmit = useCallback(
+		(form: CreateLeaveQueryType) => {
+			setErrors(undefined);
+			updateLeave({ id, data: form });
+		},
+		[updateLeave, id]
+	);
+
+	// TODO: Change the type from any to ButtonType
+	let actions: any = [
+		{
+			disabled: editLoading,
+			onClick: () => setModalVisible(true),
+			title: 'Request Leave Update',
+		},
+		{
+			bg: 'bg-red-600 hover:bg-red-500',
+			disabled: appLoading,
+			onClick: () => deleteLeave(id),
+			title: 'Delete Leave',
+		},
+	];
+	if (admin) {
+		actions = [
+			...actions,
+			{
+				bg: 'bg-green-600 hover:bg-green-500',
+				disabled: appLoading,
+				onClick: () => approveLeave({ id, approval: 'APPROVED' }),
+				title: 'Approve Leave',
+			},
+			{
+				bg: 'bg-yellow-600 hover:bg-yellow-500',
+				disabled: appLoading,
+				onClick: () => approveLeave({ id, approval: 'DENIED' }),
+				title: 'Deny Leave',
+			},
+		];
+	}
 
 	return (
 		<Container
-			heading={admin ? "Leave Information (Admin)" : "Leave Information"}
+			heading={admin ? 'Leave Information (Admin)' : 'Leave Information'}
 			icon
-			title={leave.data?.id}
-			error={
-				isErrorWithData(leave.error)
-					? {
-							statusCode: leave.error.status,
-							title: String(leave.error.data.error || leave.error.data.detail || ""),
-					  }
-					: undefined
-			}
 			refresh={{
-				loading: leave.isFetching,
-				onClick: leave.refetch,
+				loading: isFetching,
+				onClick: refetch,
 			}}
-			loading={loading}
-			disabledLoading={!leave.isLoading && leave.isFetching}
+			loading={isLoading}
 		>
-			<InfoTopBar
-				email={leave.data?.user?.email}
-				full_name={`${leave.data?.user?.first_name} ${leave.data?.user?.last_name}`}
-				image={leave.data?.user?.image}
-				actions={
-					admin && data?.is_admin
-						? [
+			{data && (
+				<>
+					<InfoTopBar
+						email={data.employee.user.email}
+						full_name={
+							data.employee.user.firstName + ' ' + data.employee.user.lastName
+						}
+						image={data.employee.user.profile?.image || DEFAULT_IMAGE}
+						actions={actions}
+					/>
+
+					<div className="mt-4">
+						<InfoComp
+							infos={[
 								{
-									bg: "bg-green-600 hover:bg-green-500",
-									disabled: action === "approved" && approve.isLoading,
-									loading: action === "approved" && approve.isLoading,
-									onClick: () => {
-										if (id) {
-											approveLeave({ id, approval: "approved" });
-											setAction("approved");
-										}
-									},
-									title: "Approve Leave",
+									title: 'First Name',
+									value: data.employee.user.firstName,
 								},
 								{
-									bg: "bg-red-600 hover:bg-red-500",
-									disabled: action === "denied" && approve.isLoading,
-									loading: action === "denied" && approve.isLoading,
-									onClick: () => {
-										if (id) {
-											approveLeave({ id, approval: "denied" });
-											setAction("denied");
-										}
-									},
-									title: "Deny Leave",
+									title: 'Last Name',
+									value: data.employee.user.lastName,
 								},
-						  ]
-						: undefined
-				}
-			/>
+								{ title: 'E-mail', value: data.employee.user.email },
+								{
+									title: 'Department',
+									value: data.employee.department?.name || '------',
+								},
+								{ title: 'Job', value: data.employee.job?.name || '------' },
+							]}
+							title="employee information"
+						/>
 
-			<div className="mt-4">
-				<InfoComp
-					infos={[
-						{ title: "First Name", value: leave.data?.user?.first_name || "" },
-						{ title: "Last Name", value: leave.data?.user?.last_name || "" },
-						{ title: "E-mail", value: leave.data?.user?.email || "" },
-						{ title: "Occupation", value: leave.data?.user?.job || "" },
-					]}
-					title="employee information"
-				/>
+						<InfoComp
+							infos={[
+								{
+									title: 'Type of Leave',
+									value: data.type,
+								},
+								{
+									options: {
+										bg:
+											data.status === 'APPROVED'
+												? 'success'
+												: data.status === 'DENIED'
+												? 'error'
+												: data.status === 'PENDING'
+												? 'warning'
+												: 'info',
+									},
+									title: 'Status',
+									value: data.status,
+									type: 'badge',
+								},
+								{
+									title: 'Start Date',
+									value: getDate(data.startDate, true) as string,
+								},
+								{
+									title: 'End Date',
+									value: getDate(data.endDate, true) as string,
+								},
+								{
+									title: 'Resumption Date',
+									value: getNextDate(data.endDate, 1, true) as string,
+								},
+								{
+									title: 'Number Of Days',
+									value: getNoOfDays(data.startDate, data.endDate),
+								},
+								{ title: 'Reason For Leave', value: data.reason },
+								{
+									title: 'Last Updated',
+									value: getDate(data.updatedAt, true) as string,
+								},
+								{
+									title: 'Date Requested',
+									value: getDate(data.createdAt, true) as string,
+								},
+							]}
+							title="leave information"
+						/>
 
-				<InfoComp
-					infos={[
-						{
-							title: "Type of Leave",
-							value: leave.data?.leave_type?.name || "Not Specified",
-						},
-						{
-							options: {
-								bg: leave.data?.status
-									? leave.data?.status === "approved"
-										? "success"
-										: leave.data.status === "denied"
-										? "error"
-										: leave.data.status === "pending"
-										? "warning"
-										: "info"
-									: "info",
-							},
-							title: "Status",
-							value: leave.data?.status || "Pending",
-							type: "badge",
-						},
-						{
-							title: "Start Date",
-							value: leave.data?.start_date
-								? (getDate(leave.data.start_date, true) as string)
-								: "",
-						},
-						{
-							title: "End Date",
-							value: leave.data?.end_date
-								? (getDate(leave.data.end_date, true) as string)
-								: "",
-						},
-						{
-							title: "Resumption Date",
-							value: leave.data?.resume_date
-								? (getDate(leave.data.resume_date, true) as string)
-								: "",
-						},
-						{
-							title: "Number Of Days",
-							value: String(leave.data?.no_of_days),
-						},
-						{ title: "Reason For Leave", value: leave.data?.reason || "" },
-						{
-							title: "Date Requested",
-							value: leave.data?.date_requested
-								? (getDate(leave.data.date_requested, true) as string)
-								: "",
-						},
-						{
-							title: "Last Update",
-							value: leave.data?.date_updated
-								? (getDate(leave.data.date_updated, true) as string)
-								: "",
-						},
-					]}
-					title="leave information"
-					titleWidth="w-[200px]"
-				/>
+						{data.createdBy && (
+							<InfoComp
+								infos={[
+									{
+										title: 'Profile Image',
+										type: 'image',
+										value: {
+											src: data.createdBy.user.profile?.image || DEFAULT_IMAGE,
+											alt:
+												data.createdBy.user.firstName +
+												' ' +
+												data.createdBy.user.lastName,
+										},
+									},
+									{
+										title: 'First Name',
+										value: data.createdBy.user.firstName,
+									},
+									{
+										title: 'Last Name',
+										value: data.createdBy.user.lastName,
+									},
+									{
+										title: 'Email',
+										value: data.createdBy.user.email,
+									},
+									{
+										title: 'Department',
+										value: data.createdBy.department?.name || '-------',
+									},
+									{
+										title: 'Job',
+										value: data.createdBy.job?.name || '-------',
+									},
+								]}
+								title="Created By"
+							/>
+						)}
 
-				<InfoComp
-					infos={[
-						{
-							options: {
-								bg: leave.data?.authorized?.supervisor
-									? leave.data?.authorized?.supervisor === "approved"
-										? "success"
-										: leave.data?.authorized?.supervisor === "denied"
-										? "error"
-										: leave.data?.authorized?.supervisor === "pending"
-										? "warning"
-										: "info"
-									: "info",
-							},
-							title: "Supervisor",
-							value: leave.data?.authorized?.supervisor || "Not Needed",
-							type: "badge",
-						},
-						{
-							options: {
-								bg: leave.data?.authorized?.hod
-									? leave.data?.authorized?.hod === "approved"
-										? "success"
-										: leave.data?.authorized?.hod === "denied"
-										? "error"
-										: leave.data?.authorized?.hod === "pending"
-										? "warning"
-										: "info"
-									: "info",
-							},
-							title: "Head of Department",
-							value: leave.data?.authorized?.hod || "Not Needed",
-							type: "badge",
-						},
-						{
-							options: {
-								bg: leave.data?.authorized?.hr
-									? leave.data?.authorized?.hr === "approved"
-										? "success"
-										: leave.data?.authorized?.hr === "denied"
-										? "error"
-										: leave.data?.authorized?.hr === "pending"
-										? "warning"
-										: "info"
-									: "info",
-							},
-							title: "Human Resoure Manager",
-							value: leave.data?.authorized?.hr || "Not Needed",
-							type: "badge",
-						},
-						{
-							options: {
-								bg: leave.data?.authorized?.md
-									? leave.data?.authorized?.md === "approved"
-										? "success"
-										: leave.data?.authorized?.md === "denied"
-										? "error"
-										: leave.data?.authorized?.md === "pending"
-										? "warning"
-										: "info"
-									: "info",
-							},
-							title: "Managing Director",
-							value: leave.data?.authorized?.md || "Not Needed",
-							type: "badge",
-						},
-					]}
-					title="Leave Status"
-					titleWidth="w-[210px]"
-				/>
-			</div>
+						{data.approvedBy && (
+							<InfoComp
+								infos={[
+									{
+										title: 'Profile Image',
+										type: 'image',
+										value: {
+											src: data.approvedBy.user.profile?.image || DEFAULT_IMAGE,
+											alt:
+												data.approvedBy.user.firstName +
+												' ' +
+												data.approvedBy.user.lastName,
+										},
+									},
+									{
+										title: 'First Name',
+										value: data.approvedBy.user.firstName,
+									},
+									{
+										title: 'Last Name',
+										value: data.approvedBy.user.lastName,
+									},
+									{
+										title: 'Email',
+										value: data.approvedBy.user.email,
+									},
+									{
+										title: 'Department',
+										value: data.approvedBy.department?.name || '-------',
+									},
+									{
+										title: 'Job',
+										value: data.approvedBy.job?.name || '-------',
+									},
+								]}
+								title="Approved/Denied By"
+							/>
+						)}
+					</div>
+					<Modal
+						close={() => setModalVisible(false)}
+						component={
+							<Form
+								adminView={admin}
+								errors={errors}
+								initState={data}
+								loading={editLoading}
+								onSubmit={handleSubmit}
+							/>
+						}
+						description="Fill in the form below to update leave request."
+						keepVisible
+						title="Update leave request"
+						visible={modalVisible}
+					/>
+				</>
+			)}
 		</Container>
 	);
 };

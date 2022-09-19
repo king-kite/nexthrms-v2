@@ -24,6 +24,11 @@ const employeeSelectQuery: Prisma.EmployeeSelect = {
 			},
 		},
 	},
+	department: {
+		select: {
+			name: true,
+		},
+	},
 	job: {
 		select: {
 			name: true,
@@ -48,6 +53,7 @@ export const leaveSelectQuery: Prisma.LeaveSelect = {
 		select: employeeSelectQuery,
 	},
 	updatedAt: true,
+	createdAt: true,
 };
 
 export const getLeavesQuery = ({

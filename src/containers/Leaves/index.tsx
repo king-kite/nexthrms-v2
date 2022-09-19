@@ -38,26 +38,29 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 		}
 	);
 
-	const { mutate: requestLeave, isLoading: createLoading } =
-		useRequestLeaveMutation({
-			onSuccess() {
-				setModalVisible(false);
-				open({
-					type: 'success',
-					message: 'Your request for leave was sent!',
-				});
-			},
-			onError: (err) => {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
+	const {
+		mutate: requestLeave,
+		isLoading: createLoading,
+		isSuccess,
+	} = useRequestLeaveMutation({
+		onSuccess() {
+			setModalVisible(false);
+			open({
+				type: 'success',
+				message: 'Your request for leave was sent!',
+			});
+		},
+		onError: (err) => {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
+	});
 
 	const handleSubmit = useCallback(
 		(form: CreateLeaveQueryType) => {
-			setErrors(undefined)
+			setErrors(undefined);
 			requestLeave(form);
 		},
 		[requestLeave]
@@ -102,7 +105,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			<Modal
 				close={() => setModalVisible(false)}
 				component={
-					<Form errors={errors} loading={createLoading} onSubmit={handleSubmit} />
+					<Form
+						errors={errors}
+						loading={createLoading}
+						success={isSuccess}
+						onSubmit={handleSubmit}
+					/>
 				}
 				description="Fill in the form below to request a leave"
 				keepVisible

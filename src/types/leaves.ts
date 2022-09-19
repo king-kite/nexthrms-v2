@@ -8,10 +8,13 @@ type EmployeeType = {
 		profile: {
 			image: string;
 		} | null;
-		job: {
-			name: true;
-		} | null;
 	};
+	department: {
+		name: string;
+	} | null;
+	job: {
+		name: string;
+	} | null;
 };
 
 export type LeaveType = {
@@ -29,6 +32,7 @@ export type LeaveType = {
 		| 'SICK';
 	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
 	updatedAt: Date | string;
+	createdAt: Date | string;
 	employee: EmployeeType;
 	approvedBy: EmployeeType;
 	createdBy: EmployeeType;

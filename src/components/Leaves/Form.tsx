@@ -17,6 +17,7 @@ type FormProps = {
 	errors?: CreateLeaveErrorResponseType & {
 		message?: string;
 	};
+	success?: boolean;
 	loading: boolean;
 	onSubmit: (form: CreateLeaveQueryType) => void;
 };
@@ -27,6 +28,7 @@ const Form: FC<FormProps> = ({
 	errors,
 	loading,
 	onSubmit,
+	success
 }) => {
 	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
 	const [form, setForm] = useState<
@@ -67,6 +69,19 @@ const Form: FC<FormProps> = ({
 	);
 
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
+
+	useEffect(() => {
+		if (success) setForm({
+			endDate: getNextDate(getDate(), 1, true) as string,
+			startDate: getDate(undefined, true) as string,
+			noOfDays: getNoOfDays(
+				getDate(undefined, true),
+				getNextDate(getDate(), 1)
+			),
+			reason: '',
+			type: 'CASUAL',
+		})
+	}, [success])
 
 	useEffect(() => {
 		if (getDate(form.startDate) < getDate()) {
@@ -132,6 +147,7 @@ const Form: FC<FormProps> = ({
 
 	const handleSubmit = useCallback(
 		async (form: CreateLeaveQueryType) => {
+			setErrors(undefined)
 			try {
 				const valid: CreateLeaveQueryType =
 					await leaveCreateSchema.validateAsync(form);

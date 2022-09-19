@@ -33,8 +33,6 @@ export const DEPARTMENT_URL = (id: string) => `${ROOT_URL}/departments/${id}/`;
 
 export const EMPLOYEES_URL = `${ROOT_URL}/employees/`;
 export const EMPLOYEE_URL = (id: string) => `${EMPLOYEES_URL}${id}/`;
-export const EMPLOYEE_DEACTIVATE_URL = `${ROOT_URL}/employees-deactivate/`;
-export const EMPLOYEE_PASSWORD_CHANGE_URL = `${ROOT_URL}/employees/password/change/`;
 export const EMPLOYEE_EXPORT_URL = (_type: string) =>
 	`${ROOT_URL}/employees/export/${_type}/`;
 
@@ -43,6 +41,7 @@ export const HOLIDAY_URL = (id: string) => `${ROOT_URL}/holidays/${id}/`;
 
 export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;
 export const LEAVE_URL = (id: string) => `${LEAVES_URL}${id}/`;
+export const LEAVE_APPROVAL_URL = (id: string) => LEAVE_URL(id) + 'approval/'
 
 export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/all/`;
 export const LEAVE_ADMIN_URL = (id: string) =>

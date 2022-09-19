@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
+import React from 'react';
 
+import { useAlertModalContext } from '../contexts';
 import * as tags from '../tagTypes';
 import { DEFAULT_PAGINATION_SIZE, LEAVE_URL, LEAVES_URL } from '../../config';
 import {
@@ -13,6 +15,46 @@ import {
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors } from '../../validators';
+
+// get leave
+export function useGetLeaveQuery(
+	{
+		id,
+		onError,
+	}: {
+		id: string;
+		onError?: (error: { status: number; message: string }) => void;
+	},
+	options?: {
+		onSuccess?: (data: SuccessResponseType<LeaveType>['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => SuccessResponseType<LeaveType>['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.LEAVES, { id }],
+		() =>
+			axiosInstance
+				.get(LEAVE_URL(id))
+				.then(
+					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
+						response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message || 'An error occurred. Unable to get leave.',
+					});
+			},
+			...options,
+		}
+	);
+	return query;
+}
 
 // get leaves
 export function useGetLeavesQuery(
@@ -173,7 +215,9 @@ export function useDeleteLeaveMutation(
 ) {
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation(
+	const { open, showLoader, close } = useAlertModalContext();
+
+	const { mutate, ...mutation } = useMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(LEAVE_URL(id))
@@ -191,6 +235,93 @@ export function useDeleteLeaveMutation(
 						...error?.data,
 						message:
 							error?.message || 'An error occurred. Unable to delete leave!',
+					});
+				}
+			},
+			onSettled() {
+				close()
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteLeave = React.useCallback(
+		(id: string) => {
+			open({
+				closeOnButtonClick: false,
+				header: 'Delete Leave Request?',
+				color: 'danger',
+				message: 'Do you want to delete this leave request?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(id);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[open, close, mutate, showLoader]
+	);
+
+	return { deleteLeave, ...mutation };
+}
+
+// approve leave
+export function useApproveLeaveMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (err: { message?: string }) => void;
+		onRequestComplete?: (query: { message: string; error?: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: () => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(query: { id: string; approval: 'APPROVED' | 'DENIED' }) =>
+			axiosInstance
+				.post(LEAVE_URL(query.id), { approval: query.approval })
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.LEAVES]);
+
+				if (options?.onSuccess) options.onSuccess();
+				if (options?.onRequestComplete) {
+					options.onRequestComplete({
+						message: 'Request for leave was ' + variables.approval,
+					});
+				}
+			},
+			async onError(err) {
+				const error = handleAxiosErrors(err);
+				if (options?.onError) {
+					options.onError({
+						message:
+							error?.message ||
+							'An error occurred. Unable to approve/denied leave!',
+					});
+				}
+				if (options?.onRequestComplete) {
+					options.onRequestComplete({
+						message: 'An error occurred. Unable to approve/denied leave!',
+						error: error?.message,
 					});
 				}
 			},

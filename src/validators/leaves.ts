@@ -18,3 +18,10 @@ export const leaveCreateSchema = Joi.object({
 		)
 		.label('Leave Type'),
 });
+
+export const leaveApprovalSchema = Joi.object({
+	approval: Joi.string()
+		.required()
+		.valid('APPROVED', 'DENIED')
+		.label('Approval'),
+});
