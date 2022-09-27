@@ -1,13 +1,10 @@
-import { getTime } from "../../utils";
-import { AttendanceDayType, AttendanceWeekType } from "../../types/employees";
+import { AttendanceInfoType } from '../../types';
 
 export const TimeCard = ({
 	border,
-	color,
 	day,
 	time,
 }: {
-	color: string;
 	day: string;
 	border: string;
 	time?: string;
@@ -25,45 +22,54 @@ export const TimeCard = ({
 					{day}
 				</span>
 				<span className="capitalize font-semibold text-gray-500 text-xs">
-					{time ? getTime(time) : "-------"}
+					{time || '-------'}
 				</span>
 			</div>
 		</div>
 	</div>
 );
 
-const prepDayObject = (day?: AttendanceDayType) => ({
-	pit: day?.punch_in,
-	pot: day?.punch_out,
-	pic: day?.punch_in ? "bg-green-600" : "bg-red-600",
-	bic: day?.punch_in ? "border-green-600" : "border-red-600",
-	poc: day?.punch_out ? "bg-green-600" : "bg-red-600",
-	boc: day?.punch_out ? "border-green-600" : "border-red-600",
-})
+// Get the specified day in the timeline array
+// 0 for sunday and 6 for saturday;
+function getAttendanceByDay(timeline: AttendanceInfoType[], day: number = 0) {
+	const attendance = timeline.find((attendance) => {
+		const date = new Date(attendance.date);
+		if (date.getDay() === day) return date;
+	});
+	return attendance;
+}
 
-const Activity = ({ week_hours }: { week_hours?: AttendanceWeekType }) => {
+const prepDayObject = (day?: AttendanceInfoType) => ({
+	pit: day?.punchIn ? new Date(day.punchIn).toLocaleTimeString() : undefined,
+	pot: day?.punchOut ? new Date(day.punchOut).toLocaleTimeString() : undefined,
+	bic: day?.punchIn ? 'border-green-600' : 'border-red-600',
+	boc: day?.punchOut ? 'border-green-600' : 'border-red-600',
+});
+
+const Activity = ({ timeline }: { timeline: AttendanceInfoType[] }) => {
 	const week = [
 		{
-			day: "monday",
-			...prepDayObject(week_hours?.mon)
+			day: 'monday',
+			...prepDayObject(getAttendanceByDay(timeline, 1)),
 		},
 		{
-			day: "tuesday",
-			...prepDayObject(week_hours?.tue)
+			day: 'tuesday',
+			...prepDayObject(getAttendanceByDay(timeline, 2)),
 		},
 		{
-			day: "wednesday",
-			...prepDayObject(week_hours?.wed)
+			day: 'wednesday',
+			...prepDayObject(getAttendanceByDay(timeline, 3)),
 		},
 		{
-			day: "thursday",
-			...prepDayObject(week_hours?.thu)
+			day: 'thursday',
+			...prepDayObject(getAttendanceByDay(timeline, 4)),
 		},
 		{
-			day: "friday",
-			...prepDayObject(week_hours?.fri)
+			day: 'friday',
+			...prepDayObject(getAttendanceByDay(timeline, 5)),
 		},
 	];
+
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg md:col-span-2 lg:col-span-1">
 			<h3 className="capitalize font-black my-2 text-gray-700 text-lg tracking-wider md:text-xl lg:text-lg">
@@ -81,15 +87,14 @@ const Activity = ({ week_hours }: { week_hours?: AttendanceWeekType }) => {
 					</span>
 				</div>
 			</div>
-			{week.map(({ day, pit, bic, boc, pot, pic, poc }) => (
+			{week.map(({ day, pit, bic, boc, pot }) => (
 				<div key={day} className="gap-4 grid grid-cols-2 my-2">
-					<TimeCard color={pic} border={bic} day={day} time={pit} />
-					<TimeCard color={poc} day={day} border={boc} time={pot} />
+					<TimeCard border={bic} day={day} time={pit} />
+					<TimeCard border={boc} day={day} time={pot} />
 				</div>
 			))}
 		</div>
 	);
 };
 
-
-export default Activity
+export default Activity;

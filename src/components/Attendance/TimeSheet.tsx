@@ -4,10 +4,20 @@ import { useAlertContext } from '../../store/contexts';
 import { usePunchAttendanceMutation } from '../../store/queries';
 import { AttendanceInfoType } from '../../types';
 
+// time is in minutes
+function getTime(time: number): number | string {
+	const hour = Math.trunc(time / 60);
+	const minute = time % 60;
+
+	return `${hour}.${minute.toString().padStart(2, '0')}`;
+}
+
 function TimeSheet({
+	fetching,
 	loading,
 	timesheet,
 }: {
+	fetching: boolean;
 	loading: boolean;
 	timesheet?: AttendanceInfoType | null;
 }) {
@@ -45,8 +55,7 @@ function TimeSheet({
 		  )
 		: 0;
 
-	let time = diff >= 60 ? diff / 60 : diff;
-	time = time.toString().includes('.') ? parseFloat(time.toFixed(2)) : time;
+	let time = diff >= 60 ? getTime(diff) : diff;
 
 	const suffix =
 		diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
@@ -66,7 +75,7 @@ function TimeSheet({
 			</div>
 			<div className="flex justify-center items-center my-4 lg:my-3">
 				<div className="border-4 border-gray-300 flex h-28 items-center justify-center rounded-full w-28">
-					{loading || isLoading ? (
+					{(loading || isLoading) ? (
 						<Loader type="dotted" color="primary" size={4} />
 					) : (
 						<span className="font-semibold text-center text-gray-800 text-2xl md:text-3xl lg:text-2xl">
@@ -84,7 +93,7 @@ function TimeSheet({
 								: 'bg-primary-500 hover:bg-primary-600 focus:ring-primary-300'
 						} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
 						caps
-						disabled={loading || isLoading || disabled === false}
+						disabled={fetching || isLoading || disabled === false}
 						padding="px-4 py-2 md:px-6 md:py-3 lg:px-4 lg:py-2"
 						rounded="rounded-xl"
 						onClick={

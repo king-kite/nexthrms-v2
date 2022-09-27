@@ -109,8 +109,8 @@ export const getAttendanceInfo = async (id: string) => {
 			where: {
 				employeeId: id,
 				date: {
-					gte: getWeekDate(date, 0), // sunday
-					lte: getWeekDate(date, 6), // saturday
+					gte: getWeekDate(date, 1), // sunday
+					lte: getWeekDate(date, 5), // saturday
 				},
 			},
 			select: selectInfo,

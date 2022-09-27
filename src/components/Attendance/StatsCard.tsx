@@ -6,7 +6,7 @@ import { Activity, Statistics, TimeSheet } from './index';
 const StatsCard = () => {
 	const { open } = useAlertContext();
 
-	const { data, refetch, isFetching } = useGetAttendanceInfoQuery({
+	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery({
 		onError({ message }) {
 			open({
 				type: 'danger',
@@ -14,10 +14,6 @@ const StatsCard = () => {
 			});
 		},
 	});
-
-	// const date = new
-
-	// const hours_spent =
 
 	return (
 		<>
@@ -32,7 +28,11 @@ const StatsCard = () => {
 				</div>
 			</div>
 			<div className="gap-4 grid grid-cols-1 w-full md:gap-5 md:grid-cols-2 lg:grid-cols-3">
-				<TimeSheet loading={isFetching} timesheet={data?.timesheet} />
+				<TimeSheet
+					loading={isLoading}
+					fetching={isFetching}
+					timesheet={data?.timesheet}
+				/>
 				<Statistics
 					today={0}
 					week={0}
@@ -44,7 +44,7 @@ const StatsCard = () => {
 					// overtime={data?.statistics?.overtime || 0}
 				/>
 				{/* <Activity week_hours={data ? data.week_hours : undefined} /> */}
-				<Activity week_hours={undefined} />
+				<Activity timeline={data?.timeline || []} />
 			</div>
 		</>
 	);
