@@ -1,73 +1,55 @@
-import { FC, useCallback, useEffect, useState } from "react";
-import { isErrorWithData } from "../../store";
-import { open } from "../../store/features/alert-slice";
-import { open as alertModalOpen } from "../../store/features/alert-modal-slice";
-import { usePunchActionMutation } from "../../store/features/employees-slice";
-import { useAppDispatch } from "../../hooks";
-import { Button, Loader } from "../controls";
-import { getTime } from "../../utils";
+import { Button, Loader } from '@king-kite/react-kit';
 
-export type TimeSheetProps = {
+import { useAlertContext } from '../../store/contexts';
+import { usePunchAttendanceMutation } from '../../store/queries';
+import { AttendanceInfoType } from '../../types';
+
+function TimeSheet({
+	loading,
+	timesheet,
+}: {
 	loading: boolean;
-	hours_spent?: number;
-	overtime_hours?:number;
-	punchedIn?: string;
-	punchedOut?: string;
-};
+	timesheet?: AttendanceInfoType | null;
+}) {
+	const { open } = useAlertContext();
 
-const TimeSheet: FC<TimeSheetProps> = ({ loading, hours_spent, overtime_hours, punchedIn, punchedOut }) => {
-	const dispatch = useAppDispatch();
+	const { handlePunch, isLoading } = usePunchAttendanceMutation({
+		onSuccess() {
+			open({
+				type: 'success',
+				message: 'Punched In',
+			});
+		},
+		onError({ message }) {
+			open({
+				type: 'danger',
+				message,
+			});
+		},
+	});
 
-	const [punchAction, { data, error, status, isLoading }] = usePunchActionMutation();
+	// Get the current time i.e set the date to 1st Jan, 1970
+	const currentDate = new Date();
+	currentDate.setFullYear(1970, 0, 1);
+	const punchIn = timesheet?.punchIn ? new Date(timesheet.punchIn) : undefined;
+	const punchOut = timesheet?.punchOut
+		? new Date(timesheet.punchOut)
+		: undefined;
 
-	const handlePunchOut = useCallback(() => {
-		dispatch(
-			alertModalOpen({
-				color: "warning",
-				header: "Punch out?",
-				message: "Do you wish to continue?",
-				decisions: [
-					{
-						color: "info",
-						title: "Cancel",
-					},
-					{
-						onClick: () => punchAction("out"),
-						color: "warning",
-						title: "Proceed",
-					},
-				],
-			})
-		);
-	}, [dispatch, punchAction]);
+	const disabled = punchIn && punchOut ? false : true;
 
-	const able = typeof punchedIn  === "string" && typeof punchedOut === "string" ? false : true
-	const split_time = hours_spent ? String(hours_spent).split(".") : undefined; // Get the hours as 0th index of an array and mins as 1th index
-	const hour = split_time ? parseInt(split_time[0]) : 0 // Convert the hours to integer
-	const minute = split_time && split_time[1] ? parseInt(split_time[1].slice(0, 2)) : 0 // Check if there a value in the 1th index, slice the length to 2 and convert to integer
+	// Get difference of time in minutes, rounded off and taking the absolute value.
+	const diff = punchIn
+		? Math.abs(
+				Math.round((currentDate.getTime() - punchIn.getTime()) / (1000 * 60))
+		  )
+		: 0;
 
-	const suffix = hour < 1 ? minute === 1 ? "min" : "mins" : hour === 1 && minute < 1 ? "hr" : "hrs"
+	let time = diff >= 60 ? diff / 60 : diff;
+	time = time.toString().includes('.') ? parseFloat(time.toFixed(2)) : time;
 
-	const minutes = Math.floor(minute * 60 / 100)
-	const hours = hour >= 1 ? `${hour}.${minute}` : 0
-	
-	const time = hours_spent && hours_spent >= 1 ? hours : minutes
-
-	useEffect(() => {
-		if (status === "fulfilled" && data)
-			dispatch(open({ type: "success", message: data.detail || "Your request was successful" }));
-		else if (status === "rejected" && isErrorWithData(error))
-			dispatch(
-				open({
-					type: "danger",
-					message: String(
-						error.data.detail ||
-							error.data.error ||
-							"Unable to punch in, please try again later!"
-					),
-				})
-			);
-	}, [dispatch, data, status, error]);
+	const suffix =
+		diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
 
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
@@ -79,12 +61,14 @@ const TimeSheet: FC<TimeSheetProps> = ({ loading, hours_spent, overtime_hours, p
 					Punch In at
 				</span>
 				<p className="capitalize text-gray-500 tracking-wide text-lg md:text-base">
-					{punchedIn ? `${new Date().toDateString()} ${getTime(punchedIn)}` : "------------"}
+					{punchIn ? punchIn.toLocaleTimeString() : '------------'}
 				</p>
 			</div>
 			<div className="flex justify-center items-center my-4 lg:my-3">
 				<div className="border-4 border-gray-300 flex h-28 items-center justify-center rounded-full w-28">
-					{(loading || isLoading) ? <Loader type="dotted" color="primary" size={4} /> : (
+					{loading || isLoading ? (
+						<Loader type="dotted" color="primary" size={4} />
+					) : (
 						<span className="font-semibold text-center text-gray-800 text-2xl md:text-3xl lg:text-2xl">
 							{time} {suffix}
 						</span>
@@ -94,15 +78,29 @@ const TimeSheet: FC<TimeSheetProps> = ({ loading, hours_spent, overtime_hours, p
 			<div className="flex justify-center items-center my-1">
 				<div>
 					<Button
-						bg={`${punchedIn ? "bg-secondary-500 hover:bg-secondary-600 focus:ring-secondary-300" : "bg-primary-500 hover:bg-primary-600 focus:ring-primary-300"} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
+						bg={`${
+							punchIn
+								? 'bg-secondary-500 hover:bg-secondary-600 focus:ring-secondary-300'
+								: 'bg-primary-500 hover:bg-primary-600 focus:ring-primary-300'
+						} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
 						caps
-						disabled={loading || isLoading || able === false}
-						loader
-						loading={loading || isLoading}
+						disabled={loading || isLoading || disabled === false}
 						padding="px-4 py-2 md:px-6 md:py-3 lg:px-4 lg:py-2"
 						rounded="rounded-xl"
-						onClick={able ? punchedIn ? handlePunchOut : () => punchAction("in") : undefined}
-						title={able === false ? "Punched Out" : punchedIn ? "Punch Out" : "Punch In"}
+						onClick={
+							disabled ? () => handlePunch(punchIn ? 'OUT' : 'IN') : undefined
+						}
+						title={
+							disabled === false
+								? 'Punched Out'
+								: punchIn
+								? isLoading
+									? 'Punching Out...'
+									: 'Punch Out'
+								: isLoading
+								? 'Punching In...'
+								: 'Punch In'
+						}
 						titleSize="text-base sm:tracking-wider md:text-lg"
 					/>
 				</div>
@@ -121,12 +119,15 @@ const TimeSheet: FC<TimeSheetProps> = ({ loading, hours_spent, overtime_hours, p
 						Overtime
 					</span>
 					<p className="text-gray-500 tracking-wide text-base">
-						{overtime_hours || 0} {overtime_hours && overtime_hours > 1 ? "hrs" : "hr"}
+						{timesheet?.overtime ? timesheet?.overtime.hours : 0}{' '}
+						{timesheet?.overtime && timesheet?.overtime.hours > 1
+							? 'hrs'
+							: 'hr'}
 					</p>
 				</div>
 			</div>
 		</div>
 	);
-};
+}
 
 export default TimeSheet;

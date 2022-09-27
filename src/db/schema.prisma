@@ -21,9 +21,12 @@ model Attendance {
   employeeId String   @map("employee_id") @db.Uuid
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now()) @map("created_at")
+  overtimeId String?   @unique @map("overtime_id") @db.Uuid
+  overtime   Overtime? @relation(fields: [overtimeId], references: [id], onDelete: SetNull)
+
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([date, employeeId])
   @@map("attendance")
 }
 
@@ -180,6 +183,8 @@ model Overtime {
 
   approvedById String?   @map("approved_by") @db.Uuid
   approvedBy   Employee? @relation("approvedByOvertime", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  attendance Attendance?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

@@ -1,19 +1,16 @@
-import { useState } from "react";
-import { DEFAULT_PAGINATION_SIZE } from "../config";
-import { isErrorWithData } from "../store";
-import { useGetAttendanceQuery } from "../store/features/employees-slice";
-import { StatsCard, AttendanceTable } from "../components/Attendance";
-import { Container } from "../components/common";
+import { useState } from 'react';
+
+import { Container } from '../components/common';
+import { StatsCard, AttendanceTable } from '../components/Attendance';
+import { DEFAULT_PAGINATION_SIZE } from '../config';
+import { useGetAttendanceQuery } from '../store/queries';
 
 const Attendance = () => {
 	const [offset, setOffset] = useState(0);
-	const {
-		data,
-		error,
-		refetch,
-		isLoading,
-		isFetching,
-	} = useGetAttendanceQuery({ limit: DEFAULT_PAGINATION_SIZE, offset });
+	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery({
+		limit: DEFAULT_PAGINATION_SIZE,
+		offset,
+	});
 
 	return (
 		<Container
@@ -23,15 +20,6 @@ const Attendance = () => {
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			error={
-				isErrorWithData(error)
-					? {
-							statusCode: error.status,
-							title: String(error.data.detail || error.data.error || ""),
-					  }
-					: undefined
-			}
-			disabledLoading={!isLoading && isFetching}
 			loading={isLoading}
 			paginate={
 				data
@@ -39,7 +27,7 @@ const Attendance = () => {
 							loading: isFetching,
 							offset,
 							setOffset,
-							totalItems: data ? data.count : 0,
+							totalItems: data ? data.total : 0,
 					  }
 					: undefined
 			}
@@ -47,9 +35,7 @@ const Attendance = () => {
 			{data && (
 				<>
 					<StatsCard />
-					<AttendanceTable
-						attendance={data ? data.results : []}
-					/>
+					<AttendanceTable attendance={data ? data.result : []} />
 				</>
 			)}
 		</Container>

@@ -1,3 +1,5 @@
+export const ATTENDANCE = 'attendance';
+export const ATTENDANCE_INFO = 'attendance_info';
 export const CLIENTS = 'clients';
 export const DEPARTMENTS = 'departments';
 export const EMPLOYEES = 'employees';

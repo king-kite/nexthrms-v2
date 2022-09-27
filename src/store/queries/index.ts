@@ -1,3 +1,4 @@
+export * from './attendance';
 export * from './clients';
 export * from './departments';
 export * from './employees';

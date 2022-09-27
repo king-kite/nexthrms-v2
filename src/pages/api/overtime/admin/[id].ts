@@ -78,6 +78,14 @@ export default auth()
 						id: employee,
 					},
 				},
+				attendance: {
+					connect: {
+						date_employeeId: {
+							date: data.date,
+							employeeId: employee,
+						},
+					},
+				},
 			},
 			select: selectQuery,
 		});

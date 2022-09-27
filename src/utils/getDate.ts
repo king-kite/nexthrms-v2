@@ -99,4 +99,33 @@ export function getNoOfDays(start: Date | string, end: Date | string): number {
 	return (endDate - startDate) / (1000 * 60 * 60 * 24);
 }
 
+/*
+
+Return sunday in the specified week
+const sunday = getWeekDate(new Date(), 0)
+
+Return monday in the specified week
+const monday = getWeekDate(new Date(), 1)
+
+*/
+
+export function getWeekDate(
+	weekDate: Date | string = new Date(),
+	day: number = 0
+) {
+	const aDay = 24 * 60 * 60 * 1000;
+	const currentDate =
+		typeof weekDate === 'string' ? new Date(weekDate) : weekDate;
+	const weekDay = new Date(
+		currentDate.getTime() - +(currentDate.getDay() - day) * aDay
+	);
+	return weekDay;
+}
+
+export function getFirstDateOfMonth(pdate: Date | string = new Date()) {
+	const date = typeof pdate === 'string' ? new Date(pdate) : pdate;
+	const firstDate = new Date(date.getFullYear(), date.getMonth(), 1);
+	return firstDate;
+}
+
 export default getDate;

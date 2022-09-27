@@ -29,7 +29,7 @@ type CardsType = {
 };
 
 const Cards = ({ approved, denied, pending }: CardsType) => (
-	<div className="gap-4 grid grid-col-1 lg:grid-cols-3 py-4">
+	<div className="gap-4 grid grid-col-1 lg:grid-cols-3 mb-2 pb-4">
 		<Card {...cards[0]} value={pending} />
 		<Card {...cards[1]} value={approved} />
 		<Card {...cards[2]} value={denied} />

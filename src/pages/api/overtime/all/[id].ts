@@ -37,7 +37,22 @@ export default auth()
 			where: {
 				id: req.query.id as string,
 			},
-			data,
+			data: {
+				...data,
+				employee: {
+					connect: {
+						id: req.user.employee.id,
+					},
+				},
+				attendance: {
+					connect: {
+						date_employeeId: {
+							date: data.date,
+							employeeId: req.user.employee.id,
+						},
+					},
+				},
+			},
 			select: selectQuery,
 		});
 

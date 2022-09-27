@@ -1,46 +1,49 @@
-import { useEffect, useState } from "react";
-import { AttendanceType } from "../../types/employees";
-import Table, { HeadType, RowType } from "../controls/Table";
-import { getTime } from "../../utils";
+import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
+import { useEffect, useState } from 'react';
 
-const heads: HeadType = [
-  { value: "date" },
-  { value: "punch in"},
-  { value: "punch out" },
-  { value: "overtime (hours)" },
-  { value: "production" },
-  { value: "break" },
+import { AttendanceType } from '../../types';
+// import { getTime } from '../../utils';
+
+const heads: TableHeadType = [
+	{ value: 'date' },
+	{ value: 'punch in' },
+	{ value: 'punch out' },
+	{ value: 'overtime (hours)' },
+	// { value: "production" },
+	// { value: "break" },
 ];
 
-const getRows = (data: AttendanceType[]): RowType[] =>
-  data.map((attendance) => [
-    { value: attendance.date ? new Date(attendance.date).toDateString() : "---" },
-    { value: attendance.punch_in ? getTime(attendance.punch_in) : "---" },
-    { value: attendance.punch_out ? getTime(attendance.punch_out) : "---" },
-    { value: attendance.overtime || "---" },
-    { value: attendance.production || "---" },
-    { value: attendance.break || "---" },
-  ]);
+const getRows = (data: AttendanceType[]): TableRowType[] =>
+	data.map((attendance) => ({
+		id: attendance.id,
+		rows: [
+			{ value: new Date(attendance.date).toDateString() },
+			{ value: new Date(attendance.punchIn).toLocaleTimeString() },
+			{
+				value: attendance.punchOut
+					? new Date(attendance.punchOut).toLocaleTimeString()
+					: '---',
+			},
+			{ value: attendance.overtime?.hours || '---' },
+		],
+	}));
 
 type TableType = {
-  attendance: AttendanceType[];
+	attendance: AttendanceType[];
 };
 
 const AttendanceTable = ({ attendance = [] }: TableType) => {
-  const [rows, setRows] = useState<RowType[]>([]);
+	const [rows, setRows] = useState<TableRowType[]>([]);
 
-  useEffect(() => {
-    setRows(getRows(attendance));
-  }, [attendance]);
+	useEffect(() => {
+		setRows(getRows(attendance));
+	}, [attendance]);
 
-  return (
-    <div className="mt-4 rounded-lg p-2 md:p-3 lg:p-4">
-      <Table
-        heads={heads}
-        rows={rows}
-      />
-    </div>
-  );
+	return (
+		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+			<Table heads={heads} rows={rows} />
+		</div>
+	);
 };
 
 export default AttendanceTable;
