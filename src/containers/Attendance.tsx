@@ -4,13 +4,30 @@ import { Container } from '../components/common';
 import { StatsCard, AttendanceTable } from '../components/Attendance';
 import { DEFAULT_PAGINATION_SIZE } from '../config';
 import { useGetAttendanceQuery } from '../store/queries';
+import {
+	GetAttendanceResponseType,
+	GetAttendanceInfoResponseType,
+} from '../types';
 
-const Attendance = () => {
+const Attendance = ({
+	attendanceData,
+	attendanceInfo,
+}: {
+	attendanceData: GetAttendanceResponseType;
+	attendanceInfo: GetAttendanceInfoResponseType;
+}) => {
 	const [offset, setOffset] = useState(0);
-	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery({
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset,
-	});
+	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery(
+		{
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset,
+		},
+		{
+			initialData() {
+				return attendanceData;
+			},
+		}
+	);
 
 	return (
 		<Container
@@ -34,7 +51,7 @@ const Attendance = () => {
 		>
 			{data && (
 				<>
-					<StatsCard />
+					<StatsCard attendanceInfo={attendanceInfo} />
 					<AttendanceTable attendance={data ? data.result : []} />
 				</>
 			)}

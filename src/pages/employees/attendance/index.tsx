@@ -4,13 +4,20 @@ import React from 'react';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Attendance from '../../../containers/Attendance';
+import { getAttendance, getAttendanceInfo } from '../../../db';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps } from '../../../types';
+import {
+	ExtendedGetServerSideProps,
+	GetAttendanceResponseType,
+	GetAttendanceInfoResponseType,
+} from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
 	error,
+	attendanceData,
+	attendanceInfo,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		{error ? (
@@ -18,7 +25,10 @@ const Page = ({
 		) : (
 			<React.Fragment>
 				<Title title="My Attendance" />
-				<Attendance />
+				<Attendance
+					attendanceData={attendanceData}
+					attendanceInfo={attendanceInfo}
+				/>
 			</React.Fragment>
 		)}
 	</React.Fragment>
@@ -56,9 +66,15 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = serializeUserData(req.user);
+	const attendanceData: GetAttendanceResponseType['data'] = JSON.parse(
+		JSON.stringify(await getAttendance({ id: req.user.employee.id }))
+	);
+	const attendanceInfo: GetAttendanceInfoResponseType['data'] = JSON.parse(
+		JSON.stringify(await getAttendanceInfo(req.user.employee.id))
+	);
 
 	return {
-		props: { auth },
+		props: { auth, attendanceData, attendanceInfo },
 	};
 };
 

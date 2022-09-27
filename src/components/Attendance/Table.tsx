@@ -2,7 +2,6 @@ import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
 import { useEffect, useState } from 'react';
 
 import { AttendanceType } from '../../types';
-// import { getTime } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'date' },
@@ -24,7 +23,12 @@ const getRows = (data: AttendanceType[]): TableRowType[] =>
 					? new Date(attendance.punchOut).toLocaleTimeString()
 					: '---',
 			},
-			{ value: attendance.overtime?.hours || '---' },
+			{
+				value:
+					attendance.overtime && attendance.overtime.status === 'APPROVED'
+						? attendance.overtime.hours
+						: '---',
+			},
 		],
 	}));
 

@@ -15,19 +15,21 @@ export type AttendanceType = {
 	};
 	date: Date | string;
 	punchIn: Date | string;
-	punchOut: Date | string;
+	punchOut: Date | string | null;
 	updatedAt: Date | string;
 	overtime?: {
+		status: 'APPROVED' | 'DENIED' | 'PENDING';
 		hours: number;
-	};
+	} | null;
 };
 
 export type AttendanceInfoType = {
 	date: Date | string;
 	punchIn: Date | string;
-	punchOut: Date | string;
-	overtime: {
+	punchOut?: Date | string;
+	overtime?: {
 		hours: number;
+		status: 'APPROVED' | 'DENIED' | 'PENDING';
 	} | null;
 };
 

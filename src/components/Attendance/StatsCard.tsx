@@ -1,9 +1,11 @@
 import { BiRefresh } from 'react-icons/bi';
+
+import { Activity, Statistics, TimeSheet } from './index';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries';
-import { Activity, Statistics, TimeSheet } from './index';
+import { GetAttendanceInfoResponseType } from '../../types'
 
-const StatsCard = () => {
+const StatsCard = ({ attendanceInfo }: { attendanceInfo?: GetAttendanceInfoResponseType['data'] }) => {
 	const { open } = useAlertContext();
 
 	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery({
@@ -13,6 +15,10 @@ const StatsCard = () => {
 				message,
 			});
 		},
+	}, {
+		initialData() {
+			return attendanceInfo
+		}
 	});
 
 	return (

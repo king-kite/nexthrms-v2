@@ -96,9 +96,15 @@ export const getAllOvertime = async (
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
 		prisma.overtime.findMany(query),
-		prisma.overtime.count({ where: { status: 'APPROVED' } }),
-		prisma.overtime.count({ where: { status: 'PENDING' } }),
-		prisma.overtime.count({ where: { status: 'DENIED' } }),
+		prisma.overtime.count({
+			where: { employeeId: params.id, status: 'APPROVED' },
+		}),
+		prisma.overtime.count({
+			where: { employeeId: params.id, status: 'PENDING' },
+		}),
+		prisma.overtime.count({
+			where: { employeeId: params.id, status: 'DENIED' },
+		}),
 	]);
 
 	return { total, approved, pending, denied, result };

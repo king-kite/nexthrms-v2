@@ -47,22 +47,35 @@ export default auth()
 
 		// TODO: Check if the user has an approved/pending leave
 
+		const date = new Date(data.date);
+		date.setHours(0, 0, 0, 0);
+
+		const attendance = await prisma.attendance.findUnique({
+			where: {
+				date_employeeId: {
+					date,
+					employeeId: data.employee,
+				},
+			},
+			select: { id: true },
+		});
+
 		const overtime = await prisma.overtime.create({
 			data: {
 				...data,
+				date,
 				employee: {
 					connect: {
 						id: data.employee,
 					},
 				},
-				attendance: {
-					connect: {
-						date_employeeId: {
-							date: data.date,
-							employeeId: data.employee,
-						},
-					},
-				},
+				attendance: attendance
+					? {
+							connect: {
+								id: attendance.id,
+							},
+					  }
+					: {},
 			},
 			select: selectQuery,
 		});

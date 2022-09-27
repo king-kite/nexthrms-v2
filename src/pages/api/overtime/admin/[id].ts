@@ -67,6 +67,19 @@ export default auth()
 
 		// TODO: Check if the user has an approved/pending overtime
 
+		const date = new Date(data.date);
+		date.setHours(0, 0, 0, 0);
+
+		const attendance = await prisma.attendance.findUnique({
+			where: {
+				date_employeeId: {
+					date,
+					employeeId: employee,
+				},
+			},
+			select: { id: true },
+		});
+
 		const overtime = await prisma.overtime.update({
 			where: {
 				id: req.query.id as string,
@@ -78,14 +91,13 @@ export default auth()
 						id: employee,
 					},
 				},
-				attendance: {
-					connect: {
-						date_employeeId: {
-							date: data.date,
-							employeeId: employee,
-						},
-					},
-				},
+				attendance: attendance
+					? {
+							connect: {
+								id: attendance.id,
+							},
+					  }
+					: {},
 			},
 			select: selectQuery,
 		});

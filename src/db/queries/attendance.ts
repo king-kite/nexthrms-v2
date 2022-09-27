@@ -37,6 +37,7 @@ export const attendanceSelectQuery: Prisma.AttendanceSelect = {
 	overtime: {
 		select: {
 			hours: true,
+			status: true,
 		},
 	},
 };
@@ -86,6 +87,7 @@ const selectInfo: Prisma.AttendanceSelect = {
 	punchOut: true,
 	overtime: {
 		select: {
+			status: true,
 			hours: true,
 		},
 	},

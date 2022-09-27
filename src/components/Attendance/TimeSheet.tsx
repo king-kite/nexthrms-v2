@@ -75,7 +75,7 @@ function TimeSheet({
 			</div>
 			<div className="flex justify-center items-center my-4 lg:my-3">
 				<div className="border-4 border-gray-300 flex h-28 items-center justify-center rounded-full w-28">
-					{(loading || isLoading) ? (
+					{loading || isLoading ? (
 						<Loader type="dotted" color="primary" size={4} />
 					) : (
 						<span className="font-semibold text-center text-gray-800 text-2xl md:text-3xl lg:text-2xl">
@@ -128,10 +128,11 @@ function TimeSheet({
 						Overtime
 					</span>
 					<p className="text-gray-500 tracking-wide text-base">
-						{timesheet?.overtime ? timesheet?.overtime.hours : 0}{' '}
-						{timesheet?.overtime && timesheet?.overtime.hours > 1
-							? 'hrs'
-							: 'hr'}
+						{timesheet?.overtime && timesheet.overtime.status === 'APPROVED'
+							? `${timesheet.overtime.hours} ${
+									timesheet?.overtime.hours > 1 ? 'hrs' : 'hr'
+							  }`
+							: '----'}
 					</p>
 				</div>
 			</div>
