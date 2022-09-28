@@ -51,7 +51,11 @@ function TimeSheet({
 	// Get difference of time in minutes, rounded off and taking the absolute value.
 	const diff = punchIn
 		? Math.abs(
-				Math.round((currentDate.getTime() - punchIn.getTime()) / (1000 * 60))
+				Math.round(
+					((punchOut ? punchOut.getTime() : currentDate.getTime()) -
+						punchIn.getTime()) /
+						(1000 * 60)
+				)
 		  )
 		: 0;
 
