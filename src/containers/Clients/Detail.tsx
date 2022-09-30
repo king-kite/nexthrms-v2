@@ -65,7 +65,6 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 			title={data ? data.company.toUpperCase() : undefined}
 			icon
 			loading={isLoading}
-			disabledLoading={!isLoading && isFetching}
 		>
 			{data && (
 				<>

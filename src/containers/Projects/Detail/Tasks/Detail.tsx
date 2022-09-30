@@ -119,7 +119,6 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			disabledLoading={!isLoading && isFetching}
 			icon
 			loading={isLoading}
 			title={data ? data.name : undefined}

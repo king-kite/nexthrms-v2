@@ -42,21 +42,26 @@ const Topbar = () => {
 
 			<div className="flex items-center justify-end w-full sm:w-2/3">
 				<div
-					ref={buttonRef}
-					onClick={() => setVisible(!visible)}
-					className="cursor-pointer duration-500 flex items-center justify-center min-h-[30px] min-w-[30px] mx-4 relative transition transform hover:scale-110"
-				>
-					<span>
-						<FaRegBell className="text-xl text-gray-700" />
-					</span>
-					<span
-						className={` ${
-							count > 99 ? 'h-[17px] right-[3.5px] w-[18px]' : 'h-[16px] right-0 w-[14px]'
-						} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-center text-gray-100 text-[9px]`}
+						ref={buttonRef}
+						onClick={() => setVisible(!visible)}
+						className="cursor-pointer duration-500 flex items-center justify-center min-h-[30px] min-w-[30px] mx-4 relative transition transform hover:scale-110"
 					>
-						{count > 99 ? '+99' : count}
-					</span>
-				</div>
+						<span>
+							<FaRegBell className="h-5 w-5 text-gray-700" />
+						</span>
+						<span
+							className={` ${
+								count > 99
+									? "p-[3px] right-[-6px]"
+									: count > 9
+									? "pl-[3px] pb-[1px] p-[2px] right-0"
+									: "px-[5px] pb-[1px] pt-[2px] right-0"
+							} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-center text-gray-100`}
+							style={{ fontSize: "9px" }}
+						>
+							{count > 99 ? "+99" : count}
+						</span>
+					</div>
 
 				<div className="flex flex-col justify-center text-right mx-1 pt-2 sm:mx-3">
 					<p className="capitalize font-semibold leading-tight text-primary-700 text-xs sm:leading-tighter sm:text-sm">

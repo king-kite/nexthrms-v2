@@ -40,7 +40,6 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 				onClick: refetch,
 			}}
 			loading={isLoading}
-			disabledLoading={!isLoading && isFetching}
 		>
 			<InfoTopBar
 				email={data?.email}

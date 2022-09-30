@@ -76,7 +76,6 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 				onClick: refetch,
 			}}
 			loading={isLoading}
-			disabledLoading={!isLoading && isFetching}
 			title={data ? data.user.firstName + ' ' + data.user.lastName : undefined}
 		>
 			{data && (

@@ -110,7 +110,7 @@ const ProjectTasks = ({
 		<Container
 			background="bg-gray-100"
 			heading="Tasks"
-			disabledLoading={isLoading}
+			loading={isLoading}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
