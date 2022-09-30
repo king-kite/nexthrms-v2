@@ -72,7 +72,7 @@ const Card: FC<CardProps> = ({
 			<div className="flex items-center justify-around my-2">
 				<span> </span>
 				<div>
-					<div className="h-[6px] rleative w-[30px]">
+					<div className="h-[6px] relative w-[30px]">
 						<NextImage
 							layout="fill"
 							className="h-full w-full"
