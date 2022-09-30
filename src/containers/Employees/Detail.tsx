@@ -94,12 +94,12 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 									setModalVisible(true);
 								},
 								disabled: actLoading || delLoading,
-								IconLeft: FaUserEdit,
+								iconLeft: FaUserEdit,
 								title: 'Edit Employee',
 							},
 							{
 								bg: 'bg-yellow-600 hover:bg-yellow-500',
-								IconLeft: FaLock,
+								iconLeft: FaLock,
 								disabled: actLoading || delLoading,
 								onClick: () => {
 									formType !== 'password' && setFormType('password');
@@ -119,7 +119,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 												data.user.isActive ? 'deactivate' : 'activate'
 										  )
 										: undefined,
-								IconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
+								iconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
 								title: data.user.isActive
 									? actLoading
 										? 'Deactivating Employee...'
@@ -130,7 +130,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 							},
 							{
 								bg: 'bg-red-600 hover:bg-red-500',
-								IconLeft: FaTrash,
+								iconLeft: FaTrash,
 								disabled: actLoading || delLoading,
 								onClick: () => deleteEmployee(data.id),
 								title: delLoading ? 'Deleting Employee...' : 'Delete Employee',

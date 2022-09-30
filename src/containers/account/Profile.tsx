@@ -48,7 +48,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 				image={data?.profile?.image || DEFAULT_IMAGE}
 				actions={[
 					{
-						IconLeft: FaUserEdit,
+						iconLeft: FaUserEdit,
 						onClick: () => {
 							formType !== 'profile' && setFormType('profile');
 							setModalVisible(true);
@@ -57,7 +57,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 					},
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
-						IconLeft: FaLock,
+						iconLeft: FaLock,
 						onClick: () => {
 							formType !== 'password' && setFormType('password');
 							setModalVisible(true);
@@ -66,7 +66,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 					},
 					{
 						bg: 'bg-yellow-600 hover:bg-yellow-500',
-						IconLeft: FaCheckCircle,
+						iconLeft: FaCheckCircle,
 						title: 'Request Leave',
 						link: LEAVES_PAGE_URL,
 					},

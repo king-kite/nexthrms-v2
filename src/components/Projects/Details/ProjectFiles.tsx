@@ -7,7 +7,7 @@ import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
 import { ProjectFileType } from '../../../types';
-import { getTime, downloadFile } from '../../../utils';
+import { downloadFile } from '../../../utils';
 
 export type ProjectFilesProps = {
 	files: ProjectFileType[];
@@ -57,9 +57,7 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 				<ul className="divide-y divide-gray-500 divide-opacity-50 mt-2">
 					{files.map((file, index) => {
 						const date = new Date(file.updatedAt);
-						const time = getTime(
-							`${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
-						);
+						const time = date.toLocaleTimeString();
 						const size = String(file.size / (1024 * 1024));
 						const sizeString =
 							size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);

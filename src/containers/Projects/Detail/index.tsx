@@ -1,10 +1,10 @@
-import { Button } from '@king-kite/react-kit';
+import { Button, TabNavigator } from '@king-kite/react-kit';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { FaPen, FaTasks, FaTrash, FaUsers } from 'react-icons/fa';
 
-import { Container, Modal, TabNavigator } from '../../../components/common';
+import { Container, Modal } from '../../../components/common';
 import {
 	Form,
 	ProjectDetail,

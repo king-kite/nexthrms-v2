@@ -8,7 +8,7 @@ import { FaTimes, FaFileUpload } from 'react-icons/fa';
 import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
 import { ProjectFileType } from '../../../types';
-import { getTime, downloadFile } from '../../../utils';
+import { downloadFile } from '../../../utils';
 
 export type ProjectImagesProps = {
 	files: ProjectFileType[];
@@ -58,9 +58,7 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 				<div className="gap-4 grid grid-cols-2 p-3 md:gap-5 md:grid-cols-3 lg:gap-6">
 					{files.map((file, index) => {
 						const date = new Date(file.updatedAt);
-						const time = getTime(
-							`${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
-						);
+						const time = date.toLocaleTimeString();
 						const size = String(file.size / (1024 * 1024));
 						const part1 = size.split('.')[0];
 						const part2 = size.split('.')[1]

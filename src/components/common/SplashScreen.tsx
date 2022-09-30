@@ -1,4 +1,4 @@
-import { Loader } from '../controls';
+import { Loader } from '@king-kite/react-kit';
 
 const SplashScreen = () => (
 	<div

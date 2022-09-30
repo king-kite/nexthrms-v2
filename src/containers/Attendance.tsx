@@ -13,8 +13,8 @@ const Attendance = ({
 	attendanceData,
 	attendanceInfo,
 }: {
-	attendanceData: GetAttendanceResponseType;
-	attendanceInfo: GetAttendanceInfoResponseType;
+	attendanceData: GetAttendanceResponseType['data'];
+	attendanceInfo: GetAttendanceInfoResponseType['data'];
 }) => {
 	const [offset, setOffset] = useState(0);
 	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery(

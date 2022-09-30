@@ -3,23 +3,30 @@ import { BiRefresh } from 'react-icons/bi';
 import { Activity, Statistics, TimeSheet } from './index';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries';
-import { GetAttendanceInfoResponseType } from '../../types'
+import { GetAttendanceInfoResponseType } from '../../types';
 
-const StatsCard = ({ attendanceInfo }: { attendanceInfo?: GetAttendanceInfoResponseType['data'] }) => {
+const StatsCard = ({
+	attendanceInfo,
+}: {
+	attendanceInfo: GetAttendanceInfoResponseType['data'];
+}) => {
 	const { open } = useAlertContext();
 
-	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery({
-		onError({ message }) {
-			open({
-				type: 'danger',
-				message,
-			});
+	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery(
+		{
+			onError({ message }) {
+				open({
+					type: 'danger',
+					message,
+				});
+			},
 		},
-	}, {
-		initialData() {
-			return attendanceInfo
+		{
+			initialData() {
+				return attendanceInfo;
+			},
 		}
-	});
+	);
 
 	return (
 		<>

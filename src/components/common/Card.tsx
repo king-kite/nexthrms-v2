@@ -1,3 +1,4 @@
+import NextImage from 'next/image';
 import { FC } from 'react';
 import { IconType } from 'react-icons';
 
@@ -28,8 +29,13 @@ const CardIcon = ({
 
 const Image = ({ alt, src }: { alt: string; src: string }) => (
 	<div className="bg-white px-3 py-2 rounded-l-md">
-		<div className="bg-white h-[50px] rounded-md w-[50px]">
-			<img className="bg-white h-full rounded-md w-full" src={src} alt={alt} />
+		<div className="bg-white h-[50px] relative rounded-md w-[50px]">
+			<NextImage
+				layout="fill"
+				className="bg-white h-full rounded-md w-full"
+				src={src}
+				alt={alt}
+			/>
 		</div>
 	</div>
 );
@@ -49,7 +55,7 @@ const Card: FC<CardProps> = ({
 	>
 		<div className="flex justify-between items-center my-6">
 			<div className="ml-4">
-				<p className="capitalize text-gray-100 text-sm tracking-wide uppercase md:text-base lg:text-lg">
+				<p className="text-gray-100 text-sm tracking-wide uppercase md:text-base lg:text-lg">
 					{title}
 				</p>
 				<h3 className="font-bold my-1 text-gray-100 text-xl tracking-wider uppercase md:text-2xl lg:text-3xl">
@@ -66,8 +72,9 @@ const Card: FC<CardProps> = ({
 			<div className="flex items-center justify-around my-2">
 				<span> </span>
 				<div>
-					<div className="h-[6px] w-[30px]">
-						<img
+					<div className="h-[6px] rleative w-[30px]">
+						<NextImage
+							layout="fill"
 							className="h-full w-full"
 							alt="zigzag"
 							src={`/images/zigzag-icon-${zigzag}.svg`}

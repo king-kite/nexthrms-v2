@@ -1,26 +1,4 @@
 import { PaginatedResponseType, SuccessResponseType } from './base';
-import { DataListType } from './common';
-import { UserEmployeeType } from './employees';
-
-export type _DepartmentType = {
-	name: string;
-	id: string;
-	hod?: UserEmployeeType;
-	no_of_employees?: number;
-};
-
-export type DepartmentCreateType = {
-	name: string;
-	hod?: {
-		id: string;
-	};
-};
-
-export interface GetDepartmentsDataType extends DataListType {
-	results: _DepartmentType[];
-}
-
-// /////
 
 export type DepartmentType = {
 	id: string;

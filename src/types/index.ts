@@ -2,7 +2,6 @@ export * from './attendance';
 export * from './auth';
 export * from './base';
 export * from './clients';
-export * from './common';
 export * from './departments';
 export * from './employees';
 export * from './holidays';

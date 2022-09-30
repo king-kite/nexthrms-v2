@@ -1,6 +1,7 @@
-import { InfoComp } from '@king-kite/react-kit';
+import { ButtonType, InfoComp } from '@king-kite/react-kit';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
+import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { Form } from '../../components/Overtime';
@@ -39,7 +40,7 @@ const Detail = ({
 	const { open } = useAlertContext();
 
 	const { data, isFetching, isLoading, refetch } = useGetOvertimeQuery(
-		{ id, admin},
+		{ id, admin },
 		{
 			initialData() {
 				return overtime;
@@ -91,15 +92,16 @@ const Detail = ({
 		[updateOvertime, id, admin]
 	);
 
-	// TODO: Change the type from any to ButtonType
-	let actions: any = [
+	let actions: ButtonType[] = [
 		{
 			disabled: editLoading,
+			iconLeft: FaEdit,
 			onClick: () => setModalVisible(true),
 			title: 'Request Overtime Update',
 		},
 		{
 			bg: 'bg-red-600 hover:bg-red-500',
+			iconLeft: FaTrash,
 			disabled: appLoading,
 			onClick: () => deleteOvertime(id),
 			title: 'Delete Overtime',
@@ -111,12 +113,14 @@ const Detail = ({
 			{
 				bg: 'bg-green-600 hover:bg-green-500',
 				disabled: appLoading,
+				iconLeft: FaCheckCircle,
 				onClick: () => approveOvertime({ id, approval: 'APPROVED' }),
 				title: 'Approve Overtime',
 			},
 			{
 				bg: 'bg-yellow-600 hover:bg-yellow-500',
 				disabled: appLoading,
+				iconLeft: FaTimesCircle,
 				onClick: () => approveOvertime({ id, approval: 'DENIED' }),
 				title: 'Deny Overtime',
 			},

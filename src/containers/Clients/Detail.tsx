@@ -1,5 +1,6 @@
+import { InfoComp } from '@king-kite/react-kit';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
 	FaCheckCircle,
 	FaTimesCircle,
@@ -10,12 +11,7 @@ import {
 	FaTrash,
 } from 'react-icons/fa';
 
-import {
-	Container,
-	InfoTopBar,
-	InfoComp,
-	Modal,
-} from '../../components/common';
+import { Container, InfoTopBar, Modal } from '../../components/common';
 import { UpdateForm } from '../../components/Clients';
 import { ChangePasswordForm } from '../../components/Employees';
 
@@ -86,12 +82,12 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 									setModalVisible(true);
 								},
 								disabled: loading || delLoading,
-								IconLeft: FaUserEdit,
+								iconLeft: FaUserEdit,
 								title: 'Edit Client',
 							},
 							{
 								bg: 'bg-yellow-600 hover:bg-yellow-500',
-								IconLeft: FaLock,
+								iconLeft: FaLock,
 								disabled: loading || delLoading,
 								onClick: () => {
 									formType !== 'password' && setFormType('password');
@@ -111,7 +107,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 												data.contact.isActive ? 'deactivate' : 'activate'
 										  )
 										: () => {},
-								IconLeft: data.contact.isActive ? FaUserSlash : FaUserCheck,
+								iconLeft: data.contact.isActive ? FaUserSlash : FaUserCheck,
 								title: data.contact.isActive
 									? loading
 										? 'Deactivating...'
@@ -122,7 +118,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 							},
 							{
 								bg: 'bg-red-600 hover:bg-red-500',
-								IconLeft: FaTrash,
+								iconLeft: FaTrash,
 								disabled: loading || delLoading,
 								onClick: () => deleteClient(data.id),
 								title: delLoading ? 'Deleting Client...' : 'Delete Client',

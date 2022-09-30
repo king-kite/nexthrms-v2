@@ -1,7 +1,6 @@
-import { Button } from "../../controls";
-import { ButtonProps as ButtonTypes } from "../../controls/Button";
+import { Button, ButtonType } from '@king-kite/react-kit'
 
-export interface ButtonProps extends ButtonTypes {
+export interface ButtonProps extends ButtonType {
 	color?: string
 }
 

@@ -1,4 +1,4 @@
-import { Avatars } from '@king-kite/react-kit';
+import { Avatars, Button, Loader } from '@king-kite/react-kit';
 import Link from 'next/link';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import {
@@ -11,9 +11,8 @@ import {
 } from 'react-icons/fa';
 
 import { DEFAULT_IMAGE, PROJECT_PAGE_URL } from '../../config';
-import { useOutClick, useDeleteProject, useMarkProject } from '../../hooks';
+import { useOutClick } from '../../hooks';
 import { StatusProgressBar } from '../common';
-import { Button, Loader } from '../controls';
 import { ProjectType, ProjectTeamType } from '../../types';
 
 const ImageBlocks = ({ team }: { team: ProjectTeamType[] }) => {
@@ -49,9 +48,6 @@ const Project = (project: ProjectObjectType) => {
 		HTMLDivElement,
 		HTMLSpanElement
 	>();
-
-	const markProject = useMarkProject();
-	const deleteProject = useDeleteProject();
 
 	return (
 		<div className="bg-white p-4 relative rounded-md shadow-lg">
@@ -186,7 +182,7 @@ const Project = (project: ProjectObjectType) => {
 							caps
 							focus=""
 							color="text-gray-600 hover:text-gray-800"
-							IconLeft={FaEye}
+							iconLeft={FaEye}
 							link={PROJECT_PAGE_URL(project.id || '#')}
 							title="view"
 							titleSize="text-sm md:text-base lg:text-sm"
@@ -199,22 +195,7 @@ const Project = (project: ProjectObjectType) => {
 							caps
 							focus=""
 							color="text-gray-600 hover:text-gray-800"
-							IconLeft={FaPen}
-							onClick={
-								() => {}
-								// editProject(id, {
-								// 	name,
-								// 	description,
-								// 	priority,
-								// 	leaders: leaders.map((leader) => leader.id),
-								// 	team: team.map((member) => member.id),
-								// 	start_date,
-								// 	end_date,
-								// 	client: client.id,
-								// 	initial_cost,
-								// 	rate,
-								// })
-							}
+							iconLeft={FaPen}
 							title="edit"
 							titleSize="text-sm md:text-base lg:text-sm"
 						/>
@@ -226,9 +207,7 @@ const Project = (project: ProjectObjectType) => {
 							caps
 							focus=""
 							color="text-gray-600 hover:text-gray-800"
-							IconLeft={FaTrash}
-							disabled={deleteProject.isLoading}
-							loading={deleteProject.isLoading}
+							iconLeft={FaTrash}
 							loader
 							onClick={() => {}}
 							title="delete"
@@ -242,20 +221,15 @@ const Project = (project: ProjectObjectType) => {
 							caps
 							focus=""
 							color="text-gray-600 hover:text-gray-800"
-							disabled={markProject.isLoading}
-							loading={markProject.isLoading}
 							loader
-							onClick={() =>
-								markProject.onSubmit(project.id, !project.completed)
-							}
-							IconLeft={FaCheckCircle}
+							iconLeft={FaCheckCircle}
 							title={project.completed ? 'mark ongoing' : 'mark as completed'}
 							titleSize="text-sm md:text-base lg:text-sm"
 						/>
 					</li>
 				</ul>
 			</div>
-			{(markProject.isLoading || deleteProject.isLoading) && (
+			{false && (
 				<div
 					className="absolute flex items-center justify-center left-0 h-full rounded-md shadow-lg top-0 w-full z-10"
 					style={{ background: 'rgba(0, 0, 0, 0.4)' }}

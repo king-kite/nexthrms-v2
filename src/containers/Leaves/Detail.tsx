@@ -1,6 +1,7 @@
-import { InfoComp } from '@king-kite/react-kit';
+import { ButtonType, InfoComp } from '@king-kite/react-kit';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
+import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { Form } from '../../components/Leaves';
@@ -85,16 +86,17 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 		[updateLeave, admin, id]
 	);
 
-	// TODO: Change the type from any to ButtonType
-	let actions: any = [
+	let actions: ButtonType[] = [
 		{
 			disabled: editLoading,
+			iconLeft: FaEdit,
 			onClick: () => setModalVisible(true),
 			title: 'Request Leave Update',
 		},
 		{
 			bg: 'bg-red-600 hover:bg-red-500',
 			disabled: appLoading,
+			iconLeft: FaTrash,
 			onClick: () => deleteLeave(id),
 			title: 'Delete Leave',
 		},
@@ -105,12 +107,14 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 			{
 				bg: 'bg-green-600 hover:bg-green-500',
 				disabled: appLoading,
+				iconLeft: FaCheckCircle,
 				onClick: () => approveLeave({ id, approval: 'APPROVED' }),
 				title: 'Approve Leave',
 			},
 			{
 				bg: 'bg-yellow-600 hover:bg-yellow-500',
 				disabled: appLoading,
+				iconLeft: FaTimesCircle,
 				onClick: () => approveLeave({ id, approval: 'DENIED' }),
 				title: 'Deny Leave',
 			},

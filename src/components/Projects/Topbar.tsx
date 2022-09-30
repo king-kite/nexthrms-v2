@@ -1,7 +1,6 @@
-import { Button, InputButton } from '@king-kite/react-kit';
+import { Button, ButtonDropdown, InputButton } from '@king-kite/react-kit';
 import { FC, useRef } from 'react';
 import { FaCloudDownloadAlt, FaSearch, FaPlus } from 'react-icons/fa';
-import { ButtonDropdown } from '../controls';
 import { ExportForm } from '../common';
 
 type TopbarProps = {
@@ -53,10 +52,10 @@ const Topbar: FC<TopbarProps> = ({
 			</form>
 			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 				<ButtonDropdown
-					component={<ExportForm onSubmit={exportData} />}
+					component={() => <ExportForm onSubmit={exportData} />}
 					props={{
 						caps: true,
-						IconLeft: FaCloudDownloadAlt,
+						iconLeft: FaCloudDownloadAlt,
 						margin: 'lg:mr-6',
 						padding: 'px-3 py-2 md:px-6',
 						rounded: 'rounded-xl',

@@ -1,4 +1,4 @@
-import { DotsLoader } from '../../components/controls';
+import { DotsLoader } from '@king-kite/react-kit';
 
 const LoadingPage = () => (
 	<div className="flex h-full items-center justify-center min-h-[70vh] w-full">

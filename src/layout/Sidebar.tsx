@@ -20,9 +20,7 @@ import {
 } from 'react-icons/fa';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, LOGOUT_URL } from '../config';
-import { useAppDispatch } from '../hooks';
-import { useAuthContext } from '../store/contexts';
-import { open } from '../store/features/alert-modal-slice';
+import { useAlertModalContext, useAuthContext } from '../store/contexts';
 import { axiosInstance } from '../utils';
 import { SimpleLink, ListLink } from './Link';
 
@@ -47,8 +45,7 @@ function getName(
 
 const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 	({ setVisible, visible }, ref) => {
-		const dispatch = useAppDispatch();
-
+		const { open } = useAlertModalContext();
 		const { data, logout } = useAuthContext();
 
 		const queryClient = useQueryClient();
@@ -61,22 +58,20 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 					queryClient.clear();
 				},
 				onError() {
-					dispatch(
-						open({
-							color: 'danger',
-							decisions: [
-								{
-									color: 'danger',
-									disabled: isLoading,
-									onClick: signOut,
-									title: 'Retry',
-								},
-							],
-							header: 'Logout Error',
-							Icon: FaTimesCircle,
-							message: 'An error occurred when trying to sign out',
-						})
-					);
+					open({
+						color: 'danger',
+						decisions: [
+							{
+								color: 'danger',
+								disabled: isLoading,
+								onClick: () => signOut(),
+								title: 'Retry',
+							},
+						],
+						header: 'Logout Error',
+						Icon: FaTimesCircle,
+						message: 'An error occurred when trying to sign out',
+					});
 				},
 			}
 		);
