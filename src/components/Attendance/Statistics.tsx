@@ -14,8 +14,6 @@ function Statistics({
 	timeline: AttendanceInfoType[];
 	statistics: AttendanceInfoType[];
 }) {
-	const overtime = 0;
-
 	const today = React.useMemo(
 		() =>
 			timesheet
@@ -35,6 +33,18 @@ function Statistics({
 	const month = React.useMemo(
 		() => getCummulativeTimeSpent({ attendance: statistics, divider: 24 }),
 		[statistics]
+	);
+
+	const overtime = React.useMemo(
+		() =>
+			timesheet?.overtime?.hours
+				? getOvertimeSpent({
+						punchIn: timesheet.punchIn,
+						current: timesheet.punchOut,
+						overtime: timesheet.overtime.hours,
+				  })
+				: 0,
+		[timesheet]
 	);
 
 	return (
@@ -79,8 +89,8 @@ function Statistics({
 					<StatusProgressBar
 						background="bg-blue-600"
 						title="Overtime (Today)"
-						result={overtime || 0}
-						value={`${overtime ? Math.floor(overtime * 100) : 0}%`}
+						result={overtime}
+						value={(overtime ? Math.round(overtime * 100) : 0) + '%'}
 					/>
 				</div>
 				<div className="my-3"></div>
@@ -172,4 +182,43 @@ function getCummulativeTimeSpent({
 
 	// Divide by 6. From monday to saturday
 	return totalTime / divider;
+}
+
+function getOvertimeSpent({
+	end = new Date(1970, 0, 1, 18),
+	current, // Can use the punch out date if available
+	punchIn,
+	overtime,
+}: {
+	punchIn: Date | number | string;
+	overtime: number;
+	start?: Date | number | string;
+	end?: Date | number | string;
+	current?: Date | number | string;
+}) {
+	if (!punchIn || !overtime) return 0;
+
+	const today = getTimeSpent({ punchIn, current });
+	if (today < 1) return 0;
+
+	// End Date = overtime start date
+	const endDate = typeof end !== 'object' ? new Date(end) : end;
+	const overtimeEndDate = new Date(
+		endDate.getTime() + overtime * 60 * 60 * 1000
+	);
+	let currentDate: Date;
+
+	if (current) {
+		if (typeof current !== 'object') currentDate = new Date(current);
+		else currentDate = current;
+	} else {
+		currentDate = new Date();
+		currentDate.setFullYear(1970, 0, 1);
+	}
+
+	// Return the value for overtime spent
+	return (
+		(currentDate.getTime() - endDate.getTime()) /
+		(overtimeEndDate.getTime() - endDate.getTime())
+	);
 }
