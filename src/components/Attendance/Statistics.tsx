@@ -20,6 +20,7 @@ function Statistics({
 				? getTimeSpent({
 						punchIn: timesheet.punchIn,
 						current: timesheet.punchOut,
+						overtime: timesheet.overtime?.hours,
 				  })
 				: 0,
 		[timesheet]
@@ -88,7 +89,7 @@ function Statistics({
 				<div className="my-3">
 					<StatusProgressBar
 						background="bg-blue-600"
-						title="Overtime (Today)"
+						title="Overtime"
 						result={overtime}
 						value={(overtime ? Math.round(overtime * 100) : 0) + '%'}
 					/>
@@ -128,16 +129,21 @@ function getTimeSpent({
 	end = new Date(1970, 0, 1, 18),
 	punchIn,
 	current, // Can use the punch out date if available
+	overtime,
 }: {
 	punchIn: Date | string | number;
 	start?: Date | string | number;
 	end?: Date | string | number;
 	current?: Date | string | number;
+	overtime?: number;
 }) {
 	if (!punchIn) return 0;
 
 	const startDate = typeof start !== 'object' ? new Date(start) : start;
-	const endDate = typeof end !== 'object' ? new Date(end) : end;
+	const prevEndDate = typeof end !== 'object' ? new Date(end) : end;
+	const endDate = overtime
+		? new Date(prevEndDate.getTime() + overtime * 60 * 60 * 1000)
+		: prevEndDate;
 	const punchInDate = typeof punchIn !== 'object' ? new Date(punchIn) : punchIn;
 	let currentDate: Date;
 
@@ -175,6 +181,7 @@ function getCummulativeTimeSpent({
 		const timeSpent = getTimeSpent({
 			punchIn: attendance.punchIn,
 			current: attendance.punchOut,
+			overtime: attendance.overtime?.hours,
 		});
 
 		return total + timeSpent;
