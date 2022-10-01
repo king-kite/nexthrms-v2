@@ -99,6 +99,7 @@ export function getWeekDate(
 	const weekDay = new Date(
 		currentDate.getTime() - +(currentDate.getDay() - day) * aDay
 	);
+	weekDay.setHours(0, 0, 0, 0);
 	return weekDay;
 }
 

@@ -12,9 +12,9 @@ export const TimeCard = ({
 	<div className="flex items-start">
 		<div className="flex flex-col items-center h-full">
 			<div
-				className={`${border} border-2 h-[0.75rem] m-1 rounded-full w-[0.6rem]`}
+				className={`${border} border-2 h-[0.75rem] mx-1 rounded-full w-[0.6rem]`}
 			/>
-			<div className="bg-gray-400 h-full min-h-[22px] rounded-lg w-[1.5px]" />
+			<div className="bg-gray-400 h-full min-h-[16px] rounded-lg w-[1.5px]" />
 		</div>
 		<div className="flex flex-col mx-2 w-full md:flex-row md:justify-between">
 			<div>
@@ -68,6 +68,10 @@ const Activity = ({ timeline }: { timeline: AttendanceInfoType[] }) => {
 			day: 'friday',
 			...prepDayObject(getAttendanceByDay(timeline, 5)),
 		},
+		{
+			day: 'saturday',
+			...prepDayObject(getAttendanceByDay(timeline, 6)),
+		},
 	];
 
 	return (
@@ -75,7 +79,7 @@ const Activity = ({ timeline }: { timeline: AttendanceInfoType[] }) => {
 			<h3 className="capitalize font-black my-2 text-gray-700 text-lg tracking-wider md:text-xl lg:text-lg">
 				Weekly Activity
 			</h3>
-			<div className="flex items-center">
+			<div className="flex items-center mb-2">
 				<div className="px-1 w-1/2">
 					<span className="capitalize font-semibold inline-block text-center text-gray-700 text-base">
 						punch in
@@ -88,7 +92,7 @@ const Activity = ({ timeline }: { timeline: AttendanceInfoType[] }) => {
 				</div>
 			</div>
 			{week.map(({ day, pit, bic, boc, pot }) => (
-				<div key={day} className="gap-4 grid grid-cols-2 my-2">
+				<div key={day} className="gap-4 grid grid-cols-2">
 					<TimeCard border={bic} day={day} time={pit} />
 					<TimeCard border={boc} day={day} time={pot} />
 				</div>

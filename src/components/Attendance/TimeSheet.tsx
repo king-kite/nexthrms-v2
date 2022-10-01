@@ -1,4 +1,5 @@
 import { Button, Loader } from '@king-kite/react-kit';
+import { BiRefresh } from 'react-icons/bi';
 
 import { useAlertContext } from '../../store/contexts';
 import { usePunchAttendanceMutation } from '../../store/queries';
@@ -9,16 +10,19 @@ function getTime(time: number): number | string {
 	const hour = Math.trunc(time / 60);
 	const minute = time % 60;
 
+	if (minute <= 0) return hour;
 	return `${hour}.${minute.toString().padStart(2, '0')}`;
 }
 
 function TimeSheet({
 	fetching,
 	loading,
+	refetch,
 	timesheet,
 }: {
 	fetching: boolean;
 	loading: boolean;
+	refetch: () => void;
 	timesheet?: AttendanceInfoType | null;
 }) {
 	const { open } = useAlertContext();
@@ -66,9 +70,19 @@ function TimeSheet({
 
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
-			<h3 className="capitalize font-black my-2 text-gray-700 text-lg tracking-wider sm:text-center md:text-left md:text-xl">
-				timesheet
-			</h3>
+			<div className="flex items-center justify-between">
+				<h3 className="capitalize font-black my-2 text-gray-700 text-lg tracking-wider sm:text-center md:text-left md:text-xl">
+					timesheet
+				</h3>
+				<div
+					onClick={refetch}
+					className="bg-white cursor-pointer duration-500 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+				>
+					<BiRefresh
+						className={`${fetching ? 'animate-spin' : ''} text-xs sm:text-sm`}
+					/>
+				</div>
+			</div>
 			<div className="bg-gray-100 border border-gray-300 max-w-xs mx-auto my-1 px-3 py-2 rounded-lg">
 				<span className="font-semibold my-3 inline-block text-gray-900 text-sm lg:my-1">
 					Punch In at
