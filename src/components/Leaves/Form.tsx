@@ -93,11 +93,11 @@ const Form: FC<FormProps> = ({
 			}));
 		} else if (
 			form.endDate &&
-			getDate(form.endDate) <= getDate(form.startDate)
+			getDate(form.endDate) < getDate(form.startDate)
 		) {
 			setErrors((prevState) => ({
 				...prevState,
-				endDate: 'End date must not be today or before today',
+				endDate: 'End date must not be before the start date',
 			}));
 		}
 	}, [form]);
