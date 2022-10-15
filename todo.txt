@@ -5,9 +5,8 @@
 4. Delete Project File.
 5. Make Project Progress bar work.
 6. Use Firebase for file storage.
-7. Add indexes to the database schema.
-8. Check the [slug] pages to see if the item being fetched is null and redirect to 404 page.
-9. Have the alert faded in and out
-10. In Sidebar, Have the links array objects have active keys checking the pathanem for their
+7. Check the [slug] pages to see if the item being fetched is null and redirect to 404 page.
+8. Have the alert faded in and out
+9. In Sidebar, Have the links array objects have active keys checking the pathanem for their
 -- values
-11. Check the permissions on the routes.
+10. Check the permissions on the routes.

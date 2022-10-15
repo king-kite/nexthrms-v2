@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// TODO: Add indexes
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -27,6 +25,8 @@ model Attendance {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([date, employeeId])
+  @@index([id], map: "attendance_id")
+  @@index([employeeId], map: "attendance_employee_id")
   @@map("attendance")
 }
 
@@ -43,6 +43,7 @@ model Client {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([id], map: "client_id")
   @@map("clients")
 }
 
@@ -58,6 +59,8 @@ model Department {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([id], map: "department_id")
+  @@index([name], map: "department_name")
   @@map("departments")
 }
 
@@ -97,6 +100,10 @@ model Employee {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  @@index([id], map: "employee_id")
+  @@index([departmentId], map: "employee_department_id")
+  @@index([jobId], map: "employee_job_id")
+  @@index([supervisorId], map: "supervisor_id")
   @@map("employees")
 }
 
@@ -109,6 +116,8 @@ model Job {
 
   employees Employee[]
 
+  @@index([id], map: "job_id")
+  @@index([name], map: "job_name")
   @@map("jobs")
 }
 
@@ -121,6 +130,7 @@ model Holiday {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([name, date])
+  @@index([id], map: "holiday_id")
   @@map("holiday")
 }
 
@@ -144,6 +154,9 @@ model Leave {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([id], map: "leave_id")
+  @@index([employeeId], map: "leave_employee_id")
+  @@index([createdById], map: "leave_created_by_id")
   @@map("leaves")
 }
 
@@ -164,6 +177,8 @@ model Notification {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([recipientId], map: "notification_recipient_id")
+  @@index([senderId], map: "notification_sender_id")
   @@map("notifications")
 }
 
@@ -190,6 +205,9 @@ model Overtime {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([date, employeeId])
+  @@index([id], map: "overtime_id")
+  @@index([createdById], map: "overtime_created_by_id")
+  @@index([employeeId], map: "overtime_employee_id")
   @@map("overtime")
 }
 
@@ -209,6 +227,7 @@ model Profile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique @map("user_id") @db.Uuid
 
+  @@index([id], map: "profile_id")
   @@map("users_profile")
 }
 
@@ -234,6 +253,9 @@ model Project {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([id], map: "project_id")
+  @@index([name], map: "project_name")
+  @@index([clientId], map: "project_client_id")
   @@map("projects")
 }
 
@@ -253,6 +275,8 @@ model ProjectFile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([projectId], map: "project_file_project_id")
+  @@index([uploadedBy], map: "project_file_uploaded_by")
   @@map("projects_files")
 }
 
@@ -270,6 +294,8 @@ model ProjectTeam {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([projectId, employeeId])
+  @@index([employeeId], map: "project_team_employee_id")
+  @@index([projectId], map: "project_team_project_id")
   @@map("projects_team")
 }
 
@@ -289,6 +315,9 @@ model ProjectTask {
   projectId String  @map("project_id") @db.Uuid
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  @@index([id], map: "task_id")
+  @@index([name], map: "task_name")
+  @@index([projectId], map: "task_project_id")
   @@map("projects_tasks")
 }
 
@@ -306,6 +335,8 @@ model ProjectTaskFollower {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([taskId, employeeId])
+  @@index([taskId], map: "project_task_follower_task_id")
+  @@index([employeeId], map: "project_task_follower_employee_id")
   @@map("projects_tasks_followers")
 }
 
@@ -317,6 +348,8 @@ model Token {
   expires DateTime          @db.Date
 
   @@unique([uid, token]) // The same user can't have the same token
+  @@index([uid], map: "token_uid")
+  @@index([token], map: "token_token")
   @@map("tokens")
 }
 
@@ -342,6 +375,8 @@ model User {
   sender    Notification[] @relation("notificationSender")
   recipient Notification[] @relation("notificationRecipient")
 
+  @@index([id], map: "user_id")
+  @@index([email], map: "user_email")
   @@map("users")
 }
 
