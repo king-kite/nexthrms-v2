@@ -7,7 +7,7 @@ import {
 } from '../../../db';
 import { auth } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
-import { attendanceActionSchema } from '../../../validators';
+import { attendanceActionSchema, validateParams } from '../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -18,7 +18,9 @@ export default auth()
 			});
 		}
 
-		const result = await getAttendance({ id: req.user.employee.id });
+		const params = validateParams({ ...req.query });
+
+		const result = await getAttendance({ id: req.user.employee.id, ...params });
 
 		return res.status(200).json({
 			status: 'success',

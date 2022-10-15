@@ -20,6 +20,7 @@ export type AttendanceType = {
 	overtime?: {
 		status: 'APPROVED' | 'DENIED' | 'PENDING';
 		hours: number;
+		reason: string;
 	} | null;
 };
 
@@ -31,6 +32,26 @@ export type AttendanceInfoType = {
 		hours: number;
 		status: 'APPROVED' | 'DENIED' | 'PENDING';
 	} | null;
+};
+
+export type AttendanceCreateType = {
+	employee: string;
+	date: string;
+	punchIn: string;
+	punchOut?: string;
+	overtime?: {
+		hours: number;
+		reason: string;
+	};
+};
+
+export type AttendanceCreateErrorType = {
+	date?: string;
+	employee?: string;
+	punchIn?: string;
+	punchOut?: string;
+	hours?: string;
+	reason?: string;
 };
 
 export type GetAttendanceResponseType = SuccessResponseType<{

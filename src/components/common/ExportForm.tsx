@@ -2,7 +2,7 @@ import { Button, Select } from '@king-kite/react-kit';
 import { FC, useState } from 'react';
 
 type FormProps = {
-	onSubmit: (type: any, filter: boolean) => void;
+	onSubmit?: (type: any, filter: boolean) => void;
 };
 
 const Form: FC<FormProps> = ({ onSubmit }) => {
@@ -15,7 +15,8 @@ const Form: FC<FormProps> = ({ onSubmit }) => {
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				onSubmit(form.type, form.employees === 'all' ? false : true);
+				if (onSubmit)
+					onSubmit(form.type, form.employees === 'all' ? false : true);
 			}}
 			className="p-2 w-full"
 		>

@@ -38,6 +38,7 @@ export const attendanceSelectQuery: Prisma.AttendanceSelect = {
 		select: {
 			hours: true,
 			status: true,
+			reason: true,
 		},
 	},
 };
@@ -130,4 +131,37 @@ export const getAttendanceInfo = async (id: string) => {
 	]);
 
 	return { timesheet, timeline, statistics };
+};
+
+// ****** Attendance Admin ******
+export const getAttendanceAdminQuery = ({
+	offset = 0,
+	limit = DEFAULT_PAGINATION_SIZE,
+}: ParamsType): Prisma.AttendanceFindManyArgs => {
+	const query: Prisma.AttendanceFindManyArgs = {
+		skip: offset,
+		take: limit,
+		orderBy: {
+			date: 'desc' as const,
+		},
+		select: attendanceSelectQuery,
+	};
+
+	return query;
+};
+
+export const getAttendanceAdmin = async (
+	params?: ParamsType
+): Promise<{
+	total: number;
+	result: AttendanceType[] | Attendance[];
+}> => {
+	const query = getAttendanceAdminQuery({ ...params });
+
+	const [total, result] = await prisma.$transaction([
+		prisma.attendance.count({ where: query.where }),
+		prisma.attendance.findMany(query),
+	]);
+
+	return { total, result };
 };

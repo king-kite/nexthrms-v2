@@ -17,6 +17,7 @@ import {
 	FaUserTie,
 	FaClock,
 	FaUserClock,
+	FaClipboardList,
 } from 'react-icons/fa';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, LOGOUT_URL } from '../config';
@@ -106,9 +107,14 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 						href: routes.ADMIN_LEAVES_PAGE_URL,
 					},
 					{
-						Icon: FaUserClock,
+						Icon: FaClock,
 						title: 'attendance',
 						href: routes.ATTENDANCE_PAGE_URL,
+					},
+					{
+						Icon: FaClipboardList,
+						title: 'attendance (admin)',
+						href: routes.ATTENDANCE_ADMIN_PAGE_URL,
 					},
 					{
 						admin: true,

@@ -14,6 +14,7 @@ export const CLIENT_PAGE_URL = (slug: string) => `/clients/${slug}/`;
 
 // Employees Section
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
+export const ATTENDANCE_ADMIN_PAGE_URL = '/employees/attendance/admin/';
 export const DEPARTMENTS_PAGE_URL = '/employees/departments/';
 export const EMPLOYEES_PAGE_URL = '/employees/all/';
 export const EMPLOYEE_PAGE_URL = (slug: string) => `/employees/all/${slug}/`;

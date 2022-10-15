@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
-import { Container } from '../components/common';
-import { StatsCard, AttendanceTable } from '../components/Attendance';
-import { DEFAULT_PAGINATION_SIZE } from '../config';
-import { useGetAttendanceQuery } from '../store/queries';
+import { Container } from '../../components/common';
+import { StatsCard, AttendanceTable } from '../../components/Attendance';
+import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useGetAttendanceQuery } from '../../store/queries';
 import {
 	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,
-} from '../types';
+} from '../../types';
 
 const Attendance = ({
 	attendanceData,

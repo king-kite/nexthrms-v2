@@ -5,9 +5,9 @@ import { IconType } from 'react-icons';
 import { FaArrowRight, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 const similarStyle =
-	'capitalize cursor-pointer text-gray-100 text-sm hover:bg-primary-300';
+	'capitalize cursor-pointer text-gray-100 text-sm hover:bg-primary-300 hover:border-l-4 hover:border-gray-300';
 const containerStyle = `flex justify-between items-center px-5 py-3 tracking-wide lg:px-3 xl:pl-4 ${similarStyle}`;
-const linkStyle = `flex items-center px-9 py-2 lg:px-6 ${similarStyle}`;
+const linkStyle = `flex items-center px-9 py-2 lg:px-4 ${similarStyle}`;
 
 type SimpleProps = {
 	onClick?: () => void;

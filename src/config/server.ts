@@ -24,6 +24,9 @@ export const NOTIFICATION_URL = (id: number | string) =>
 // Employees URLs Start
 export const ATTENDANCE_URL = `${ROOT_URL}/attendance/`;
 export const ATTENDANCE_INFO_URL = `${ROOT_URL}/attendance/info/`;
+export const ATTENDANCE_ADMIN_URL = `${ROOT_URL}/attendance/admin/`;
+export const ATTENDANCE_ADMIN_SINGLE_URL = (id: string) =>
+	`${ROOT_URL}/attendance/admin/${id}/`;
 
 export const CLIENTS_URL = `${ROOT_URL}/clients/`;
 export const CLIENT_URL = (id: string) => `${ROOT_URL}/clients/${id}/`;

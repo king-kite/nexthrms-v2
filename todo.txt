@@ -10,3 +10,4 @@
 9. Have the alert faded in and out
 10. In Sidebar, Have the links array objects have active keys checking the pathanem for their
 -- values
+11. Check the permissions on the routes.
