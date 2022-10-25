@@ -1,5 +1,4 @@
 import type { NextApiResponse } from 'next';
-
 import nextConnect from 'next-connect';
 
 import { authMiddleware } from './api';

@@ -44,20 +44,15 @@ const AddProjectFileForm = ({
 	const handleSubmit = useCallback(
 		async (form: { name: string; file: File }) => {
 			setFormErrors(undefined);
-			const fileType = form.file.type.split('/')[0];
-			if (fileType !== type) {
+			if (form.file.type.split('/')[0] !== type) {
 				return setFormErrors({
 					file: 'Invalid file! Unable to upload data.',
 				});
 			}
-			const fileSize = form.file.size;
-			const fileValue = '/images/default.png';
 			try {
 				const valid = await projectFileCreateSchema.validateAsync({
 					name: form.name,
-					file: fileValue,
-					size: fileSize,
-					type: 'IMAGE',
+					file: form.file,
 				});
 				createProjectFile({
 					projectId,

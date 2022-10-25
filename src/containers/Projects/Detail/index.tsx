@@ -256,7 +256,9 @@ const Detail = ({
 							<ProjectImages
 								files={
 									files
-										? files.result.filter((file) => file.type === 'IMAGE')
+										? files.result.filter(
+												(file) => file.type.split('/')[0] === 'image'
+										  )
 										: []
 								}
 							/>
@@ -264,7 +266,9 @@ const Detail = ({
 							<ProjectFiles
 								files={
 									files
-										? files.result.filter((file) => file.type !== 'IMAGE')
+										? files.result.filter(
+												(file) => file.type.split('/')[0] !== 'image'
+										  )
 										: []
 								}
 							/>

@@ -41,7 +41,6 @@ export function handleJoiErrors<T = any>(err: any): T | undefined {
 		const data: any = new Object();
 		err.details.forEach((item) => {
 			if (item.context) {
-				console.log('error context :>>', item.context);
 				const label = item.context.label
 					? item.context.label.toLowerCase().replace(' ', '_')
 					: 'detail';

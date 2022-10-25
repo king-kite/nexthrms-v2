@@ -90,9 +90,10 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 												? EMPLOYEE_PAGE_URL(file.employee.id)
 												: '#'
 										}
-										className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
 									>
-										{file.employee.user.firstName}
+										<a className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline">
+											{file.employee.user.firstName}
+										</a>
 									</Link>
 								)}
 								<p className="text-gray-700 text-sm">

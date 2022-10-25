@@ -105,22 +105,13 @@ export type CreateProjectTeamResponseType = BaseResponseType;
 // ****** Project Team ******
 
 // ****** Project File ******
-export type ProjectFileCategoryType =
-	| 'AUDIO'
-	| 'DOCUMENT'
-	| 'IMAGE'
-	| 'MSEXCEL'
-	| 'MSWORD'
-	| 'PDF'
-	| 'VIDEO'
-	| 'TXT';
 
 export type ProjectFileType = {
 	id: string;
 	name: string;
 	file: string;
 	size: number;
-	type: ProjectFileCategoryType;
+	type: string;
 	project: {
 		id: string;
 		name: string;
@@ -138,25 +129,13 @@ export type ProjectFileType = {
 
 export type CreateProjectFileQueryType = {
 	name: string;
-	file: string;
-	type:
-		| 'AUDIO'
-		| 'DOCUMENT'
-		| 'IMAGE'
-		| 'MSEXCEL'
-		| 'MSWORD'
-		| 'PDF'
-		| 'VIDEO'
-		| 'TXT';
-	size: number;
+	file: any; //File
 };
 
 export type CreateProjectFileErrorResponseType = {
 	message?: string;
 	name?: string;
 	file?: string;
-	type?: string;
-	size?: string;
 };
 
 export type GetProjectFilesResponseType = SuccessResponseType<{

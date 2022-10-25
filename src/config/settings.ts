@@ -28,5 +28,6 @@ function getSecretKey(): string | undefined {
 
 export const DEFAULT_PAGINATION_SIZE = getDefaultPaginationSize();
 export const EMAIL_VERIFICATION_REQUIRED = getEmailVerificationRequired();
+export const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 export const SALT_ROUNDS = getSaltRounds();
 export const SECRET_KEY = getSecretKey();

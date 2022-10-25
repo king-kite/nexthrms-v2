@@ -35,7 +35,7 @@ import {
 	ProjectTaskType,
 	CreateProjectTaskQueryType,
 } from '../../types';
-import { axiosInstance } from '../../utils';
+import { axiosInstance, axiosFileInstance } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 // ****** Project Queires ******
@@ -468,13 +468,15 @@ export function useCreateProjectFileMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(query: { projectId: string; data: CreateProjectFileQueryType }) =>
-			axiosInstance
-				.post(PROJECT_FILES_URL(query.projectId), query.data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectFileType>>) =>
-						response.data.data
-				),
+		async (query: { projectId: string; data: CreateProjectFileQueryType }) => {
+			const form = new FormData();
+			form.append('file', query.data.file);
+			form.append('name', query.data.name);
+
+			const response: AxiosResponse<SuccessResponseType<ProjectFileType>> =
+				await axiosFileInstance.post(PROJECT_FILES_URL(query.projectId), form);
+			return response.data.data;
+		},
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECT_FILES]);

@@ -134,7 +134,7 @@ const Projects = ({
 				exportData={() => window.alert('Exporting...')}
 			/>
 			<ProjectTable
-				loading={isFetching}
+				loading={isLoading}
 				projects={data?.result || []}
 				editProject={(project: ProjectType) => {
 					editReset();

@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
+import formidable from 'formidable';
 
 import {
+	firebaseBucket,
 	prisma,
 	getProjectFiles,
 	projectFileSelectQuery as selectQuery,
@@ -8,6 +10,12 @@ import {
 import { auth } from '../../../../../middlewares';
 import { CreateProjectFileQueryType } from '../../../../../types';
 import { projectFileCreateSchema } from '../../../../../validators';
+
+export const config = {
+	api: {
+		bodyParser: false,
+	},
+};
 
 export default auth()
 	.get(async (req, res) => {
@@ -20,16 +28,39 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
-		const _data: CreateProjectFileQueryType =
-			await projectFileCreateSchema.validateAsync({ ...req.body });
+		const { fields, files } = await parseForm(req);
+
+		if (!files.file || Array.isArray(files.file)) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'File was not provided or is invalid!',
+			});
+		}
+
+		const form: CreateProjectFileQueryType =
+			await projectFileCreateSchema.validateAsync({
+				...fields,
+				file: files.file,
+			});
+
+		// Upload a file to the bucket using firebase admin
+		const [obj, file] = await firebaseBucket.upload(files.file.filepath, {
+			contentType: files.file.mimetype || undefined,
+			destination: `projects/${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`,
+		});
 
 		let data: Prisma.ProjectFileCreateInput = {
-			..._data,
 			project: {
 				connect: {
 					id: req.query.id as string,
 				},
 			},
+			type: files.file.mimetype || undefined,
+			name: String(fields.name),
+			file: file.mediaLink,
+			size: file.size,
+			storageName: file.name,
+			storageGeneration: file.generation,
 		};
 
 		if (req.user.employee)
@@ -39,7 +70,7 @@ export default auth()
 				},
 			};
 
-		const file = await prisma.projectFile.create({
+		const result = await prisma.projectFile.create({
 			data,
 			select: selectQuery,
 		});
@@ -47,6 +78,19 @@ export default auth()
 		return res.status(201).json({
 			status: 'success',
 			message: 'Project file created successfully',
-			data: file,
+			data: result,
 		});
 	});
+
+function parseForm(
+	request: any
+): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
+	return new Promise((resolve, reject) => {
+		const form = new formidable.IncomingForm({ keepExtensions: true });
+
+		form.parse(request, (error, fields, files) => {
+			if (error) throw reject(error);
+			resolve({ fields, files });
+		});
+	});
+}

@@ -7,7 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"merge-schema": "cat *.prisma > schema.prisma"
+		"merge-schema": "cat *.prisma > schema.prisma",
+		"firebase": "firebase emulators:start --import=./firebase_storage --export-on-exit"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"
@@ -21,9 +22,12 @@
 		"axios": "^0.27.2",
 		"bcrypt": "^5.0.1",
 		"cookie": "^0.5.0",
+		"firebase-admin": "^11.1.0",
+		"formidable": "^2.0.1",
 		"joi": "^17.6.0",
 		"joi-password-complexity": "^5.1.0",
 		"jsonwebtoken": "^8.5.1",
+		"multiparty": "^4.2.3",
 		"next": "12.2.2",
 		"next-connect": "^0.13.0",
 		"react": "18.2.0",
@@ -35,7 +39,9 @@
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.0",
 		"@types/cookie": "^0.5.1",
+		"@types/formidable": "^2.0.5",
 		"@types/jsonwebtoken": "^8.5.8",
+		"@types/multiparty": "^0.0.33",
 		"@types/node": "18.0.6",
 		"@types/react": "18.0.15",
 		"@types/react-dom": "18.0.6",

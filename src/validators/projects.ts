@@ -31,21 +31,7 @@ export const projectCreateSchema = Joi.object({
 
 export const projectFileCreateSchema = Joi.object({
 	name: Joi.string().required().label('Name'),
-	file: Joi.string().required().label('File'),
-	type: Joi.string()
-		.valid(
-			'AUDIO',
-			'DOCUMENT',
-			'IMAGE',
-			'MSEXCEL',
-			'MSWORD',
-			'PDF',
-			'VIDEO',
-			'TXT'
-		)
-		.required()
-		.label('Type'),
-	size: Joi.number().required().label('Size'),
+	file: Joi.object().unknown().label('File'),
 });
 
 export const projectTeamCreateSchema = Joi.object({

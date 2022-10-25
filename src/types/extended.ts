@@ -25,7 +25,7 @@ export type RequestUserType = {
 	checkPassword: (password: string) => Promise<boolean>;
 };
 
-// Add the user object the Next Api Route.
+// Add the user object to the Next Api Route.
 // To be used for /api/ routes and with the auth() next-connect middleware
 export interface NextApiRequestExtendUser extends NextApiRequest {
 	user: RequestUserType;

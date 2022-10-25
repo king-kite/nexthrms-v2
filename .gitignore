@@ -25,6 +25,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# firebase
+firebase-debug.log*
+firebase-debug.*.log*
+ui-debug.log*
+/firebase_storage/
+
 # local env files
 .env
 .env*
@@ -35,3 +41,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+kitehrms-firebase-adminsdk.json
+notes.txt
