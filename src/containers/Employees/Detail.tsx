@@ -211,26 +211,6 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 										: '-------',
 								},
 								{
-									title: 'HOD',
-									value: data.department?.hod
-										? data.department.hod.user.firstName +
-										  ' ' +
-										  data.department.hod.user.lastName
-										: '------',
-								},
-								{
-									title: "HOD's Profile Image",
-									type: data.department?.hod ? 'image' : undefined,
-									value: data.department?.hod
-										? {
-												src:
-													data.department.hod?.user.profile?.image ||
-													DEFAULT_IMAGE,
-												alt: 'HOD Image',
-										  }
-										: '-------',
-								},
-								{
 									title: 'Last Leave Date',
 									value:
 										data.leaves.length > 1
@@ -298,6 +278,39 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 									},
 								]}
 								title="Supervisor Information"
+							/>
+						)}
+
+						{data?.department?.hod && (
+							<InfoComp
+								infos={[
+									{
+										title: 'Profile Image',
+										type: 'image',
+										value: {
+											src:
+												data.department.hod.user.profile?.image ||
+												DEFAULT_IMAGE,
+											alt:
+												data.department.hod.user.firstName +
+												' ' +
+												data.department.hod.user.lastName,
+										},
+									},
+									{
+										title: 'First Name',
+										value: data.department.hod.user.firstName,
+									},
+									{
+										title: 'Last Name',
+										value: data.department.hod.user.lastName,
+									},
+									{
+										title: 'Email',
+										value: data.department.hod.user.email,
+									},
+								]}
+								title="Head of Department Information"
 							/>
 						)}
 					</div>

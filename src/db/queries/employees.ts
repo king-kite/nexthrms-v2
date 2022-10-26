@@ -115,8 +115,6 @@ export const getEmployeesQuery = ({
 	search = undefined,
 }: ParamsType): Prisma.EmployeeFindManyArgs => {
 	const query: Prisma.EmployeeFindManyArgs = {
-		take: limit,
-		skip: offset,
 		select: employeeSelectQuery,
 		orderBy: {
 			user: {
@@ -150,6 +148,9 @@ export const getEmployeesQuery = ({
 			  }
 			: {},
 	};
+
+	if (offset !== undefined) query.skip = offset;
+	if (limit !== undefined) query.take = limit;
 
 	return query;
 };
