@@ -1,3 +1,4 @@
+import { Bucket } from '@google-cloud/storage';
 import admin from 'firebase-admin';
 import { getApps, initializeApp } from 'firebase-admin/app';
 // import {getFirestore} from "firebase-admin/firestore"
@@ -26,7 +27,7 @@ if (!apps.length) {
 	}
 }
 
-let bucket;
+let bucket: Bucket;
 // let db;
 
 // try {
@@ -38,7 +39,7 @@ let bucket;
 // }
 
 try {
-	bucket = getStorage().bucket('axhub-wit');
+	bucket = getStorage().bucket('kitehrms');
 	console.log('Firebase Storage Initialization Success');
 } catch (error) {
 	if (process.env.NODE_ENV === 'development')

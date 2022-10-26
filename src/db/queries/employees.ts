@@ -56,6 +56,12 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 			profile: {
 				select: {
 					image: true,
+					dob: true,
+					gender: true,
+					address: true,
+					city: true,
+					phone: true,
+					state: true,
 				},
 			},
 			isActive: true,

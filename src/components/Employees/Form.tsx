@@ -38,7 +38,7 @@ type FormProps = {
 	resetErrors: () => void;
 	loading: boolean;
 	success?: boolean;
-	onSubmit: (form: CreateEmployeeQueryType) => void;
+	onSubmit: (form: FormData) => void;
 };
 
 function handleDataError(err: unknown): string | undefined {
@@ -90,10 +90,17 @@ const Form: FC<FormProps> = ({
 	const jobsError = handleDataError(jobs.error);
 
 	const handleSubmit = useCallback(
-		async (form: CreateEmployeeQueryType) => {
+		async (input: CreateEmployeeQueryType) => {
 			try {
-				const valid = await createEmployeeSchema.validateAsync({ ...form });
-				onSubmit(valid);
+				const valid: CreateEmployeeQueryType =
+					await createEmployeeSchema.validateAsync({ ...input });
+				const form = new FormData();
+				valid.user &&
+					valid.user.profile.image &&
+					form.append('image', valid.user.profile.image);
+				const formJsonData = JSON.stringify(valid);
+				form.append('form', formJsonData);
+				onSubmit(form);
 			} catch (err) {
 				const error = handleJoiErrors<CreateEmployeeErrorResponseType>(err);
 				setErrors((prevState) => {
@@ -158,8 +165,7 @@ const Form: FC<FormProps> = ({
 							lastName: formRef.current.lastName.value,
 							email: formRef.current.email.value,
 							profile: {
-								image:
-									formRef.current.image.value || initState?.user.profile?.image,
+								image: formRef.current.image.files[0] || undefined,
 								address: formRef.current?.address.value,
 								dob: formRef.current?.dob.value,
 								gender: formRef.current?.gender.value,

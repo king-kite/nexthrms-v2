@@ -212,14 +212,15 @@ model Overtime {
 }
 
 model Profile {
-  id      String    @id @default(uuid()) @db.Uuid
-  dob     DateTime?
-  gender  Gender    @default(MALE)
-  image   String    @default("/images/default.png")
-  address String?
-  city    String?   @db.VarChar(20)
-  phone   String?   @db.VarChar(20)
-  state   String?   @db.VarChar(100)
+  id               String    @id @default(uuid()) @db.Uuid
+  dob              DateTime?
+  image            String    @default("/images/default.png")
+  imageStorageInfo Json?     @map("image_storage_info")
+  address          String?
+  city             String?   @db.VarChar(20)
+  phone            String?   @db.VarChar(20)
+  state            String?   @db.VarChar(100)
+  gender           Gender    @default(MALE)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

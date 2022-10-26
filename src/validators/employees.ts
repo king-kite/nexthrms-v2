@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const createEmployeeSchema = Joi.object({
-	department: Joi.string().uuid().required().label('Job'),
+	department: Joi.string().uuid().required().label('Department'),
 	job: Joi.string().uuid().required().label('Job'),
 	supervisor: Joi.string().uuid().optional().allow('').label('Supervisor'),
 	dateEmployed: Joi.date().optional().allow('').label('Date Employed'),
@@ -13,7 +13,7 @@ export const createEmployeeSchema = Joi.object({
 		firstName: Joi.string().required().label('First Name'),
 		lastName: Joi.string().required().label('Last Name'),
 		profile: Joi.object({
-			image: Joi.string().optional().allow('').label('Image'),
+			image: Joi.any().optional().allow('').label('Image'), // File
 			phone: Joi.string().required().label('Phone Number'),
 			gender: Joi.string().valid('MALE', 'FEMALE').required().label('Gender'),
 			address: Joi.string().required().label('Address'),

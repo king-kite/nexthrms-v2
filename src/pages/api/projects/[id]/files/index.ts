@@ -1,5 +1,4 @@
 import { Prisma } from '@prisma/client';
-import formidable from 'formidable';
 
 import {
 	firebaseBucket,
@@ -9,6 +8,7 @@ import {
 } from '../../../../../db';
 import { auth } from '../../../../../middlewares';
 import { CreateProjectFileQueryType } from '../../../../../types';
+import parseForm from '../../../../../utils/parseForm';
 import { projectFileCreateSchema } from '../../../../../validators';
 
 export const config = {
@@ -81,16 +81,3 @@ export default auth()
 			data: result,
 		});
 	});
-
-function parseForm(
-	request: any
-): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
-	return new Promise((resolve, reject) => {
-		const form = new formidable.IncomingForm({ keepExtensions: true });
-
-		form.parse(request, (error, fields, files) => {
-			if (error) throw reject(error);
-			resolve({ fields, files });
-		});
-	});
-}

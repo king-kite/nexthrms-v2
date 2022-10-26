@@ -13,7 +13,6 @@ import {
 	BaseResponseType,
 	CreateEmployeeErrorResponseType,
 	CreateEmployeeResponseType,
-	CreateEmployeeQueryType,
 	EmployeeType,
 	GetEmployeesResponseType,
 	SuccessResponseType,
@@ -133,7 +132,7 @@ export function useCreateEmployeeMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(data: CreateEmployeeQueryType) =>
+		(data: FormData) =>
 			axiosInstance
 				.post(EMPLOYEES_URL, data)
 				.then(
@@ -257,7 +256,7 @@ export function useEditEmployeeMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(data: { id: string; form: CreateEmployeeQueryType }) =>
+		(data: { id: string; form: FormData }) =>
 			axiosInstance
 				.put(EMPLOYEE_URL(data.id), data.form)
 				.then(

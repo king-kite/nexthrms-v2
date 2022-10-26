@@ -43,7 +43,7 @@ const Topbar: FC<TopbarProps> = ({
 						onChange: ({ target: { value } }) => {
 							if (!value || value === '') onSubmit('');
 						},
-						placeholder: 'Search Employee Name, or E-mail',
+						placeholder: 'Search employee\'s name, or e-mail',
 						rounded: 'rounded-l-lg',
 						type: 'search',
 					}}
