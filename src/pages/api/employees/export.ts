@@ -1,4 +1,5 @@
 import excelJS from 'exceljs';
+import { Parser } from 'json2csv';
 
 import { getEmployees } from '../../../db';
 import { auth } from '../../../middlewares';
@@ -10,11 +11,59 @@ export default auth().get(async (req, res) => {
 
 	const data = await getEmployees({ ...params });
 
+	const employees = data.result.map((employee) => {
+		const emp = employee as EmployeeType;
+		return {
+			id: emp.id,
+			email: emp.user.email,
+			first_name: emp.user.firstName,
+			last_name: emp.user.lastName,
+			dob: emp.user.profile?.dob || null,
+			gender: emp.user.profile?.gender || null,
+			address: emp.user.profile?.address || null,
+			phone: emp.user.profile?.phone || null,
+			state: emp.user.profile?.state || null,
+			city: emp.user.profile?.city || null,
+			department: emp.department?.name || null,
+			job: emp.job?.name || null,
+			supervisor: emp.supervisor
+				? emp.supervisor.user.firstName + ' ' + emp.supervisor.user.lastName
+				: null,
+			supervisor_email: emp.supervisor ? emp.supervisor.user.email : null,
+			is_active: emp.user.isActive,
+			date_employed: emp.dateEmployed,
+		};
+	});
+
 	if (req.query.type === 'csv') {
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched Employees data in CSV Format',
-		});
+		const fields = [
+			'ID',
+			'Email Address',
+			'First Name',
+			'Last Name',
+			'Date of Birth',
+			'Gender',
+			'Address',
+			'Phone',
+			'State',
+			'City',
+			'Department',
+			'Job',
+			'Supervisor',
+			'Supervisor Email',
+			'Is Active',
+			'Date Employed',
+		];
+		const parser = new Parser({ fields });
+		const data = parser.parse(employees);
+
+		res.setHeader('Content-Type', 'text/csv');
+		res.setHeader(
+			'Content-Disposition',
+			'attachment; filename="employees.csv"'
+		);
+
+		return res.status(200).end(data);
 	} else {
 		const workbook = new excelJS.Workbook(); // Create a new workbook
 		const worksheet = workbook.addWorksheet('Employees'); // New Worksheet
@@ -37,30 +86,6 @@ export default auth().get(async (req, res) => {
 			{ header: 'Is Active', key: 'is_active', width: 10 },
 			{ header: 'Date Employed', key: 'date_employed', width: 10 },
 		];
-
-		const employees = data.result.map((employee) => {
-			const emp = employee as EmployeeType;
-			return {
-				id: emp.id,
-				email: emp.user.email,
-				first_name: emp.user.firstName,
-				last_name: emp.user.lastName,
-				dob: emp.user.profile?.dob || null,
-				gender: emp.user.profile?.gender || null,
-				address: emp.user.profile?.address || null,
-				phone: emp.user.profile?.phone || null,
-				state: emp.user.profile?.state || null,
-				city: emp.user.profile?.city || null,
-				department: emp.department?.name || null,
-				job: emp.job?.name || null,
-				supervisor: emp.supervisor
-					? emp.supervisor.user.firstName + ' ' + emp.supervisor.user.lastName
-					: null,
-				supervisor_email: emp.supervisor ? emp.supervisor.user.email : null,
-				is_active: emp.user.isActive,
-				date_employed: emp.dateEmployed,
-			};
-		});
 
 		worksheet.addRows(employees);
 

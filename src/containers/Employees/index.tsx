@@ -106,7 +106,10 @@ const Employees = ({
 							url +
 							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
 					}
-					const result = await downloadFile(url, 'employees.xlsx');
+					const result = await downloadFile(
+						url,
+						type === 'csv' ? 'employees.csv' : 'employees.xlsx'
+					);
 					console.log({ result });
 				}}
 			/>
