@@ -4,7 +4,6 @@ import Form from '../Form';
 import { useEditEmployeeMutation } from '../../../store/queries';
 import {
 	EmployeeType,
-	CreateEmployeeQueryType,
 	CreateEmployeeErrorResponseType,
 } from '../../../types';
 
@@ -33,7 +32,7 @@ const EmployeeForm = ({
 	});
 
 	const handleSubmit = useCallback(
-		(form: CreateEmployeeQueryType) => {
+		(form: FormData) => {
 			mutate({ id: employee.id, form });
 		},
 		[mutate, employee.id]
