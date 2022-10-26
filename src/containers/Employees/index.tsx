@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, EMPLOYEE_EXPORT_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import {
 	useCreateEmployeeMutation,
@@ -12,6 +12,7 @@ import {
 	CreateEmployeeErrorResponseType,
 	GetEmployeesResponseType,
 } from '../../types';
+import { downloadFile } from '../../utils';
 
 interface ErrorType extends CreateEmployeeErrorResponseType {
 	message?: string;
@@ -98,8 +99,16 @@ const Employees = ({
 				openModal={() => setModalVisible(true)}
 				loading={employees.isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				// TODO: Do Export Data Functionality
-				exportData={() => {}}
+				exportData={async (type, filtered) => {
+					let url = EMPLOYEE_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile(url, 'employees.xlsx');
+					console.log({ result });
+				}}
 			/>
 			<div className="mt-3">
 				<EmployeeTable employees={employees.data?.result || []} />
