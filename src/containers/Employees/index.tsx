@@ -28,6 +28,7 @@ const Employees = ({
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
 
@@ -106,12 +107,13 @@ const Employees = ({
 							url +
 							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
 					}
-					const result = await downloadFile(
+					const result = await downloadFile({
 						url,
-						type === 'csv' ? 'employees.csv' : 'employees.xlsx'
-					);
-					console.log({ result });
+						name: type === 'csv' ? 'employees.csv' : 'employees.xlsx',
+						setLoading: setExportLoading,
+					});
 				}}
+				exportLoading={exportLoading}
 			/>
 			<div className="mt-3">
 				<EmployeeTable employees={employees.data?.result || []} />

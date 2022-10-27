@@ -3,9 +3,10 @@ import { FC, useState } from 'react';
 
 type FormProps = {
 	onSubmit?: (type: any, filter: boolean) => void;
+	loading?: boolean;
 };
 
-const Form: FC<FormProps> = ({ onSubmit }) => {
+const Form: FC<FormProps> = ({ loading, onSubmit }) => {
 	const [form, setForm] = useState({
 		type: 'csv',
 		employees: 'all',
@@ -22,6 +23,7 @@ const Form: FC<FormProps> = ({ onSubmit }) => {
 		>
 			<div className="mb-2 w-full">
 				<Select
+					disabled={loading}
 					label="Type"
 					name="type"
 					options={[
@@ -39,6 +41,7 @@ const Form: FC<FormProps> = ({ onSubmit }) => {
 			</div>
 			<div className="mb-2 w-full">
 				<Select
+					disabled={loading}
 					label="Employees"
 					name="employees"
 					options={[
@@ -60,10 +63,11 @@ const Form: FC<FormProps> = ({ onSubmit }) => {
 			<div className="mt-4 mb-2 w-full">
 				<Button
 					caps
+					disabled={loading}
 					padding="px-4 py-1"
 					rounded="rounded-lg"
 					type="submit"
-					title="export"
+					title={loading ? 'exporting...' : 'export'}
 				/>
 			</div>
 		</form>
