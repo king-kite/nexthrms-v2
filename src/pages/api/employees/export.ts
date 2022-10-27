@@ -1,5 +1,5 @@
 import excelJS from 'exceljs';
-import { Parser } from 'json2csv';
+import { parse } from 'json2csv';
 
 import { getEmployees } from '../../../db';
 import { auth } from '../../../middlewares';
@@ -36,26 +36,7 @@ export default auth().get(async (req, res) => {
 	});
 
 	if (req.query.type === 'csv') {
-		const fields = [
-			'ID',
-			'Email Address',
-			'First Name',
-			'Last Name',
-			'Date of Birth',
-			'Gender',
-			'Address',
-			'Phone',
-			'State',
-			'City',
-			'Department',
-			'Job',
-			'Supervisor',
-			'Supervisor Email',
-			'Is Active',
-			'Date Employed',
-		];
-		const parser = new Parser({ fields });
-		const data = parser.parse(employees);
+		const data = parse(employees);
 
 		res.setHeader('Content-Type', 'text/csv');
 		res.setHeader(
@@ -108,30 +89,3 @@ export default auth().get(async (req, res) => {
 		});
 	}
 });
-
-/*
-
-data.result.forEach((employee) => {
-			const emp = employee as EmployeeType;
-			worksheet.addRow({
-				id: emp.id,
-				email: emp.user.email,
-				first_name: emp.user.firstName,
-				last_name: emp.user.lastName,
-				dob: emp.user.profile?.dob || null,
-				gender: emp.user.profile?.gender || null,
-				address: emp.user.profile?.address || null,
-				phone: emp.user.profile?.phone || null,
-				state: emp.user.profile?.state || null,
-				city: emp.user.profile?.city || null,
-				department: emp.department?.name || null,
-				job: emp.job?.name || null,
-				supervisor: emp.supervisor
-					? emp.supervisor.user.firstName + ' ' + emp.supervisor.user.lastName
-					: null,
-				supervisor_email: emp.supervisor ? emp.supervisor.user.email : null,
-				is_active: emp.user.isActive,
-				date_employed: emp.dateEmployed,
-			});
-		});
-*/
