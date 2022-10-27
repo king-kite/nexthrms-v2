@@ -91,7 +91,9 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	},
 	leaves: {
 		where: {
-			status: 'APPROVED',
+			status: {
+				equals: 'APPROVED',
+			},
 			startDate: {
 				lte: new Date(),
 			},
@@ -170,6 +172,9 @@ export const getEmployees = async (
 }> => {
 	const query = getEmployeesQuery({ ...params });
 
+	const date = new Date();
+	date.setHours(0, 0, 0, 0);
+
 	const [total, result, active, inactive, on_leave] = await prisma.$transaction(
 		[
 			prisma.employee.count({ where: query.where }),
@@ -188,26 +193,27 @@ export const getEmployees = async (
 					},
 				},
 			}),
-			prisma.employee.aggregate({
+			prisma.employee.count({
 				where: {
 					leaves: {
-						every: {
-							status: 'APPROVED',
+						some: {
+							status: {
+								equals: 'APPROVED',
+							},
 							startDate: {
-								lte: new Date(),
+								lte: date,
 							},
 							endDate: {
-								gte: new Date(),
+								gte: date,
 							},
 						},
 					},
 				},
-				_count: true,
 			}),
 		]
 	);
 
-	return { total, active, inactive, result, on_leave: on_leave._count };
+	return { total, active, inactive, on_leave, result };
 };
 
 export const getEmployee = async (id: string) => {

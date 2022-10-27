@@ -64,12 +64,20 @@ export default auth()
 
 		// TODO: Check if the user has an approved/pending leave
 
+		const startDate = new Date(data.startDate);
+		startDate.setHours(0, 0, 0, 0);
+
+		const endDate = new Date(data.endDate);
+		endDate.setHours(0, 0, 0, 0);
+
 		const leave = await prisma.leave.update({
 			where: {
 				id: req.query.id as string,
 			},
 			data: {
 				...data,
+				startDate,
+				endDate,
 				employee: {
 					connect: {
 						id: employee,
