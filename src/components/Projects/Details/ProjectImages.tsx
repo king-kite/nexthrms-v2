@@ -77,7 +77,12 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 									/>
 								</div>
 								<p
-									onClick={() => downloadFile(file.file, file.name)}
+									onClick={() =>
+										downloadFile({
+											url: file.file,
+											name: file.name,
+										})
+									}
 									className="cursor-pointer mt-1 text-left text-sm text-gray-700 hover:text-blue-600 hover:underline"
 								>
 									{file.name.slice(0, 40)}

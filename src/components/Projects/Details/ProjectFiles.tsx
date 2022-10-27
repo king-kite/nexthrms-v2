@@ -70,7 +70,12 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 								</div>
 								<div className="w-[85%]">
 									<h5
-										onClick={() => downloadFile(file.file, file.name)}
+										onClick={() =>
+											downloadFile({
+												url: file.file,
+												name: file.name,
+											})
+										}
 										className="cursor-pointer text-blue-600 text-base hover:text-blue-500 hover:underline"
 									>
 										{file.name}
