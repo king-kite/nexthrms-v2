@@ -103,6 +103,11 @@ const EmployeeTable = ({ employees }: TableType) => {
 						</a>
 					</Link>
 				)}
+				renderContainerLinkAs={(props) => (
+					<Link href={props.link}>
+						<a className={props.className}>{props.children}</a>
+					</Link>
+				)}
 				split={{
 					actions: [
 						{

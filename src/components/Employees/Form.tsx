@@ -65,6 +65,7 @@ const Form: FC<FormProps> = ({
 	// defaultValue doesn't re-render after these department, employees, and jobs
 	// are loading. Use state instead
 	const [form, setForm] = useState({
+		image: '',
 		department: initState?.department?.id || '',
 		job: initState?.job?.id || '',
 		supervisor: initState?.supervisor?.id || '',
@@ -144,7 +145,7 @@ const Form: FC<FormProps> = ({
 
 	useEffect(() => {
 		if (success && !editMode) {
-			setForm({ job: '', department: '', supervisor: '' });
+			setForm({ image: '', job: '', department: '', supervisor: '' });
 			if (formRef.current) {
 				formRef.current.reset();
 			}
@@ -201,10 +202,19 @@ const Form: FC<FormProps> = ({
 							disabled={loading}
 							error={formErrors?.image || errors?.image}
 							label="Image"
-							onChange={() => removeFormErrors('image')}
+							onChange={({ target: { files } }) => {
+								if (files && files[0]) {
+									setForm((prevState) => ({
+										...prevState,
+										image: files[0].name,
+									}));
+								}
+								removeFormErrors('image');
+							}}
 							name="image"
 							placeholder="Upload Image"
 							required={editMode ? false : true}
+							value={form.image}
 						/>
 					</div>
 				</div>

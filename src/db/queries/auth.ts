@@ -3,6 +3,9 @@ import { Prisma } from '@prisma/client';
 import prisma from '../client';
 import { ProfileType } from '../../types';
 
+const date = new Date();
+date.setHours(0, 0, 0, 0);
+
 const userSelect: Prisma.UserSelect = {
 	firstName: true,
 	lastName: true,
@@ -10,6 +13,16 @@ const userSelect: Prisma.UserSelect = {
 	profile: {
 		select: {
 			image: true,
+		},
+	},
+	employee: {
+		select: {
+			department: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 	},
 };
@@ -57,78 +70,35 @@ export const profileUserSelectQuery: Prisma.UserSelect = {
 					},
 				},
 			},
+			leaves: {
+				where: {
+					status: {
+						equals: 'APPROVED',
+					},
+					startDate: {
+						lte: date,
+					},
+					endDate: {
+						gte: date,
+					},
+				},
+				select: {
+					status: true,
+					reason: true,
+					startDate: true,
+					endDate: true,
+					type: true,
+				},
+			},
 		},
 	},
 };
 
 export const getProfile = async (id: string): Promise<ProfileType | null> => {
-	const user = await prisma.user.findUnique({
+	// Should be of type PRofileType but typescript won't keep quiet;
+	const user: any = await prisma.user.findUnique({
 		where: { id },
-		select: {
-			firstName: true,
-			lastName: true,
-			email: true,
-			isEmailVerified: true,
-			profile: {
-				select: {
-					dob: true,
-					gender: true,
-					image: true,
-					address: true,
-					city: true,
-					phone: true,
-					state: true,
-				},
-			},
-			employee: {
-				select: {
-					id: true,
-					dateEmployed: true,
-					department: {
-						select: {
-							name: true,
-							hod: {
-								select: {
-									user: {
-										select: {
-											firstName: true,
-											lastName: true,
-											email: true,
-											profile: {
-												select: {
-													image: true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-					job: {
-						select: {
-							name: true,
-						},
-					},
-					supervisor: {
-						select: {
-							user: {
-								select: {
-									firstName: true,
-									lastName: true,
-									email: true,
-									profile: {
-										select: {
-											image: true,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		select: profileUserSelectQuery,
 	});
 
 	return user;

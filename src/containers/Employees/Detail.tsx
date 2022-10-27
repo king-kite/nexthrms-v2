@@ -162,7 +162,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 								{
 									title: 'Status',
 									value:
-										data.leaves.length > 1
+										data.leaves.length > 0
 											? 'ON LEAVE'
 											: data.user.isActive
 											? 'ACTIVE'
@@ -170,7 +170,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 									type: 'badge',
 									options: {
 										bg:
-											data.leaves.length > 1
+											data.leaves.length > 0
 												? 'warning'
 												: data.user.isActive
 												? 'green'
@@ -211,22 +211,24 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 										: '-------',
 								},
 								{
-									title: 'Last Leave Date',
+									title: 'Current Leave Date',
 									value:
-										data.leaves.length > 1
-											? `${getDate(
-													data.leaves[data.leaves.length - 1].startDate,
-													true
-											  )} - ${getDate(
-													data.leaves[data.leaves.length - 1].endDate,
-													true
-											  )}`
+										data.leaves.length > 0
+											? `${(
+													getDate(
+														data.leaves[data.leaves.length - 1].startDate
+													) as Date
+											  ).toDateString()} --- ${(
+													getDate(
+														data.leaves[data.leaves.length - 1].endDate
+													) as Date
+											  ).toDateString()}`
 											: '-------',
 								},
 								{
 									title: 'Length Of Leave',
 									value:
-										data.leaves.length > 1
+										data.leaves.length > 0
 											? (new Date(
 													data.leaves[data.leaves.length - 1].endDate
 											  ).getTime() -

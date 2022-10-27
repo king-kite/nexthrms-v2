@@ -120,19 +120,117 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							value: toCapitalize(data.employee.department?.name) || '-------',
 						},
 						{
-							title: 'Last Leave Date',
-							value: '-------',
+							title: 'Current Leave Date',
+							value:
+								data.employee.leaves.length > 0
+									? `${(
+											getDate(
+												data.employee.leaves[data.employee.leaves.length - 1]
+													.startDate
+											) as Date
+									  ).toDateString()} --- ${(
+											getDate(
+												data.employee.leaves[data.employee.leaves.length - 1]
+													.endDate
+											) as Date
+									  ).toDateString()}`
+									: '-------',
 						},
 						{
 							title: 'Length Of Leave',
-							value: '-------',
+							value:
+								data.employee.leaves.length > 0
+									? (new Date(
+											data.employee.leaves[
+												data.employee.leaves.length - 1
+											].endDate
+									  ).getTime() -
+											new Date(
+												data.employee.leaves[
+													data.employee.leaves.length - 1
+												].startDate
+											).getTime()) /
+									  (24 * 60 * 60 * 1000)
+									: '-------',
 						},
 						{
 							title: 'Date Employed',
-							value: getDate(data.employee.dateEmployed),
+							value: (
+								getDate(data.employee.dateEmployed) as Date
+							).toDateString(),
 						},
 					]}
 					title="Employee information"
+				/>
+			)}
+			{data?.employee?.supervisor && (
+				<InfoComp
+					infos={[
+						{
+							title: 'Profile Image',
+							type: 'image',
+							value: {
+								src:
+									data.employee.supervisor.user.profile?.image || DEFAULT_IMAGE,
+								alt:
+									data.employee.supervisor.user.firstName +
+									' ' +
+									data.employee.supervisor.user.lastName,
+							},
+						},
+						{
+							title: 'First Name',
+							value: data.employee.supervisor.user.firstName || '-------',
+						},
+						{
+							title: 'Last Name',
+							value: data.employee.supervisor.user.lastName || '-------',
+						},
+						{
+							title: 'Email',
+							value: data.employee.supervisor.user.email || '-------',
+						},
+						{
+							title: 'Department',
+							value:
+								data.employee.supervisor.user.employee.department?.name ||
+								'-------',
+						},
+					]}
+					title="Supervisor Information"
+				/>
+			)}
+
+			{data?.employee?.department?.hod && (
+				<InfoComp
+					infos={[
+						{
+							title: 'Profile Image',
+							type: 'image',
+							value: {
+								src:
+									data.employee.department.hod.user.profile?.image ||
+									DEFAULT_IMAGE,
+								alt:
+									data.employee.department.hod.user.firstName +
+									' ' +
+									data.employee.department.hod.user.lastName,
+							},
+						},
+						{
+							title: 'First Name',
+							value: data.employee.department.hod.user.firstName,
+						},
+						{
+							title: 'Last Name',
+							value: data.employee.department.hod.user.lastName,
+						},
+						{
+							title: 'Email',
+							value: data.employee.department.hod.user.email,
+						},
+					]}
+					title="Head of Department Information"
 				/>
 			)}
 			<Modal

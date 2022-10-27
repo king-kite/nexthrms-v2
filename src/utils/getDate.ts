@@ -1,15 +1,14 @@
-type ResultType = Date | string;
-
 export const getDate = (
 	dateString?: string | Date,
 	str = false
-): ResultType => {
+): Date | string => {
 	if (dateString) {
-		const date = new Date(dateString);
+		const date =
+			typeof dateString === 'string' ? new Date(dateString) : dateString;
 		return str ? date.toLocaleDateString('en-CA') : date;
 	} else {
-		const c = new Date();
-		const date = new Date(c.getFullYear(), c.getMonth(), c.getDate());
+		const date = new Date();
+		date.setHours(0, 0, 0, 0);
 		return str ? date.toLocaleDateString('en-CA') : date;
 	}
 };
@@ -56,14 +55,13 @@ export const getDateString = (
 		default:
 			return days[date.getDay()];
 	}
-	return days[date.getDay()];
 };
 
 export const getNextDate = (
 	date: Date | string,
 	nod = 1,
 	str = false
-): ResultType => {
+): Date | string => {
 	// nod => no_of_days
 	const number_of_days = nod * 24 * 60 * 60 * 1000;
 	const dateTime =

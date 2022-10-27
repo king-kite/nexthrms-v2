@@ -15,9 +15,9 @@ const TopBar: FC<TopBarType> = ({ actions, full_name, email, image }) => (
 	<div className="bg-gray-300 rounded-lg">
 		<div className="flex flex-col w-full md:flex-row md:px-2 md:py-3">
 			<div className="flex flex-col items-center w-full md:items-start md:px-2 md:w-1/3 lg:px-3">
-				<div className="h-[150px] my-2 relative w-[150px] md:h-[200px] md:w-[200px]">
+				<div className="h-[150px] my-2 relative rounded-xl w-[150px] md:h-[200px] md:w-[200px]">
 					<Image
-						className="h-full w-full"
+						className="h-full rounded-xl w-full"
 						layout="fill"
 						src={image || DEFAULT_IMAGE}
 						alt={full_name || 'user'}

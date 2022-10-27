@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import {
 	getProfile,
 	prisma,
@@ -51,14 +49,3 @@ export default auth()
 			data: user,
 		});
 	});
-
-const userSelect = {
-	firstName: true,
-	lastName: true,
-	email: true,
-	profile: {
-		select: {
-			image: true,
-		},
-	},
-};

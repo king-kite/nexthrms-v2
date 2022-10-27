@@ -1,5 +1,5 @@
 import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
-import Link from 'next/link'
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaEye } from 'react-icons/fa';
 
@@ -92,11 +92,16 @@ const LeaveTable = ({ leaves }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-        renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, props, children }) => (
 					<Link href={link}>
 						<a className={props.className} style={props.style}>
 							{children}
 						</a>
+					</Link>
+				)}
+				renderContainerLinkAs={(props) => (
+					<Link href={props.link}>
+						<a className={props.className}>{props.children}</a>
 					</Link>
 				)}
 				split={{

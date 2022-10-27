@@ -39,6 +39,12 @@ export type ProfileType = {
 					profile: {
 						image: string;
 					} | null;
+					employee: {
+						department: {
+							id: string;
+							name: string;
+						} | null;
+					};
 				};
 			} | null;
 		} | null;
@@ -53,8 +59,21 @@ export type ProfileType = {
 				profile: {
 					image: string;
 				} | null;
+				employee: {
+					department: {
+						id: string;
+						name: string;
+					} | null;
+				};
 			};
 		} | null;
+		leaves: {
+			startDate: Date | string;
+			endDate: Date | string;
+			reason: string;
+			type: string;
+			approved: boolean;
+		}[];
 	} | null;
 };
 

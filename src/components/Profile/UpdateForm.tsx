@@ -32,6 +32,7 @@ const Form = ({
 }) => {
 	const [formErrors, setErrors] = useState<ErrorType>();
 	const formRef = useRef<HTMLFormElement | null>(null);
+	const [form, setForm] = useState({ image: '' });
 
 	const queryClient = useQueryClient();
 
@@ -157,9 +158,15 @@ const Form = ({
 							error={formErrors?.image}
 							label="Image"
 							name="image"
-							onChange={() => removeError('image')}
+							onChange={({ target: { files } }) => {
+								if (files && files[0]) {
+									setForm({ image: files[0].name });
+								}
+								removeError('image');
+							}}
 							placeholder="Upload Image"
 							required={false}
+							value={form.image}
 						/>
 					</div>
 				</div>
