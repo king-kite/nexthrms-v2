@@ -40,10 +40,12 @@ const Form: FC<FormProps> = ({
 }) => {
 	const [formErrors, setErrors] = useState<CreateClientErrorResponseType>();
 
+	const [form, setForm] = useState({ image: '' });
 	const formRef = useRef<HTMLFormElement>(null);
 
 	useEffect(() => {
 		if (!editMode && success) {
+			setForm({ image: '' });
 			setErrors(undefined);
 			if (formRef.current) {
 				formRef.current.reset();
@@ -100,7 +102,9 @@ const Form: FC<FormProps> = ({
 							lastName: formRef.current?.lastName.value,
 							email: formRef.current?.email.value,
 							profile: {
-								image: formRef.current?.image.value || initState?.contact.profile?.image,
+								image:
+									formRef.current?.image.value ||
+									initState?.contact.profile?.image,
 								address: formRef.current?.address.value,
 								dob: formRef.current?.dob.value,
 								gender: formRef.current?.gender.value,
@@ -133,9 +137,15 @@ const Form: FC<FormProps> = ({
 							error={formErrors?.image || errors?.image}
 							label="Image"
 							name="image"
-							onChange={() => removeError('image')}
+							onChange={({ target: { files } }) => {
+								if (files && files[0]) {
+									setForm({ image: files[0].name });
+								}
+								removeError('image');
+							}}
 							placeholder="Upload Image"
 							required={editMode ? false : true}
+							value={form.image}
 						/>
 					</div>
 				</div>
@@ -285,11 +295,13 @@ const Form: FC<FormProps> = ({
 					<Button
 						disabled={loading}
 						title={
-							loading
-								? editMode
+							editMode
+								? loading
 									? 'Updating Client...'
-									: 'Creating Client...'
-								: 'Submit'
+									: 'Update Client'
+								: loading
+								? 'Creating Client...'
+								: 'Create Client'
 						}
 						type="submit"
 					/>

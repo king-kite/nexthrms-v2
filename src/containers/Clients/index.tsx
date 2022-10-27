@@ -3,8 +3,8 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, ClientTable, Form, Topbar } from '../../components/Clients';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useAlertModalContext } from '../../store/contexts';
+import { CLIENTS_EXPORT_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
 	useGetClientsQuery,
 	useCreateClientMutation,
@@ -14,6 +14,7 @@ import {
 	CreateClientErrorResponseType,
 	GetClientsResponseType,
 } from '../../types';
+import { downloadFile } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
@@ -21,7 +22,9 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
+	const [exportLoading, setExportLoading] = useState(false);
 
+	const { open } = useAlertContext();
 	const { open: openModal } = useAlertModalContext();
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
@@ -111,11 +114,29 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				total={data ? data.total : 0}
 			/>
 			<Topbar
-				openModal={() => {
-					setModalVisible(true);
-				}}
+				openModal={() => setModalVisible(true)}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
+				exportData={async (type, filtered) => {
+					let url = CLIENTS_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'clients.csv' : 'clients.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						open({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
+				}}
+				exportLoading={exportLoading}
 			/>
 			<ClientTable clients={data ? data.result : []} />
 			<Modal

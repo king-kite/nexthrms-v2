@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
-import { DEFAULT_PAGINATION_SIZE, EMPLOYEE_EXPORT_URL } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, EMPLOYEES_EXPORT_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import {
 	useCreateEmployeeMutation,
@@ -101,7 +101,7 @@ const Employees = ({
 				loading={employees.isFetching}
 				onSubmit={(name: string) => setSearch(name)}
 				exportData={async (type, filtered) => {
-					let url = EMPLOYEE_EXPORT_URL + '?type=' + type;
+					let url = EMPLOYEES_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
 							url +
@@ -112,6 +112,12 @@ const Employees = ({
 						name: type === 'csv' ? 'employees.csv' : 'employees.xlsx',
 						setLoading: setExportLoading,
 					});
+					if (result?.status !== 200) {
+						open({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
 				}}
 				exportLoading={exportLoading}
 			/>

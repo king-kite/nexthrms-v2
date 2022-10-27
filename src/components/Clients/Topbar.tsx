@@ -1,14 +1,23 @@
-import { Button, InputButton } from '@king-kite/react-kit';
+import { Button, ButtonDropdown, InputButton } from '@king-kite/react-kit';
 import { FC, useRef } from 'react';
 import { FaCloudDownloadAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
+import { ExportForm } from '../common';
 
 type TopbarProps = {
 	openModal: () => void;
 	loading: boolean;
 	onSubmit: (search: string) => void;
+	exportData: (type: 'csv' | 'excel', filter: boolean) => void;
+	exportLoading?: boolean;
 };
 
-const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
+const Topbar: FC<TopbarProps> = ({
+	exportData,
+	exportLoading,
+	loading,
+	openModal,
+	onSubmit,
+}) => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 
 	return (
@@ -26,6 +35,7 @@ const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
 					ref={searchRef}
 					buttonProps={{
 						disabled: loading,
+						padding: 'pl-2 pr-4 py-[0.54rem]',
 						title: 'Search',
 						type: 'submit',
 					}}
@@ -37,7 +47,7 @@ const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
 							if (value === '') onSubmit('');
 						},
 						placeholder:
-							'Search Contact Person Name or E-mail, Company Name...',
+							'Search contact person name or e-mail, company name...',
 						rounded: 'rounded-l-lg',
 						type: 'search',
 					}}
@@ -55,14 +65,18 @@ const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
 				/>
 			</div>
 			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
-				<Button
-					caps
-					iconLeft={FaCloudDownloadAlt}
-					onClick={() => window.alert('Downloading...')}
-					margin="lg:mr-6"
-					padding="px-3 py-2 md:px-6"
-					rounded="rounded-xl"
-					title="export"
+				<ButtonDropdown
+					component={() => (
+						<ExportForm loading={exportLoading} onSubmit={exportData} />
+					)}
+					props={{
+						caps: true,
+						iconLeft: FaCloudDownloadAlt,
+						margin: 'lg:mr-6',
+						padding: 'px-3 py-2 md:px-6',
+						rounded: 'rounded-xl',
+						title: 'export',
+					}}
 				/>
 			</div>
 		</div>

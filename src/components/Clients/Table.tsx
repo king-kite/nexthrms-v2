@@ -90,35 +90,17 @@ const ClientTable = ({ clients }: TableType) => {
 					actions: [
 						{
 							active: activeRow === 'all',
-							onClick: () => {
-								setRows(getRows(clients));
-								setActiveRow('all');
-							},
+							onClick: () => setActiveRow('all'),
 							title: 'all',
 						},
 						{
 							active: activeRow === 'active',
-							onClick: () => {
-								setRows(
-									getRows(clients).filter(
-										(row: TableRowType) => row.rows[4].value === 'active' && row
-									)
-								);
-								setActiveRow('active');
-							},
+							onClick: () => setActiveRow('active'),
 							title: 'active',
 						},
 						{
 							active: activeRow === 'inactive',
-							onClick: () => {
-								setRows(
-									getRows(clients).filter(
-										(row: TableRowType) =>
-											row.rows[4].value === 'inactive' && row
-									)
-								);
-								setActiveRow('inactive');
-							},
+							onClick: () => setActiveRow('inactive'),
 							title: 'inactive',
 						},
 					],
