@@ -10,6 +10,9 @@ type ParamsType = {
 	search?: string;
 };
 
+const date = new Date();
+date.setHours(0, 0, 0, 0);
+
 export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,
 	dateEmployed: true,
@@ -95,10 +98,10 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 				equals: 'APPROVED',
 			},
 			startDate: {
-				lte: new Date(),
+				lte: date,
 			},
 			endDate: {
-				gte: new Date(),
+				gte: date,
 			},
 		},
 		select: {
@@ -172,18 +175,34 @@ export const getEmployees = async (
 }> => {
 	const query = getEmployeesQuery({ ...params });
 
-	const date = new Date();
-	date.setHours(0, 0, 0, 0);
-
 	const [total, result, active, inactive, on_leave] = await prisma.$transaction(
 		[
 			prisma.employee.count({ where: query.where }),
 			prisma.employee.findMany(query),
 			prisma.employee.count({
 				where: {
-					user: {
-						isActive: true,
-					},
+					AND: [
+						{
+							user: {
+								isActive: true,
+							},
+						},
+						{
+							leaves: {
+								none: {
+									status: {
+										equals: 'APPROVED',
+									},
+									startDate: {
+										lte: date,
+									},
+									endDate: {
+										gte: date,
+									},
+								},
+							},
+						},
+					],
 				},
 			}),
 			prisma.employee.count({

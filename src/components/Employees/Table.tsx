@@ -30,7 +30,7 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 			{
 				options: {
 					bg:
-						employee.leaves.length > 1
+						employee.leaves.length > 0
 							? 'warning'
 							: employee.user.isActive
 							? 'green'
@@ -38,7 +38,7 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 				},
 				type: 'badge',
 				value:
-					employee.leaves.length > 1
+					employee.leaves.length > 0
 						? 'on leave'
 						: employee.user.isActive
 						? 'active'
@@ -75,10 +75,11 @@ const EmployeeTable = ({ employees }: TableType) => {
 	useEffect(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
-			finalList = employees.filter((employee) => employee.leaves.length > 1);
+			finalList = employees.filter((employee) => employee.leaves.length > 0);
 		} else if (activeRow === 'active') {
 			finalList = employees.filter(
-				(employee) => employee.user.isActive === true
+				(employee) =>
+					employee.user.isActive === true && employee.leaves.length === 0
 			);
 		} else if (activeRow === 'inactive') {
 			finalList = employees.filter(
@@ -106,48 +107,22 @@ const EmployeeTable = ({ employees }: TableType) => {
 					actions: [
 						{
 							active: activeRow === 'all',
-							onClick: () => {
-								setRows(getRows(employees));
-								setActiveRow('all');
-							},
+							onClick: () => setActiveRow('all'),
 							title: 'all',
 						},
 						{
 							active: activeRow === 'active',
-							onClick: () => {
-								setRows(
-									getRows(employees).filter(
-										(row: TableRowType) => row.rows[4].value === 'active' && row
-									)
-								);
-								setActiveRow('active');
-							},
+							onClick: () => setActiveRow('active'),
 							title: 'active',
 						},
 						{
 							active: activeRow === 'on leave',
-							onClick: () => {
-								setRows(
-									getRows(employees).filter(
-										(row: TableRowType) =>
-											row.rows[4].value === 'on leave' && row
-									)
-								);
-								setActiveRow('on leave');
-							},
+							onClick: () => setActiveRow('on leave'),
 							title: 'on leave',
 						},
 						{
 							active: activeRow === 'inactive',
-							onClick: () => {
-								setRows(
-									getRows(employees).filter(
-										(row: TableRowType) =>
-											row.rows[4].value === 'inactive' && row
-									)
-								);
-								setActiveRow('inactive');
-							},
+							onClick: () => setActiveRow('inactive'),
 							title: 'inactive',
 						},
 					],
