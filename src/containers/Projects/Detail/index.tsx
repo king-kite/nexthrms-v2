@@ -187,7 +187,7 @@ const Detail = ({
 							/>
 						</div>
 
-						<ProjectDetail data={data} progress={0} />
+						<ProjectDetail data={data} progress={data?.progress || 0} />
 					</div>
 					<Modal
 						close={() => setModalVisible(false)}

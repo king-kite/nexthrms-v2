@@ -158,7 +158,15 @@ export const getProject = async (id: string) => {
 		where: { id },
 		select: projectSelectQuery,
 	});
-	return project;
+	const tasks = await prisma.projectTask.findMany({
+		where: { projectId: id },
+		select: { completed: true },
+	});
+	const completedTasks = tasks.filter((task) => task.completed === true).length;
+	const ongoingTasks = tasks.filter((task) => task.completed === false).length;
+	const totalTasks = completedTasks + ongoingTasks;
+
+	return { ...project, progress: completedTasks / totalTasks };
 };
 
 // ******** Project Queries Stop ***********

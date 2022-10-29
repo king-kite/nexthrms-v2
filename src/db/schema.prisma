@@ -246,10 +246,9 @@ model Project {
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String? @map("client_id") @db.Uuid
 
-  team ProjectTeam[]
-
-  projectFiles ProjectFile[]
-  ProjectTask  ProjectTask[]
+  files ProjectFile[]
+  tasks ProjectTask[]
+  team  ProjectTeam[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

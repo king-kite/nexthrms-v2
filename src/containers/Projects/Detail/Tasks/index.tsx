@@ -115,6 +115,7 @@ const ProjectTasks = ({
 				onClick: refetch,
 				loading: isFetching,
 			}}
+			icon
 			paginate={
 				data && data.total > 0
 					? {

@@ -30,6 +30,7 @@ export type ProjectType = {
 	rate: number;
 	priority: 'HIGH' | 'MEDIUM' | 'LOW';
 	team: ProjectTeamType[];
+	progress?: number; // In Decimal. Multiply by 100 to get percentage
 	updatedAt: Date | string;
 };
 
