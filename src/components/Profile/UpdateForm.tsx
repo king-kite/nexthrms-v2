@@ -39,7 +39,7 @@ const Form = ({
 	const { login } = useAuthContext();
 
 	const { mutate: updateProfile, isLoading: loading } = useMutation(
-		(data: ProfileUpdateType) =>
+		(data: FormData) =>
 			axiosInstance
 				.put(PROFILE_URL, data)
 				.then(
@@ -94,7 +94,13 @@ const Form = ({
 			try {
 				setErrors(undefined);
 				const valid = await profileUpdateSchema.validateAsync(form);
-				if (valid) updateProfile(valid);
+				if (valid) {
+					const form = new FormData();
+					valid.profile.image && form.append('image', valid.profile.image);
+					const formJsonData = JSON.stringify(valid);
+					form.append('form', formJsonData);
+					updateProfile(form);
+				}
 			} catch (err) {
 				const error = handleJoiErrors<ProfileUpdateErrorResponseType>(err);
 				setErrors((prevState) => {
@@ -138,7 +144,7 @@ const Form = ({
 						email: formRef.current.email.value,
 						profile: {
 							phone: formRef.current.phone.value,
-							image: formRef.current.image.value || profile.profile?.image,
+							image: formRef.current.image.files[0] || undefined,
 							gender: formRef.current.gender.value,
 							address: formRef.current.address.value,
 							state: formRef.current.state.value,

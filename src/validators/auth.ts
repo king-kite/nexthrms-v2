@@ -58,7 +58,7 @@ export const profileUpdateSchema = Joi.object({
 	profile: {
 		phone: Joi.string().required().label('Phone Number'),
 		gender: Joi.string().valid('MALE', 'FEMALE').optional().label('Gender'),
-		image: Joi.string().optional().allow('').label('Image'),
+		image: Joi.any().optional().allow('').label('Image'), // File
 		address: Joi.string().optional().allow('').label('Address'),
 		state: Joi.string().optional().allow('').label('State'),
 		city: Joi.string().optional().allow('').label('City'),

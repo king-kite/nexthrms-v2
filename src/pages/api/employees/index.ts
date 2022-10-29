@@ -70,7 +70,7 @@ export default auth()
 				const extension = splitText[splitText.length - 1];
 				const [obj, file] = await firebaseBucket.upload(files.image.filepath, {
 					contentType: files.image.mimetype || undefined,
-					destination: `users/employees/${name}.${extension}`,
+					destination: `users/profile/${name}.${extension}`,
 				});
 				valid.user.profile.image = file.mediaLink;
 				Object(valid.user.profile).imageStorageInfo = {
