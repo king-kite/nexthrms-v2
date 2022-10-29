@@ -20,6 +20,7 @@ const AddProjectFileForm = ({
 	type: 'application' | 'image';
 }) => {
 	const formRef = useRef<HTMLFormElement | null>(null);
+	const [imageName, setImageName] = useState<string>();
 
 	const { open } = useAlertModalContext();
 	const [formErrors, setFormErrors] =
@@ -32,6 +33,7 @@ const AddProjectFileForm = ({
 			},
 			onSuccess() {
 				onClose();
+				setImageName(undefined);
 				open({
 					header: 'File Added',
 					color: 'success',
@@ -119,8 +121,12 @@ const AddProjectFileForm = ({
 							error={formErrors?.file}
 							label={label || 'File'}
 							name="file"
-							onChange={() => removeErrors('file')}
+							onChange={({ target: { files } }) => {
+								if (files && files[0]) setImageName(files[0].name);
+								removeErrors('file');
+							}}
 							placeholder={`Upload ${label || 'file'}`}
+							value={imageName}
 						/>
 					</div>
 				</div>
