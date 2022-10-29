@@ -77,7 +77,7 @@ const Jobs = ({
 							caps: true,
 							disabled: isFetching,
 							iconLeft: FaSearch,
-							padding: 'pl-2 pr-4 py-[0.54rem]',
+							padding: 'pl-2 pr-4 py-[0.545rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
