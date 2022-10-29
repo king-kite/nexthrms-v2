@@ -7,6 +7,8 @@ import { FaTimes, FaFileUpload } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
+import { useAlertModalContext } from '../../../store/contexts';
+import { useDeleteProjectFileMutation } from '../../../store/queries';
 import { ProjectFileType } from '../../../types';
 import { downloadFile } from '../../../utils';
 
@@ -18,6 +20,16 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 	const [visible, setVisible] = useState(false);
+
+	const { open } = useAlertModalContext();
+	const { deleteProjectFile } = useDeleteProjectFileMutation({
+		onError({ message }) {
+			open({
+				message,
+				color: 'danger',
+			});
+		},
+	});
 
 	return (
 		<div className="bg-white my-4 p-4 rounded-md shadow-lg">
@@ -76,18 +88,18 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 										alt=""
 									/>
 								</div>
-								<p
+								<span
 									onClick={() =>
 										downloadFile({
 											url: file.file,
 											name: file.name,
 										})
 									}
-									className="cursor-pointer mt-1 text-left text-sm text-gray-700 hover:text-blue-600 hover:underline"
+									className="cursor-pointer inline-block text-left text-sm text-gray-700 hover:text-blue-600 hover:underline"
 								>
 									{file.name.slice(0, 40)}
 									{file.name.length > 40 ? '...' : ''}
-								</p>
+								</span>
 								{file.employee && (
 									<Link
 										href={
@@ -96,7 +108,7 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 												: '#'
 										}
 									>
-										<a className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline">
+										<a className="block capitalize cursor-pointer text-blue-600 text-sm hover:text-blue-500 hover:underline">
 											{file.employee.user.firstName}
 										</a>
 									</Link>
@@ -109,6 +121,12 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 									<span className="font-medium mx-1 uppercase">
 										{sizeString}MB
 									</span>
+								</p>
+								<p
+									onClick={() => deleteProjectFile(id, file.id)}
+									className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
+								>
+									delete
 								</p>
 							</div>
 						);

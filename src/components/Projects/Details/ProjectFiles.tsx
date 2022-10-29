@@ -6,6 +6,8 @@ import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL } from '../../../config';
+import { useAlertModalContext } from '../../../store/contexts';
+import { useDeleteProjectFileMutation } from '../../../store/queries';
 import { ProjectFileType } from '../../../types';
 import { downloadFile } from '../../../utils';
 
@@ -17,6 +19,16 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 	const [visible, setVisible] = useState(false);
+
+	const { open } = useAlertModalContext();
+	const { deleteProjectFile } = useDeleteProjectFileMutation({
+		onError({ message }) {
+			open({
+				message,
+				color: 'danger',
+			});
+		},
+	});
 
 	return (
 		<div className="bg-white my-4 p-4 rounded-md shadow-lg">
@@ -76,7 +88,7 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 												name: file.name,
 											})
 										}
-										className="cursor-pointer text-blue-600 text-base hover:text-blue-500 hover:underline"
+										className="cursor-pointer text-purple-600 text-base hover:text-purple-500 hover:underline"
 									>
 										{file.name}
 									</h5>
@@ -89,7 +101,7 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 														: '#'
 												}
 											>
-												<a className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline">
+												<a className="inline-block capitalize cursor-pointer text-blue-600 text-sm hover:text-blue-500 hover:underline">
 													{file.employee.user.firstName}
 												</a>
 											</Link>
@@ -103,6 +115,12 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 										<span className="font-medium mx-1 uppercase">
 											{sizeString}MB
 										</span>
+									</p>
+									<p
+										onClick={() => deleteProjectFile(id, file.id)}
+										className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
+									>
+										delete
 									</p>
 								</div>
 							</li>

@@ -524,7 +524,7 @@ export function useDeleteProjectFileMutation(
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess() {
-				queryClient.invalidateQueries([tags.PROJECTS]);
+				queryClient.invalidateQueries([tags.PROJECT_FILES]);
 				if (options?.onSuccess) options.onSuccess();
 			},
 			async onError(err) {
