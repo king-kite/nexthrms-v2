@@ -9,7 +9,6 @@ import {
 	BaseResponseType,
 	ClientType,
 	CreateClientErrorResponseType,
-	ClientCreateQueryType,
 	CreateClientResponseType,
 	GetClientsResponseType,
 	SuccessResponseType,
@@ -123,7 +122,7 @@ export function useCreateClientMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(data: ClientCreateQueryType) =>
+		(data: FormData) =>
 			axiosInstance
 				.post(CLIENTS_URL, data)
 				.then(
@@ -238,7 +237,7 @@ export function useEditClientMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(data: { id: string; form: ClientCreateQueryType }) =>
+		(data: { id: string; form: FormData }) =>
 			axiosInstance
 				.put(CLIENT_URL(data.id), data.form)
 				.then(

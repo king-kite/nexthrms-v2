@@ -10,7 +10,6 @@ import {
 	useCreateClientMutation,
 } from '../../store/queries';
 import {
-	ClientCreateQueryType,
 	CreateClientErrorResponseType,
 	GetClientsResponseType,
 } from '../../types';
@@ -79,7 +78,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	);
 
 	const handleSubmit = useCallback(
-		(form: ClientCreateQueryType) => {
+		(form: FormData) => {
 			createClient(form);
 		},
 		[createClient]
@@ -149,7 +148,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 								: undefined
 						}
 						loading={createData.isLoading}
-						onSubmit={(form: ClientCreateQueryType) => handleSubmit(form)}
+						onSubmit={(form: FormData) => handleSubmit(form)}
 						success={createData.isSuccess}
 					/>
 				}

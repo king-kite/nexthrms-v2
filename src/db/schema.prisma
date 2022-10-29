@@ -17,7 +17,7 @@ model Attendance {
   punchOut DateTime? @map("punch_out") @db.Time()
 
   employeeId String   @map("employee_id") @db.Uuid
-  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   overtimeId String?   @unique @map("overtime_id") @db.Uuid
   overtime   Overtime? @relation(fields: [overtimeId], references: [id], onDelete: SetNull)
@@ -288,7 +288,7 @@ model ProjectTeam {
   isLeader Boolean @default(false) @map("is_leader")
 
   employeeId String   @map("employee_id") @db.Uuid
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   projectId String  @map("project_id") @db.Uuid
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -328,7 +328,7 @@ model ProjectTaskFollower {
   id       String  @id @default(uuid()) @db.Uuid
   isLeader Boolean @default(false) @map("is_leader")
 
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId String   @map("employee_id") @db.Uuid
 
   task   ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)

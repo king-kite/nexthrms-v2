@@ -26,7 +26,7 @@ export type FormProps = {
 	initState?: ClientType;
 	loading: boolean;
 	success?: boolean;
-	onSubmit: (form: ClientCreateQueryType) => void;
+	onSubmit: (form: FormData) => void;
 };
 
 const Form: FC<FormProps> = ({
@@ -54,17 +54,24 @@ const Form: FC<FormProps> = ({
 	}, [success, editMode]);
 
 	const handleSubmit = useCallback(
-		async (form: ClientCreateQueryType) => {
+		async (input: ClientCreateQueryType) => {
 			setErrors(undefined);
 			if (removeErrors) removeErrors();
 			try {
-				const valid = await createClientSchema.validateAsync(
-					{ ...form },
-					{
-						abortEarly: false,
-					}
-				);
-				onSubmit(valid);
+				const valid: ClientCreateQueryType =
+					await createClientSchema.validateAsync(
+						{ ...input },
+						{
+							abortEarly: false,
+						}
+					);
+				const form = new FormData();
+				valid.contact &&
+					valid.contact.profile.image &&
+					form.append('image', valid.contact.profile.image);
+				const formJsonData = JSON.stringify(valid);
+				form.append('form', formJsonData);
+				onSubmit(form);
 			} catch (error) {
 				const err = handleJoiErrors<CreateClientErrorResponseType>(error);
 				if (err) {
@@ -102,9 +109,7 @@ const Form: FC<FormProps> = ({
 							lastName: formRef.current?.lastName.value,
 							email: formRef.current?.email.value,
 							profile: {
-								image:
-									formRef.current?.image.value ||
-									initState?.contact.profile?.image,
+								image: formRef.current?.image.files[0] || undefined,
 								address: formRef.current?.address.value,
 								dob: formRef.current?.dob.value,
 								gender: formRef.current?.gender.value,

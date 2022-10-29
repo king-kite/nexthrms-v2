@@ -2,10 +2,10 @@
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 
 -- CreateEnum
-CREATE TYPE "LeaveChoices" AS ENUM ('ANNUAL', 'CAUSAL', 'HOSPITALIZATION', 'LOP', 'MATERNITY', 'PATERNITY', 'SICK');
+CREATE TYPE "LeaveChoices" AS ENUM ('ANNUAL', 'CASUAL', 'HOSPITALIZATION', 'LOP', 'MATERNITY', 'PATERNITY', 'SICK');
 
 -- CreateEnum
-CREATE TYPE "LeaveDecisions" AS ENUM ('APPROVED', 'DENIED', 'OPTIONAL', 'PENDING');
+CREATE TYPE "LeaveStatus" AS ENUM ('APPROVED', 'DENIED', 'EXPIRED', 'PENDING');
 
 -- CreateEnum
 CREATE TYPE "NotificationChoices" AS ENUM ('LEAVE', 'OVERTIME');
@@ -17,9 +17,6 @@ CREATE TYPE "OvertimeChoices" AS ENUM ('COMPULSORY', 'HOLIDAY', 'VOLUNTARY');
 CREATE TYPE "ProjectPriority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
 
 -- CreateEnum
-CREATE TYPE "ProjectFileType" AS ENUM ('AUDIO', 'DOCUMENT', 'IMAGE', 'MSEXCEL', 'MSWORD', 'PDF', 'VIDEO', 'TXT');
-
--- CreateEnum
 CREATE TYPE "VerificationToken" AS ENUM ('EMAIL_VERIFICATION', 'PASSWORD_RESET');
 
 -- CreateTable
@@ -29,7 +26,7 @@ CREATE TABLE "attendance" (
     "punch_in" TIME NOT NULL,
     "punch_out" TIME,
     "employee_id" UUID NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "overtime_id" UUID,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "attendance_pkey" PRIMARY KEY ("id")
@@ -97,12 +94,13 @@ CREATE TABLE "holiday" (
 CREATE TABLE "leaves" (
     "id" UUID NOT NULL,
     "reason" TEXT NOT NULL,
-    "type" "LeaveChoices" NOT NULL DEFAULT 'CAUSAL',
-    "approved" BOOLEAN NOT NULL DEFAULT false,
     "start_date" TIMESTAMP(3) NOT NULL,
     "end_date" TIMESTAMP(3) NOT NULL,
+    "type" "LeaveChoices" NOT NULL DEFAULT 'CASUAL',
+    "status" "LeaveStatus" NOT NULL DEFAULT 'PENDING',
     "employee_id" UUID NOT NULL,
     "created_by" UUID,
+    "approved_by" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -132,9 +130,10 @@ CREATE TABLE "overtime" (
     "date" TIMESTAMP(3) NOT NULL,
     "hours" INTEGER NOT NULL,
     "reason" TEXT NOT NULL,
-    "approved" BOOLEAN NOT NULL DEFAULT false,
+    "status" "LeaveStatus" NOT NULL DEFAULT 'PENDING',
     "employee_id" UUID NOT NULL,
     "created_by" UUID,
+    "approved_by" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -145,12 +144,13 @@ CREATE TABLE "overtime" (
 CREATE TABLE "users_profile" (
     "id" UUID NOT NULL,
     "dob" TIMESTAMP(3),
-    "gender" "Gender" NOT NULL DEFAULT 'MALE',
     "image" TEXT NOT NULL DEFAULT '/images/default.png',
+    "image_storage_info" JSONB,
     "address" TEXT,
     "city" VARCHAR(20),
     "phone" VARCHAR(20),
     "state" VARCHAR(100),
+    "gender" "Gender" NOT NULL DEFAULT 'MALE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "user_id" UUID NOT NULL,
@@ -169,8 +169,7 @@ CREATE TABLE "projects" (
     "rate" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "start_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end_date" TIMESTAMP(3) NOT NULL,
-    "client_id" UUID NOT NULL,
-    "created_by" UUID NOT NULL,
+    "client_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -178,22 +177,24 @@ CREATE TABLE "projects" (
 );
 
 -- CreateTable
-CREATE TABLE "project_files" (
+CREATE TABLE "projects_files" (
     "id" UUID NOT NULL,
-    "file" TEXT NOT NULL,
-    "file_type" "ProjectFileType" NOT NULL DEFAULT 'DOCUMENT',
     "name" VARCHAR(255) NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "file" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "storageName" TEXT,
+    "storageGeneration" TEXT,
+    "type" TEXT NOT NULL DEFAULT 'application',
     "project_id" UUID NOT NULL,
     "uploaded_by" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "project_files_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "projects_files_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "project_team" (
+CREATE TABLE "projects_team" (
     "id" UUID NOT NULL,
     "is_leader" BOOLEAN NOT NULL DEFAULT false,
     "employee_id" UUID NOT NULL,
@@ -201,28 +202,26 @@ CREATE TABLE "project_team" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "project_team_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "projects_team_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "project_tasks" (
+CREATE TABLE "projects_tasks" (
     "id" UUID NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
-    "verified" BOOLEAN NOT NULL DEFAULT false,
     "priority" "ProjectPriority" NOT NULL DEFAULT 'HIGH',
     "due_date" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" UUID NOT NULL,
     "project_id" UUID NOT NULL,
 
-    CONSTRAINT "project_tasks_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "projects_tasks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "project_task_followers" (
+CREATE TABLE "projects_tasks_followers" (
     "id" UUID NOT NULL,
     "is_leader" BOOLEAN NOT NULL DEFAULT false,
     "employee_id" UUID NOT NULL,
@@ -230,7 +229,7 @@ CREATE TABLE "project_task_followers" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "project_task_followers_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "projects_tasks_followers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -262,7 +261,22 @@ CREATE TABLE "users" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "attendance_overtime_id_key" ON "attendance"("overtime_id");
+
+-- CreateIndex
+CREATE INDEX "attendance_id" ON "attendance"("id");
+
+-- CreateIndex
+CREATE INDEX "attendance_employee_id" ON "attendance"("employee_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "attendance_date_employee_id_key" ON "attendance"("date", "employee_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "clients_contact_id_key" ON "clients"("contact_id");
+
+-- CreateIndex
+CREATE INDEX "client_id" ON "clients"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "departments_name_key" ON "departments"("name");
@@ -271,28 +285,127 @@ CREATE UNIQUE INDEX "departments_name_key" ON "departments"("name");
 CREATE UNIQUE INDEX "departments_hod_id_key" ON "departments"("hod_id");
 
 -- CreateIndex
+CREATE INDEX "department_id" ON "departments"("id");
+
+-- CreateIndex
+CREATE INDEX "department_name" ON "departments"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "employees_user_id_key" ON "employees"("user_id");
+
+-- CreateIndex
+CREATE INDEX "employee_id" ON "employees"("id");
+
+-- CreateIndex
+CREATE INDEX "employee_department_id" ON "employees"("department_id");
+
+-- CreateIndex
+CREATE INDEX "employee_job_id" ON "employees"("job_id");
+
+-- CreateIndex
+CREATE INDEX "supervisor_id" ON "employees"("supervisor_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "jobs_name_key" ON "jobs"("name");
 
 -- CreateIndex
+CREATE INDEX "job_id" ON "jobs"("id");
+
+-- CreateIndex
+CREATE INDEX "job_name" ON "jobs"("name");
+
+-- CreateIndex
+CREATE INDEX "holiday_id" ON "holiday"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "holiday_name_date_key" ON "holiday"("name", "date");
+
+-- CreateIndex
+CREATE INDEX "leave_id" ON "leaves"("id");
+
+-- CreateIndex
+CREATE INDEX "leave_employee_id" ON "leaves"("employee_id");
+
+-- CreateIndex
+CREATE INDEX "leave_created_by_id" ON "leaves"("created_by");
+
+-- CreateIndex
+CREATE INDEX "notification_recipient_id" ON "notifications"("recipient_id");
+
+-- CreateIndex
+CREATE INDEX "notification_sender_id" ON "notifications"("sender_id");
+
+-- CreateIndex
+CREATE INDEX "overtime_id" ON "overtime"("id");
+
+-- CreateIndex
+CREATE INDEX "overtime_created_by_id" ON "overtime"("created_by");
+
+-- CreateIndex
+CREATE INDEX "overtime_employee_id" ON "overtime"("employee_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "overtime_date_employee_id_key" ON "overtime"("date", "employee_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_profile_user_id_key" ON "users_profile"("user_id");
 
 -- CreateIndex
+CREATE INDEX "profile_id" ON "users_profile"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "projects_name_key" ON "projects"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "project_team_project_id_employee_id_key" ON "project_team"("project_id", "employee_id");
+CREATE INDEX "project_id" ON "projects"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "project_task_followers_task_id_employee_id_key" ON "project_task_followers"("task_id", "employee_id");
+CREATE INDEX "project_name" ON "projects"("name");
+
+-- CreateIndex
+CREATE INDEX "project_client_id" ON "projects"("client_id");
+
+-- CreateIndex
+CREATE INDEX "project_file_project_id" ON "projects_files"("project_id");
+
+-- CreateIndex
+CREATE INDEX "project_file_uploaded_by" ON "projects_files"("uploaded_by");
+
+-- CreateIndex
+CREATE INDEX "project_team_employee_id" ON "projects_team"("employee_id");
+
+-- CreateIndex
+CREATE INDEX "project_team_project_id" ON "projects_team"("project_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "projects_team_project_id_employee_id_key" ON "projects_team"("project_id", "employee_id");
+
+-- CreateIndex
+CREATE INDEX "task_id" ON "projects_tasks"("id");
+
+-- CreateIndex
+CREATE INDEX "task_name" ON "projects_tasks"("name");
+
+-- CreateIndex
+CREATE INDEX "task_project_id" ON "projects_tasks"("project_id");
+
+-- CreateIndex
+CREATE INDEX "project_task_follower_task_id" ON "projects_tasks_followers"("task_id");
+
+-- CreateIndex
+CREATE INDEX "project_task_follower_employee_id" ON "projects_tasks_followers"("employee_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "projects_tasks_followers_task_id_employee_id_key" ON "projects_tasks_followers"("task_id", "employee_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tokens_token_key" ON "tokens"("token");
+
+-- CreateIndex
+CREATE INDEX "token_uid" ON "tokens"("uid");
+
+-- CreateIndex
+CREATE INDEX "token_token" ON "tokens"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tokens_uid_token_key" ON "tokens"("uid", "token");
@@ -300,8 +413,17 @@ CREATE UNIQUE INDEX "tokens_uid_token_key" ON "tokens"("uid", "token");
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
+-- CreateIndex
+CREATE INDEX "user_id" ON "users"("id");
+
+-- CreateIndex
+CREATE INDEX "user_email" ON "users"("email");
+
 -- AddForeignKey
-ALTER TABLE "attendance" ADD CONSTRAINT "attendance_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "attendance" ADD CONSTRAINT "attendance_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "attendance" ADD CONSTRAINT "attendance_overtime_id_fkey" FOREIGN KEY ("overtime_id") REFERENCES "overtime"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "clients" ADD CONSTRAINT "clients_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -328,6 +450,9 @@ ALTER TABLE "leaves" ADD CONSTRAINT "leaves_employee_id_fkey" FOREIGN KEY ("empl
 ALTER TABLE "leaves" ADD CONSTRAINT "leaves_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "leaves" ADD CONSTRAINT "leaves_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_sender_id_fkey" FOREIGN KEY ("sender_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -340,34 +465,31 @@ ALTER TABLE "overtime" ADD CONSTRAINT "overtime_employee_id_fkey" FOREIGN KEY ("
 ALTER TABLE "overtime" ADD CONSTRAINT "overtime_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "overtime" ADD CONSTRAINT "overtime_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "users_profile" ADD CONSTRAINT "users_profile_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "projects" ADD CONSTRAINT "projects_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "projects_files" ADD CONSTRAINT "projects_files_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_files" ADD CONSTRAINT "project_files_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "projects_files" ADD CONSTRAINT "projects_files_uploaded_by_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_files" ADD CONSTRAINT "project_files_uploaded_by_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "projects_team" ADD CONSTRAINT "projects_team_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_team" ADD CONSTRAINT "project_team_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "projects_team" ADD CONSTRAINT "projects_team_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_team" ADD CONSTRAINT "project_team_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "projects_tasks" ADD CONSTRAINT "projects_tasks_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_tasks" ADD CONSTRAINT "project_tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "projects_tasks_followers" ADD CONSTRAINT "projects_tasks_followers_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_tasks" ADD CONSTRAINT "project_tasks_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "project_task_followers" ADD CONSTRAINT "project_task_followers_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "project_task_followers" ADD CONSTRAINT "project_task_followers_task_id_fkey" FOREIGN KEY ("task_id") REFERENCES "project_tasks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "projects_tasks_followers" ADD CONSTRAINT "projects_tasks_followers_task_id_fkey" FOREIGN KEY ("task_id") REFERENCES "projects_tasks"("id") ON DELETE CASCADE ON UPDATE CASCADE;

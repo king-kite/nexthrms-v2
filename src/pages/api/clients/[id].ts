@@ -1,8 +1,16 @@
 import { Prisma } from '@prisma/client';
 
-import { prisma, getClient } from '../../../db';
+import { firebaseBucket, prisma, getClient } from '../../../db';
 import { auth } from '../../../middlewares';
+import { ClientCreateQueryType } from '../../../types';
+import parseForm from '../../../utils/parseForm';
 import { createClientSchema } from '../../../validators';
+
+export const config = {
+	api: {
+		bodyParser: false,
+	},
+};
 
 export default auth()
 	.get(async (req, res) => {
@@ -21,7 +29,22 @@ export default auth()
 		});
 	})
 	.put(async (req, res) => {
-		const valid = await createClientSchema.validateAsync({ ...req.body });
+		const { fields, files } = (await parseForm(req)) as {
+			files: any;
+			fields: any;
+		};
+		if (!fields.form) {
+			return res.status(400).json({
+				status: 'error',
+				message: "'form' field is required",
+			});
+		}
+		const form = JSON.parse(fields.form);
+
+		const valid: ClientCreateQueryType = await createClientSchema.validateAsync(
+			form,
+			{ abortEarly: false }
+		);
 
 		if (valid.contactId && valid.contact) {
 			return res.status(400).json({
@@ -34,6 +57,33 @@ export default auth()
 				status: 'error',
 				message: "Invalid data! Provide a 'contactId' or 'contact' object.",
 			});
+		}
+
+		if (valid.contact && files.image) {
+			// Upload a file to the bucket using firebase admin
+			try {
+				const name = (
+					valid.contact.firstName +
+					'_' +
+					valid.contact.lastName +
+					'_' +
+					valid.contact.email
+				).toLowerCase();
+				const splitText = files.image.originalFilename?.split('.');
+				const extension = splitText[splitText.length - 1];
+				const [obj, file] = await firebaseBucket.upload(files.image.filepath, {
+					contentType: files.image.mimetype || undefined,
+					destination: `users/contacts/${name}.${extension}`,
+				});
+				valid.contact.profile.image = file.mediaLink;
+				Object(valid.contact.profile).imageStorageInfo = {
+					name: file.name,
+					generation: file.generation,
+				};
+			} catch (error) {
+				if (process.env.NODE_ENV === 'development')
+					console.log('FIREBASE CONTACT UPDATE IMAGE ERROR :>> ', error);
+			}
 		}
 
 		const contact: {
@@ -53,9 +103,11 @@ export default auth()
 					},
 			  }
 			: {
-					connect: {
-						id: valid.contactId,
-					},
+					connect: valid.contactId
+						? {
+								id: valid.contactId,
+						  }
+						: undefined,
 			  };
 
 		const client = await prisma.client.update({

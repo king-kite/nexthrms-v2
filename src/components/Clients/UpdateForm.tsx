@@ -2,11 +2,7 @@ import { useCallback, useState } from 'react';
 
 import Form from './Form';
 import { useEditClientMutation } from '../../store/queries';
-import {
-	ClientType,
-	ClientCreateQueryType,
-	CreateClientErrorResponseType,
-} from '../../types';
+import { ClientType, CreateClientErrorResponseType } from '../../types';
 
 interface ErrorType extends CreateClientErrorResponseType {
 	message?: string;
@@ -32,7 +28,7 @@ const UpdateForm = ({
 	});
 
 	const handleSubmit = useCallback(
-		(form: ClientCreateQueryType) => {
+		(form: FormData) => {
 			updateClient({ id: client.id, form });
 		},
 		[client, updateClient]
