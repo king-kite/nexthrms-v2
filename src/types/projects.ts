@@ -165,6 +165,10 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 	result: ProjectTaskType[];
 	completed: number;
 	ongoing: number;
+	project: {
+		id: string;
+		name: string;
+	};
 }>;
 
 export type CreateProjectTaskQueryType = {

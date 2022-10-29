@@ -73,6 +73,8 @@ export const PROJECT_FILE_URL = (project_id: string, id: string) =>
 	`${ROOT_URL}/projects/${project_id}/files/${id}/`;
 export const PROJECT_TASKS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/`;
+export const PROJECT_TASKS_EXPORTS_URL = (project_id: string) =>
+	`${ROOT_URL}/projects/${project_id}/tasks/export/`;
 export const PROJECT_TASK_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/`;
 export const PROJECT_TASK_FOLLOWERS_URL = (pid: string, id: string) =>

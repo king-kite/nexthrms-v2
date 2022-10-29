@@ -8,19 +8,21 @@ import {
 	TaskTable,
 	TaskTopbar as Topbar,
 } from '../../../../components/Projects/Tasks';
-import { DEFAULT_PAGINATION_SIZE } from '../../../../config';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	PROJECT_TASKS_EXPORTS_URL,
+} from '../../../../config';
 import { useAlertContext } from '../../../../store/contexts';
 import {
 	useCreateProjectTaskMutation,
-	useEditProjectTaskMutation,
 	useGetProjectTasksQuery,
 } from '../../../../store/queries';
 import {
-	ProjectTaskType,
 	CreateProjectTaskQueryType,
 	CreateProjectTaskErrorResponseType,
 	GetProjectTasksResponseType,
 } from '../../../../types';
+import { downloadFile } from '../../../../utils';
 
 type ErrorType = CreateProjectTaskErrorResponseType;
 
@@ -32,8 +34,8 @@ const ProjectTasks = ({
 	const [errors, setErrors] = useState<ErrorType>();
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
-	const [editTask, setEditTask] = useState<ProjectTaskType>();
 	const [modalVisible, setModalVisible] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -75,35 +77,12 @@ const ProjectTasks = ({
 		},
 	});
 
-	const {
-		mutate: updateTask,
-		isLoading: editLoading,
-		isSuccess: editSuccess,
-		reset: editReset,
-	} = useEditProjectTaskMutation({
-		onSuccess() {
-			showAlert({
-				type: 'success',
-				message: 'Task was updated successfully',
-			});
-			setModalVisible(false);
-			setEditTask(undefined);
-		},
-		onError(err) {
-			setErrors((prevState) => ({
-				...prevState,
-				...err,
-			}));
-		},
-	});
-
 	const handleSubmit = useCallback(
 		(form: CreateProjectTaskQueryType) => {
 			setErrors(undefined);
-			if (editTask) updateTask({ projectId: id, id: editTask.id, data: form });
-			else createTask({ projectId: id, data: form });
+			createTask({ projectId: id, data: form });
 		},
-		[id, createTask, editTask, updateTask]
+		[id, createTask]
 	);
 
 	return (
@@ -135,42 +114,49 @@ const ProjectTasks = ({
 			<Topbar
 				openModal={() => {
 					createReset();
-					setEditTask(undefined);
 					setModalVisible(true);
 				}}
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
-				exportData={() => window.alert('Exporting...')}
-			/>
-			<TaskTable
-				loading={isFetching}
-				tasks={data?.result || []}
-				editTask={(task: ProjectTaskType) => {
-					editReset();
-					setEditTask(task);
-					setModalVisible(true);
+				exportData={async (type, filtered) => {
+					let url = PROJECT_TASKS_EXPORTS_URL(id) + '?type=' + type;
+					let name = data
+						? `${data.project.name} project team`
+						: 'project team ' + id;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? `${name}.csv` : `${name}.xlsx`,
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						showAlert({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
 				}}
+				exportLoading={exportLoading}
 			/>
+			<TaskTable loading={isLoading} tasks={data?.result || []} />
 			<Modal
 				close={() => setModalVisible(false)}
 				component={
 					<Form
-						initState={editTask}
-						editMode={!!editTask?.id}
-						success={editTask ? editSuccess : createSuccess}
+						success={createSuccess}
 						errors={errors}
 						resetErrors={setErrors}
-						loading={!editTask ? createLoading : editLoading}
+						loading={createLoading}
 						onSubmit={handleSubmit}
 					/>
 				}
 				keepVisible
-				description={
-					editTask
-						? 'Fill in the form below to edit this task'
-						: 'Fill in the form below to add a new task'
-				}
-				title={editTask ? 'Edit Task' : 'Add a new Task'}
+				description="Fill in the form below to add a new task"
+				title="Add a new Task"
 				visible={modalVisible}
 			/>
 		</Container>

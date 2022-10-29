@@ -1,7 +1,8 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, ProjectTask } from '@prisma/client';
 
 import prisma from '../client';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { ProjectTaskType } from '../../types';
 
 type ParamsType = {
 	offset?: number;
@@ -461,27 +462,41 @@ export const getProjectTasks = async (
 		search: undefined,
 		id: '',
 	}
-) => {
+): Promise<{
+	total: number;
+	completed: number;
+	ongoing: number;
+	project: {
+		id: string;
+		name: string;
+	};
+	result: ProjectTask[] | ProjectTaskType[];
+}> => {
 	const query = getProjectTasksQuery({ ...params });
 
-	const [total, result, completed, ongoing] = await prisma.$transaction([
-		prisma.projectTask.count({ where: query.where }),
-		prisma.projectTask.findMany(query),
-		prisma.projectTask.count({
-			where: {
-				projectId: query.where?.projectId,
-				completed: true,
-			},
-		}),
-		prisma.projectTask.count({
-			where: {
-				projectId: query.where?.projectId,
-				completed: false,
-			},
-		}),
-	]);
+	const [total, result, completed, ongoing, project] =
+		await prisma.$transaction([
+			prisma.projectTask.count({ where: query.where }),
+			prisma.projectTask.findMany(query),
+			prisma.projectTask.count({
+				where: {
+					projectId: query.where?.projectId,
+					completed: true,
+				},
+			}),
+			prisma.projectTask.count({
+				where: {
+					projectId: query.where?.projectId,
+					completed: false,
+				},
+			}),
+			prisma.project.findUniqueOrThrow({
+				where: { id: params.id },
+				select: { id: true, name: true },
+			}),
+		]);
 
-	return { total, result, completed, ongoing };
+	return { total, result, completed, ongoing, project };
 };
 
 export const getProjectTask = async (id: string) => {

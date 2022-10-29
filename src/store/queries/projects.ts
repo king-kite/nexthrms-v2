@@ -859,7 +859,7 @@ export function useGetProjectTasksQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.PROJECT_TASKS, { id }],
+		[tags.PROJECT_TASKS, { id, limit, offset, search }],
 		() =>
 			axiosInstance
 				.get(

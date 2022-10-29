@@ -5,7 +5,6 @@ import {
 	FaCheckCircle,
 	FaExclamationCircle,
 	FaEye,
-	FaPen,
 	FaTrash,
 } from 'react-icons/fa';
 
@@ -29,7 +28,6 @@ const getRows = (
 	data: ProjectTaskType[],
 	actions: {
 		deleteTask: (q: { projectId: string; id: string }) => void;
-		editTask: (e: ProjectTaskType) => void;
 		markTask: (e: ProjectTaskType) => void;
 	}
 ): TableRowType[] =>
@@ -73,11 +71,6 @@ const getRows = (
 						link: PROJECT_TASK_PAGE_URL(task.project.id, task.id),
 					},
 					{
-						color: 'secondary',
-						icon: FaPen,
-						onClick: () => actions.editTask(task),
-					},
-					{
 						color: task.completed ? 'warning' : 'success',
 						icon: task.completed ? FaExclamationCircle : FaCheckCircle,
 						onClick: () => actions.markTask(task),
@@ -96,10 +89,9 @@ const getRows = (
 type TableType = {
 	tasks: ProjectTaskType[];
 	loading: boolean;
-	editTask: (e: ProjectTaskType) => void;
 };
 
-const ProjectTable = ({ tasks, loading, editTask }: TableType) => {
+const ProjectTable = ({ tasks, loading }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<'all' | 'ongoing' | 'completed'>(
 		'all'
@@ -146,8 +138,8 @@ const ProjectTable = ({ tasks, loading, editTask }: TableType) => {
 		} else {
 			finalList = tasks;
 		}
-		setRows(getRows(finalList, { deleteTask, editTask, markTask }));
-	}, [activeRow, tasks, deleteTask, editTask, markTask]);
+		setRows(getRows(finalList, { deleteTask, markTask }));
+	}, [activeRow, tasks, deleteTask, markTask]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
