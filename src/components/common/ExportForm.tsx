@@ -9,7 +9,7 @@ type FormProps = {
 const Form: FC<FormProps> = ({ loading, onSubmit }) => {
 	const [form, setForm] = useState({
 		type: 'csv',
-		employees: 'all',
+		filtered: 'all',
 	});
 
 	return (
@@ -17,7 +17,7 @@ const Form: FC<FormProps> = ({ loading, onSubmit }) => {
 			onSubmit={(event) => {
 				event.preventDefault();
 				if (onSubmit)
-					onSubmit(form.type, form.employees === 'all' ? false : true);
+					onSubmit(form.type, form.filtered === 'all' ? false : true);
 			}}
 			className="p-2 w-full"
 		>
@@ -42,8 +42,8 @@ const Form: FC<FormProps> = ({ loading, onSubmit }) => {
 			<div className="mb-2 w-full">
 				<Select
 					disabled={loading}
-					label="Employees"
-					name="employees"
+					label="All/Filtered"
+					name="filtered"
 					options={[
 						{ title: 'All', value: 'all' },
 						{ title: 'Filtered', value: 'filtered' },
@@ -51,13 +51,13 @@ const Form: FC<FormProps> = ({ loading, onSubmit }) => {
 					onChange={(e) =>
 						setForm((prevState) => ({
 							...prevState,
-							employees: e.target.value,
+							filtered: e.target.value,
 						}))
 					}
 					padding="px-3 py-1"
 					required
 					rounded="rounded-lg"
-					value={form.employees}
+					value={form.filtered}
 				/>
 			</div>
 			<div className="mt-4 mb-2 w-full">

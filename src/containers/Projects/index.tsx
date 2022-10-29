@@ -2,19 +2,18 @@ import { useCallback, useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, Form, ProjectTable, Topbar } from '../../components/Projects';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, PROJECTS_EXPORT_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import {
 	useCreateProjectMutation,
-	useEditProjectMutation,
 	useGetProjectsQuery,
 } from '../../store/queries';
 import {
-	ProjectType,
 	CreateProjectQueryType,
 	CreateProjectErrorResponseType,
 	GetProjectsResponseType,
 } from '../../types';
+import { downloadFile } from '../../utils';
 
 interface ErrorType extends CreateProjectErrorResponseType {
 	message?: string;
@@ -28,8 +27,8 @@ const Projects = ({
 	const [errors, setErrors] = useState<ErrorType>();
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
-	const [editProject, setEditProject] = useState<ProjectType>();
 	const [modalVisible, setModalVisible] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open: showAlert } = useAlertContext();
 
@@ -67,35 +66,11 @@ const Projects = ({
 		},
 	});
 
-	const {
-		mutate: updateProject,
-		isLoading: editLoading,
-		isSuccess: editSuccess,
-		reset: editReset,
-	} = useEditProjectMutation({
-		onSuccess() {
-			showAlert({
-				type: 'success',
-				message: 'Project was updated successfully',
-			});
-			setModalVisible(false);
-			setEditProject(undefined);
-		},
-		onError(err) {
-			setErrors((prevState) => ({
-				...prevState,
-				...err,
-			}));
-		},
-	});
-
 	const handleSubmit = useCallback(
 		(form: CreateProjectQueryType) => {
-			setErrors(undefined);
-			if (editProject) updateProject({ id: editProject.id, data: form });
-			else createProject(form);
+			createProject(form);
 		},
-		[createProject, editProject, updateProject]
+		[createProject]
 	);
 
 	return (
@@ -126,42 +101,46 @@ const Projects = ({
 			<Topbar
 				openModal={() => {
 					createReset();
-					setEditProject(undefined);
 					setModalVisible(true);
 				}}
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
-				exportData={() => window.alert('Exporting...')}
-			/>
-			<ProjectTable
-				loading={isLoading}
-				projects={data?.result || []}
-				editProject={(project: ProjectType) => {
-					editReset();
-					setEditProject(project);
-					setModalVisible(true);
+				exportLoading={exportLoading}
+				exportData={async (type, filtered) => {
+					let url = PROJECTS_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'projects.csv' : 'projects.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						showAlert({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
 				}}
 			/>
+			<ProjectTable loading={isLoading} projects={data?.result || []} />
 			<Modal
 				close={() => setModalVisible(false)}
 				component={
 					<Form
-						initState={editProject}
-						editMode={!!editProject?.id}
-						success={editProject ? editSuccess : createSuccess}
+						success={createSuccess}
 						errors={errors}
 						resetErrors={setErrors}
-						loading={!editProject ? createLoading : editLoading}
+						loading={createLoading}
 						onSubmit={handleSubmit}
 					/>
 				}
 				keepVisible
-				description={
-					editProject
-						? 'Fill in the form below to edit this project'
-						: 'Fill in the form below to add a new project'
-				}
-				title={editProject ? 'Edit Project' : 'Add a new Project'}
+				description="Fill in the form below to add a new project"
+				title="Add a new Project"
 				visible={modalVisible}
 			/>
 		</Container>

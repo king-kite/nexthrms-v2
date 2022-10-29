@@ -5,7 +5,6 @@ import {
 	FaCheckCircle,
 	FaExclamationCircle,
 	FaEye,
-	FaPen,
 	FaTrash,
 } from 'react-icons/fa';
 
@@ -30,7 +29,6 @@ const getRows = (
 	data: ProjectType[],
 	actions: {
 		deleteProject: (e: string) => void;
-		editProject: (e: ProjectType) => void;
 		markProject: (e: ProjectType) => void;
 	}
 ): TableRowType[] =>
@@ -79,11 +77,6 @@ const getRows = (
 						link: PROJECT_PAGE_URL(project.id),
 					},
 					{
-						color: 'secondary',
-						icon: FaPen,
-						onClick: () => actions.editProject(project),
-					},
-					{
 						color: project.completed ? 'warning' : 'success',
 						icon: project.completed ? FaExclamationCircle : FaCheckCircle,
 						onClick: () => actions.markProject(project),
@@ -101,10 +94,9 @@ const getRows = (
 type TableType = {
 	projects: ProjectType[];
 	loading: boolean;
-	editProject: (e: ProjectType) => void;
 };
 
-const ProjectTable = ({ projects, loading, editProject }: TableType) => {
+const ProjectTable = ({ projects, loading }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<'all' | 'ongoing' | 'completed'>(
 		'all'
@@ -151,8 +143,8 @@ const ProjectTable = ({ projects, loading, editProject }: TableType) => {
 		} else {
 			finalList = projects;
 		}
-		setRows(getRows(finalList, { deleteProject, editProject, markProject }));
-	}, [activeRow, projects, deleteProject, editProject, markProject]);
+		setRows(getRows(finalList, { deleteProject, markProject }));
+	}, [activeRow, projects, deleteProject, markProject]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">

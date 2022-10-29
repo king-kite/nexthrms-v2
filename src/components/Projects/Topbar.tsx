@@ -8,6 +8,7 @@ type TopbarProps = {
 	loading: boolean;
 	onSubmit: (search: string) => void;
 	exportData: (type: 'csv' | 'excel', filter: boolean) => void;
+	exportLoading: boolean;
 };
 
 const Topbar: FC<TopbarProps> = ({
@@ -15,6 +16,7 @@ const Topbar: FC<TopbarProps> = ({
 	openModal,
 	onSubmit,
 	exportData,
+	exportLoading
 }) => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -52,7 +54,7 @@ const Topbar: FC<TopbarProps> = ({
 			</form>
 			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 				<ButtonDropdown
-					component={() => <ExportForm onSubmit={exportData} />}
+					component={() => <ExportForm loading={exportLoading} onSubmit={exportData} />}
 					props={{
 						caps: true,
 						iconLeft: FaCloudDownloadAlt,
