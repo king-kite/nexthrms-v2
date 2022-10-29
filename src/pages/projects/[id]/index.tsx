@@ -3,12 +3,11 @@ import { ParsedUrlQuery } from 'querystring';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Project from '../../../containers/Projects/Detail';
-import { getProject, getProjectFiles, getProjectTasks } from '../../../db';
+import { getProject, getProjectFiles } from '../../../db';
 import { authPage } from '../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
 	GetProjectFilesResponseType,
-	GetProjectTasksResponseType,
 	ProjectType,
 	SuccessResponseType,
 } from '../../../types';
@@ -18,16 +17,11 @@ import { serializeUserData } from '../../../utils/serializers';
 function Page({
 	project,
 	projectFiles,
-	projectTasks,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
 		<>
 			<Title title={`${project.name} - Project Information`} />
-			<Project
-				project={project}
-				projectFiles={projectFiles}
-				projectTasks={projectTasks}
-			/>
+			<Project project={project} projectFiles={projectFiles} />
 		</>
 	);
 }
@@ -66,16 +60,12 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	const projectFiles: GetProjectFilesResponseType['data'] = JSON.parse(
 		JSON.stringify(await getProjectFiles({ id }))
 	);
-	const projectTasks: GetProjectTasksResponseType['data'] = JSON.parse(
-		JSON.stringify(await getProjectTasks({ id }))
-	);
 
 	return {
 		props: {
 			auth,
 			project,
 			projectFiles,
-			projectTasks,
 		},
 	};
 };

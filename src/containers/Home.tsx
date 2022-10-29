@@ -1,6 +1,6 @@
 function Home() {
 	return (
-		<div className="flex items-center justify-center h-screen bg-gray-200">
+		<div className="py-5 h-screen bg-gray-200">
 			<div className="container mx-auto">
 				<div className="bg-white rounded-lg shadow-lg p-5 md:p-20 mx-2">
 					<div className="text-center">

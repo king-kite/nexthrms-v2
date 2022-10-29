@@ -10,7 +10,6 @@ import {
 	ProjectDetail,
 	ProjectFiles,
 	ProjectImages,
-	Task,
 } from '../../../components/Projects';
 import {
 	DEFAULT_PAGINATION_SIZE,
@@ -21,7 +20,6 @@ import { useAlertContext } from '../../../store/contexts';
 import {
 	useGetProjectQuery,
 	useGetProjectFilesQuery,
-	useGetProjectTasksQuery,
 	useEditProjectMutation,
 	useDeleteProjectMutation,
 } from '../../../store/queries';
@@ -29,43 +27,16 @@ import {
 	CreateProjectErrorResponseType,
 	CreateProjectQueryType,
 	GetProjectFilesResponseType,
-	GetProjectTasksResponseType,
 	ProjectType,
 	SuccessResponseType,
 } from '../../../types';
 
-const Tasks = ({
-	tasks,
-}: {
-	tasks: {
-		id: string;
-		name: string;
-		completed: boolean;
-	}[];
-}) => {
-	return tasks && tasks.length > 0 ? (
-		<ul>
-			{tasks.map((task, index) => (
-				<Task key={index} title={task.name} completed={task.completed} />
-			))}
-		</ul>
-	) : (
-		<div className="p-2">
-			<p className="text-sm text-gray-700">
-				There are no tasks in this section
-			</p>
-		</div>
-	);
-};
-
 const Detail = ({
 	projectFiles,
 	project,
-	projectTasks,
 }: {
 	project: SuccessResponseType<ProjectType>['data'];
 	projectFiles: GetProjectFilesResponseType['data'];
-	projectTasks: GetProjectTasksResponseType['data'];
 }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -84,20 +55,6 @@ const Detail = ({
 			},
 		}
 	);
-	const { data: tasks, refetch: tasksRefetch } = useGetProjectTasksQuery(
-		{
-			id,
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		{
-			initialData() {
-				return projectTasks;
-			},
-		}
-	);
-
 	const { data: files, refetch: filesRefetch } = useGetProjectFilesQuery(
 		{ id },
 		{
@@ -126,37 +83,6 @@ const Detail = ({
 		},
 	});
 
-	const screens = [
-		{ title: 'all tasks', component: <Tasks tasks={tasks?.result || []} /> },
-		{
-			title: 'completed tasks',
-			component: (
-				<Tasks
-					tasks={
-						tasks ? tasks.result.filter((task) => task.completed === true) : []
-					}
-				/>
-			),
-		},
-		{
-			title: 'pending tasks',
-			component: (
-				<Tasks
-					tasks={
-						tasks ? tasks.result.filter((task) => task.completed === false) : []
-					}
-				/>
-			),
-		},
-	];
-
-	const progress = useMemo(() => {
-		if (tasks && tasks.total > 0 && tasks.completed > 0) {
-			return tasks.completed / tasks.total;
-		}
-		return 0;
-	}, [tasks]);
-
 	return (
 		<Container
 			background="bg-gray-100 overflow-y-hidden"
@@ -166,7 +92,6 @@ const Detail = ({
 				onClick: () => {
 					refetch();
 					filesRefetch();
-					tasksRefetch();
 				},
 				loading: isFetching,
 			}}
@@ -235,18 +160,6 @@ const Detail = ({
 									</h3>
 								</div>
 								<div className="my-1">
-									<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
-										{tasks?.ongoing || 0}{' '}
-										<span className="font-bold text-gray-600">open tasks</span>,
-									</span>
-									<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
-										{tasks?.completed || 0}{' '}
-										<span className="font-bold text-gray-600">
-											tasks completed
-										</span>
-									</span>
-								</div>
-								<div className="my-1">
 									<p className="font-semibold my-2 text-left text-sm text-gray-600 md:text-base">
 										{data.description}
 									</p>
@@ -272,31 +185,9 @@ const Detail = ({
 										: []
 								}
 							/>
-
-							<div className="bg-white my-4 p-4 rounded-md shadow-lg">
-								<TabNavigator container="" screens={screens} />
-								<div className="w-1/3">
-									<Button
-										bg="bg-gray-300 hover:bg-blue-100"
-										border="border-gray-700 hover:bg-primary-600"
-										caps
-										color="text-primary-500"
-										focus="focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-										link={PROJECT_TASKS_PAGE_URL(id)}
-										renderLinkAs={(props) => {
-											return (
-												<Link href={props.link || '#'}>
-													<a {...props}>{props.children}</a>
-												</Link>
-											);
-										}}
-										title="See all"
-									/>
-								</div>
-							</div>
 						</div>
 
-						<ProjectDetail data={data} progress={progress} />
+						<ProjectDetail data={data} progress={0} />
 					</div>
 					<Modal
 						close={() => setModalVisible(false)}
