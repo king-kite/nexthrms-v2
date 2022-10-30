@@ -1,6 +1,11 @@
 import { Button, InputButton } from '@king-kite/react-kit';
 import { useCallback, useRef, useState } from 'react';
-import { FaCheckCircle, FaPlus, FaSearch } from 'react-icons/fa';
+import {
+	FaCheckCircle,
+	FaCloudDownloadAlt,
+	FaPlus,
+	FaSearch,
+} from 'react-icons/fa';
 
 import { Container, Modal } from '../../components/common';
 import { Form, DepartmentTable } from '../../components/Departments';
@@ -62,9 +67,9 @@ const Departments = ({
 					: undefined
 			}
 		>
-			<div className="flex flex-col md:flex-row md:items-center">
+			<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
 				<form
-					className="flex items-center mb-3 pr-8 w-full lg:mb-0"
+					className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
 					onSubmit={(e) => {
 						e.preventDefault();
 						if (searchRef.current?.value)
@@ -73,7 +78,6 @@ const Departments = ({
 				>
 					<InputButton
 						buttonProps={{
-							caps: true,
 							disabled: isFetching,
 							iconLeft: FaSearch,
 							padding: 'pl-2 pr-4 py-[0.545rem]',
@@ -85,30 +89,40 @@ const Departments = ({
 							disabled: isFetching,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {
-								if (value === '') setNameSearch('');
+								if (!value || value === '') setNameSearch('');
 							},
-							placeholder: 'Search Department By Name e.g. engineering',
+							placeholder: 'Search department by name e.g. engineering',
 							rounded: 'rounded-l-lg',
 							type: 'search',
 						}}
 						ref={searchRef}
 					/>
 				</form>
-				<div className="flex w-full lg:justify-end">
-					<div className="w-1/2">
-						<Button
-							bold="normal"
-							caps
-							onClick={() => {
-								setForm({ name: '', hod: null });
-								setEditId(undefined);
-								setModalVisible(true);
-							}}
-							iconRight={FaPlus}
-							rounded="rounded-lg"
-							title="Add Department"
-						/>
-					</div>
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+					<Button
+						caps
+						iconLeft={FaPlus}
+						onClick={() => {
+							setForm({ name: '', hod: null });
+							setEditId(undefined);
+							setModalVisible(true);
+						}}
+						margin="lg:mr-6"
+						padding="px-3 py-2 md:px-6"
+						rounded="rounded-xl"
+						title="add department"
+					/>
+				</div>
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
+					<Button
+						caps
+						iconLeft={FaCloudDownloadAlt}
+						onClick={() => window.alert('Downloading...')}
+						margin="lg:mr-6"
+						padding="px-3 py-2 md:px-6"
+						rounded="rounded-xl"
+						title="export"
+					/>
 				</div>
 			</div>
 			<DepartmentTable

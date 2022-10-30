@@ -132,7 +132,7 @@ const ProjectDetail = ({
 								border="border-none"
 								title="Progress"
 								result={progress}
-								value={progress + '%'}
+								value={parseInt(String(progress * 100)) + '%'}
 							/>
 						</li>
 					</ul>

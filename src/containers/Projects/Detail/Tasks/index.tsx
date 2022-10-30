@@ -89,6 +89,7 @@ const ProjectTasks = ({
 		<Container
 			background="bg-gray-100"
 			heading="Tasks"
+			title={data ? data.project.name : ''}
 			loading={isLoading}
 			refresh={{
 				onClick: refetch,

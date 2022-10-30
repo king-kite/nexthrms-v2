@@ -12,7 +12,6 @@ import { HolidayType } from '../../types';
 const heads: TableHeadType = [
 	{ value: 'name' },
 	{ value: 'date' },
-	{ value: 'day' },
 	{ type: 'actions', value: 'actions' },
 ];
 
@@ -27,11 +26,6 @@ const getRows = (
 		id: holiday.id,
 		rows: [
 			{ value: holiday.name || '---' },
-			{
-				value: holiday.date
-					? new Date(holiday.date).toLocaleDateString('en-CA')
-					: '---',
-			},
 			{ value: new Date(holiday.date).toDateString() || '---' },
 			{
 				type: 'actions',

@@ -16,7 +16,7 @@ const Page = ({
 	tasks,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
-		<Title title="Project Tasks" />
+		<Title title={tasks.project.name + ' Project Tasks'} />
 		<Tasks tasks={tasks} />
 	</>
 );

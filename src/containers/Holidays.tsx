@@ -50,7 +50,7 @@ const Holidays = ({
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			disabledLoading={isLoading || isFetching}
+			disabledLoading={isLoading}
 			paginate={
 				data
 					? {

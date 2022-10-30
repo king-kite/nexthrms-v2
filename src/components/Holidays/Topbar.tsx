@@ -25,7 +25,7 @@ const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
 					buttonProps={{
 						disabled: loading,
 						iconLeft: FaSearch,
-						padding: 'pl-2 pr-4 py-[0.54rem]',
+						padding: 'pl-2 pr-4 py-[0.545rem]',
 						title: 'Search',
 						type: 'submit',
 					}}
@@ -36,7 +36,7 @@ const Topbar: FC<TopbarProps> = ({ loading, openModal, onSubmit }) => {
 						onChange: ({ target: { value } }) => {
 							if (!value || value === '') onSubmit('');
 						},
-						placeholder: 'Search Holiday By Name...',
+						placeholder: 'Search holiday by name...',
 						rounded: 'rounded-l-lg',
 						type: 'search',
 					}}

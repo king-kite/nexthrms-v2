@@ -45,7 +45,7 @@ const Topbar: FC<TopbarProps> = ({
 						onChange: ({ target: { value } }) => {
 							if (!value || value === '') onSubmit('');
 						},
-						placeholder: 'Search Task Name, Leaders or Followers',
+						placeholder: 'Search task name, leaders or followers',
 						rounded: 'rounded-l-lg',
 						type: 'search',
 					}}

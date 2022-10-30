@@ -16,7 +16,7 @@ const Topbar: FC<TopbarProps> = ({
 	openModal,
 	onSubmit,
 	exportData,
-	exportLoading
+	exportLoading,
 }) => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,7 +45,7 @@ const Topbar: FC<TopbarProps> = ({
 						onChange: ({ target: { value } }) => {
 							if (!value || value === '') onSubmit('');
 						},
-						placeholder: 'Search Project Name, Company, Client',
+						placeholder: 'Search project name, company, client',
 						rounded: 'rounded-l-lg',
 						type: 'search',
 					}}
@@ -54,7 +54,9 @@ const Topbar: FC<TopbarProps> = ({
 			</form>
 			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 				<ButtonDropdown
-					component={() => <ExportForm loading={exportLoading} onSubmit={exportData} />}
+					component={() => (
+						<ExportForm loading={exportLoading} onSubmit={exportData} />
+					)}
 					props={{
 						caps: true,
 						iconLeft: FaCloudDownloadAlt,
