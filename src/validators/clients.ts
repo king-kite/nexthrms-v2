@@ -17,7 +17,7 @@ export const createClientSchema = Joi.object({
 			address: Joi.string().optional().allow('').label('Address'),
 			state: Joi.string().optional().allow('').label('State'),
 			city: Joi.string().optional().allow('').label('City'),
-			dob: Joi.date().optional().label('Date of Birth'),
+			dob: Joi.date().optional().allow('').label('Date of Birth'),
 		})
 			.required()
 			.label('Profile'),

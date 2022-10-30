@@ -111,7 +111,7 @@ const Form: FC<FormProps> = ({
 							profile: {
 								image: formRef.current?.image.files[0] || undefined,
 								address: formRef.current?.address.value,
-								dob: formRef.current?.dob.value,
+								dob: formRef.current?.dob.value || undefined,
 								gender: formRef.current?.gender.value,
 								phone: formRef.current?.phone.value,
 								state: formRef.current?.state.value,

@@ -40,7 +40,8 @@ let bucket: Bucket;
 
 try {
 	bucket = getStorage().bucket('kitehrms');
-	console.log('Firebase Storage Initialization Success');
+	if (process.env.NODE_ENV === 'development')
+		console.log('Firebase Storage Initialization Success');
 } catch (error) {
 	if (process.env.NODE_ENV === 'development')
 		console.log('Firebase Storage Initialization Error :>> ', error);

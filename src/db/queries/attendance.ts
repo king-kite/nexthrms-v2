@@ -137,6 +137,7 @@ export const getAttendanceInfo = async (id: string) => {
 export const getAttendanceAdminQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
+	search,
 }: ParamsType): Prisma.AttendanceFindManyArgs => {
 	const query: Prisma.AttendanceFindManyArgs = {
 		skip: offset,
@@ -145,6 +146,32 @@ export const getAttendanceAdminQuery = ({
 			date: 'desc' as const,
 		},
 		select: attendanceSelectQuery,
+		where: search ? {
+			employee: {
+				user: {
+					OR: [
+						{
+							firstName: {
+								contains: search,
+								mode: 'insensitive',
+							},
+						},
+						{
+							lastName: {
+								contains: search,
+								mode: 'insensitive',
+							},
+						},
+						{
+							email: {
+								contains: search,
+								mode: 'insensitive',
+							},
+						},
+					],
+				},
+			},
+		} : undefined,
 	};
 
 	return query;

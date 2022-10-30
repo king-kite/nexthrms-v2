@@ -32,6 +32,7 @@ function AttendanceAdmin({
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
+			search,
 		},
 		{
 			initialData() {
@@ -65,9 +66,19 @@ function AttendanceAdmin({
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			paginate={
+				data
+					? {
+							offset,
+							setOffset,
+							loading: isFetching,
+							totalItems: data.total || 0,
+					  }
+					: undefined
+			}
 		>
 			<Topbar
-				loading={false}
+				loading={isFetching}
 				dateSubmit={({ fromDate, toDate }) =>
 					setDateQuery({ from: fromDate, to: toDate })
 				}
