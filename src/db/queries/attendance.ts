@@ -138,7 +138,50 @@ export const getAttendanceAdminQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	search,
-}: ParamsType): Prisma.AttendanceFindManyArgs => {
+	from,
+	to,
+}: ParamsType & {
+	from?: string;
+	to?: string;
+}): Prisma.AttendanceFindManyArgs => {
+	const whereQuery: Prisma.AttendanceWhereInput = {};
+
+	if (search)
+		whereQuery.employee = {
+			user: {
+				OR: [
+					{
+						firstName: {
+							contains: search,
+							mode: 'insensitive',
+						},
+					},
+					{
+						lastName: {
+							contains: search,
+							mode: 'insensitive',
+						},
+					},
+					{
+						email: {
+							contains: search,
+							mode: 'insensitive',
+						},
+					},
+				],
+			},
+		};
+	if (from && to) {
+		const fromDate = new Date(from);
+		const toDate = new Date(to);
+		fromDate.setHours(0, 0, 0, 0);
+		toDate.setHours(0, 0, 0, 0);
+
+		whereQuery.date = {
+			gte: fromDate,
+			lte: toDate,
+		};
+	}
 	const query: Prisma.AttendanceFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -146,39 +189,17 @@ export const getAttendanceAdminQuery = ({
 			date: 'desc' as const,
 		},
 		select: attendanceSelectQuery,
-		where: search ? {
-			employee: {
-				user: {
-					OR: [
-						{
-							firstName: {
-								contains: search,
-								mode: 'insensitive',
-							},
-						},
-						{
-							lastName: {
-								contains: search,
-								mode: 'insensitive',
-							},
-						},
-						{
-							email: {
-								contains: search,
-								mode: 'insensitive',
-							},
-						},
-					],
-				},
-			},
-		} : undefined,
+		where: search || (from && to) ? whereQuery : undefined,
 	};
 
 	return query;
 };
 
 export const getAttendanceAdmin = async (
-	params?: ParamsType
+	params?: ParamsType & {
+		from?: string;
+		to?: string;
+	}
 ): Promise<{
 	total: number;
 	result: AttendanceType[] | Attendance[];

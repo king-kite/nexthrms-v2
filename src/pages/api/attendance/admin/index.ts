@@ -17,8 +17,13 @@ export default auth()
 				message: 'Permission Denied!',
 			});
 		}
+
 		const params = validateParams({ ...req.query });
-		const data = await getAttendanceAdmin({ ...params });
+		const data = await getAttendanceAdmin({
+			...params,
+			from: (req.query.from as string) || undefined,
+			to: (req.query.to as string) || undefined,
+		});
 
 		return res.status(200).json({
 			status: 'success',

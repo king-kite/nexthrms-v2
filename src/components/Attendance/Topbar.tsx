@@ -1,5 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from '@king-kite/react-kit';
-import { FC, useRef } from 'react';
+import { Dispatch, FC, SetStateAction, useRef } from 'react';
 import { FaCloudDownloadAlt, FaPlus, FaSearch } from 'react-icons/fa';
 
 import { ExportForm, FilterDateForm } from '../common';
@@ -7,9 +7,11 @@ import { ExportForm, FilterDateForm } from '../common';
 type TopbarProps = {
 	openModal: () => void;
 	loading: boolean;
-	dateSubmit: (form: { fromDate: string; toDate: string }) => void;
+	dateQuery?: { from: string; to: string };
+	setDateQuery: Dispatch<SetStateAction<{ from: string; to: string }>>;
 	searchSubmit: (search: string) => void;
 	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
+	exportLoading?: boolean;
 };
 
 const Form = ({
@@ -57,15 +59,19 @@ const Form = ({
 const Topbar: FC<TopbarProps> = ({
 	loading,
 	openModal,
-	dateSubmit,
+	dateQuery,
+	setDateQuery,
 	searchSubmit,
 	exportData,
+	exportLoading,
 }) => (
 	<div className="flex flex-wrap mb-0 w-full sm:flex-row sm:items-center">
 		<Form onSubmit={searchSubmit} loading={loading} />
 		<div className="my-3 pr-4 w-full sm:w-1/3 lg:mb-6 lg:mt-0 lg:pr-4 lg:pl-0 lg:w-1/4">
 			<ButtonDropdown
-				component={() => <ExportForm onSubmit={exportData} />}
+				component={() => (
+					<ExportForm loading={exportLoading} onSubmit={exportData} />
+				)}
 				props={{
 					caps: true,
 					iconLeft: FaCloudDownloadAlt,
@@ -79,7 +85,11 @@ const Topbar: FC<TopbarProps> = ({
 		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:w-1/4">
 			<ButtonDropdown
 				component={() => (
-					<FilterDateForm loading={loading} onSubmit={dateSubmit} />
+					<FilterDateForm
+						data={dateQuery}
+						loading={loading}
+						setDateQuery={setDateQuery}
+					/>
 				)}
 				props={{
 					title: 'Filter by Date',

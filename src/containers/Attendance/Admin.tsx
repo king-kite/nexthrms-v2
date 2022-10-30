@@ -2,10 +2,17 @@ import React from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { AdminTable as Table, Form, Topbar } from '../../components/Attendance';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import {
+	ATTENDANCE_ADMIN_EXPORT_URL,
+	DEFAULT_PAGINATION_SIZE,
+} from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceAdminQuery } from '../../store/queries';
 import { AttendanceCreateType, GetAttendanceResponseType } from '../../types';
+import { downloadFile, getDate } from '../../utils';
+
+const date = new Date();
+date.setHours(0, 0, 0, 0);
 
 function AttendanceAdmin({
 	attendance,
@@ -18,12 +25,19 @@ function AttendanceAdmin({
 		}
 	>({
 		employee: '',
-		date: new Date().toLocaleDateString('en-Ca'),
+		date: date.toLocaleDateString('en-Ca'),
 		punchIn: '08:00',
 	});
-	const [dateQuery, setDateQuery] = React.useState({ from: '', to: '' });
+	const [dateQuery, setDateQuery] = React.useState<{
+		from: string;
+		to: string;
+	}>({
+		from: '',
+		to: getDate(undefined, true) as string,
+	});
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [search, setSearch] = React.useState('');
+	const [exportLoading, setExportLoading] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
 
@@ -33,6 +47,7 @@ function AttendanceAdmin({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			date: dateQuery,
 		},
 		{
 			initialData() {
@@ -79,18 +94,37 @@ function AttendanceAdmin({
 		>
 			<Topbar
 				loading={isFetching}
-				dateSubmit={({ fromDate, toDate }) =>
-					setDateQuery({ from: fromDate, to: toDate })
-				}
+				dateQuery={dateQuery}
+				setDateQuery={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => {
 					setForm({
 						employee: '',
-						date: new Date().toLocaleDateString('en-Ca'),
+						date: date.toLocaleDateString('en-Ca'),
 						punchIn: '08:00',
 					});
 					setModalVisible(true);
 				}}
+				exportData={async (type, filtered) => {
+					let url = ATTENDANCE_ADMIN_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'attendance.csv' : 'attendance.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						showAlert({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
+				}}
+				exportLoading={exportLoading}
 			/>
 			<Table
 				attendance={data ? data.result : []}
@@ -122,7 +156,7 @@ function AttendanceAdmin({
 							}
 							setForm({
 								employee: '',
-								date: new Date().toLocaleDateString('en-Ca'),
+								date: date.toLocaleDateString('en-Ca'),
 								punchIn: '08:00',
 							});
 						}}

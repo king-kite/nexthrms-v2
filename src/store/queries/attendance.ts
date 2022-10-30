@@ -199,12 +199,14 @@ export function useGetAttendanceAdminQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search,
+		date = { from: '', to: '' },
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
 		onError?: (error: { status: number; message: string }) => void;
+		date?: { from: string; to: string };
 	},
 	options?: {
 		onSuccess?: (data: GetAttendanceResponseType['data']) => void;
@@ -213,12 +215,12 @@ export function useGetAttendanceAdminQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.ATTENDANCE_ADMIN, { limit, offset, search }],
+		[tags.ATTENDANCE_ADMIN, { limit, offset, search, date }],
 		() =>
 			axiosInstance
 				.get(
 					ATTENDANCE_ADMIN_URL +
-						`?limit=${limit}&offset=${offset}&search=${search}`
+						`?limit=${limit}&offset=${offset}&search=${search}&from=${date?.from}&to=${date?.to}`
 				)
 				.then(
 					(response: AxiosResponse<GetAttendanceResponseType>) =>

@@ -1,23 +1,19 @@
-import { Button, Input } from '@king-kite/react-kit';
+import { Input } from '@king-kite/react-kit';
 import React from 'react';
-import { getDate } from '../../utils';
 
 type FormProps = {
+	data?: { from: string; to: string };
 	loading: boolean;
-	onSubmit: (form: { fromDate: string; toDate: string }) => void;
+	setDateQuery: React.Dispatch<
+		React.SetStateAction<{ from: string; to: string }>
+	>;
 };
 
-const Form: React.FC<FormProps> = ({ loading, onSubmit }) => {
-	const [form, setForm] = React.useState({
-		fromDate: '',
-		toDate: getDate(undefined, true) as string,
-	});
-
+const Form: React.FC<FormProps> = ({ data, loading, setDateQuery }) => {
 	return (
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				onSubmit(form);
 			}}
 			className="p-2 w-full"
 		>
@@ -27,13 +23,16 @@ const Form: React.FC<FormProps> = ({ loading, onSubmit }) => {
 					label="From"
 					name="fromDate"
 					onChange={(e) =>
-						setForm((prevState) => ({ ...prevState, fromDate: e.target.value }))
+						setDateQuery((prevState) => ({
+							...prevState,
+							from: e.target.value,
+						}))
 					}
 					padding="px-3 py-1"
-					required
+					required={false}
 					rounded="rounded-lg"
 					type="date"
-					value={form.fromDate}
+					value={data?.from || ''}
 				/>
 			</div>
 			<div className="mb-2 w-full">
@@ -42,25 +41,13 @@ const Form: React.FC<FormProps> = ({ loading, onSubmit }) => {
 					label="To"
 					name="toDate"
 					onChange={(e) =>
-						setForm((prevState) => ({ ...prevState, toDate: e.target.value }))
+						setDateQuery((prevState) => ({ ...prevState, to: e.target.value }))
 					}
 					padding="px-3 py-1"
-					required
+					required={false}
 					rounded="rounded-lg"
 					type="date"
-					value={form.toDate}
-				/>
-			</div>
-			<div className="mt-4 mb-2 w-full">
-				<Button
-					caps
-					disabled={loading}
-					loader
-					loading={loading}
-					padding="px-4 py-1"
-					rounded="rounded-lg"
-					type="submit"
-					title="filter"
+					value={data?.to || ''}
 				/>
 			</div>
 		</form>
