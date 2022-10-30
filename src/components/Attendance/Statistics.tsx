@@ -48,6 +48,17 @@ function Statistics({
 		[timesheet]
 	);
 
+	const monthProgress = month
+		? Math.round(month * 100) > 100
+			? 100
+			: Math.round(month * 100)
+		: 0;
+	const remainProgress = month
+		? Math.round((1 - month) * 100) < 0
+			? 0
+			: Math.round((1 - month) * 100)
+		: 0;
+
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
 			<h3 className="capitalize font-black my-2 text-gray-700 text-lg tracking-wider md:text-xl lg:text-lg">
@@ -75,7 +86,7 @@ function Statistics({
 						background="bg-green-600"
 						title="This Month"
 						result={month}
-						value={(month ? Math.round(month * 100) : 0) + '%'}
+						value={monthProgress + '%'}
 					/>
 				</div>
 				<div className="my-3">
@@ -83,7 +94,7 @@ function Statistics({
 						background="bg-purple-600"
 						title="Remaining for month"
 						result={month ? 1 - month : 0}
-						value={`${month ? Math.round((1 - month) * 100) : 0}%`}
+						value={remainProgress + '%'}
 					/>
 				</div>
 				<div className="my-3">

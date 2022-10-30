@@ -33,6 +33,7 @@ export const CLIENTS_EXPORT_URL = `${ROOT_URL}/clients/export/`;
 export const CLIENT_URL = (id: string) => `${ROOT_URL}/clients/${id}/`;
 
 export const DEPARTMENTS_URL = `${ROOT_URL}/departments/`;
+export const DEPARTMENTS_EXPORT_URL = `${ROOT_URL}/departments/export/`;
 export const DEPARTMENT_URL = (id: string) => `${ROOT_URL}/departments/${id}/`;
 
 export const EMPLOYEES_URL = `${ROOT_URL}/employees/`;
@@ -40,6 +41,7 @@ export const EMPLOYEES_EXPORT_URL = `${ROOT_URL}/employees/export/`;
 export const EMPLOYEE_URL = (id: string) => `${EMPLOYEES_URL}${id}/`;
 
 export const HOLIDAYS_URL = `${ROOT_URL}/holidays/`;
+export const HOLIDAYS_EXPORT_URL = `${ROOT_URL}/holidays/export/`;
 export const HOLIDAY_URL = (id: string) => `${ROOT_URL}/holidays/${id}/`;
 
 export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;

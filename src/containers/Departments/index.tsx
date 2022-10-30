@@ -1,4 +1,4 @@
-import { Button, InputButton } from '@king-kite/react-kit';
+import { Button, ButtonDropdown, InputButton } from '@king-kite/react-kit';
 import { useCallback, useRef, useState } from 'react';
 import {
 	FaCheckCircle,
@@ -7,11 +7,13 @@ import {
 	FaSearch,
 } from 'react-icons/fa';
 
-import { Container, Modal } from '../../components/common';
+import { Container, ExportForm, Modal } from '../../components/common';
 import { Form, DepartmentTable } from '../../components/Departments';
-import { useAlertModalContext } from '../../store/contexts';
+import { DEFAULT_PAGINATION_SIZE, DEPARTMENTS_EXPORT_URL } from '../../config';
+import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import { useGetDepartmentsQuery } from '../../store/queries';
 import { GetDepartmentsResponseType } from '../../types';
+import { downloadFile } from '../../utils';
 
 const Departments = ({
 	departments,
@@ -25,10 +27,12 @@ const Departments = ({
 	}>({ name: '', hod: null });
 	const [editId, setEditId] = useState<string>();
 
+	const { open } = useAlertContext();
 	const { open: openModal } = useAlertModalContext();
 
 	const [offset, setOffset] = useState(0);
 	const [nameSearch, setNameSearch] = useState('');
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const searchRef = useRef<HTMLInputElement>(null);
 
@@ -114,14 +118,40 @@ const Departments = ({
 					/>
 				</div>
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
-					<Button
-						caps
-						iconLeft={FaCloudDownloadAlt}
-						onClick={() => window.alert('Downloading...')}
-						margin="lg:mr-6"
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title="export"
+					<ButtonDropdown
+						component={() => (
+							<ExportForm
+								loading={exportLoading}
+								onSubmit={async (type: 'csv' | 'excel', filtered: boolean) => {
+									let url = DEPARTMENTS_EXPORT_URL + '?type=' + type;
+									if (filtered) {
+										url =
+											url +
+											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${nameSearch}`;
+									}
+									const result = await downloadFile({
+										url,
+										name:
+											type === 'csv' ? 'departments.csv' : 'departments.xlsx',
+										setLoading: setExportLoading,
+									});
+									if (result?.status !== 200) {
+										open({
+											type: 'danger',
+											message: 'An error occurred. Unable to export file!',
+										});
+									}
+								}}
+							/>
+						)}
+						props={{
+							caps: true,
+							iconLeft: FaCloudDownloadAlt,
+							margin: 'lg:mr-6',
+							padding: 'px-3 py-2 md:px-6',
+							rounded: 'rounded-xl',
+							title: 'export',
+						}}
 					/>
 				</div>
 			</div>

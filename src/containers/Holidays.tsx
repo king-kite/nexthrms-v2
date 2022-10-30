@@ -2,10 +2,11 @@ import { useCallback, useState } from 'react';
 
 import { Form, Topbar, HolidayTable } from '../components/Holidays';
 import { Container, Modal } from '../components/common';
-import { DEFAULT_PAGINATION_SIZE } from '../config';
+import { DEFAULT_PAGINATION_SIZE, HOLIDAYS_EXPORT_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
 import { useGetHolidaysQuery } from '../store/queries';
 import { GetHolidaysResponseType } from '../types';
+import { downloadFile } from '../utils';
 
 type HolidayCreateType = {
 	name: string;
@@ -20,6 +21,7 @@ const Holidays = ({
 	const [modalVisible, setModalVisible] = useState(false);
 	const [form, setForm] = useState({ name: '', date: '' });
 	const [editId, setEditId] = useState<string>();
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open: showAlert } = useAlertContext();
 
@@ -70,6 +72,26 @@ const Holidays = ({
 				}}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
+				exportLoading={exportLoading}
+				exportData={async (type, filtered) => {
+					let url = HOLIDAYS_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'holidays.csv' : 'holidays.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						showAlert({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
+				}}
 			/>
 			<HolidayTable
 				holidays={data ? data.result : []}
