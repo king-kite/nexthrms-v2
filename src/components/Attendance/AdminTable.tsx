@@ -136,17 +136,8 @@ const AttendanceAdminTable = ({
 	const { deleteAttendance: deleteAtd, isLoading: atdLoading } =
 		useDeleteAttendanceMutation({
 			onSuccess() {
-				openModal({
-					color: 'success',
-					decisions: [
-						{
-							color: 'success',
-							title: 'OK',
-							onClick: closeModal,
-						},
-					],
-					Icon: FaCheckCircle,
-					header: 'Attendance Deleted',
+				openAlert({
+					type: 'success',
 					message: 'Attendance record was deleted successfully!',
 				});
 			},

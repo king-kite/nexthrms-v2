@@ -229,7 +229,7 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 								isLoading
 									? 'bg-gray-700 cursor-not-allowed'
 									: 'cursor-pointer hover:bg-primary-300'
-							} capitalize flex justify-between items-center px-5 py-3 tracking-wide text-gray-100 text-sm lg:px-3 xl:pl-4`}
+							} capitalize flex justify-between items-center px-5 py-3 tracking-wide text-gray-100 text-sm hover:border-l-4 hover:border-gray-300 lg:px-3 xl:pl-4`}
 						>
 							<div className="flex items-center">
 								<span>

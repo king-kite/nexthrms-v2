@@ -64,16 +64,18 @@ export const getNextDate = (
 ): Date | string => {
 	// nod => no_of_days
 	const number_of_days = nod * 24 * 60 * 60 * 1000;
-	const dateTime =
-		typeof date === 'string' ? new Date(date).getTime() : date.getTime();
+	const dateTime = typeof date === 'string' ? new Date(date) : date;
+	dateTime.setHours(0, 0, 0, 0);
 
-	const nd = new Date(number_of_days + dateTime);
+	const nd = new Date(number_of_days + dateTime.getTime());
 	return str ? nd.toLocaleDateString('en-CA') : nd;
 };
 
 export function getNoOfDays(start: Date | string, end: Date | string): number {
-	const startDate = new Date(start).getTime();
-	const endDate = new Date(end).getTime();
+	const startEdit = new Date(start); startEdit.setHours(0, 0, 0, 0);
+	const endEdit = new Date(end); endEdit.setHours(0, 0, 0, 0);
+	const startDate = startEdit.getTime();
+	const endDate = endEdit.getTime();
 	return (endDate - startDate) / (1000 * 60 * 60 * 24);
 }
 

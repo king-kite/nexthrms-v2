@@ -1,18 +1,19 @@
-import { Alert, Loader } from '@king-kite/react-kit';
-import Link from 'next/link';
-import Error from 'next/error';
-import { useRouter } from 'next/router';
-import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from 'react';
-import { BiRefresh } from 'react-icons/bi';
-import { FaArrowLeft } from 'react-icons/fa';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { Alert, Loader } from "@king-kite/react-kit";
+import Link from "next/link";
+import Error from "next/error";
+import { useRouter } from "next/router";
+import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from "react";
+import { BiRefresh } from "react-icons/bi";
+import { FaArrowLeft } from "react-icons/fa";
+
+import { DEFAULT_PAGINATION_SIZE } from "../../config";
 import {
 	useAlertContext,
 	useAlertModalContext,
 	useAuthContext,
-} from '../../store/contexts';
-import { AlertModal, Pagination } from './index';
-import { LoadingPage } from '../../utils';
+} from "../../store/contexts";
+import { AlertModal, Pagination } from "./index";
+import { LoadingPage } from "../../utils";
 
 type IconProps = {
 	children: ReactNode;
@@ -74,7 +75,7 @@ type ContainerProps = {
 };
 
 const Container: FC<ContainerProps> = ({
-	background = 'bg-gray-50',
+	background = "bg-gray-50",
 	children,
 	error,
 	heading,
@@ -103,11 +104,11 @@ const Container: FC<ContainerProps> = ({
 			<div className="relative w-full">
 				{heading && (
 					<div className="bg-gray-400 flex items-center justify-between w-full">
-						<div className={`${icon ? 'flex items-center' : ''} w-full`}>
+						<div className={`${icon ? "flex items-center" : ""} w-full`}>
 							{icon && (
 								<IconContainer
-									link={typeof icon === 'object' ? icon?.link : undefined}
-									onClick={typeof icon === 'object' ? icon?.onClick : undefined}
+									link={typeof icon === "object" ? icon?.link : undefined}
+									onClick={typeof icon === "object" ? icon?.onClick : undefined}
 									className="cursor-pointer duration-500 flex items-center justify-center ml-4 rounded-full text-primary-500 transform transition-colors hover:bg-gray-200"
 								>
 									<span className="block p-1">
@@ -125,8 +126,8 @@ const Container: FC<ContainerProps> = ({
 									onClick={refresh.onClick}
 									className={`${
 										refresh.loading
-											? 'animate-spin'
-											: 'animate-none duration-500 transform transition-colors'
+											? "animate-spin"
+											: "animate-none duration-500 transform transition-colors"
 									} cursor-pointer flex items-center justify-center mr-4 rounded-full text-primary-500 hover:bg-gray-200`}
 								>
 									<span className="block p-1">
@@ -145,16 +146,17 @@ const Container: FC<ContainerProps> = ({
 							statusCode={error.statusCode || 500}
 							title={
 								error.title ||
-								'A server error occurred! Please try again later.'
+								"A server error occurred! Please try again later."
 							}
 						/>
 					) : (
-						<div className="px-2 md:px-3 lg:px-4">
+						<div className="px-2 relative md:px-3 lg:px-4">
 							<div
 								className={
-									alert.visible
-										? 'block container mx-auto py-2 relative w-full'
-										: 'hidden'
+									(alert.visible
+										? "translate-y-0"
+										: "-translate-y-full") +
+									" absolute duration-1000 left-0 px-2 py-1 top-0 transition transform w-full z-[500] md:px-3 lg:px-4"
 								}
 							>
 								<Alert
@@ -165,7 +167,7 @@ const Container: FC<ContainerProps> = ({
 									visible={alert.visible}
 								/>
 							</div>
-							<div className="md:mt-2 lg:mt-4">{children}</div>
+							<div className="py-1 md:mt-2 lg:mt-4">{children}</div>
 						</div>
 					)}
 					{paginate && paginate.totalItems > 0 && (
@@ -188,7 +190,7 @@ const Container: FC<ContainerProps> = ({
 			{disabledLoading === true && (
 				<div
 					className="fixed flex items-center justify-center h-full main-container-width top-0 z-[50]"
-					style={{ background: 'rgba(0, 0, 0, 0.6)' }}
+					style={{ background: "rgba(0, 0, 0, 0.6)" }}
 				>
 					<Loader size={6} type="dotted" width="sm" />
 				</div>

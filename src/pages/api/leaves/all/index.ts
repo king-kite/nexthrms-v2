@@ -62,6 +62,6 @@ export default auth()
 		return res.status(201).json({
 			status: 'success',
 			mesage: 'Request for a leave was successful!',
-			data: leave,
+			data: leave
 		});
 	});
