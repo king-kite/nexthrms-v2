@@ -1,4 +1,4 @@
-import { InfoComp } from '@king-kite/react-kit';
+import { InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import {

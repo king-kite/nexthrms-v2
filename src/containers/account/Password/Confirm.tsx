@@ -1,4 +1,4 @@
-import { Alert, Button, Input } from '@king-kite/react-kit';
+import { Alert, Button, Input } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
 import { FaCheckCircle, FaLock } from 'react-icons/fa';

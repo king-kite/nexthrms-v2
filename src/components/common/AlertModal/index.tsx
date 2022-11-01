@@ -1,4 +1,4 @@
-import { Loader } from '@king-kite/react-kit';
+import { Loader } from 'kite-react-tailwind';
 import { useCallback, useEffect, useRef } from 'react';
 import { IconType } from 'react-icons';
 import { FaTimesCircle } from 'react-icons/fa';

@@ -1,6 +1,6 @@
-import { InfoComp } from '@king-kite/react-kit';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
+import { InfoComp } from 'kite-react-tailwind';
 import { useState } from 'react';
 import { FaCheckCircle, FaLock, FaUserEdit } from 'react-icons/fa';
 

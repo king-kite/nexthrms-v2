@@ -1,4 +1,4 @@
-import { Button, Select } from '@king-kite/react-kit';
+import { Button, Select } from 'kite-react-tailwind';
 import { FC, useState } from 'react';
 
 type FormProps = {

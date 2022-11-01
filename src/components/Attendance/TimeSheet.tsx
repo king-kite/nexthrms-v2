@@ -1,4 +1,4 @@
-import { Button, Loader } from '@king-kite/react-kit';
+import { Button, Loader } from 'kite-react-tailwind';
 import { BiRefresh } from 'react-icons/bi';
 
 import { useAlertContext } from '../../store/contexts';

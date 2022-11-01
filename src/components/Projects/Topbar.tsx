@@ -1,4 +1,4 @@
-import { Button, ButtonDropdown, InputButton } from '@king-kite/react-kit';
+import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
 import { FC, useRef } from 'react';
 import { FaCloudDownloadAlt, FaSearch, FaPlus } from 'react-icons/fa';
 import { ExportForm } from '../common';

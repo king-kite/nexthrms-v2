@@ -1,4 +1,4 @@
-import { Loader } from '@king-kite/react-kit';
+import { Loader } from 'kite-react-tailwind';
 
 const SplashScreen = () => (
 	<div

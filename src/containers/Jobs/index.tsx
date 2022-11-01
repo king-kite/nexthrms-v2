@@ -1,4 +1,4 @@
-import { Button, InputButton } from '@king-kite/react-kit';
+import { Button, InputButton } from 'kite-react-tailwind';
 import { useCallback, useRef, useState } from 'react';
 import { FaCheckCircle, FaPlus, FaSearch } from 'react-icons/fa';
 

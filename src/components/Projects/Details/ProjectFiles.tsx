@@ -1,4 +1,4 @@
-import { Button } from '@king-kite/react-kit';
+import { Button } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';

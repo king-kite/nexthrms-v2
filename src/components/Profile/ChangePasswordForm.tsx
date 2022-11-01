@@ -1,5 +1,5 @@
-import { Alert, Button, Input } from '@king-kite/react-kit';
 import { useMutation } from '@tanstack/react-query';
+import { Alert, Button, Input } from 'kite-react-tailwind';
 import { useCallback, useRef, useState } from 'react';
 
 import { PASSWORD_CHANGE_URL } from '../../config';
@@ -57,14 +57,14 @@ const Form = ({ onSuccess }: { onSuccess: () => void }) => {
 			newPassword2: string;
 		}) => {
 			try {
-				setErrors(undefined)
+				setErrors(undefined);
 				const valid = await passwordChangeSchema.validateAsync(data);
 				if (valid.newPassword1 !== valid.newPassword2) {
-					setErrors(prevState => ({
+					setErrors((prevState) => ({
 						...prevState,
-						message: 'Passwords do not match'
-					}))
-				} else changePassword(valid)
+						message: 'Passwords do not match',
+					}));
+				} else changePassword(valid);
 			} catch (err) {
 				const error = handleJoiErrors<ErrorType>(err);
 				setErrors((prevState) => {

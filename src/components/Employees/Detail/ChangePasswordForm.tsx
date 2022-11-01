@@ -1,4 +1,4 @@
-import { Button, Input } from '@king-kite/react-kit';
+import { Button, Input } from 'kite-react-tailwind';
 import { FC, useCallback, useRef, useState } from 'react';
 
 import { useChangeUserPasswordMutation } from '../../../store/queries';

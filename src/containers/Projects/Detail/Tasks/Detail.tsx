@@ -1,4 +1,4 @@
-import { Button } from '@king-kite/react-kit';
+import { Button } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { FaPen, FaTrash } from 'react-icons/fa';

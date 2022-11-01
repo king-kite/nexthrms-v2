@@ -3,7 +3,7 @@ import {
 	Table,
 	TableHeadType,
 	TableRowType,
-} from '@king-kite/react-kit';
+} from 'kite-react-tailwind';
 import React from 'react';
 import {
 	FaCheckCircle,

@@ -1,4 +1,4 @@
-import { ButtonType, InfoComp } from '@king-kite/react-kit';
+import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
 import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash } from 'react-icons/fa';

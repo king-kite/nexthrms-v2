@@ -1,5 +1,5 @@
-import { Button, File, Input, Select, Textarea } from '@king-kite/react-kit';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button, File, Input, Select, Textarea } from 'kite-react-tailwind';
 import { AxiosResponse } from 'axios';
 import { useCallback, useRef, useState } from 'react';
 

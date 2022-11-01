@@ -1,4 +1,4 @@
-import { Alert, Button, Input, Select, Textarea } from '@king-kite/react-kit';
+import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
 import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';

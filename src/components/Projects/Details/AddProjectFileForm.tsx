@@ -1,4 +1,4 @@
-import { Alert, Button, File, Input } from '@king-kite/react-kit';
+import { Alert, Button, File, Input } from 'kite-react-tailwind';
 import { useCallback, useRef, useState } from 'react';
 
 import { useAlertModalContext } from '../../../store/contexts';

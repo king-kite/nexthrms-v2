@@ -1,4 +1,4 @@
-import { MenuIcon } from '@king-kite/react-kit';
+import { MenuIcon } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
 

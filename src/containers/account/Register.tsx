@@ -1,4 +1,4 @@
-import { Alert, Button, Input } from '@king-kite/react-kit';
+import { Alert, Button, Input } from 'kite-react-tailwind';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';

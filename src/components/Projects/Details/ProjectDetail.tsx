@@ -1,4 +1,4 @@
-import { Select } from '@king-kite/react-kit';
+import { Select } from 'kite-react-tailwind';
 import Image from 'next/image';
 
 import { StatusProgressBar } from '../../common';

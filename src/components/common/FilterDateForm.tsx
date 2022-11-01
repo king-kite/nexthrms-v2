@@ -1,4 +1,4 @@
-import { Input } from '@king-kite/react-kit';
+import { Input } from 'kite-react-tailwind';
 import React from 'react';
 
 type FormProps = {

@@ -1,4 +1,4 @@
-import { Button, ButtonType } from '@king-kite/react-kit';
+import { Button, ButtonType } from 'kite-react-tailwind';
 import Image from 'next/image';
 import { FC } from 'react';
 import { FaTimes } from 'react-icons/fa';

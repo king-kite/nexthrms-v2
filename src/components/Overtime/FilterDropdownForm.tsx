@@ -1,4 +1,4 @@
-import { Button, Input } from '@king-kite/react-kit';
+import { Button, Input } from 'kite-react-tailwind';
 import { FC, useState } from 'react';
 import { getDate } from '../../utils';
 

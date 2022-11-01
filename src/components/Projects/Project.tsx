@@ -1,4 +1,4 @@
-import { Avatars, Button, Loader } from '@king-kite/react-kit';
+import { Avatars, Button, Loader } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import {

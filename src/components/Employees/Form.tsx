@@ -5,7 +5,7 @@ import {
 	Input,
 	Select,
 	Textarea,
-} from '@king-kite/react-kit';
+} from 'kite-react-tailwind';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';

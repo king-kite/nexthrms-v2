@@ -1,4 +1,4 @@
-import { Table, TableHeadType, TableRowType } from '@king-kite/react-kit';
+import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import { useEffect, useState } from 'react';
 import { FaPen, FaTrash } from 'react-icons/fa';
 

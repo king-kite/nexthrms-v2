@@ -6,7 +6,6 @@ export { default as ExportForm } from './ExportForm';
 export { default as FadeIn } from './FadeIn';
 export { default as FilterDateForm } from './FilterDateForm';
 export { default as InfoTopBar } from './InfoTopBar';
-export { default as MenuIcon } from './MenuIcon';
 export { default as Modal } from './Modal';
 export { default as Pagination } from './Pagination';
 export { default as PersonCard } from './PersonCard';

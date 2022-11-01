@@ -1,4 +1,4 @@
-import { Button, Input } from '@king-kite/react-kit';
+import { Button, Input } from 'kite-react-tailwind';
 import React from 'react';
 
 import { useCreateJobMutation, useEditJobMutation } from '../../store/queries';

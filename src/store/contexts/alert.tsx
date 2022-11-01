@@ -1,4 +1,4 @@
-import { AlertType } from '@king-kite/react-kit';
+import { AlertType } from 'kite-react-tailwind';
 import React from 'react';
 
 const initialState = {
