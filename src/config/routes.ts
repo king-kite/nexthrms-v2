@@ -6,7 +6,11 @@ export const LOGIN_PAGE_URL = '/account/login/';
 export const PROFILE_PAGE_URL = '/account/profile/';
 export const REGISTER_PAGE_URL = '/account/register/';
 export const REQUEST_EMAIL_VERIFY_PAGE_URL = '/account/email/verify/';
+export const CONFIRM_EMAIL_PAGE_URL = (uid: string, token: string = '') =>
+	`/account/email/confirm/${uid}/${token}/`;
 export const RESET_PASSWORD_PAGE_URL = '/account/password/reset/';
+export const RESET_PASSWORD_CONFIRM_PAGE_URL = (uid: string, token: string = '') =>
+	`/account/password/reset/confirm/${uid}/${token}/`;
 
 // Clients section
 export const CLIENTS_PAGE_URL = '/clients/';

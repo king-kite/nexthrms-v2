@@ -1,13 +1,14 @@
 import { Token } from '@prisma/client';
+
 import prisma from '../client';
 import { generateToken } from '../../utils/tokens';
 
 export async function createToken({
-	uid,
 	type,
+	uid,
 }: {
-	uid: string;
 	type: 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
+	uid: string;
 }): Promise<Token> {
 	try {
 		// Delete old tokens with same uid and type
@@ -25,10 +26,6 @@ export async function createToken({
 				expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
 			},
 		});
-
-		// TODO: Remove this from here later and send via email
-		console.log('EMAIL VERIFICATION TOKEN :>> ', createdToken);
-
 		return createdToken;
 	} catch (error) {
 		throw error;

@@ -1,8 +1,11 @@
+import { Token } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { RESET_PASSWORD_CONFIRM_PAGE_URL } from '../../../../../config';
 import { prisma } from '../../../../../db';
 import { createToken } from '../../../../../db/utils';
 import { BaseResponseType } from '../../../../../types';
+import { sendMail } from '../../../../../utils/emails';
 import { handlePrismaErrors } from '../../../../../validators';
 
 async function handler(
@@ -42,6 +45,7 @@ async function handler(
 			},
 			select: {
 				id: true,
+				email: true,
 				isActive: true,
 				isEmailVerified: true,
 			},
@@ -60,9 +64,26 @@ async function handler(
 			createToken({
 				uid: user.id,
 				type: 'PASSWORD_RESET',
-			}).catch((error) => {
-				throw error;
-			});
+			})
+				.then((token: Token) => {
+					if (process.env.NODE_ENV === 'development')
+						console.log('TOKEN :>> ', token);
+					let url = RESET_PASSWORD_CONFIRM_PAGE_URL(
+						user.id,
+						token.token
+					)
+					if (req.headers.host || process.env.BASE_URL)
+						url = (req.headers.host || process.env.BASE_URL) + url;
+					sendMail({
+						from: process.env.DEFAULT_FROM_EMAIL,
+						to: user.email,
+						subject: 'Password Reset',
+						html: `<a href="${url}">Click here to reset password</a>`,
+					});
+				})
+				.catch((error) => {
+					throw error;
+				});
 
 			return res.status(200).json({
 				status: 'error',

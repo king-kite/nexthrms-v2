@@ -30,6 +30,7 @@ firebase-debug.log*
 firebase-debug.*.log*
 ui-debug.log*
 /firebase_storage/
+firebase-export*
 
 # local env files
 .env

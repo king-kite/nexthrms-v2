@@ -1,8 +1,11 @@
+import { Token } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { CONFIRM_EMAIL_PAGE_URL } from '../../../../config';
 import { prisma } from '../../../../db';
 import { createToken } from '../../../../db/utils';
 import { BaseResponseType } from '../../../../types';
+import { sendMail } from '../../../../utils/emails';
 import { handlePrismaErrors } from '../../../../validators';
 
 async function handler(
@@ -47,6 +50,7 @@ async function handler(
 			},
 			select: {
 				id: true,
+				email: true,
 				isEmailVerified: true,
 			},
 		});
@@ -74,9 +78,26 @@ async function handler(
 		createToken({
 			uid: user.id,
 			type: 'EMAIL_VERIFICATION',
-		}).catch((error) => {
-			throw error;
-		});
+		})
+			.then((token: Token) => {
+				if (process.env.NODE_ENV === 'development')
+					console.log('TOKEN :>> ', token);
+				let url = CONFIRM_EMAIL_PAGE_URL(
+					user.id,
+					token.token
+				)
+				if (req.headers.host || process.env.BASE_URL)
+					url = (req.headers.host || process.env.BASE_URL) + url;
+				sendMail({
+					from: process.env.DEFAULT_FROM_EMAIL,
+					to: user.email,
+					subject: 'Email Verification',
+					html: `<a href="${url}">Click here to verify email</a>`,
+				});
+			})
+			.catch((error) => {
+				throw error;
+			});
 
 		return res.status(200).json({
 			status: 'success',
