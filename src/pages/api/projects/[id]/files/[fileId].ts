@@ -1,4 +1,4 @@
-import { firebaseBucket, prisma } from '../../../../../db';
+import { prisma } from '../../../../../db';
 import { auth } from '../../../../../middlewares';
 
 export default auth().delete(async (req, res) => {
@@ -6,17 +6,7 @@ export default auth().delete(async (req, res) => {
 		where: { id: req.query.fileId as string },
 	});
 
-	if (file.storageName && file.storageGeneration) {
-		firebaseBucket
-			.file(file.storageName)
-			.delete({
-				ifGenerationMatch: parseInt(file.storageGeneration),
-			})
-			.catch((error) => {
-				if (process.env.NODE_ENV === 'development')
-					console.log('PROJECT DELETE FILE ERROR :>> ', error);
-			});
-	}
+	// TODO: Delete the file from Storage
 
 	await prisma.projectFile.delete({
 		where: { id: req.query.fileId as string },

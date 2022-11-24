@@ -4,3 +4,4 @@
 4. In Sidebar, Have the links array objects have active keys checking the pathname for their
 -- values
 5. Check the permissions on the routes.
+6. Check the project file delete url to delete files from folders

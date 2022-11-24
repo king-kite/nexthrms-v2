@@ -1,13 +1,13 @@
 import { Prisma } from '@prisma/client';
 
 import {
-	firebaseBucket,
 	prisma,
 	getProjectFiles,
 	projectFileSelectQuery as selectQuery,
 } from '../../../../../db';
 import { auth } from '../../../../../middlewares';
 import { CreateProjectFileQueryType } from '../../../../../types';
+import { upload as uploadFile } from '../../../../../utils/files';
 import parseForm from '../../../../../utils/parseForm';
 import { projectFileCreateSchema } from '../../../../../validators';
 
@@ -28,7 +28,10 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
-		const { fields, files } = await parseForm(req);
+		const { fields, files } = (await parseForm(req)) as {
+			fields: any;
+			files: any;
+		};
 
 		if (!files.file || Array.isArray(files.file)) {
 			return res.status(400).json({
@@ -43,10 +46,11 @@ export default auth()
 				file: files.file,
 			});
 
-		// Upload a file to the bucket using firebase admin
-		const [obj, file] = await firebaseBucket.upload(files.file.filepath, {
-			contentType: files.file.mimetype || undefined,
-			destination: `projects/${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`,
+		const location = `media/projects/${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`;
+
+		const result = await uploadFile({
+			file: files.image,
+			location,
 		});
 
 		let data: Prisma.ProjectFileCreateInput = {
@@ -57,10 +61,13 @@ export default auth()
 			},
 			type: files.file.mimetype || undefined,
 			name: String(fields.name),
-			file: file.mediaLink,
-			size: file.size,
-			storageName: file.name,
-			storageGeneration: file.generation,
+			file: result.secure_url || result.url,
+			size: files.file.size,
+			storageInfo: {
+				id: result.public_id,
+				name: result.original_filename,
+				type: result.resource_type,
+			},
 		};
 
 		if (req.user.employee)
@@ -70,7 +77,7 @@ export default auth()
 				},
 			};
 
-		const result = await prisma.projectFile.create({
+		const finalResult = await prisma.projectFile.create({
 			data,
 			select: selectQuery,
 		});
@@ -78,6 +85,6 @@ export default auth()
 		return res.status(201).json({
 			status: 'success',
 			message: 'Project file created successfully',
-			data: result,
+			data: finalResult,
 		});
 	});

@@ -1,8 +1,9 @@
 import { Prisma } from '@prisma/client';
 
-import { firebaseBucket, getClients, prisma } from '../../../db';
+import { getClients, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
 import { hashPassword } from '../../../utils/bcrypt';
+import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema, validateParams } from '../../../validators';
 
@@ -64,20 +65,21 @@ export default auth()
 					'_' +
 					valid.contact.email
 				).toLowerCase();
-				const splitText = files.image.originalFilename?.split('.');
-				const extension = splitText[splitText.length - 1];
-				const [obj, file] = await firebaseBucket.upload(files.image.filepath, {
-					contentType: files.image.mimetype || undefined,
-					destination: `users/profile/${name}.${extension}`,
+				const location = `media/users/profile/${name}`;
+				const result = await uploadFile({
+					file: files.image,
+					location,
+					type: 'image',
 				});
-				valid.contact.profile.image = file.mediaLink;
+				valid.contact.profile.image = result.secure_url || result.url;
 				Object(valid.contact.profile).imageStorageInfo = {
-					name: file.name,
-					generation: file.generation,
+					id: result.public_id,
+					name: result.original_filename,
+					type: result.resource_type,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
-					console.log('FIREBASE CONTACT IMAGE ERROR :>> ', error);
+					console.log('CONTACT IMAGE ERROR :>> ', error);
 			}
 		}
 

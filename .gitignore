@@ -32,6 +32,8 @@ ui-debug.log*
 /firebase_storage/
 firebase-export*
 
+/media
+
 # local env files
 .env
 .env*

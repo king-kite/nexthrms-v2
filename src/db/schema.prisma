@@ -168,11 +168,11 @@ model Notification {
   read      Boolean             @default(false)
   type      NotificationChoices
 
-  sender   User   @relation("notificationSender", fields: [senderId], references: [id], onDelete: SetNull)
-  senderId String @map("sender_id") @db.Uuid
+  sender   User?   @relation("notificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  senderId String? @map("sender_id") @db.Uuid
 
-  recipient   User   @relation("notificationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
-  recipientId String @map("recipient_id") @db.Uuid
+  recipient   User?   @relation("notificationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipientId String? @map("recipient_id") @db.Uuid
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -260,13 +260,12 @@ model Project {
 }
 
 model ProjectFile {
-  id                String  @id @default(uuid()) @db.Uuid
-  name              String  @db.VarChar(255)
-  file              String
-  size              Int
-  storageName       String?
-  storageGeneration String?
-  type              String  @default("application") @map("type")
+  id          String @id @default(uuid()) @db.Uuid
+  name        String @db.VarChar(255)
+  file        String
+  size        Int
+  storageInfo Json?
+  type        String @default("application") @map("type")
 
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String  @map("project_id") @db.Uuid

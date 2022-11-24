@@ -1,11 +1,11 @@
 import {
-	firebaseBucket,
 	getProfile,
 	prisma,
 	profileUserSelectQuery as profileSelect,
 } from '../../../db';
 import { auth } from '../../../middlewares';
 import { ProfileUpdateType } from '../../../types';
+import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { profileUpdateSchema } from '../../../validators';
 
@@ -49,7 +49,8 @@ export default auth()
 		);
 
 		if (files.image) {
-			// Upload a file to the bucket using firebase admin
+			// Upload file to cloudinary or media folder
+
 			try {
 				const name = (
 					valid.firstName +
@@ -58,20 +59,24 @@ export default auth()
 					'_' +
 					valid.email
 				).toLowerCase();
-				const splitText = files.image.originalFilename?.split('.');
-				const extension = splitText[splitText.length - 1];
-				const [obj, file] = await firebaseBucket.upload(files.image.filepath, {
-					contentType: files.image.mimetype || undefined,
-					destination: `users/profile/${name}.${extension}`,
+
+				const location = `media/users/profile/${name}`;
+
+				const result = await uploadFile({
+					file: files.image,
+					location,
+					type: 'image',
 				});
-				valid.profile.image = file.mediaLink;
+
+				valid.profile.image = result.secure_url || result.url;
 				Object(valid.profile).imageStorageInfo = {
-					name: file.name,
-					generation: file.generation,
+					id: result.public_id,
+					name: result.original_filename,
+					type: result.resource_type,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
-					console.log('FIREBASE CONTACT IMAGE ERROR :>> ', error);
+					console.log('PROFILE IMAGE ERROR :>> ', error);
 			}
 		}
 

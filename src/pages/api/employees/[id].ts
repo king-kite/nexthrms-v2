@@ -2,12 +2,12 @@ import { Prisma } from '@prisma/client';
 
 import {
 	employeeSelectQuery as selectQuery,
-	firebaseBucket,
 	getEmployee,
 	prisma,
 } from '../../../db';
 import { auth } from '../../../middlewares';
 import { CreateEmployeeQueryType } from '../../../types';
+import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createEmployeeSchema } from '../../../validators';
 
@@ -70,20 +70,24 @@ export default auth()
 					'_' +
 					valid.user.email
 				).toLowerCase();
-				const splitText = files.image.originalFilename?.split('.');
-				const extension = splitText[splitText.length - 1];
-				const [obj, file] = await firebaseBucket.upload(files.image.filepath, {
-					contentType: files.image.mimetype || undefined,
-					destination: `users/profile/${name}.${extension}`,
+
+				const location = `media/users/profile/${name}`;
+
+				const result = await uploadFile({
+					file: files.image,
+					location,
+					type: 'image',
 				});
-				valid.user.profile.image = file.mediaLink;
+
+				valid.user.profile.image = result.secure_url || result.url;
 				Object(valid.user.profile).imageStorageInfo = {
-					name: file.name,
-					generation: file.generation,
+					id: result.public_id,
+					name: result.original_filename,
+					type: result.resource_type,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
-					console.log('FIREBASE EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
+					console.log('EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
 			}
 		}
 		const user: {
