@@ -68,12 +68,9 @@ async function handler(
 				.then((token: Token) => {
 					if (process.env.NODE_ENV === 'development')
 						console.log('TOKEN :>> ', token);
-					let url = RESET_PASSWORD_CONFIRM_PAGE_URL(
-						user.id,
-						token.token
-					)
-					if (req.headers.host || process.env.BASE_URL)
-						url = (req.headers.host || process.env.BASE_URL) + url;
+					let url = RESET_PASSWORD_CONFIRM_PAGE_URL(user.id, token.token);
+					if (process.env.BASE_URL || req.headers.host)
+						url = (process.env.BASE_URL || req.headers.host) + url;
 					sendMail({
 						from: process.env.DEFAULT_FROM_EMAIL,
 						to: user.email,
