@@ -139,6 +139,7 @@ const Notifications = forwardRef<
 					response.data.data
 			),
 		{
+			refetchInterval: 1000 * 10, // 10 seconds,
 			onSuccess(data) {
 				setCount(data.result.filter((note) => note.read === false).length);
 			},

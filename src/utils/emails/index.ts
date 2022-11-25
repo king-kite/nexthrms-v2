@@ -26,7 +26,7 @@ async function verifyTransport() {
 		const success = await transporter.verify();
 		if (process.env.NODE_ENV === 'development')
 			console.log('Server is ready to take our messages :>> ', success);
-		return success
+		return success;
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development')
 			console.log('EMAIL ERROR. Unable to verify connection :>> ', error);
@@ -41,7 +41,7 @@ export async function sendMail(
 	}
 ) {
 	try {
-		const verified = await verifyTransport()
+		await verifyTransport();
 		const info = await transporter.sendMail(mailOptions);
 		if (process.env.NODE_ENV === 'development')
 			console.log('EMAIL SENDING SUCCESS :>> ', info);
@@ -55,7 +55,6 @@ export async function sendMail(
 }
 
 export default transporter;
-
 
 /** 
  * Testing Email send unsing Ethreal Email 

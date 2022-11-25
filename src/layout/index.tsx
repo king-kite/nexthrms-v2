@@ -2,9 +2,9 @@ import { MenuIcon } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
 
-import ScrollToTop from './ScrollToTop';
-import Sidebar from './Sidebar';
-import Topbar from './Topbar';
+import ScrollToTop from './scrollToTop';
+import Sidebar from './sidebar';
+import Topbar from './topbar';
 import { LOGO_IMAGE } from '../config';
 import { useFadeIn, useOutClick } from '../hooks';
 

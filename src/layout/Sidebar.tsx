@@ -19,11 +19,12 @@ import {
 	FaUserClock,
 	FaClipboardList,
 } from 'react-icons/fa';
+
+import { SimpleLink, ListLink } from './link';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, LOGOUT_URL } from '../config';
 import { useAlertModalContext, useAuthContext } from '../store/contexts';
 import { axiosInstance } from '../utils';
-import { SimpleLink, ListLink } from './Link';
 
 const sidebarStyle =
 	'absolute bg-primary-500 duration-1000 h-full overflow-y-auto transform top-16 w-3/4 z-50 sm:top-14 md:px-2 md:w-1/3 lg:fixed lg:px-0 lg:py-6 lg:top-0 lg:translate-x-0 lg:w-1/6 xl:py-7';
