@@ -90,5 +90,13 @@ export const PROJECT_TASK_FOLLOWER_URL = (
 
 // Employees URLs Stop
 
+// Administration URLs Start
+
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
+
+export const USERS_URL = `${ROOT_URL}/users/`;
+export const USERS_EXPORT_URL = `${ROOT_URL}/users/export/`;
+export const USER_URL = (id: string) => `${USERS_URL}${id}/`;
+
+// Administration URLs Stop
