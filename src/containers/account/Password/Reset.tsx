@@ -13,6 +13,7 @@ function PasswordReset({
 	successMessage,
 	removeError,
 	removeSuccessMessage,
+	resendAfter,
 }: {
 	errors?: {
 		email?: string;
@@ -23,6 +24,7 @@ function PasswordReset({
 	onSubmit: (form: { email: string }) => void;
 	removeError: (name: string) => void;
 	removeSuccessMessage: () => void;
+	resendAfter: number;
 }) {
 	const emailRef = React.useRef<HTMLInputElement>(null);
 
@@ -112,12 +114,18 @@ function PasswordReset({
 								bold="medium"
 								caps
 								color="text-white"
-								disabled={loading}
+								disabled={loading || resendAfter > 0}
 								focus="focus:outline-none focus:shadow-outline"
 								iconLeft={FaUnlock}
 								padding="px-4 py-2"
 								rounded="rounded-md"
-								title={loading ? 'Sending...' : 'Reset'}
+								title={
+									loading
+										? 'Sending...'
+										: resendAfter > 0
+										? `Resend after ${resendAfter}s`
+										: 'Reset'
+								}
 								titleSize="text-sm md:text-base"
 							/>
 						</div>

@@ -4,6 +4,7 @@ import React from 'react';
 
 import { EMAIL_RESEND_URL } from '../../../config';
 import VerifyEmail from '../../../containers/account/Email/Verify';
+import { useInterval } from '../../../hooks';
 import { BaseResponseType } from '../../../types';
 import { axiosInstance, Title } from '../../../utils';
 import { handleAxiosErrors } from '../../../validators';
@@ -14,6 +15,15 @@ const Page = () => {
 		email?: string;
 		message?: string;
 	}>();
+	const [resendAfter, setResendAfter] = React.useState(0);
+
+	const { toggleInterval } = useInterval(
+		() => {
+			setResendAfter((prevState) => (prevState < 1 ? 0 : prevState - 1));
+		},
+		1000,
+		{ status: 'pause' }
+	);
 
 	const { mutate: sendEmail, isLoading: loading } = useMutation(
 		(form: { email: string }) =>
@@ -26,6 +36,8 @@ const Page = () => {
 		{
 			onSuccess(response: AxiosResponse<BaseResponseType>) {
 				setSuccessMessage(response.data.message);
+				setResendAfter(60);
+				toggleInterval('play');
 			},
 			onError(error) {
 				const err = handleAxiosErrors(error);
@@ -62,6 +74,12 @@ const Page = () => {
 		[sendEmail]
 	);
 
+	React.useEffect(() => {
+		if (resendAfter <= 0) {
+			toggleInterval('pause');
+		}
+	}, [resendAfter, toggleInterval]);
+
 	return (
 		<React.Fragment>
 			<Title title="Verify Email Address" />
@@ -76,8 +94,9 @@ const Page = () => {
 							[name]: '',
 						}));
 				}}
-				successMessage={successMessage}
 				removeSuccessMessage={() => setSuccessMessage(undefined)}
+				resendAfter={resendAfter}
+				successMessage={successMessage}
 			/>
 		</React.Fragment>
 	);

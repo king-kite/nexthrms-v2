@@ -13,6 +13,7 @@ function VerifyEmail({
 	successMessage,
 	removeError,
 	removeSuccessMessage,
+	resendAfter,
 }: {
 	errors?: {
 		email?: string;
@@ -23,6 +24,7 @@ function VerifyEmail({
 	onSubmit: (form: { email: string }) => void;
 	removeError: (name: string) => void;
 	removeSuccessMessage: () => void;
+	resendAfter: number;
 }) {
 	const emailRef = React.useRef<HTMLInputElement>(null);
 
@@ -113,12 +115,18 @@ function VerifyEmail({
 								bold="medium"
 								caps
 								color="text-white"
-								disabled={loading}
+								disabled={loading || resendAfter > 0}
 								focus="focus:outline-none focus:shadow-outline"
 								iconLeft={FaCheckCircle}
 								padding="px-4 py-2"
 								rounded="rounded-md"
-								title={loading ? 'Sending...' : 'Verify'}
+								title={
+									loading
+										? 'Sending...'
+										: resendAfter > 0
+										? `Resend after ${resendAfter}s`
+										: 'Verify'
+								}
 								titleSize="text-sm md:text-base"
 							/>
 						</div>

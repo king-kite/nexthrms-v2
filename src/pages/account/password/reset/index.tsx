@@ -4,6 +4,7 @@ import React from 'react';
 
 import { PASSWORD_RESET_URL } from '../../../../config';
 import PasswordReset from '../../../../containers/account/Password/Reset';
+import { useInterval } from '../../../../hooks';
 import { BaseResponseType } from '../../../../types';
 import { axiosInstance, Title } from '../../../../utils';
 import { handleAxiosErrors } from '../../../../validators';
@@ -14,6 +15,15 @@ const Page = () => {
 		email?: string;
 		message?: string;
 	}>();
+	const [resendAfter, setResendAfter] = React.useState(0);
+
+	const { toggleInterval } = useInterval(
+		() => {
+			setResendAfter((prevState) => (prevState < 1 ? 0 : prevState - 1));
+		},
+		1000,
+		{ status: 'pause' }
+	);
 
 	const { mutate: sendEmail, isLoading: loading } = useMutation(
 		(form: { email: string }) =>
@@ -26,6 +36,8 @@ const Page = () => {
 		{
 			onSuccess(response: AxiosResponse<BaseResponseType>) {
 				setSuccessMessage(response.data.message);
+				setResendAfter(60);
+				toggleInterval('play');
 			},
 			onError(error) {
 				const err = handleAxiosErrors<{
@@ -57,12 +69,18 @@ const Page = () => {
 					...prevErrors,
 					email: 'Email address is required',
 				}));
-			} else {
+			} else if (resendAfter <= 0) {
 				sendEmail(form);
 			}
 		},
-		[sendEmail]
+		[resendAfter, sendEmail]
 	);
+
+	React.useEffect(() => {
+		if (resendAfter <= 0) {
+			toggleInterval('pause');
+		}
+	}, [resendAfter, toggleInterval]);
 
 	return (
 		<React.Fragment>
@@ -78,6 +96,7 @@ const Page = () => {
 							[name]: '',
 						}));
 				}}
+				resendAfter={resendAfter}
 				successMessage={successMessage}
 				removeSuccessMessage={() => setSuccessMessage(undefined)}
 			/>
