@@ -21,28 +21,17 @@ export const userSelectQuery: Prisma.UserSelect = {
 	isActive: true,
 	isAdmin: true,
 	isEmailVerified: true,
+	isSuperUser: true,
+	createdAt: true,
 	updatedAt: true,
 	client: {
 		select: {
 			id: true,
-			company: true,
-			position: true,
 		},
 	},
 	employee: {
 		select: {
-			department: {
-				select: {
-					id: true,
-					name: true,
-				},
-			},
-			job: {
-				select: {
-					id: true,
-					name: true,
-				},
-			},
+			id: true,
 			leaves: {
 				where: {
 					status: {
@@ -63,7 +52,6 @@ export const userSelectQuery: Prisma.UserSelect = {
 					type: true,
 				},
 			},
-			dateEmployed: true,
 		},
 	},
 	profile: {

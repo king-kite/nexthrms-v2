@@ -5,24 +5,22 @@ export type UserType = {
 	isActive: boolean;
 	isAdmin: boolean;
 	isEmailVerified: boolean;
+	isSuperUser: boolean;
 	email: string;
 	firstName: string;
 	lastName: string;
 	client: {
 		id: string;
-		company: string;
-		position: string;
 	} | null;
 	employee: {
-		department: {
-			id: string;
-			name: string;
-		} | null;
-		job: {
-			id: string;
-			name: string;
-		} | null;
-		dateEmployed: string;
+		id: string;
+		leaves: {
+			startDate: Date | string;
+			endDate: Date | string;
+			reason: string;
+			type: string;
+			approved: boolean;
+		}[];
 	} | null;
 	profile: {
 		dob: string | null;
@@ -33,6 +31,7 @@ export type UserType = {
 		phone: string | null;
 		state: string | null;
 	} | null;
+	createdAt: string;
 	updatedAt: string;
 };
 
@@ -86,6 +85,14 @@ export type CreateUserErrorResponseType = {
 	isEmailVerified?: string;
 	isSuperuser?: string;
 	createdAt?: string;
+
+	dateEmployed?: string;
+	department?: string;
+	job?: string;
+	supervisor?: string;
+
+	company?: string;
+	position?: string;
 };
 
 export type CreateUserResponseType = SuccessResponseType<UserType>;

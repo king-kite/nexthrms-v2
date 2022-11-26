@@ -9,8 +9,10 @@ export const REQUEST_EMAIL_VERIFY_PAGE_URL = '/account/email/verify/';
 export const CONFIRM_EMAIL_PAGE_URL = (uid: string, token: string = '') =>
 	`/account/email/confirm/${uid}/${token}/`;
 export const RESET_PASSWORD_PAGE_URL = '/account/password/reset/';
-export const RESET_PASSWORD_CONFIRM_PAGE_URL = (uid: string, token: string = '') =>
-	`/account/password/reset/confirm/${uid}/${token}/`;
+export const RESET_PASSWORD_CONFIRM_PAGE_URL = (
+	uid: string,
+	token: string = ''
+) => `/account/password/reset/confirm/${uid}/${token}/`;
 
 // Clients section
 export const CLIENTS_PAGE_URL = '/clients/';
@@ -49,3 +51,7 @@ export const PROJECT_TASK_PAGE_URL = (slug: string, id: string = '') =>
 	`/projects/${slug}/tasks/${id}/`;
 export const PROJECT_TEAM_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/team/`;
+
+// Users Section
+export const USERS_PAGE_URL = '/users/';
+export const USER_PAGE_URL = (slug: string) => `/users/${slug}/`;
