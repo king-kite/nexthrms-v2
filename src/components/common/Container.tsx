@@ -153,8 +153,10 @@ const Container: FC<ContainerProps> = ({
 						<div className="px-2 relative md:px-3 lg:px-4">
 							<div
 								className={
-									(alert.visible ? 'translate-y-0' : '-translate-y-full') +
-									' absolute duration-1000 left-0 px-2 py-1 top-0 transition transform w-full z-[500] md:px-3 lg:px-4'
+									(alert.visible
+										? 'translate-y-0 visible z-[500]'
+										: 'invisible -translate-y-full z-[-100]') +
+									' bottom-[10%] duration-1000 fixed px-3 py-1 right-0 transition transform w-full sm:px-4 md:px-7 lg:ml-auto lg:px-8 lg:w-[83%]'
 								}
 							>
 								<Alert

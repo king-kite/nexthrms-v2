@@ -25,17 +25,20 @@ function AlertContextProvider({ children }: { children: React.ReactNode }) {
 		setState(initialState);
 	}, []);
 
-	const open = React.useCallback((payload: AlertType) => {
-		setState((prevState) => ({
-			...prevState,
-			message: payload.message || 'An error occurred when displaying alerts.',
-			type: payload.type || 'info',
-			visible: true,
-		}));
-		if (typeof window !== undefined) {
-			window.scrollTo(0, 0);
-		}
-	}, []);
+	const open = React.useCallback(
+		(payload: AlertType, options?: { scroll: boolean }) => {
+			setState((prevState) => ({
+				...prevState,
+				message: payload.message || 'An error occurred when displaying alerts.',
+				type: payload.type || 'info',
+				visible: true,
+			}));
+			if (typeof window !== undefined && options?.scroll) {
+				window.scrollTo(0, 0);
+			}
+		},
+		[]
+	);
 
 	return (
 		<AlertContext.Provider
