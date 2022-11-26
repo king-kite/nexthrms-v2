@@ -175,64 +175,62 @@ export const getEmployees = async (
 }> => {
 	const query = getEmployeesQuery({ ...params });
 
-	const [total, result, active, inactive, on_leave] = await prisma.$transaction(
-		[
-			prisma.employee.count({ where: query.where }),
-			prisma.employee.findMany(query),
-			prisma.employee.count({
-				where: {
-					AND: [
-						{
-							user: {
-								isActive: true,
-							},
+	const [total, result, active, on_leave] = await prisma.$transaction([
+		prisma.employee.count({ where: query.where }),
+		prisma.employee.findMany(query),
+		prisma.employee.count({
+			where: {
+				AND: [
+					{
+						user: {
+							isActive: true,
 						},
-						{
-							leaves: {
-								none: {
-									status: {
-										equals: 'APPROVED',
-									},
-									startDate: {
-										lte: date,
-									},
-									endDate: {
-										gte: date,
-									},
+					},
+					{
+						leaves: {
+							none: {
+								status: {
+									equals: 'APPROVED',
+								},
+								startDate: {
+									lte: date,
+								},
+								endDate: {
+									gte: date,
 								},
 							},
 						},
-					],
-				},
-			}),
-			prisma.employee.count({
-				where: {
-					user: {
-						isActive: false,
 					},
-				},
-			}),
-			prisma.employee.count({
-				where: {
-					leaves: {
-						some: {
-							status: {
-								equals: 'APPROVED',
-							},
-							startDate: {
-								lte: date,
-							},
-							endDate: {
-								gte: date,
-							},
+				],
+			},
+		}),
+		// prisma.employee.count({
+		// 	where: {
+		// 		user: {
+		// 			isActive: false,
+		// 		},
+		// 	},
+		// }),
+		prisma.employee.count({
+			where: {
+				leaves: {
+					some: {
+						status: {
+							equals: 'APPROVED',
+						},
+						startDate: {
+							lte: date,
+						},
+						endDate: {
+							gte: date,
 						},
 					},
 				},
-			}),
-		]
-	);
+			},
+		}),
+	]);
 
-	return { total, active, inactive, on_leave, result };
+	return { total, active, inactive: total - active, on_leave, result };
 };
 
 export const getEmployee = async (id: string) => {
