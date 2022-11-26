@@ -1,15 +1,11 @@
 import { Prisma } from '@prisma/client';
 
-import {
-	employeeSelectQuery as selectQuery,
-	getEmployee,
-	prisma,
-} from '../../../db';
+import { userSelectQuery as selectQuery, getUser, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
-import { CreateEmployeeQueryType } from '../../../types';
+import { CreateUserQueryType } from '../../../types';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createEmployeeSchema } from '../../../validators';
+import { createUserSchema } from '../../../validators';
 
 export const config = {
 	api: {
@@ -19,19 +15,19 @@ export const config = {
 
 export default auth()
 	.get(async (req, res) => {
-		const employee = await getEmployee(req.query.id as string);
+		const user = await getUser(req.query.id as string);
 
-		if (!employee) {
+		if (!user) {
 			return res.status(404).json({
 				status: 'success',
-				message: 'Employee with specified ID was not found!',
+				message: 'User with specified ID was not found!',
 			});
 		}
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Fetched employee successfully',
-			data: employee,
+			message: 'Fetched user successfully',
+			data: user,
 		});
 	})
 	.put(async (req, res) => {
@@ -47,28 +43,19 @@ export default auth()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateEmployeeQueryType =
-			await createEmployeeSchema.validateAsync(form);
-		if (!valid.user && !valid.userId) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'Provide either user object or userId.',
-			});
-		} else if (valid.user && valid.userId) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'Provide either user object or userId. Set the former to null',
-			});
-		}
-		if (valid.user && files.image) {
+		const valid: CreateUserQueryType = await createUserSchema.validateAsync(
+			form
+		);
+
+		if (files.image) {
 			// Upload a file to the bucket using firebase admin
 			try {
 				const name = (
-					valid.user.firstName +
+					valid.firstName +
 					'_' +
-					valid.user.lastName +
+					valid.lastName +
 					'_' +
-					valid.user.email
+					valid.email
 				).toLowerCase();
 
 				const location = `media/users/profile/${name}`;
@@ -79,8 +66,8 @@ export default auth()
 					type: 'image',
 				});
 
-				valid.user.profile.image = result.secure_url || result.url;
-				Object(valid.user.profile).imageStorageInfo = {
+				valid.profile.image = result.secure_url || result.url;
+				Object(valid.profile).imageStorageInfo = {
 					id: result.public_id,
 					name: result.original_filename,
 					type: result.resource_type,
@@ -90,50 +77,48 @@ export default auth()
 					console.log('EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
 			}
 		}
-		const user: {
-			update?: Prisma.UserUpdateInput;
-			connect?: { id: string };
-		} = valid.user
-			? {
-					update: {
-						...valid.user,
-						email: valid.user.email.trim().toLowerCase(),
-						profile: {
-							update: valid.user.profile,
-						},
-					},
-			  }
-			: valid.userId
-			? {
-					connect: {
-						id: valid.userId,
-					},
-			  }
-			: {};
 
-		const data: Prisma.EmployeeUpdateInput = {
-			dateEmployed: valid.dateEmployed || new Date(),
-			department: {
-				connect: {
-					id: valid.department,
+		const data: Prisma.UserUpdateInput = {
+			...valid,
+			profile: {
+				update: {
+					...valid.profile,
 				},
 			},
-			job: {
-				connect: {
-					id: valid.job,
-				},
-			},
-			supervisor: valid.supervisor
+			employee: valid.employee
 				? {
-						connect: {
-							id: valid.supervisor,
+						update: {
+							...valid.employee,
+							department: {
+								connect: {
+									id: valid.employee.department,
+								},
+							},
+							job: {
+								connect: {
+									id: valid.employee.job,
+								},
+							},
+							supervisor: valid.employee.supervisor
+								? {
+										connect: {
+											id: valid.employee.supervisor,
+										},
+								  }
+								: {},
 						},
 				  }
-				: undefined,
-			user,
+				: {},
+			client: valid.client
+				? {
+						update: {
+							...valid.client,
+						},
+				  }
+				: {},
 		};
 
-		const employee = await prisma.employee.update({
+		const user = await prisma.user.update({
 			where: {
 				id: req.query.id as string,
 			},
@@ -143,12 +128,12 @@ export default auth()
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Employee was updated successfully',
-			data: employee,
+			message: 'User was updated successfully',
+			data: user,
 		});
 	})
 	.delete(async (req, res) => {
-		await prisma.employee.delete({
+		await prisma.user.delete({
 			where: {
 				id: req.query.id as string,
 			},
@@ -156,6 +141,6 @@ export default auth()
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Employee was deleted successfully!',
+			message: 'User was deleted successfully!',
 		});
 	});
