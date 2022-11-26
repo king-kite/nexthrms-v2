@@ -156,7 +156,7 @@ const Notifications = forwardRef<
 			ref={ref}
 			className={`${
 				visible ? 'block' : 'hidden'
-			} absolute bg-white border-t border-2 border-gray-300 divide-y divide-gray-300 divide-opacity-75 grow-down max-h-[416px] max-w-xs overflow-y-auto rounded-b-lg right-0 top-[89px] shadow-lg w-full z-[100] sm:max-w-sm sm:top-[92px] md:top-[103px] lg:top-[111px]`}
+			} absolute bg-white border-t border-2 border-gray-300 divide-y divide-gray-300 divide-opacity-75 grow-down max-h-[416px] max-w-xs overflow-y-auto rounded-b-lg right-0 top-[63px] shadow-lg w-full z-[100] sm:max-w-sm sm:top-[66px] md:top-[74px] lg:top-[82px]`}
 		>
 			{data && data.result.length > 0 ? (
 				data.result.map((note, index) => (

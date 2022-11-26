@@ -4,21 +4,22 @@ import { FC, useEffect, useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaArrowRight, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
-const similarStyle =
-	'capitalize cursor-pointer text-gray-100 text-sm hover:bg-primary-300 hover:border-l-4 hover:border-gray-300';
+const similarStyle = 'capitalize cursor-pointer text-gray-100 text-sm';
 const containerStyle = `flex justify-between items-center px-5 py-3 tracking-wide lg:px-3 xl:pl-4 ${similarStyle}`;
-const linkStyle = `flex items-center px-9 py-2 lg:px-4 ${similarStyle}`;
+const linkStyle = `flex items-center px-9 py-2 hover:bg-primary-300 hover:border-l-4 hover:border-gray-300 lg:px-4 ${similarStyle}`;
 
 type SimpleProps = {
+	disabled?: boolean;
 	onClick?: () => void;
 	href: string;
-	Icon?: IconType;
+	icon?: IconType;
 	title: string;
 	classes?: string;
 };
 
 export const SimpleLink: FC<SimpleProps> = ({
-	Icon,
+	disabled = false,
+	icon: Icon,
 	onClick,
 	href,
 	title,
@@ -38,11 +39,21 @@ export const SimpleLink: FC<SimpleProps> = ({
 	return (
 		<Link key={title} href={href || '#'}>
 			<a
-				onClick={onClick ? onClick : () => {}}
+				onClick={onClick ? onClick : undefined}
 				className="block my-1 lg:my-0"
 				{...props}
 			>
-				<div className={classes || containerStyle}>
+				<div
+					className={
+						classes ||
+						containerStyle +
+							` ${
+								disabled
+									? 'bg-gray-600 cursor-not-allowed'
+									: 'hover:bg-primary-300 hover:border-l-4 hover:border-gray-300'
+							}`
+					}
+				>
 					<div
 						className={`${
 							active ? 'text-secondary-500' : 'text-gray-100'
@@ -68,7 +79,7 @@ export const SimpleLink: FC<SimpleProps> = ({
 
 export type ListLinkItemType = {
 	href?: string;
-	Icon?: IconType;
+	icon?: IconType;
 	links?: ListLinkItemType[];
 	onClick?: () => void;
 	title: string;
@@ -76,7 +87,7 @@ export type ListLinkItemType = {
 };
 
 export type ListLinkType = {
-	Icon?: IconType;
+	icon?: IconType;
 	onClick?: () => void;
 	links: ListLinkItemType[];
 	title: string;
@@ -84,7 +95,7 @@ export type ListLinkType = {
 
 export const ListLinkItem = ({
 	href,
-	Icon,
+	icon,
 	links,
 	onClick,
 	title,
@@ -93,7 +104,7 @@ export const ListLinkItem = ({
 	return links !== undefined ? (
 		<div className="px-2">
 			<ListLink
-				Icon={Icon || FaArrowRight}
+				icon={icon || FaArrowRight}
 				links={links}
 				onClick={onClick && onClick}
 				title={title}
@@ -102,7 +113,7 @@ export const ListLinkItem = ({
 	) : (
 		<SimpleLink
 			classes={classes}
-			Icon={Icon}
+			icon={icon}
 			onClick={onClick}
 			href={href || '#'}
 			title={title}
@@ -110,7 +121,12 @@ export const ListLinkItem = ({
 	);
 };
 
-export const ListLink: FC<ListLinkType> = ({ Icon, onClick, links, title }) => {
+export const ListLink: FC<ListLinkType> = ({
+	icon: Icon,
+	onClick,
+	links,
+	title,
+}) => {
 	const [visible, setVisible] = useState(false);
 	const { pathname } = useRouter();
 
@@ -134,9 +150,10 @@ export const ListLink: FC<ListLinkType> = ({ Icon, onClick, links, title }) => {
 		<div className="my-1 lg:my-0">
 			<div
 				onClick={() => setVisible(!visible)}
-				className={`${containerStyle} ${
-					activeLink ? 'text-secondary-500' : ''
-				}`}
+				className={`${
+					containerStyle +
+					' hover:bg-primary-300 hover:border-l-4 hover:border-gray-300'
+				} ${activeLink ? 'text-secondary-500' : ''}`}
 			>
 				<div className="flex items-center">
 					{Icon && (
@@ -159,14 +176,14 @@ export const ListLink: FC<ListLinkType> = ({ Icon, onClick, links, title }) => {
 					visible ? 'block opacity-100 visible' : 'hidden invisible opacity-0'
 				} duration-500 transform transition-all`}
 			>
-				{links.map(({ Icon, href, links, title }, index) => (
+				{links.map(({ icon, href, links, title }, index) => (
 					<ListLinkItem
 						classes={linkStyle}
 						onClick={onClick && onClick}
 						key={index}
 						href={href}
 						links={links}
-						Icon={Icon}
+						icon={icon}
 						title={title}
 					/>
 				))}

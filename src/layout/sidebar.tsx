@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { forwardRef } from 'react';
+import { IconType } from 'react-icons';
 import {
 	FaCalendarAlt,
 	FaSignOutAlt,
@@ -78,94 +79,122 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 			}
 		);
 
-		const links = [
+		type LinkItemType = {
+			disabled?: boolean;
+			href?: string;
+			icon: IconType;
+			links?: LinkItemType[];
+			onClick?: () => void;
+			title: string;
+		};
+
+		type LinkType = {
+			links: LinkItemType[];
+			title: string;
+		};
+
+		const links: LinkType[] = [
 			{
-				admin: false,
-				Icon: FaThLarge,
 				title: 'dashboard',
-				href: routes.HOME_PAGE_URL,
-			},
-			{
-				Icon: FaUsers,
-				title: 'employees',
 				links: [
 					{
-						admin: true,
-						Icon: FaUserFriends,
-						title: 'all employees',
-						href: routes.EMPLOYEES_PAGE_URL,
-					},
-					{
-						admin: false,
-						Icon: FaSuitcaseRolling,
-						title: 'leaves',
-						href: routes.LEAVES_PAGE_URL,
-					},
-					{
-						admin: true,
-						Icon: FaSuitcase,
-						title: 'leaves (admin)',
-						href: routes.ADMIN_LEAVES_PAGE_URL,
-					},
-					{
-						Icon: FaClock,
-						title: 'attendance',
-						href: routes.ATTENDANCE_PAGE_URL,
-					},
-					{
-						Icon: FaClipboardList,
-						title: 'attendance (admin)',
-						href: routes.ATTENDANCE_ADMIN_PAGE_URL,
-					},
-					{
-						admin: true,
-						Icon: FaWarehouse,
-						title: 'departments',
-						href: routes.DEPARTMENTS_PAGE_URL,
-					},
-					{
-						admin: true,
-						Icon: FaCalendarAlt,
-						title: 'holidays',
-						href: routes.HOLIDAYS_PAGE_URL,
-					},
-					{
-						admin: false,
-						Icon: FaClock,
-						title: 'overtime',
-						href: routes.OVERTIME_PAGE_URL,
-					},
-					{
-						admin: true,
-						Icon: FaUserClock,
-						title: 'overtime (admin)',
-						href: routes.ADMIN_OVERTIME_PAGE_URL,
+						icon: FaThLarge,
+						title: 'dashboard',
+						href: routes.HOME_PAGE_URL,
 					},
 				],
 			},
 			{
-				admin: false,
-				Icon: FaHandshake,
-				title: 'clients',
-				href: routes.CLIENTS_PAGE_URL,
+				title: 'employees',
+				links: [
+					{
+						icon: FaUsers,
+						title: 'employees',
+						links: [
+							{
+								icon: FaUserFriends,
+								title: 'all employees',
+								href: routes.EMPLOYEES_PAGE_URL,
+							},
+							{
+								icon: FaSuitcaseRolling,
+								title: 'leaves',
+								href: routes.LEAVES_PAGE_URL,
+							},
+							{
+								icon: FaSuitcase,
+								title: 'leaves (admin)',
+								href: routes.ADMIN_LEAVES_PAGE_URL,
+							},
+							{
+								icon: FaClock,
+								title: 'attendance',
+								href: routes.ATTENDANCE_PAGE_URL,
+							},
+							{
+								icon: FaClipboardList,
+								title: 'attendance (admin)',
+								href: routes.ATTENDANCE_ADMIN_PAGE_URL,
+							},
+							{
+								icon: FaWarehouse,
+								title: 'departments',
+								href: routes.DEPARTMENTS_PAGE_URL,
+							},
+							{
+								icon: FaCalendarAlt,
+								title: 'holidays',
+								href: routes.HOLIDAYS_PAGE_URL,
+							},
+							{
+								icon: FaClock,
+								title: 'overtime',
+								href: routes.OVERTIME_PAGE_URL,
+							},
+							{
+								icon: FaUserClock,
+								title: 'overtime (admin)',
+								href: routes.ADMIN_OVERTIME_PAGE_URL,
+							},
+						],
+					},
+					{
+						icon: FaHandshake,
+						title: 'clients',
+						href: routes.CLIENTS_PAGE_URL,
+					},
+					{
+						icon: FaProjectDiagram,
+						title: 'projects',
+						href: routes.PROJECTS_PAGE_URL,
+					},
+				],
 			},
 			{
-				admin: true,
-				Icon: FaProjectDiagram,
-				title: 'projects',
-				href: routes.PROJECTS_PAGE_URL,
+				title: 'administration',
+				links: [
+					{
+						icon: FaRProject,
+						title: 'jobs',
+						href: routes.JOBS_PAGE_URL,
+					},
+				],
 			},
 			{
-				admin: true,
-				Icon: FaRProject,
-				title: 'jobs',
-				href: routes.JOBS_PAGE_URL,
-			},
-			{
-				admin: false,
-				Icon: FaUserTie,
-				title: 'profile',
-				href: routes.PROFILE_PAGE_URL,
+				title: 'personal',
+				links: [
+					{
+						icon: FaUserTie,
+						title: 'profile',
+						href: routes.PROFILE_PAGE_URL,
+					},
+					{
+						disabled: isLoading,
+						icon: FaSignOutAlt,
+						onClick: !isLoading ? signOut : undefined,
+						title: 'Sign out',
+					},
+				],
 			},
 		];
 
@@ -201,46 +230,37 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 					)}
 				</div>
 				<div className="mt-3">
-					{links?.map(({ admin, href, ...props }, index) => {
-						return 'links' in props ? (
-							<ListLink
-								onClick={() => setVisible(false)}
-								links={links}
-								key={index}
-								{...props}
-							/>
-						) : (
-							<SimpleLink
-								href={href || '#'}
-								onClick={() => setVisible(false)}
-								key={index}
-								{...props}
-							/>
-						);
-					})}
-					<div
-						onClick={() => {
-							if (!isLoading) signOut();
-							setVisible(false);
-						}}
-						className="my-1 lg:my-0"
-					>
-						<div
-							className={`${
-								isLoading
-									? 'bg-gray-700 cursor-not-allowed'
-									: 'cursor-pointer hover:bg-primary-300'
-							} capitalize flex justify-between items-center px-5 py-3 tracking-wide text-gray-100 text-sm hover:border-l-4 hover:border-gray-300 lg:px-3 xl:pl-4`}
-						>
-							<div className="flex items-center">
-								<span>
-									<FaSignOutAlt className="text-gray-100 text-xs md:text-sm" />
-								</span>
-								<span className="mx-2">logout</span>
-							</div>
-							<div />
+					{links.map(({ links, title }, index) => (
+						<div className="mb-2" key={index}>
+							<h6 className="font-bold mb-2 px-2 text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
+								{title}
+							</h6>
+
+							{links.map(({ href, onClick, ...props }, index) => {
+								return 'links' in props ? (
+									<ListLink
+										onClick={() => {
+											if (onClick) onClick();
+											setVisible(false);
+										}}
+										links={links}
+										key={index}
+										{...props}
+									/>
+								) : (
+									<SimpleLink
+										href={href || '#'}
+										onClick={() => {
+											if (onClick) onClick();
+											setVisible(false);
+										}}
+										key={index}
+										{...props}
+									/>
+								);
+							})}
 						</div>
-					</div>
+					))}
 				</div>
 			</nav>
 		);
