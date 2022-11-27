@@ -43,6 +43,8 @@ async function handler(
 			...valid,
 			email: valid.email.toLowerCase().trim(),
 			password: hash,
+			isAdmin: true,
+			isSuperUser: true,
 			profile: {
 				create: {},
 			},
