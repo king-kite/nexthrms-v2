@@ -4,4 +4,5 @@
 4. In Sidebar, Have the links array objects have active keys checking the pathname for their
 -- values
 5. Check the permissions on the routes.
-6. Check the project file delete url to delete files from folders
+6. Check the project file delete url to delete files from folders.
+7. Check the tokens to see if they've expired before creating new ones for email verification and password reset.

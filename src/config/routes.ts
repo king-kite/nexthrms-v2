@@ -53,5 +53,5 @@ export const PROJECT_TEAM_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/team/`;
 
 // Users Section
-export const USERS_PAGE_URL = '/users/';
-export const USER_PAGE_URL = (slug: string) => `/users/${slug}/`;
+export const USERS_PAGE_URL = '/users/all/';
+export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;

@@ -4,21 +4,23 @@ import { forwardRef } from 'react';
 import { IconType } from 'react-icons';
 import {
 	FaCalendarAlt,
-	FaSignOutAlt,
-	FaSuitcase,
-	FaTimesCircle,
-	FaThLarge,
-	FaWarehouse,
-	FaUsers,
+	FaClipboardList,
+	FaClock,
+	FaHandshake,
+	FaPeopleArrows,
 	FaProjectDiagram,
 	FaRProject,
-	FaHandshake,
-	FaUserFriends,
+	FaSignOutAlt,
+	FaSuitcase,
 	FaSuitcaseRolling,
-	FaUserTie,
-	FaClock,
+	FaThLarge,
+	FaTimesCircle,
+	FaUsers,
+	FaUsersCog,
 	FaUserClock,
-	FaClipboardList,
+	FaUserFriends,
+	FaUserTie,
+	FaWarehouse,
 } from 'react-icons/fa';
 
 import { SimpleLink, ListLink } from './link';
@@ -177,6 +179,17 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 						icon: FaRProject,
 						title: 'jobs',
 						href: routes.JOBS_PAGE_URL,
+					},
+					{
+						icon: FaUsersCog,
+						title: 'users',
+						links: [
+							{
+								icon: FaPeopleArrows,
+								title: 'all users',
+								href: routes.USERS_PAGE_URL,
+							},
+						],
 					},
 				],
 			},
