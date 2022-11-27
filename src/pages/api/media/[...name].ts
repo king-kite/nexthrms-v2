@@ -34,14 +34,14 @@ export default async function handler(
 			const filePath = (name as string[]).join('/');
 			const fileBuffer = await asyncReadFile(filePath);
 			res.setHeader('Content-Type', type ? String(type) : 'image/*');
-			return res.status(200).send(fileBuffer);
+			return res.status(200).end(fileBuffer);
 		} catch (error) {
 			try {
 				// Send a default file
 				const filePath = path.resolve('public/logo.png');
 				const fileBuffer = await asyncReadFile(filePath);
 				res.setHeader('Content-Type', 'image/*');
-				return res.status(200).send(fileBuffer);
+				return res.status(200).end(fileBuffer);
 			} catch (error) {
 				return res.status(500).json({
 					status: 'error',
