@@ -3,6 +3,7 @@ import React from 'react';
 
 const initialState = {
 	message: undefined,
+	padding: 'p-3 sm:px-4 md:px-6 md:py-5 lg:py-7',
 	type: 'info' as const,
 	visible: false,
 };

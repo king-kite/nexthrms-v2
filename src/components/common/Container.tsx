@@ -155,15 +155,16 @@ const Container: FC<ContainerProps> = ({
 								className={
 									(alert.visible
 										? 'translate-y-0 visible z-[500]'
-										: 'invisible -translate-y-full z-[-100]') +
+										: 'invisible translate-y-full z-[-100]') +
 									' bottom-[10%] duration-1000 fixed px-3 py-1 right-0 transition transform w-full sm:px-4 md:px-7 lg:ml-auto lg:px-8 lg:w-[83%]'
 								}
 							>
 								<Alert
 									message={alert.message}
 									onClose={alert.close}
-									type={alert.type}
+									padding={alert.padding}
 									rounded={alert.rounded}
+									type={alert.type}
 									visible={alert.visible}
 								/>
 							</div>
