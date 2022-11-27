@@ -101,7 +101,7 @@ const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
 					}
 					const result = await downloadFile({
 						url,
-						name: type === 'csv' ? 'data.csv' : 'data.xlsx',
+						name: type === 'csv' ? 'users.csv' : 'users.xlsx',
 						setLoading: setExportLoading,
 					});
 					if (result?.status !== 200) {

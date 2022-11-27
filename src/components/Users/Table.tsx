@@ -31,6 +31,15 @@ const getRows = (data: UserType[]): TableRowType[] =>
 			{ value: user.lastName || '---' },
 			{ value: user.email || '---' },
 			{
+				options: {
+					bg:
+						user.employee && user.client
+							? 'secondary'
+							: user.client
+							? 'pacify'
+							: 'success',
+				},
+				type: 'badge',
 				value:
 					user.employee && user.client
 						? 'client & employee'
