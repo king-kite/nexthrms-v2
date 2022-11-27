@@ -38,7 +38,7 @@ const User = ({ user }: { user: UserType }) => {
 
 	const { open: showAlert } = useAlertContext();
 
-	const [formType, setFormType] = useState<'user' | 'password'>('password');
+	const [formType, setFormType] = useState<'user' | 'password'>('user');
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const { deleteUser, isLoading: delLoading } = useDeleteUserMutation({

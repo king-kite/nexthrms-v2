@@ -26,6 +26,11 @@ export const createUserSchema = Joi.object({
 		.label('Email Address'),
 	firstName: Joi.string().required().label('First Name'),
 	lastName: Joi.string().required().label('Last Name'),
+	createdAt: Joi.date().required().label('Date Joined'),
+	isAdmin: Joi.boolean().optional().label('Is Admin'),
+	isActive: Joi.boolean().optional().label('Is Active'),
+	isSuperUser: Joi.boolean().optional().label('Is Super User'),
+	isEmailVerified: Joi.boolean().optional().label('Is Email Verified'),
 	profile: Joi.object({
 		image: Joi.any().optional().allow('').label('Image'), // File
 		phone: Joi.string().required().label('Phone Number'),

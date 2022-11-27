@@ -51,7 +51,7 @@ export type CreateUserQueryType = {
 	isActive: boolean;
 	isAdmin: boolean;
 	isEmailVerified: boolean;
-	isSuperuser: boolean;
+	isSuperUser: boolean;
 	createdAt: string;
 
 	// Employee Data If Needed
@@ -83,7 +83,7 @@ export type CreateUserErrorResponseType = {
 	isActive?: string;
 	isAdmin?: string;
 	isEmailVerified?: string;
-	isSuperuser?: string;
+	isSuperUser?: string;
 	createdAt?: string;
 
 	dateEmployed?: string;
