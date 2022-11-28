@@ -1,5 +1,6 @@
 import { Button, ButtonType } from 'kite-react-tailwind';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC } from 'react';
 import { FaEnvelope, FaUser } from 'react-icons/fa';
 import { DEFAULT_IMAGE } from '../../config';
@@ -47,7 +48,14 @@ const TopBar: FC<TopBarType> = ({ actions, full_name, email, image }) => (
 				<div className="flex flex-wrap p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
 					{actions.map((action, index) => (
 						<div key={index} className="my-2 w-full sm:my-4 sm:px-4 sm:w-1/2">
-							<Button {...action} />
+							<Button
+								{...action}
+								renderLinkAs={({ children, link, ...props }) => (
+									<Link href={link}>
+										<a {...props}>{children}</a>
+									</Link>
+								)}
+							/>
 						</div>
 					))}
 				</div>

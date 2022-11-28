@@ -1,7 +1,8 @@
-import { InfoComp } from 'kite-react-tailwind';
+import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
+	FaEye,
 	FaLock,
 	FaUserEdit,
 	FaUserCheck,
@@ -12,7 +13,11 @@ import {
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { ChangePasswordForm } from '../../components/Employees';
 import { UserForm } from '../../components/Users';
-import { DEFAULT_IMAGE } from '../../config';
+import {
+	CLIENT_PAGE_URL,
+	DEFAULT_IMAGE,
+	EMPLOYEE_PAGE_URL,
+} from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import {
 	useGetUserQuery,
@@ -68,6 +73,76 @@ const User = ({ user }: { user: UserType }) => {
 		},
 	});
 
+	const actions = useMemo(() => {
+		let action: ButtonType[] = [
+			{
+				onClick: () => {
+					formType !== 'user' && setFormType('user');
+					setModalVisible(true);
+				},
+				disabled: actLoading || delLoading,
+				iconLeft: FaUserEdit,
+				title: 'Edit User',
+			},
+			{
+				bg: 'bg-yellow-600 hover:bg-yellow-500',
+				iconLeft: FaLock,
+				disabled: actLoading || delLoading,
+				onClick: () => {
+					formType !== 'password' && setFormType('password');
+					setModalVisible(true);
+				},
+				title: 'Change Password',
+			},
+			{
+				bg: data?.isActive
+					? 'bg-gray-500 hover:bg-gray-600'
+					: 'bg-green-500 hover:bg-green-600',
+				disabled: actLoading || delLoading,
+				onClick: () =>
+					data?.email && data?.isActive !== undefined
+						? activate([data.email], data.isActive ? 'deactivate' : 'activate')
+						: undefined,
+				iconLeft: data?.isActive ? FaUserSlash : FaUserCheck,
+				title: data?.isActive
+					? actLoading
+						? 'Deactivating User...'
+						: 'Deactivate User'
+					: actLoading
+					? 'Activating User...'
+					: 'Activate User',
+			},
+			{
+				bg: 'bg-red-600 hover:bg-red-500',
+				iconLeft: FaTrash,
+				disabled: actLoading || delLoading,
+				onClick: data?.id ? () => deleteUser(data.id) : undefined,
+				title: delLoading ? 'Deleting User...' : 'Delete User',
+			},
+		];
+		if (data?.client) {
+			action = [
+				{
+					iconLeft: FaEye,
+					link: CLIENT_PAGE_URL(data.client.id),
+					title: 'View Client Data',
+				},
+				...action,
+			];
+		}
+		if (data?.employee) {
+			action = [
+				{
+					iconLeft: FaEye,
+					link: EMPLOYEE_PAGE_URL(data.employee.id),
+					title: 'View Employee Data',
+				},
+				...action,
+			];
+		}
+		return action;
+	}, [actLoading, activate, data, delLoading, deleteUser, formType]);
+
 	return (
 		<Container
 			heading="User Information"
@@ -85,55 +160,7 @@ const User = ({ user }: { user: UserType }) => {
 						email={data.email}
 						full_name={toCapitalize(data.firstName + ' ' + data.lastName)}
 						image={data.profile?.image || DEFAULT_IMAGE}
-						actions={[
-							{
-								onClick: () => {
-									formType !== 'user' && setFormType('user');
-									setModalVisible(true);
-								},
-								disabled: actLoading || delLoading,
-								iconLeft: FaUserEdit,
-								title: 'Edit User',
-							},
-							{
-								bg: 'bg-yellow-600 hover:bg-yellow-500',
-								iconLeft: FaLock,
-								disabled: actLoading || delLoading,
-								onClick: () => {
-									formType !== 'password' && setFormType('password');
-									setModalVisible(true);
-								},
-								title: 'Change Password',
-							},
-							{
-								bg: data.isActive
-									? 'bg-gray-500 hover:bg-gray-600'
-									: 'bg-green-500 hover:bg-green-600',
-								disabled: actLoading || delLoading,
-								onClick: () =>
-									data.email && data.isActive !== undefined
-										? activate(
-												[data.email],
-												data.isActive ? 'deactivate' : 'activate'
-										  )
-										: undefined,
-								iconLeft: data.isActive ? FaUserSlash : FaUserCheck,
-								title: data.isActive
-									? actLoading
-										? 'Deactivating User...'
-										: 'Deactivate User'
-									: actLoading
-									? 'Activating User...'
-									: 'Activate User',
-							},
-							{
-								bg: 'bg-red-600 hover:bg-red-500',
-								iconLeft: FaTrash,
-								disabled: actLoading || delLoading,
-								onClick: () => deleteUser(data.id),
-								title: delLoading ? 'Deleting User...' : 'Delete User',
-							},
-						]}
+						actions={actions}
 					/>
 
 					<div className="mt-4">

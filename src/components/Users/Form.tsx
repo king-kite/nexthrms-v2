@@ -375,7 +375,7 @@ const Form: FC<FormProps> = ({
 				</div>
 				<div className="w-full">
 					<Checkbox
-						defaultChecked={initState?.isActive || false}
+						defaultChecked={initState?.isActive || !editMode}
 						error={formErrors?.isActive || errors?.isActive}
 						onChange={() => removeFormErrors('isActive')}
 						label="Is Active"
@@ -390,7 +390,7 @@ const Form: FC<FormProps> = ({
 				</div>
 				<div className="w-full">
 					<Checkbox
-						defaultChecked={initState?.isEmailVerified || false}
+						defaultChecked={initState?.isEmailVerified || !editMode}
 						error={formErrors?.isEmailVerified || errors?.isEmailVerified}
 						onChange={() => removeFormErrors('isEmailVerified')}
 						label="is Email Verified"
