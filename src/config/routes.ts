@@ -1,6 +1,9 @@
 export const HOME_PAGE_URL = '/';
 export const JOBS_PAGE_URL = '/jobs/';
 
+// Assets Section
+export const ASSETS_PAGE_URL = '/assets/';
+
 // Authentication Section
 export const LOGIN_PAGE_URL = '/account/login/';
 export const PROFILE_PAGE_URL = '/account/profile/';
