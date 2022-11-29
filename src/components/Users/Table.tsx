@@ -37,7 +37,8 @@ const getRows = (data: UserType[]): TableRowType[] =>
 							? 'secondary'
 							: user.client
 							? 'pacify'
-							: 'success',
+							: 'danger',
+					color: user.employee && !user.client ? 'bg-purple-600' : undefined,
 				},
 				type: 'badge',
 				value:
@@ -45,7 +46,9 @@ const getRows = (data: UserType[]): TableRowType[] =>
 						? 'client & employee'
 						: user.client
 						? 'client'
-						: 'employee',
+						: user.employee
+						? 'employee'
+						: 'user',
 			},
 			{
 				options: {
@@ -121,7 +124,7 @@ type TableType = {
 const UserTable = ({ users }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<
-		'all' | 'active' | 'on leave' | 'inactive'
+		'all' | 'active' | 'on leave' | 'inactive' | 'clients' | 'employees'
 	>('all');
 
 	useEffect(() => {
@@ -137,6 +140,10 @@ const UserTable = ({ users }: TableType) => {
 			);
 		} else if (activeRow === 'inactive') {
 			finalList = users.filter((user) => user.isActive === false);
+		} else if (activeRow === 'clients') {
+			finalList = users.filter((user) => user.client && user);
+		} else if (activeRow === 'employees') {
+			finalList = users.filter((user) => user.employee && user);
 		} else {
 			finalList = users;
 		}
@@ -168,19 +175,29 @@ const UserTable = ({ users }: TableType) => {
 							title: 'all',
 						},
 						{
+							active: activeRow === 'clients',
+							onClick: () => setActiveRow('clients'),
+							title: 'clients',
+						},
+						{
+							active: activeRow === 'employees',
+							onClick: () => setActiveRow('employees'),
+							title: 'employees',
+						},
+						{
 							active: activeRow === 'active',
 							onClick: () => setActiveRow('active'),
 							title: 'active',
 						},
 						{
-							active: activeRow === 'on leave',
-							onClick: () => setActiveRow('on leave'),
-							title: 'on leave',
-						},
-						{
 							active: activeRow === 'inactive',
 							onClick: () => setActiveRow('inactive'),
 							title: 'inactive',
+						},
+						{
+							active: activeRow === 'on leave',
+							onClick: () => setActiveRow('on leave'),
+							title: 'on leave',
 						},
 					],
 				}}

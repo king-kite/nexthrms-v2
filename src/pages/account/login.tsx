@@ -43,6 +43,10 @@ const Page = () => {
 					if (err?.data)
 						return {
 							...prevErrors,
+							message:
+								!err.data?.email && !err.data?.password
+									? 'An error occurred. Unable to sign in.'
+									: undefined,
 							...err.data,
 						};
 					return {

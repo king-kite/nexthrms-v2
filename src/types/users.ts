@@ -11,9 +11,20 @@ export type UserType = {
 	lastName: string;
 	client: {
 		id: string;
+		company: string;
+		position: string;
 	} | null;
 	employee: {
 		id: string;
+		department?: {
+			id: string;
+		};
+		job?: {
+			id: string;
+		};
+		supervisor?: {
+			id: string;
+		};
 		leaves: {
 			startDate: Date | string;
 			endDate: Date | string;

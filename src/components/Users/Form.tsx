@@ -73,11 +73,14 @@ const Form: FC<FormProps> = ({
 
 	const formStaleData = useMemo(
 		() => ({
-			isEmployee: false,
-			isClient: false,
+			isEmployee: initState?.employee ? true : false,
+			isClient: initState?.client ? true : false,
 			image: '',
+			department: initState?.employee?.department?.id,
+			job: initState?.employee?.job?.id,
+			supervisor: initState?.employee?.supervisor?.id,
 		}),
-		[]
+		[initState]
 	);
 
 	const [form, setForm] = useState(formStaleData);
@@ -88,7 +91,7 @@ const Form: FC<FormProps> = ({
 	const jobs = useGetJobsQuery(
 		{ limit: jobLimit, offset: 0, search: '' },
 		{
-			enabled: !editMode && form.isEmployee,
+			enabled: form.isEmployee,
 		}
 	);
 	const employees = useGetEmployeesQuery(
@@ -98,7 +101,7 @@ const Form: FC<FormProps> = ({
 			search: '',
 		},
 		{
-			enabled: !editMode && form.isEmployee,
+			enabled: form.isEmployee,
 		}
 	);
 	const departments = useGetDepartmentsQuery(
@@ -108,7 +111,7 @@ const Form: FC<FormProps> = ({
 			search: '',
 		},
 		{
-			enabled: !editMode && form.isEmployee,
+			enabled: form.isEmployee,
 		}
 	);
 
@@ -157,6 +160,17 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
+	const handleFormChange = useCallback(
+		(name: string, value: string) => {
+			setForm((prevState) => ({
+				...prevState,
+				[name]: value,
+			}));
+			removeFormErrors(name);
+		},
+		[removeFormErrors]
+	);
+
 	useEffect(() => {
 		if (success && !editMode) {
 			setForm(formStaleData);
@@ -191,23 +205,22 @@ const Form: FC<FormProps> = ({
 						isSuperUser: formRef.current.isSuperUser.checked,
 						isEmailVerified: formRef.current.isEmailVerified.checked,
 					};
-					if (editMode === false) {
-						if (form.isClient) {
-							data.client = {
-								company: formRef.current?.company.value,
-								position: formRef.current?.position.value,
-							};
-						}
-						if (form.isEmployee) {
-							data.employee = {
-								dateEmployed: formRef.current?.dateEmployed.value,
-								department: formRef.current?.department.value,
-								job: formRef.current?.job.value,
-							};
-							if (formRef.current?.supervisor.value) {
-								data.employee.supervisor = formRef.current?.supervisor.value;
-							}
-						}
+
+					if (form.isClient) {
+						data.client = {
+							company: formRef.current?.company.value,
+							position: formRef.current?.position.value,
+						};
+					}
+					if (form.isEmployee) {
+						data.employee = {
+							dateEmployed: formRef.current?.dateEmployed.value,
+							department:
+								form.department || initState?.employee?.department?.id || '',
+							job: form.job || initState?.employee?.job?.id || '',
+							supervisor:
+								form.supervisor || initState?.employee?.supervisor?.id || '',
+						};
 					}
 					handleSubmit(data);
 				}
@@ -418,6 +431,7 @@ const Form: FC<FormProps> = ({
 						textSize="text-sm md:text-base"
 					/>
 				</div>
+
 				<div className="w-full">
 					<Checkbox
 						defaultChecked={initState?.isSuperUser || false}
@@ -433,10 +447,9 @@ const Form: FC<FormProps> = ({
 						textSize="text-sm md:text-base"
 					/>
 				</div>
-
-				{/* Only In Create Mode Start */}
-				{!editMode && (
-					<Fragment>
+						
+				<div className="gap-2 grid grid-cols-1 w-full md:col-span-2 md:grid-cols-2 md:gap-4 lg:gap-6">
+					{!initState?.employee && (
 						<div className="w-full">
 							<Checkbox
 								label="Is Employee"
@@ -455,7 +468,9 @@ const Form: FC<FormProps> = ({
 								checked={form.isEmployee}
 							/>
 						</div>
-
+					)}
+					
+					{!initState?.client && (
 						<div className="w-full">
 							<Checkbox
 								label="Is Client"
@@ -474,210 +489,213 @@ const Form: FC<FormProps> = ({
 								checked={form.isClient}
 							/>
 						</div>
+					)}
+				</div>
 
-						{/* Employee Info Start */}
-						{form.isEmployee && (
-							<Fragment>
-								<div className="w-full">
-									<Select
-										btn={{
-											caps: true,
-											disabled:
-												departments.isFetching ||
-												(departments.data &&
-													departments.data.result.length >=
-														departments.data.total),
-											onClick: () => {
-												if (
-													departments.data &&
-													departments.data.total >
-														departments.data.result.length
-												) {
-													setDepLimit(
-														(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-													);
-												}
-											},
-											title: departments.isFetching
-												? 'loading...'
-												: departments.data &&
-												  departments.data.result.length >=
-														departments.data.total
-												? 'loaded all'
-												: 'load more',
-										}}
-										disabled={departments.isLoading || loading}
-										error={
-											departmentsError ||
-											formErrors?.department ||
-											errors?.department
+				{/* Employee Info Start */}
+				{form.isEmployee && (
+					<Fragment>
+						<div className="w-full">
+							<Select
+								btn={{
+									caps: true,
+									disabled:
+										departments.isFetching ||
+										(departments.data &&
+											departments.data.result.length >= departments.data.total),
+									onClick: () => {
+										if (
+											departments.data &&
+											departments.data.total > departments.data.result.length
+										) {
+											setDepLimit(
+												(prevState) => prevState + DEFAULT_PAGINATION_SIZE
+											);
 										}
-										label="Department"
-										name="department"
-										onChange={() => removeFormErrors('department')}
-										placeholder="Select Department"
-										options={
-											departments.data
-												? departments.data.result.map((department) => ({
-														title: toCapitalize(department.name),
-														value: department.id,
-												  }))
-												: []
+									},
+									title: departments.isFetching
+										? 'loading...'
+										: departments.data &&
+										  departments.data.result.length >= departments.data.total
+										? 'loaded all'
+										: 'load more',
+								}}
+								disabled={departments.isLoading || loading}
+								error={
+									departmentsError ||
+									formErrors?.department ||
+									errors?.department
+								}
+								label="Department"
+								name="department"
+								onChange={({ target: { value } }) =>
+									handleFormChange('department', value)
+								}
+								placeholder="Select Department"
+								options={
+									departments.data
+										? departments.data.result.map((department) => ({
+												title: toCapitalize(department.name),
+												value: department.id,
+										  }))
+										: []
+								}
+								value={form.department}
+							/>
+						</div>
+						<div className="w-full">
+							<Select
+								btn={{
+									caps: true,
+									disabled:
+										jobs.isFetching ||
+										(jobs.data && jobs.data.result.length >= jobs.data.total),
+									onClick: () => {
+										if (
+											jobs.data &&
+											jobs.data.total > jobs.data.result.length
+										) {
+											setJobLimit(
+												(prevState) => prevState + DEFAULT_PAGINATION_SIZE
+											);
 										}
-									/>
-								</div>
-								<div className="w-full">
-									<Select
-										btn={{
-											caps: true,
-											disabled:
-												jobs.isFetching ||
-												(jobs.data &&
-													jobs.data.result.length >= jobs.data.total),
-											onClick: () => {
-												if (
-													jobs.data &&
-													jobs.data.total > jobs.data.result.length
-												) {
-													setJobLimit(
-														(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-													);
-												}
-											},
-											title: jobs.isFetching
-												? 'loading...'
-												: jobs.data &&
-												  jobs.data.result.length >= jobs.data.total
-												? 'loaded all'
-												: 'load more',
-										}}
-										disabled={jobs.isLoading || loading}
-										error={jobsError || formErrors?.job || errors?.job}
-										label="Job"
-										name="job"
-										onChange={() => removeFormErrors('job')}
-										placeholder="Select Job"
-										options={
-											jobs.data
-												? jobs.data.result.map((job) => ({
-														title: toCapitalize(job.name),
-														value: job.id,
-												  }))
-												: []
+									},
+									title: jobs.isFetching
+										? 'loading...'
+										: jobs.data && jobs.data.result.length >= jobs.data.total
+										? 'loaded all'
+										: 'load more',
+								}}
+								disabled={jobs.isLoading || loading}
+								error={jobsError || formErrors?.job || errors?.job}
+								label="Job"
+								name="job"
+								onChange={({ target: { value } }) =>
+									handleFormChange('job', value)
+								}
+								value={form.job}
+								placeholder="Select Job"
+								options={
+									jobs.data
+										? jobs.data.result.map((job) => ({
+												title: toCapitalize(job.name),
+												value: job.id,
+										  }))
+										: []
+								}
+							/>
+						</div>
+						<div className="w-full">
+							<Select
+								btn={{
+									caps: true,
+									disabled:
+										employees.isFetching ||
+										(employees.data &&
+											employees.data.result.length >= employees.data.total),
+									onClick: () => {
+										if (
+											employees.data &&
+											employees.data.total > employees.data.result.length
+										) {
+											setEmpLimit(
+												(prevState) => prevState + DEFAULT_PAGINATION_SIZE
+											);
 										}
-									/>
-								</div>
-								<div className="w-full">
-									<Select
-										btn={{
-											caps: true,
-											disabled:
-												employees.isFetching ||
-												(employees.data &&
-													employees.data.result.length >= employees.data.total),
-											onClick: () => {
-												if (
-													employees.data &&
-													employees.data.total > employees.data.result.length
-												) {
-													setEmpLimit(
-														(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-													);
-												}
-											},
-											title: employees.isFetching
-												? 'loading...'
-												: employees.data &&
-												  employees.data.result.length >= employees.data.total
-												? 'loaded all'
-												: 'load more',
-										}}
-										disabled={employees.isLoading || loading}
-										error={
-											employeesError ||
-											formErrors?.supervisor ||
-											errors?.supervisor
-										}
-										label="Supervisor"
-										name="supervisor"
-										onChange={() => removeFormErrors('supervisor')}
-										placeholder="Select Supervisor"
-										options={
-											employees.data
-												? employees.data.result.reduce(
-														(
-															total: {
-																title: string;
-																value: string;
-															}[],
-															employee
-														) => {
-															if (employee.user.isActive)
-																return [
-																	...total,
-																	{
-																		title: toCapitalize(
-																			employee.user.firstName +
-																				' ' +
-																				employee.user.lastName
-																		),
-																		value: employee.id,
-																	},
-																];
-															return total;
-														},
-														[]
-												  )
-												: []
-										}
-										required={false}
-									/>
-								</div>
-								<div className="w-full">
-									<Input
-										defaultValue={new Date().toLocaleDateString('en-CA')}
-										disabled={loading}
-										error={formErrors?.dateEmployed || errors?.dateEmployed}
-										label="Date Employed"
-										name="dateEmployed"
-										onChange={() => removeFormErrors('dateEmployed')}
-										placeholder="Date Employed"
-										type="date"
-									/>
-								</div>
-							</Fragment>
-						)}
-						{/* Employee Info Stop */}
-
-						{/* Client Info Start */}
-						{form.isClient && (
-							<Fragment>
-								<div className="w-full">
-									<Input
-										disabled={loading}
-										error={formErrors?.company || errors?.company}
-										label="Client Company"
-										name="company"
-										onChange={() => removeFormErrors('company')}
-										placeholder="Company Name"
-									/>
-								</div>
-								<div className="w-full">
-									<Input
-										disabled={loading}
-										error={formErrors?.position || errors?.position}
-										label="Client Position"
-										name="position"
-										onChange={() => removeFormErrors('position')}
-										placeholder="Position in Company"
-									/>
-								</div>
-							</Fragment>
-						)}
-						{/* Client Info Stop */}
+									},
+									title: employees.isFetching
+										? 'loading...'
+										: employees.data &&
+										  employees.data.result.length >= employees.data.total
+										? 'loaded all'
+										: 'load more',
+								}}
+								disabled={employees.isLoading || loading}
+								error={
+									employeesError || formErrors?.supervisor || errors?.supervisor
+								}
+								label="Supervisor"
+								name="supervisor"
+								onChange={({ target: { value } }) =>
+									handleFormChange('supervisor', value)
+								}
+								value={form.supervisor}
+								placeholder="Select Supervisor"
+								options={
+									employees.data
+										? employees.data.result.reduce(
+												(
+													total: {
+														title: string;
+														value: string;
+													}[],
+													employee
+												) => {
+													if (employee.user.isActive)
+														return [
+															...total,
+															{
+																title: toCapitalize(
+																	employee.user.firstName +
+																		' ' +
+																		employee.user.lastName
+																),
+																value: employee.id,
+															},
+														];
+													return total;
+												},
+												[]
+										  )
+										: []
+								}
+								required={false}
+							/>
+						</div>
+						<div className="w-full">
+							<Input
+								defaultValue={new Date().toLocaleDateString('en-CA')}
+								disabled={loading}
+								error={formErrors?.dateEmployed || errors?.dateEmployed}
+								label="Date Employed"
+								name="dateEmployed"
+								onChange={() => removeFormErrors('dateEmployed')}
+								placeholder="Date Employed"
+								type="date"
+							/>
+						</div>
 					</Fragment>
 				)}
-				{/* Only In Create Mode Stop */}
+				{/* Employee Info Stop */}
+
+				{/* Client Info Start */}
+				{form.isClient && (
+					<Fragment>
+						<div className="w-full">
+							<Input
+								defaultValue={initState?.client?.company}
+								disabled={loading}
+								error={formErrors?.company || errors?.company}
+								label="Client Company"
+								name="company"
+								onChange={() => removeFormErrors('company')}
+								placeholder="Company Name"
+							/>
+						</div>
+						<div className="w-full">
+							<Input
+								defaultValue={initState?.client?.position}
+								disabled={loading}
+								error={formErrors?.position || errors?.position}
+								label="Client Position"
+								name="position"
+								onChange={() => removeFormErrors('position')}
+								placeholder="Position in Company"
+							/>
+						</div>
+					</Fragment>
+				)}
+				{/* Client Info Stop */}
 			</div>
 			<div className="flex items-center justify-center my-4 sm:my-5 md:mt-8">
 				<div className="w-full sm:w-1/2 md:w-1/3">

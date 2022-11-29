@@ -123,6 +123,7 @@ const User = ({ user }: { user: UserType }) => {
 		if (data?.client) {
 			action = [
 				{
+					bg: 'bg-green-600 hover:bg-green-500',
 					iconLeft: FaEye,
 					link: CLIENT_PAGE_URL(data.client.id),
 					title: 'View Client Data',
@@ -133,6 +134,7 @@ const User = ({ user }: { user: UserType }) => {
 		if (data?.employee) {
 			action = [
 				{
+					bg: 'bg-purple-600 hover:bg-purple-500',
 					iconLeft: FaEye,
 					link: EMPLOYEE_PAGE_URL(data.employee.id),
 					title: 'View Employee Data',
@@ -253,13 +255,28 @@ const User = ({ user }: { user: UserType }) => {
 									},
 								},
 								{
+									options: {
+										bg:
+											user.employee && user.client
+												? 'secondary'
+												: user.client
+												? 'pacify'
+												: 'danger',
+										color:
+											user.employee && !user.client
+												? 'bg-purple-600'
+												: undefined,
+									},
 									title: 'Role',
+									type: 'badge',
 									value:
 										user.employee && user.client
-											? 'Client & Employee'
+											? 'CLIENT & EMPLOYEE'
 											: user.client
-											? 'Client'
-											: 'Employee',
+											? 'CLIENT'
+											: user.employee
+											? 'EMPLOYEE'
+											: 'USER',
 								},
 								{
 									title: 'Last Update',

@@ -168,7 +168,7 @@ const Container: FC<ContainerProps> = ({
 									visible={alert.visible}
 								/>
 							</div>
-							<div className="py-1 md:mt-2 lg:mt-4">{children}</div>
+							<div className="py-1 md:mt-2 lg:mt-3">{children}</div>
 						</div>
 					)}
 					{paginate && paginate.totalItems > 0 && (

@@ -27,11 +27,28 @@ export const userSelectQuery: Prisma.UserSelect = {
 	client: {
 		select: {
 			id: true,
+			company: true,
+			position: true,
 		},
 	},
 	employee: {
 		select: {
 			id: true,
+			department: {
+				select: {
+					id: true,
+				},
+			},
+			job: {
+				select: {
+					id: true,
+				},
+			},
+			supervisor: {
+				select: {
+					id: true,
+				},
+			},
 			leaves: {
 				where: {
 					status: {

@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { userSelectQuery as selectQuery, getUser, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
-import { CreateUserQueryType } from '../../../types';
+import { CreateUserQueryType, UserType } from '../../../types';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createUserSchema } from '../../../validators';
@@ -43,9 +43,8 @@ export default auth()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateUserQueryType = await createUserSchema.validateAsync(
-			form
-		);
+		const valid: CreateUserQueryType =
+			await createUserSchema.validateAsync(form);
 
 		if (files.image) {
 			// Upload a file to the bucket using firebase admin
@@ -78,6 +77,29 @@ export default auth()
 			}
 		}
 
+		const employee = valid.employee
+			? {
+					...valid.employee,
+					department: {
+						connect: {
+							id: valid.employee.department,
+						},
+					},
+					job: {
+						connect: {
+							id: valid.employee.job,
+						},
+					},
+					supervisor: valid.employee.supervisor
+						? {
+								connect: {
+									id: valid.employee.supervisor,
+								},
+						  }
+						: {},
+			  }
+			: {};
+
 		const data: Prisma.UserUpdateInput = {
 			...valid,
 			profile: {
@@ -87,44 +109,33 @@ export default auth()
 			},
 			employee: valid.employee
 				? {
-						update: {
-							...valid.employee,
-							department: {
-								connect: {
-									id: valid.employee.department,
-								},
-							},
-							job: {
-								connect: {
-									id: valid.employee.job,
-								},
-							},
-							supervisor: valid.employee.supervisor
-								? {
-										connect: {
-											id: valid.employee.supervisor,
-										},
-								  }
-								: {},
+						upsert: {
+							create: employee,
+							update: employee,
 						},
 				  }
 				: {},
 			client: valid.client
 				? {
-						update: {
-							...valid.client,
+						upsert: {
+							create: {
+								...valid.client,
+							},
+							update: {
+								...valid.client,
+							},
 						},
 				  }
 				: {},
 		};
 
-		const user = await prisma.user.update({
+		const user = (await prisma.user.update({
 			where: {
 				id: req.query.id as string,
 			},
 			data,
 			select: selectQuery,
-		});
+		})) as UserType;
 
 		return res.status(200).json({
 			status: 'success',
