@@ -13,16 +13,16 @@ datasource db {
 model Asset {
   id String @id @default(uuid()) @db.Uuid
 
-  assetId      String?        @map("asset_id") @db.VarChar(250)
+  assetId      String         @map("asset_id") @db.VarChar(250)
   condition    AssetCondition @default(GOOD)
   description  String?
   model        String?        @db.VarChar(150)
-  manufacturer String?        @db.VarChar(150)
+  manufacturer String         @db.VarChar(150)
   name         String         @db.VarChar(150)
   purchaseDate DateTime       @default(now()) @map("purchase_date")
   purchaseFrom String         @map("purchase_from") @db.VarChar(250)
-  serialNo     String?        @map("serial_no") @db.VarChar(150) // Serial Number or ID
-  supplier     String?        @db.VarChar(250) // Supplied or Delivered By
+  serialNo     String         @map("serial_no") @db.VarChar(150)
+  supplier     String         @db.VarChar(250) // Supplied or Delivered By
   status       AssetStatus    @default(PENDING)
   warranty     Int // Warranty in months
   value        Int

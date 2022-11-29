@@ -1,3 +1,4 @@
+export * from './assets';
 export * from './attendance';
 export * from './auth';
 export * from './base';
