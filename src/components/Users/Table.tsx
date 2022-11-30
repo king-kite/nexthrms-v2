@@ -56,7 +56,7 @@ const getRows = (data: UserType[]): TableRowType[] =>
 						user.employee?.leaves.length && user.employee?.leaves.length > 0
 							? 'warning'
 							: user.isActive
-							? 'green'
+							? 'success'
 							: 'danger',
 				},
 				type: 'badge',

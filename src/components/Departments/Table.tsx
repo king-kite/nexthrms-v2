@@ -1,9 +1,4 @@
-import {
-	Button,
-	Table,
-	TableHeadType,
-	TableRowType,
-} from 'kite-react-tailwind';
+import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
 import {
 	FaCheckCircle,
