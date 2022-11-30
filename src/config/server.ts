@@ -95,7 +95,7 @@ export const PROJECT_TASK_FOLLOWER_URL = (
 export const ASSETS_URL = `${ROOT_URL}/assets/`;
 export const ASSETS_EXPORT_URL = `${ROOT_URL}/assets/export/`;
 // Did not use the below route
-// export const ASSET_URL = (id: string) => `${USERS_URL}${id}/`;
+export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;

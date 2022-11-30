@@ -1,3 +1,4 @@
+export const ASSETS = 'assets';
 export const ATTENDANCE = 'attendance';
 export const ATTENDANCE_ADMIN = 'attendance_admin';
 export const ATTENDANCE_INFO = 'attendance_info';

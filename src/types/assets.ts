@@ -17,7 +17,7 @@ export type AssetType = {
 	warranty: number;
 	value: number;
 
-	user: {
+	user?: {
 		id: string;
 		firstName: string;
 		lastName: string;
@@ -25,7 +25,7 @@ export type AssetType = {
 		profile: {
 			image: string;
 		};
-	};
+	} | null;
 
 	updatedAt: string;
 };
@@ -69,6 +69,4 @@ export type CreateAssetResponseType = SuccessResponseType<AssetType>;
 export type GetAssetsResponseType = SuccessResponseType<{
 	result: AssetType[];
 	total: number;
-	active: number;
-	inactive: number;
 }>;

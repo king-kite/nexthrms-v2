@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { forwardRef } from 'react';
 import { IconType } from 'react-icons';
 import {
+	FaArchive,
 	FaCalendarAlt,
 	FaClipboardList,
 	FaClock,
@@ -175,6 +176,11 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 			{
 				title: 'administration',
 				links: [
+					{
+						icon: FaArchive,
+						title: 'assets',
+						href: routes.ASSETS_PAGE_URL,
+					},
 					{
 						icon: FaRProject,
 						title: 'jobs',
