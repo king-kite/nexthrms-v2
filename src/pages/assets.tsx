@@ -8,7 +8,7 @@ import { ExtendedGetServerSideProps, GetAssetsResponseType } from '../types';
 import { Title } from '../utils';
 import { serializeUserData } from '../utils/serializers';
 
-const Page = ({ data }: { data: GetAssetsResponseType }) => (
+const Page = ({ data }: { data: GetAssetsResponseType['data'] }) => (
 	<React.Fragment>
 		<Title title="Assets" />
 		<Assets assets={data} />

@@ -145,7 +145,8 @@ const Notifications = forwardRef<
 			},
 			onError(error) {
 				if (isResponseWithMessage(error)) {
-					open({ type: 'danger', message: error.message });
+					console.log({ notifications: error.message });
+					// open({ type: 'danger', message: error.message });
 				}
 			},
 		}
