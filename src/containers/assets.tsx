@@ -82,7 +82,11 @@ const Departments = ({
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
 	const [offset, setOffset] = React.useState(0);
-	const [nameSearch, setNameSearch] = React.useState('');
+	const [searchForm, setSearchForm] = React.useState<{
+		name?: string;
+		startDate?: string;
+		endDate?: string;
+	}>();
 
 	const { open } = useAlertContext();
 
@@ -90,7 +94,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
-			search: nameSearch,
+			search: searchForm?.name,
 		},
 		{
 			initialData() {
@@ -128,7 +132,9 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 									if (filtered) {
 										url =
 											url +
-											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${nameSearch}`;
+											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+												searchForm?.name || ''
+											}`;
 									}
 									const result = await downloadFile({
 										url,
@@ -159,7 +165,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				</div>
 			</div>
 			<div className="py-2 md:pt-4 lg:pt-6">
-				<SearchForm />
+				<SearchForm form={searchForm} setForm={setSearchForm} />
 			</div>
 			<AssetTable
 				assets={data?.result || []}
