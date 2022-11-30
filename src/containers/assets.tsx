@@ -25,12 +25,7 @@ const Departments = ({
 	}>({ name: '', hod: null });
 	const [editId, setEditId] = useState<string>();
 
-	const { open } = useAlertContext();
-	const { open: openModal } = useAlertModalContext();
-
-	const [offset, setOffset] = useState(0);
 	const [nameSearch, setNameSearch] = useState('');
-	const [exportLoading, setExportLoading] = useState(false);
 
 
 	const handleChange = useCallback((name: string, value: string | null) => {
