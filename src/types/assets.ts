@@ -47,7 +47,7 @@ export type AssetCreateQueryType = {
 	userId: string;
 };
 
-export type AssetClientErrorResponseType = {
+export type CreateAssetErrorResponseType = {
 	assetId?: string;
 	condition?: string;
 	description?: string;
