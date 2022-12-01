@@ -2,8 +2,8 @@ import { Button, ButtonDropdown } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 
-import { AssetTable, SearchForm } from '../components/Assets';
-import { Container, ExportForm } from '../components/common';
+import { AssetTable, Form, SearchForm } from '../components/Assets';
+import { Container, ExportForm, Modal } from '../components/common';
 import { DEFAULT_PAGINATION_SIZE, ASSETS_EXPORT_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
 import { useGetAssetsQuery } from '../store/queries';
@@ -13,20 +13,12 @@ import { downloadFile } from '../utils';
 /*
 
 
-const Departments = ({
-	departments,
-}: {
-	departments: GetDepartmentsResponseType['data'];
-}) => {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [form, setForm] = useState<{
 		name: string;
 		hod: string | null;
 	}>({ name: '', hod: null });
 	const [editId, setEditId] = useState<string>();
-
-	const [nameSearch, setNameSearch] = useState('');
-
 
 	const handleChange = useCallback((name: string, value: string | null) => {
 		setForm((prevState) => ({ ...prevState, [name]: value }));

@@ -8,7 +8,7 @@ import { useAlertModalContext } from '../../store/contexts';
 import {
 	BaseResponseType,
 	AssetType,
-	AssetClientErrorResponseType,
+	CreateAssetErrorResponseType,
 	CreateAssetResponseType,
 	GetAssetsResponseType,
 } from '../../types';
@@ -174,7 +174,7 @@ export function useEditAssetMutation(
 		onSuccess?: () => void;
 		onError?: (error: {
 			status: number;
-			data?: AssetClientErrorResponseType;
+			data?: CreateAssetErrorResponseType;
 			message: string;
 		}) => void;
 	},
@@ -202,7 +202,7 @@ export function useEditAssetMutation(
 			},
 			onError(err) {
 				if (options?.onError) {
-					const error = handleAxiosErrors<AssetClientErrorResponseType>(err);
+					const error = handleAxiosErrors<CreateAssetErrorResponseType>(err);
 					if (error) options.onError(error);
 				}
 			},

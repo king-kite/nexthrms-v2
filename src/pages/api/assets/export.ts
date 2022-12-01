@@ -28,7 +28,7 @@ export default auth().get(async (req, res) => {
 			supplier: asset.supplier,
 			warranty: asset.warranty,
 			value: asset.value,
-			userId: asset.user.id,
+			userId: asset.user?.id,
 		};
 	});
 
