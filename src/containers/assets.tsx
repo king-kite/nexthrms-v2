@@ -7,72 +7,23 @@ import { Container, ExportForm, Modal } from '../components/common';
 import { DEFAULT_PAGINATION_SIZE, ASSETS_EXPORT_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
 import { useGetAssetsQuery } from '../store/queries';
-import { GetAssetsResponseType } from '../types';
+import {
+	AssetCreateQueryType,
+	CreateAssetErrorResponseType,
+	GetAssetsResponseType,
+} from '../types';
 import { downloadFile } from '../utils';
-
-/*
-
-
-	const [modalVisible, setModalVisible] = useState(false);
-	const [form, setForm] = useState<{
-		name: string;
-		hod: string | null;
-	}>({ name: '', hod: null });
-	const [editId, setEditId] = useState<string>();
-
-	const handleChange = useCallback((name: string, value: string | null) => {
-		setForm((prevState) => ({ ...prevState, [name]: value }));
-	}, []);
-
-	return (
-		
-			<Modal
-				close={() => {
-					setModalVisible(false);
-					setEditId(undefined);
-					setForm({ name: '', hod: null });
-				}}
-				component={
-					<Form
-						form={form}
-						editId={editId}
-						onChange={handleChange}
-						onSuccess={() => {
-							setModalVisible(false);
-							openModal({
-								closeOnButtonClick: true,
-								color: 'success',
-								decisions: [
-									{
-										color: 'success',
-										title: 'OK',
-									},
-								],
-								Icon: FaCheckCircle,
-								header: editId ? 'Department Edited' : 'Department Created',
-								message: editId
-									? 'Department Edited Successfully'
-									: 'Department Created Successfully.',
-							});
-							setEditId(undefined);
-							setForm({ name: '', hod: null });
-						}}
-					/>
-				}
-				description={
-					editId
-						? 'Update Department'
-						: 'Fill in the form below to add a department'
-				}
-				keepVisible
-				title={editId ? 'Update Department' : 'Add Department'}
-				visible={modalVisible}
-			/>
-
-*/
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [form, setForm] = React.useState<AssetCreateQueryType>(formStaleData);
+	const [editId, setEditId] = React.useState<string>();
+	const [errors, setErrors] = React.useState<
+		CreateAssetErrorResponseType & {
+			messsage?: string;
+		}
+	>();
 	const [offset, setOffset] = React.useState(0);
 	const [searchForm, setSearchForm] = React.useState<{
 		name?: string;
@@ -94,6 +45,22 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			},
 		}
 	);
+
+	const handleChange: React.ChangeEventHandler<
+		HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+	> = React.useCallback(({ target: { name, value } }) => {
+		setForm((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
+		setErrors((prevState) => ({
+			...prevState,
+			[name]: undefined,
+		}));
+	}, []);
+
+	const handleSubmit = React.useCallback((form: AssetCreateQueryType) => {},
+	[]);
 
 	return (
 		<Container
@@ -153,7 +120,16 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					/>
 				</div>
 				<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-					<Button rounded="rounded-xl" title="Add new Asset" />
+					<Button
+						onClick={() => {
+							setErrors(undefined);
+							setForm(formStaleData);
+							setEditId(undefined);
+							setModalVisible(true);
+						}}
+						rounded="rounded-xl"
+						title="Add new Asset"
+					/>
 				</div>
 			</div>
 			<div className="py-2 md:pt-4 lg:pt-6">
@@ -162,10 +138,59 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			<AssetTable
 				assets={data?.result || []}
 				showAsset={(asset) => {}}
-				editAsset={(asset) => {}}
+				editAsset={(asset) => {
+					setErrors(undefined);
+					setEditId(asset.id);
+					setForm({
+						...asset,
+						description: asset.description || undefined,
+						model: asset.model || undefined,
+						userId: asset.user?.id || '',
+					});
+					setModalVisible(true);
+				}}
+			/>
+			<Modal
+				close={() => {
+					setModalVisible(false);
+					setEditId(undefined);
+					setForm(formStaleData);
+				}}
+				component={
+					<Form
+						form={form}
+						editMode={!!editId}
+						errors={errors}
+						loading={false}
+						setErrors={setErrors}
+						onChange={handleChange}
+						onSubmit={handleSubmit}
+					/>
+				}
+				description={
+					editId ? 'Update Asset' : 'Fill in the form below to add a new asset'
+				}
+				keepVisible
+				title={editId ? 'Update Asset' : 'Add Asset'}
+				visible={modalVisible}
 			/>
 		</Container>
 	);
 }
+
+const formStaleData: AssetCreateQueryType = {
+	assetId: '',
+	condition: 'GOOD' as const,
+	manufacturer: '',
+	name: '',
+	purchaseDate: new Date().toLocaleDateString('en-Ca'),
+	purchaseFrom: '',
+	serialNo: '',
+	status: 'PENDING',
+	supplier: '',
+	warranty: 12,
+	value: 100,
+	userId: '',
+};
 
 export default Assets;

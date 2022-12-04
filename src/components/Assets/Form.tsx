@@ -22,20 +22,20 @@ import {
 	handleJoiErrors,
 } from '../../validators';
 
-interface ErrorType extends CreateAssetErrorResponseType {
+type ErrorType = CreateAssetErrorResponseType & {
 	message?: string;
-}
+};
 
 type FormProps = {
 	editMode: boolean;
 	errors?: ErrorType;
-	form?: AssetCreateQueryType;
+	form: AssetCreateQueryType;
 	loading: boolean;
 	onChange: ChangeEventHandler<
 		HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 	>;
 	onSubmit: (form: AssetCreateQueryType) => void;
-	resetErrors: Dispatch<SetStateAction<ErrorType>>;
+	setErrors: Dispatch<SetStateAction<ErrorType | undefined>>;
 };
 
 function handleDataError(err: unknown): string | undefined {
@@ -53,7 +53,7 @@ const Form: FC<FormProps> = ({
 	loading,
 	onChange,
 	onSubmit,
-	resetErrors,
+	setErrors,
 }) => {
 	const [usrLimit, setUsrLimit] = useState(DEFAULT_PAGINATION_SIZE);
 
@@ -69,7 +69,7 @@ const Form: FC<FormProps> = ({
 				onSubmit(valid);
 			} catch (err) {
 				const error = handleJoiErrors<CreateAssetErrorResponseType>(err);
-				resetErrors((prevState) => {
+				setErrors((prevState) => {
 					if (error)
 						return {
 							...prevState,
@@ -82,7 +82,7 @@ const Form: FC<FormProps> = ({
 				});
 			}
 		},
-		[onSubmit, resetErrors]
+		[onSubmit, setErrors]
 	);
 
 	return (
@@ -99,12 +99,12 @@ const Form: FC<FormProps> = ({
 						type="danger"
 						message={errors?.message}
 						onClose={() =>
-							resetErrors((prevState) => ({ ...prevState, message: undefined }))
+							setErrors((prevState) => ({ ...prevState, message: undefined }))
 						}
 					/>
 				</div>
 			)}
-			<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
+			<div className="gap-2 grid grid-cols-1 items-end md:grid-cols-2 md:gap-4 lg:gap-6">
 				<div className="w-full">
 					<Input
 						disabled={loading}
@@ -228,7 +228,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						disabled={loading}
 						error={errors?.value}
-						label="Value"
+						label="Asset Value"
 						name="value"
 						onChange={onChange}
 						placeholder="Value"
@@ -257,7 +257,7 @@ const Form: FC<FormProps> = ({
 						}}
 						disabled={users.isLoading || loading}
 						error={usersError || errors?.userId}
-						label="User"
+						label="Asset User"
 						name="userId"
 						onChange={onChange}
 						placeholder="Select Asset User"
