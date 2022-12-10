@@ -8,8 +8,11 @@ function Details({ asset }: { asset: AssetType }) {
 		let data: InfoCompType['infos'] = [
 			{ title: 'Asset Name', value: asset.name },
 			{ title: 'Asset ID', value: asset.assetId },
-			{ title: 'Purchase Date', value: asset.purchaseDate },
-			{ title: 'Purchased Form', value: asset.purchaseFrom },
+			{
+				title: 'Purchase Date',
+				value: new Date(asset.purchaseDate).toDateString(),
+			},
+			{ title: 'Purchased From', value: asset.purchaseFrom },
 			{ title: 'Manufacturer', value: asset.manufacturer },
 			{ title: 'Model', value: asset.model || '--------' },
 			{ title: 'Serial Number', value: asset.serialNo },
@@ -78,7 +81,7 @@ function Details({ asset }: { asset: AssetType }) {
 	}, [asset]);
 
 	return (
-		<div>
+		<div className="pt-4">
 			<InfoComp infos={infos} />
 		</div>
 	);
