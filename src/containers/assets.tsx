@@ -2,7 +2,7 @@ import { Button, ButtonDropdown } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 
-import { AssetTable, Form, SearchForm } from '../components/Assets';
+import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
 import { Container, ExportForm, Modal } from '../components/common';
 import { DEFAULT_PAGINATION_SIZE, ASSETS_EXPORT_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
@@ -12,6 +12,7 @@ import {
 	useGetAssetsQuery,
 } from '../store/queries';
 import {
+	AssetType,
 	AssetCreateQueryType,
 	CreateAssetErrorResponseType,
 	GetAssetsResponseType,
@@ -21,6 +22,10 @@ import { downloadFile } from '../utils';
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
 	const [modalVisible, setModalVisible] = React.useState(false);
+
+	// Use this to show the details of an asset;
+	const [showAsset, setShowAsset] = React.useState<AssetType>();
+
 	const [form, setForm] = React.useState<AssetCreateQueryType>(formStaleData);
 	const [editId, setEditId] = React.useState<string>();
 	const [errors, setErrors] = React.useState<
@@ -167,6 +172,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							setErrors(undefined);
 							setForm(formStaleData);
 							setEditId(undefined);
+							setShowAsset(undefined);
 							setModalVisible(true);
 						}}
 						rounded="rounded-xl"
@@ -183,7 +189,10 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			</div>
 			<AssetTable
 				assets={data?.result || []}
-				showAsset={(asset) => {}}
+				showAsset={(asset) => {
+					setShowAsset(asset);
+					setModalVisible(true);
+				}}
 				editAsset={({ id, updatedAt, user, ...asset }) => {
 					setErrors(undefined);
 					setEditId(id);
@@ -193,6 +202,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						model: asset.model || undefined,
 						userId: user?.id || '',
 					});
+					setShowAsset(undefined);
 					setModalVisible(true);
 				}}
 			/>
@@ -201,23 +211,34 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					setModalVisible(false);
 					setEditId(undefined);
 					setForm(formStaleData);
+					setShowAsset(undefined);
 				}}
 				component={
-					<Form
-						form={form}
-						editMode={!!editId}
-						errors={errors}
-						loading={editId ? editLoading : createLoading}
-						setErrors={setErrors}
-						onChange={handleChange}
-						onSubmit={handleSubmit}
-					/>
+					showAsset ? (
+						<Details asset={showAsset} />
+					) : (
+						<Form
+							form={form}
+							editMode={!!editId}
+							errors={errors}
+							loading={editId ? editLoading : createLoading}
+							setErrors={setErrors}
+							onChange={handleChange}
+							onSubmit={handleSubmit}
+						/>
+					)
 				}
 				description={
-					editId ? 'Update Asset' : 'Fill in the form below to add a new asset'
+					showAsset
+						? `Description of the ${showAsset.name} asset.`
+						: editId
+						? 'Update Asset'
+						: 'Fill in the form below to add a new asset'
 				}
 				keepVisible
-				title={editId ? 'Update Asset' : 'Add Asset'}
+				title={
+					showAsset ? 'Asset Details' : editId ? 'Update Asset' : 'Add Asset'
+				}
 				visible={modalVisible}
 			/>
 		</Container>
