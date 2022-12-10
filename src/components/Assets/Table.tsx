@@ -78,6 +78,7 @@ const getRows = (
 				type: 'badge',
 				value: asset.status,
 			},
+			{ value: asset.serialNo || '---' },
 			{
 				value: asset.updatedAt
 					? new Date(asset.updatedAt).toLocaleDateString('en-Ca')
@@ -119,21 +120,12 @@ const AssetTable = ({ assets, editAsset, showAsset }: TableType) => {
 	>('all');
 
 	const { open: openAlert } = useAlertContext();
-	const { close: closeModal, open: openModal } = useAlertModalContext();
+	const { close: closeModal } = useAlertModalContext();
 
 	const { deleteAsset } = useDeleteAssetMutation({
 		onSuccess() {
-			openModal({
-				color: 'success',
-				decisions: [
-					{
-						color: 'success',
-						title: 'OK',
-						onClick: closeModal,
-					},
-				],
-				Icon: FaCheckCircle,
-				header: 'Asset Removed',
+			openAlert({
+				type: 'success',
 				message: 'Asset Removed Successfully.',
 			});
 		},
