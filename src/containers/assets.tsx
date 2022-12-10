@@ -6,7 +6,11 @@ import { AssetTable, Form, SearchForm } from '../components/Assets';
 import { Container, ExportForm, Modal } from '../components/common';
 import { DEFAULT_PAGINATION_SIZE, ASSETS_EXPORT_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
-import { useGetAssetsQuery } from '../store/queries';
+import {
+	useCreateAssetMutation,
+	useEditAssetMutation,
+	useGetAssetsQuery,
+} from '../store/queries';
 import {
 	AssetCreateQueryType,
 	CreateAssetErrorResponseType,
@@ -21,7 +25,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [editId, setEditId] = React.useState<string>();
 	const [errors, setErrors] = React.useState<
 		CreateAssetErrorResponseType & {
-			messsage?: string;
+			message?: string;
 		}
 	>();
 	const [offset, setOffset] = React.useState(0);
@@ -59,8 +63,46 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		}));
 	}, []);
 
-	const handleSubmit = React.useCallback((form: AssetCreateQueryType) => {},
-	[]);
+	const { mutate: createAsset, isLoading: createLoading } =
+		useCreateAssetMutation({
+			onSuccess() {
+				open({
+					message: 'Asset was added successfully!',
+					type: 'success',
+				});
+				setModalVisible(false);
+				setForm(formStaleData);
+				setEditId(undefined);
+				setErrors(undefined);
+			},
+			onError(error) {
+				setErrors({ message: error?.message, ...error?.data });
+			},
+		});
+
+	const { mutate: editAsset, isLoading: editLoading } = useEditAssetMutation({
+		onSuccess() {
+			open({
+				message: 'Asset was updated successfully!',
+				type: 'success',
+			});
+			setModalVisible(false);
+			setForm(formStaleData);
+			setEditId(undefined);
+			setErrors(undefined);
+		},
+		onError(error) {
+			setErrors({ message: error?.message, ...error?.data });
+		},
+	});
+
+	const handleSubmit = React.useCallback(
+		(form: AssetCreateQueryType) => {
+			if (editId) editAsset({ id: editId, form });
+			else createAsset(form);
+		},
+		[createAsset, editAsset, editId]
+	);
 
 	return (
 		<Container
@@ -161,7 +203,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						form={form}
 						editMode={!!editId}
 						errors={errors}
-						loading={false}
+						loading={editId ? editLoading : createLoading}
 						setErrors={setErrors}
 						onChange={handleChange}
 						onSubmit={handleSubmit}
@@ -181,7 +223,9 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 const formStaleData: AssetCreateQueryType = {
 	assetId: '',
 	condition: 'GOOD' as const,
+	description: '',
 	manufacturer: '',
+	model: '',
 	name: '',
 	purchaseDate: new Date().toLocaleDateString('en-Ca'),
 	purchaseFrom: '',
