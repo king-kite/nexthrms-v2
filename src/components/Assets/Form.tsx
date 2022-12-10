@@ -146,7 +146,7 @@ const Form: FC<FormProps> = ({
 						disabled={loading}
 						error={errors?.purchaseFrom}
 						label="Purchase From"
-						name="purchaseForm"
+						name="purchaseFrom"
 						onChange={onChange}
 						placeholder="Purchase From"
 						value={form?.purchaseFrom}
@@ -221,6 +221,7 @@ const Form: FC<FormProps> = ({
 						name="warranty"
 						onChange={onChange}
 						placeholder="Warranty"
+						type="number"
 						value={form?.warranty}
 					/>
 				</div>
@@ -232,6 +233,7 @@ const Form: FC<FormProps> = ({
 						name="value"
 						onChange={onChange}
 						placeholder="Value"
+						type="number"
 						value={form?.value}
 					/>
 				</div>
@@ -293,10 +295,10 @@ const Form: FC<FormProps> = ({
 						placeholder="Select Status"
 						onChange={onChange}
 						options={[
-							{ title: 'Approved', value: 'Approved' },
-							{ title: 'Denied', value: 'Denied' },
-							{ title: 'Pending', value: 'Pending' },
-							{ title: 'Returned', value: 'Returned' },
+							{ title: 'Approved', value: 'APPROVED' },
+							{ title: 'Denied', value: 'DENIED' },
+							{ title: 'Pending', value: 'PENDING' },
+							{ title: 'Returned', value: 'RETURNED' },
 						]}
 						value={form?.status}
 					/>
