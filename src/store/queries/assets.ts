@@ -6,8 +6,9 @@ import * as tags from '../tagTypes';
 import { ASSET_URL, ASSETS_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
 import {
-	BaseResponseType,
+	AssetCreateQueryType,
 	AssetType,
+	BaseResponseType,
 	CreateAssetErrorResponseType,
 	CreateAssetResponseType,
 	GetAssetsResponseType,
@@ -62,6 +63,11 @@ export function useGetAssetsQuery(
 export function useCreateAssetMutation(
 	options?: {
 		onSuccess?: () => void;
+		onError?: (error: {
+			status: number;
+			data?: CreateAssetErrorResponseType;
+			message: string;
+		}) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -73,7 +79,7 @@ export function useCreateAssetMutation(
 	const queryAsset = useQueryClient();
 
 	const mutation = useMutation(
-		(data: FormData) =>
+		(data: AssetCreateQueryType) =>
 			axiosInstance
 				.post(ASSETS_URL, data)
 				.then(
@@ -81,10 +87,16 @@ export function useCreateAssetMutation(
 						response.data.data
 				),
 		{
-			async onSuccess() {
+			onSuccess() {
 				queryAsset.invalidateQueries([tags.ASSETS]);
 
 				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors<CreateAssetErrorResponseType>(err);
+					if (error) options.onError(error);
+				}
 			},
 			...queryOptions,
 		}
@@ -188,7 +200,7 @@ export function useEditAssetMutation(
 	const queryAsset = useQueryClient();
 
 	const mutation = useMutation(
-		(data: { id: string; form: FormData }) =>
+		(data: { id: string; form: AssetCreateQueryType }) =>
 			axiosInstance
 				.put(ASSET_URL(data.id), data.form)
 				.then(
