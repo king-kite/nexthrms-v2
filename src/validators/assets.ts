@@ -10,7 +10,7 @@ export const createAssetSchema = Joi.object({
 	model: Joi.string().optional().allow('').label('Model'),
 	manufacturer: Joi.string().required().label('Manufacturer'),
 	name: Joi.string().required().label('Name'),
-	purchaseDate: Joi.string().required().label('Purchase Date'),
+	purchaseDate: Joi.date().required().label('Purchase Date'),
 	purchaseFrom: Joi.string().required().label('Purchase From'),
 	serialNo: Joi.string().required().label('Serial Number'),
 	status: Joi.string()
