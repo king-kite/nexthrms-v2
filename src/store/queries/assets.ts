@@ -137,7 +137,7 @@ export function useDeleteAssetMutation(
 					const error = handleAxiosErrors(err);
 					options.onError({
 						message:
-							error?.message || 'An error occurred. Unable to delete asset',
+							error?.message || 'An error occurred. Unable to remove asset',
 					});
 				}
 			},
@@ -152,9 +152,9 @@ export function useDeleteAssetMutation(
 		(id: string) => {
 			openModal({
 				closeOnButtonClick: false,
-				header: 'Delete Asset?',
-				color: 'warning',
-				message: 'Do you want to delete asset?',
+				header: 'Remove Asset?',
+				color: 'danger',
+				message: 'Do you want to remove asset?',
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
