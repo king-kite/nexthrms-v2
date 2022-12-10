@@ -1,7 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaCheckCircle, FaEye, FaPen, FaTrash } from 'react-icons/fa';
+import { FaEye, FaPen, FaTrash } from 'react-icons/fa';
 
 import { USER_PAGE_URL } from '../../config';
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
@@ -38,6 +38,7 @@ const getRows = (
 		id: asset.id,
 		rows: [
 			{
+				onClick: () => showAsset(asset),
 				value: asset.name || '---',
 			},
 			{
