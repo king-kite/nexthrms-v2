@@ -77,12 +77,14 @@ const Form: FC<FormProps> = ({
 						};
 					return {
 						...prevState,
-						message: 'Unable to create asset. Please try again later.',
+						message: `Unable to ${
+							editMode ? 'update' : 'add'
+						} asset. Please try again later.`,
 					};
 				});
 			}
 		},
-		[onSubmit, setErrors]
+		[onSubmit, setErrors, editMode]
 	);
 
 	return (
