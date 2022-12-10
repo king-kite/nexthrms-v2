@@ -175,7 +175,11 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				</div>
 			</div>
 			<div className="py-2 md:pt-4 lg:pt-6">
-				<SearchForm form={searchForm} setForm={setSearchForm} />
+				<SearchForm
+					form={searchForm}
+					loading={isFetching}
+					setForm={setSearchForm}
+				/>
 			</div>
 			<AssetTable
 				assets={data?.result || []}
