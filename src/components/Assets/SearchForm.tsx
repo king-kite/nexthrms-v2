@@ -12,6 +12,7 @@ type FormType =
 function SearchForm({
 	form,
 	setForm,
+	loading,
 }: {
 	setForm: React.Dispatch<React.SetStateAction<FormType>>;
 	form?: {
@@ -19,22 +20,42 @@ function SearchForm({
 		startDate?: string;
 		endDate?: string;
 	};
+	loading: boolean;
 }) {
+	const formRef = React.useRef<HTMLFormElement | null>(null);
+
 	return (
-		<div className="bg-gray-200 p-6 rounded lg:px-12">
+		<form
+			ref={formRef}
+			onSubmit={(e) => {
+				e.preventDefault();
+				if (formRef.current) {
+					setForm({
+						name: formRef.current.assetName?.value || undefined,
+						startDate: formRef.current.startDate?.value || undefined,
+						endDate: formRef.current.endDate?.value || undefined,
+					});
+				}
+			}}
+			className="bg-gray-200 p-6 rounded lg:px-12"
+		>
 			<div className="gap-5 grid grid-cols-1 mb-3 sm:grid-cols-2 md:gap-2 md:grid-cols-4">
 				<div className="w-full sm:col-span-2">
 					<Input
 						bg="bg-white"
 						bdrColor="border-transparent"
+						disabled={loading}
 						label="Search"
 						placeholder="Search by asset name, user"
-						onChange={({ target: { value } }) =>
-							setForm((prevState) => ({
-								...prevState,
-								name: value,
-							}))
-						}
+						name="assetName"
+						onChange={({ target: { value } }) => {
+							if (!value || value.trim() === '')
+								setForm((prevState) => ({
+									...prevState,
+									name: '',
+								}));
+						}}
+						required={false}
 						type="text"
 					/>
 				</div>
@@ -42,13 +63,10 @@ function SearchForm({
 					<Input
 						bg="bg-white"
 						bdrColor="border-transparent"
+						disabled={loading}
 						label="Start Date"
-						onChange={({ target: { value } }) =>
-							setForm((prevState) => ({
-								...prevState,
-								startDate: value,
-							}))
-						}
+						name="startDate"
+						required={false}
 						type="date"
 					/>
 				</div>
@@ -56,23 +74,35 @@ function SearchForm({
 					<Input
 						bg="bg-white"
 						bdrColor="border-transparent"
+						disabled={loading}
 						label="End Date"
-						onChange={({ target: { value } }) =>
-							setForm((prevState) => ({
-								...prevState,
-								endDate: value,
-							}))
-						}
+						name="endDate"
+						required={false}
 						type="date"
 					/>
 				</div>
 			</div>
-			<div className="flex items-center justify-center">
-				<div className="flex justify-center my-6 w-[12rem]">
-					<Button padding="px-6 py-3" title="Search" />
+			<div className="flex flex-wrap gap-4 items-center justify-center py-6 xs:justify-around">
+				<div className="flex justify-center w-full sm:w-[12rem]">
+					<Button
+						disabled={loading}
+						padding="px-6 py-3"
+						title={loading ? 'Searching...' : 'Search'}
+						type="submit"
+					/>
+				</div>
+				<div className="flex justify-center w-full sm:w-[12rem]">
+					<Button
+						bg="bg-red-600 hover:bg-red-500"
+						disabled={loading}
+						onClick={() => setForm(undefined)}
+						padding="px-6 py-3"
+						title={loading ? 'Please Wait...' : 'Cancel'}
+						type="reset"
+					/>
 				</div>
 			</div>
-		</div>
+		</form>
 	);
 }
 
