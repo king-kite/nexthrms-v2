@@ -184,14 +184,14 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			<AssetTable
 				assets={data?.result || []}
 				showAsset={(asset) => {}}
-				editAsset={(asset) => {
+				editAsset={({ id, updatedAt, user, ...asset }) => {
 					setErrors(undefined);
-					setEditId(asset.id);
+					setEditId(id);
 					setForm({
 						...asset,
 						description: asset.description || undefined,
 						model: asset.model || undefined,
-						userId: asset.user?.id || '',
+						userId: user?.id || '',
 					});
 					setModalVisible(true);
 				}}
