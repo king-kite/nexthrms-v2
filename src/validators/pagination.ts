@@ -5,7 +5,7 @@ import { DEFAULT_PAGINATION_SIZE } from '../config/settings';
 export function validateParams(query: NextApiRequest['query']): {
 	limit?: number;
 	offset?: number;
-	search?: string;
+	search: string;
 	startDate?: Date;
 	endDate?: Date;
 } {
@@ -18,7 +18,7 @@ export function validateParams(query: NextApiRequest['query']): {
 	const search =
 		typeof query.search === 'string' && query.search.trim() !== ''
 			? query.search
-			: undefined;
+			: '';
 	const startDate =
 		query.startDate &&
 		(typeof query.startDate === 'string' || query.startDate instanceof Date)
