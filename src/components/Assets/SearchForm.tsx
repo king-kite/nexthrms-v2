@@ -87,7 +87,7 @@ function SearchForm({
 					<Button
 						disabled={loading}
 						padding="px-6 py-3"
-						title={loading ? 'Searching...' : 'Search'}
+						title={loading ? form?.name.length > 0 ? 'Searching...' : 'Please Wait...' : 'Search'}
 						type="submit"
 					/>
 				</div>
