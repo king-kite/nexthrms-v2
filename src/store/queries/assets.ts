@@ -22,11 +22,13 @@ export function useGetAssetsQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search = '',
+		date,
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
+		date?: { start: Date; end: Date };
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -36,13 +38,20 @@ export function useGetAssetsQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.ASSETS, { limit, offset, search }],
-		() =>
-			axiosInstance
-				.get(`${ASSETS_URL}?limit=${limit}&offset=${offset}&search=${search}`)
+		[tags.ASSETS, { limit, offset, search, date }],
+		async () => {
+			let url = `${ASSETS_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+
+			if (date) {
+				url += `&startDate=${date.start}&endDate=${date.end}`;
+			}
+
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetAssetsResponseType>) => response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);

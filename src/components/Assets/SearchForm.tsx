@@ -89,7 +89,9 @@ function SearchForm({
 						padding="px-6 py-3"
 						title={
 							loading
-								? form?.name?.length !== undefined && form?.name?.length > 0
+								? (form?.name?.length !== undefined &&
+										form?.name?.length > 0) ||
+								  (form?.startDate && form?.endDate)
 									? 'Searching...'
 									: 'Please Wait...'
 								: 'Search'
@@ -101,7 +103,12 @@ function SearchForm({
 					<Button
 						bg="bg-red-600 hover:bg-red-500"
 						disabled={loading}
-						onClick={() => setForm(undefined)}
+						onClick={() => {
+							setForm(undefined);
+							if (formRef.current) {
+								formRef.current.reset();
+							}
+						}}
 						padding="px-6 py-3"
 						title={loading ? 'Please Wait...' : 'Cancel'}
 						type="reset"

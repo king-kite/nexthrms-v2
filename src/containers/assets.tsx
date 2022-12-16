@@ -47,6 +47,13 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search: searchForm?.name,
+			date:
+				searchForm?.startDate && searchForm?.endDate
+					? {
+							start: new Date(searchForm.startDate),
+							end: new Date(searchForm.endDate),
+					  }
+					: undefined,
 		},
 		{
 			initialData() {
