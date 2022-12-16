@@ -1,5 +1,4 @@
 import type { NextApiRequest } from 'next';
-import { isDate } from 'util/types';
 
 import { DEFAULT_PAGINATION_SIZE } from '../config/settings';
 
@@ -22,12 +21,12 @@ export function validateParams(query: NextApiRequest['query']): {
 			: undefined;
 	const startDate =
 		query.startDate &&
-		(typeof query.startDate === 'string' || isDate(query.startDate))
+		(typeof query.startDate === 'string' || query.startDate instanceof Date)
 			? new Date(query.startDate)
 			: undefined;
 	const endDate =
 		query.endDate &&
-		(typeof query.endDate === 'string' || isDate(query.endDate))
+		(typeof query.endDate === 'string' || query.endDate instanceof Date)
 			? new Date(query.endDate)
 			: undefined;
 
