@@ -46,7 +46,7 @@ function SearchForm({
 						bdrColor="border-transparent"
 						disabled={loading}
 						label="Search"
-						placeholder="Search by asset name, user"
+						placeholder="Search by asset name, user's first or last name"
 						name="assetName"
 						onChange={({ target: { value } }) => {
 							if (!value || value.trim() === '')

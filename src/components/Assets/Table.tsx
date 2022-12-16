@@ -43,7 +43,9 @@ const getRows = (
 			},
 			{
 				link: asset.user ? USER_PAGE_URL(asset.user.id) : undefined,
-				value: asset.user ? asset.user.firstName + asset.user.lastName : '---',
+				value: asset.user
+					? `${asset.user.firstName} ${asset.user.lastName}`
+					: '---',
 			},
 			{ value: asset.assetId || '---' },
 			{
