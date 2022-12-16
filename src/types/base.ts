@@ -5,6 +5,14 @@ export type ResponseType = {
 	status: 'error' | 'redirect' | 'success';
 };
 
+export type ParamsType = {
+	offset?: number;
+	limit?: number;
+	search?: string;
+	startDate?: Date;
+	endDate?: Date;
+};
+
 export interface SuccessResponseType<DataType = unknown> extends ResponseType {
 	data: DataType;
 }
