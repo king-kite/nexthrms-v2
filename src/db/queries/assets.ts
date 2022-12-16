@@ -2,13 +2,7 @@ import { Asset, Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { AssetType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { AssetType, ParamsType } from '../../types';
 
 export const assetSelectQuery: Prisma.AssetSelect = {
 	id: true,
@@ -45,6 +39,8 @@ export const getAssetsQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	search = undefined,
+	startDate,
+	endDate,
 }: ParamsType): Prisma.AssetFindManyArgs => {
 	const query: Prisma.AssetFindManyArgs = {
 		skip: offset,
@@ -86,6 +82,17 @@ export const getAssetsQuery = ({
 							},
 						},
 					],
+					AND:
+						startDate && endDate
+							? [
+									{
+										purchaseDate: {
+											gte: startDate,
+											lte: endDate,
+										},
+									},
+							  ]
+							: undefined,
 			  }
 			: {},
 		select: assetSelectQuery,
