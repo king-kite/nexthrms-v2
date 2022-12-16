@@ -43,7 +43,7 @@ export function useGetAssetsQuery(
 			let url = `${ASSETS_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 
 			if (date) {
-				url += `&startDate=${date.start}&endDate=${date.end}`;
+				url += `&from=${date.start}&to=${date.end}`;
 			}
 
 			return axiosInstance

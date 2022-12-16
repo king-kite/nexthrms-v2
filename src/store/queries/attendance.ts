@@ -216,16 +216,20 @@ export function useGetAttendanceAdminQuery(
 ) {
 	const query = useQuery(
 		[tags.ATTENDANCE_ADMIN, { limit, offset, search, date }],
-		() =>
-			axiosInstance
-				.get(
-					ATTENDANCE_ADMIN_URL +
-						`?limit=${limit}&offset=${offset}&search=${search}&from=${date?.from}&to=${date?.to}`
-				)
+		async () => {
+			let url =
+				ATTENDANCE_ADMIN_URL +
+				`?limit=${limit}&offset=${offset}&search=${search}`;
+			if (date) {
+				url += `&from=${date?.from}&to=${date?.to}`;
+			}
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetAttendanceResponseType>) =>
 						response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);

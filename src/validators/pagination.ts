@@ -1,14 +1,9 @@
 import type { NextApiRequest } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE } from '../config/settings';
+import { ParamsType } from '../types';
 
-export function validateParams(query: NextApiRequest['query']): {
-	limit?: number;
-	offset?: number;
-	search: string;
-	startDate?: Date;
-	endDate?: Date;
-} {
+export function validateParams(query: NextApiRequest['query']): ParamsType {
 	const limit =
 		query.limit && !isNaN(Number(query.limit))
 			? Number(query.limit)
@@ -19,16 +14,14 @@ export function validateParams(query: NextApiRequest['query']): {
 		typeof query.search === 'string' && query.search.trim() !== ''
 			? query.search
 			: '';
-	const startDate =
-		query.startDate &&
-		(typeof query.startDate === 'string' || query.startDate instanceof Date)
-			? new Date(query.startDate)
+	const from =
+		query.from && (typeof query.from === 'string' || query.from instanceof Date)
+			? new Date(query.from)
 			: undefined;
-	const endDate =
-		query.endDate &&
-		(typeof query.endDate === 'string' || query.endDate instanceof Date)
-			? new Date(query.endDate)
+	const to =
+		query.to && (typeof query.to === 'string' || query.to instanceof Date)
+			? new Date(query.to)
 			: undefined;
 
-	return { limit, offset, search, startDate, endDate };
+	return { limit, offset, search, from, to };
 }

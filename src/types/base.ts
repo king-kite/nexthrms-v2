@@ -9,8 +9,8 @@ export type ParamsType = {
 	offset?: number;
 	limit?: number;
 	search?: string;
-	startDate?: Date;
-	endDate?: Date;
+	from?: Date;
+	to?: Date;
 };
 
 export interface SuccessResponseType<DataType = unknown> extends ResponseType {

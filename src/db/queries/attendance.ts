@@ -2,14 +2,8 @@ import { Attendance, Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { AttendanceType } from '../../types';
+import { AttendanceType, ParamsType } from '../../types';
 import { getFirstDateOfMonth, getWeekDate } from '../../utils';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
 
 export const attendanceSelectQuery: Prisma.AttendanceSelect = {
 	id: true,
@@ -140,10 +134,7 @@ export const getAttendanceAdminQuery = ({
 	search,
 	from,
 	to,
-}: ParamsType & {
-	from?: string;
-	to?: string;
-}): Prisma.AttendanceFindManyArgs => {
+}: ParamsType): Prisma.AttendanceFindManyArgs => {
 	const whereQuery: Prisma.AttendanceWhereInput = {};
 
 	if (search)
@@ -172,14 +163,9 @@ export const getAttendanceAdminQuery = ({
 			},
 		};
 	if (from && to) {
-		const fromDate = new Date(from);
-		const toDate = new Date(to);
-		fromDate.setHours(0, 0, 0, 0);
-		toDate.setHours(0, 0, 0, 0);
-
 		whereQuery.date = {
-			gte: fromDate,
-			lte: toDate,
+			gte: from,
+			lte: to,
 		};
 	}
 	const query: Prisma.AttendanceFindManyArgs = {

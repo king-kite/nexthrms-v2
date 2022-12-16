@@ -39,8 +39,8 @@ export const getAssetsQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	search = '',
-	startDate,
-	endDate,
+	from,
+	to,
 }: ParamsType): Prisma.AssetFindManyArgs => {
 	const query: Prisma.AssetFindManyArgs = {
 		skip: offset,
@@ -49,7 +49,7 @@ export const getAssetsQuery = ({
 			updatedAt: 'desc' as const,
 		},
 		where:
-			search || (startDate && endDate)
+			search || (from && to)
 				? {
 						OR: [
 							{
@@ -84,12 +84,12 @@ export const getAssetsQuery = ({
 							},
 						],
 						AND:
-							startDate && endDate
+							from && to
 								? [
 										{
 											purchaseDate: {
-												gte: startDate,
-												lte: endDate,
+												gte: from,
+												lte: to,
 											},
 										},
 								  ]
