@@ -38,63 +38,65 @@ export const assetSelectQuery: Prisma.AssetSelect = {
 export const getAssetsQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
-	search = undefined,
+	search = '',
 	startDate,
 	endDate,
 }: ParamsType): Prisma.AssetFindManyArgs => {
+	console.log(search, startDate, endDate);
 	const query: Prisma.AssetFindManyArgs = {
 		skip: offset,
 		take: limit,
 		orderBy: {
 			updatedAt: 'desc' as const,
 		},
-		where: search
-			? {
-					OR: [
-						{
-							name: {
-								contains: search,
-								mode: 'insensitive',
+		where:
+			search || (startDate && endDate)
+				? {
+						OR: [
+							{
+								name: {
+									contains: search,
+									mode: 'insensitive',
+								},
 							},
-						},
-						{
-							user: {
-								OR: [
-									{
-										firstName: {
-											contains: search,
-											mode: 'insensitive',
+							{
+								user: {
+									OR: [
+										{
+											firstName: {
+												contains: search,
+												mode: 'insensitive',
+											},
 										},
-									},
-									{
-										lastName: {
-											contains: search,
-											mode: 'insensitive',
+										{
+											lastName: {
+												contains: search,
+												mode: 'insensitive',
+											},
 										},
-									},
-									{
-										email: {
-											contains: search,
-											mode: 'insensitive',
+										{
+											email: {
+												contains: search,
+												mode: 'insensitive',
+											},
 										},
-									},
-								],
+									],
+								},
 							},
-						},
-					],
-					AND:
-						startDate && endDate
-							? [
-									{
-										purchaseDate: {
-											gte: startDate,
-											lte: endDate,
+						],
+						AND:
+							startDate && endDate
+								? [
+										{
+											purchaseDate: {
+												gte: startDate,
+												lte: endDate,
+											},
 										},
-									},
-							  ]
-							: undefined,
-			  }
-			: {},
+								  ]
+								: undefined,
+				  }
+				: {},
 		select: assetSelectQuery,
 	};
 
