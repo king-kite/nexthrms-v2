@@ -148,6 +148,9 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
 												searchForm?.name || ''
 											}`;
+										if (searchForm?.startDate && searchForm?.endDate) {
+											url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
+										}
 									}
 									const result = await downloadFile({
 										url,

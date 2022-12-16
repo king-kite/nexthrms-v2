@@ -42,7 +42,6 @@ export const getAssetsQuery = ({
 	startDate,
 	endDate,
 }: ParamsType): Prisma.AssetFindManyArgs => {
-	console.log(search, startDate, endDate);
 	const query: Prisma.AssetFindManyArgs = {
 		skip: offset,
 		take: limit,
