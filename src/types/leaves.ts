@@ -35,8 +35,8 @@ export type LeaveType = {
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;
-	approvedBy: EmployeeType;
-	createdBy: EmployeeType;
+	approvedBy: EmployeeType | null;
+	createdBy: EmployeeType | null;
 };
 
 export type GetLeavesResponseType = SuccessResponseType<{

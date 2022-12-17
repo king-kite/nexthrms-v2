@@ -7,7 +7,10 @@ import {
 	Topbar,
 	LeaveAdminTable,
 } from '../../../components/Leaves';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	LEAVES_ADMIN_EXPORT_URL,
+} from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import {
 	useGetLeavesAdminQuery,
@@ -18,6 +21,7 @@ import {
 	CreateLeaveErrorResponseType,
 	GetLeavesResponseType,
 } from '../../../types';
+import { downloadFile } from '../../../utils';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
@@ -29,6 +33,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
 
@@ -111,6 +116,31 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
+				exportData={async (type, filtered) => {
+					let url = LEAVES_ADMIN_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+								search || ''
+							}`;
+						if (dateQuery?.from && dateQuery?.to) {
+							url += `&from=${dateQuery.from}&to=${dateQuery.to}`;
+						}
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'leaves.csv' : 'leaves.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						open({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
+				}}
+				exportLoading={exportLoading}
 			/>
 			<LeaveAdminTable leaves={data?.result || []} />
 			<Modal

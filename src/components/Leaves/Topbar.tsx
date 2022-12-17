@@ -17,6 +17,7 @@ type TopbarProps = {
 
 	searchSubmit?: (search: string) => void;
 	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
+	exportLoading?: boolean;
 };
 
 function Topbar({
@@ -27,6 +28,7 @@ function Topbar({
 	setDateForm,
 	searchSubmit,
 	exportData,
+	exportLoading,
 }: TopbarProps) {
 	return (
 		<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
@@ -36,7 +38,10 @@ function Topbar({
 					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
 						<ButtonDropdown
 							component={() => (
-								<ExportForm onSubmit={exportData ? exportData : undefined} />
+								<ExportForm
+									loading={exportLoading}
+									onSubmit={exportData ? exportData : undefined}
+								/>
 							)}
 							props={{
 								caps: true,
