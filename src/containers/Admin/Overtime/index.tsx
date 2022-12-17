@@ -7,7 +7,10 @@ import {
 	Topbar,
 	OvertimeAdminTable,
 } from '../../../components/Overtime';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	OVERTIME_ADMIN_EXPORT_URL,
+} from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import {
 	useGetAllOvertimeAdminQuery,
@@ -18,6 +21,7 @@ import {
 	CreateOvertimeErrorResponseType,
 	GetAllOvertimeResponseType,
 } from '../../../types';
+import { downloadFile } from '../../../utils';
 
 const Overtime = ({
 	overtime,
@@ -116,6 +120,31 @@ const Overtime = ({
 				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
+				exportData={async (type, filtered) => {
+					let url = OVERTIME_ADMIN_EXPORT_URL + '?type=' + type;
+					if (filtered) {
+						url =
+							url +
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+								search || ''
+							}`;
+						if (dateQuery?.from && dateQuery?.to) {
+							url += `&from=${dateQuery.from}&to=${dateQuery.to}`;
+						}
+					}
+					const result = await downloadFile({
+						url,
+						name: type === 'csv' ? 'overtime.csv' : 'overtime.xlsx',
+						setLoading: setExportLoading,
+					});
+					if (result?.status !== 200) {
+						open({
+							type: 'danger',
+							message: 'An error occurred. Unable to export file!',
+						});
+					}
+				}}
+				exportLoading={exportLoading}
 			/>
 			<OvertimeAdminTable overtime={data?.result || []} />
 			<Modal

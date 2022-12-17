@@ -28,8 +28,8 @@ export type OvertimeType = {
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;
-	approvedBy: EmployeeType;
-	createdBy: EmployeeType;
+	approvedBy: EmployeeType | null;
+	createdBy: EmployeeType | null;
 };
 
 export type GetAllOvertimeResponseType = SuccessResponseType<{
