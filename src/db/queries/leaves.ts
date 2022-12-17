@@ -2,13 +2,7 @@ import { Leave, Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { LeaveType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { LeaveType, ParamsType } from '../../types';
 
 const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,
@@ -62,6 +56,8 @@ export const getLeavesQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	id,
+	from,
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.LeaveFindManyArgs => {
@@ -76,6 +72,24 @@ export const getLeavesQuery = ({
 		},
 		select: leaveSelectQuery,
 	};
+
+	if (from && to) {
+		query.where = {
+			...query.where,
+			OR: [
+				{
+					startDate: {
+						gte: from,
+						lte: to,
+					},
+					endDate: {
+						gte: from,
+						lte: to,
+					},
+				},
+			],
+		};
+	}
 
 	return query;
 };
@@ -96,7 +110,9 @@ export const getLeaves = async (
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.leave.count({ where: query.where }),
 		prisma.leave.findMany(query),
-		prisma.leave.count({ where: { employeeId: params.id, status: 'APPROVED' } }),
+		prisma.leave.count({
+			where: { employeeId: params.id, status: 'APPROVED' },
+		}),
 		prisma.leave.count({ where: { employeeId: params.id, status: 'PENDING' } }),
 		prisma.leave.count({ where: { employeeId: params.id, status: 'DENIED' } }),
 	]);
@@ -120,7 +136,9 @@ export const getLeave = async (id: string) => {
 export const getLeavesAdminQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
-	search,
+	search = '',
+	from,
+	to,
 }: ParamsType): Prisma.LeaveFindManyArgs => {
 	const query: Prisma.LeaveFindManyArgs = {
 		skip: offset,
@@ -128,42 +146,62 @@ export const getLeavesAdminQuery = ({
 		orderBy: {
 			createdAt: 'desc',
 		},
-		where: search
-			? {
-					OR: [
-						{
-							employee: {
-								user: {
-									firstName: {
-										contains: search,
-										mode: 'insensitive',
+		where:
+			search || (from && to)
+				? {
+						OR: search
+							? [
+									{
+										employee: {
+											user: {
+												firstName: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-						{
-							employee: {
-								user: {
-									lastName: {
-										contains: search,
-										mode: 'insensitive',
+									{
+										employee: {
+											user: {
+												lastName: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-						{
-							employee: {
-								user: {
-									email: {
-										contains: search,
-										mode: 'insensitive',
+									{
+										employee: {
+											user: {
+												email: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-					],
-			  }
-			: {},
+							  ]
+							: undefined,
+						AND:
+							from && to
+								? {
+										OR: [
+											{
+												startDate: {
+													gte: from,
+													lte: to,
+												},
+												endDate: {
+													gte: from,
+													lte: to,
+												},
+											},
+										],
+								  }
+								: undefined,
+				  }
+				: {},
 		select: leaveSelectQuery,
 	};
 
