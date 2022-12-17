@@ -70,11 +70,15 @@ export function useGetLeavesQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search = '',
+		from,
+		to,
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
+		from?: string;
+		to?: string;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -84,13 +88,18 @@ export function useGetLeavesQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.LEAVES, { limit, offset, search }],
-		() =>
-			axiosInstance
-				.get(`${LEAVES_URL}?limit=${limit}&offset=${offset}&search=${search}`)
+		[tags.LEAVES, { limit, offset, search, from, to }],
+		async () => {
+			let url = `${LEAVES_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+			if (from && to) {
+				url += `&from=${from}&to=${to}`;
+			}
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetLeavesResponseType>) => response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
@@ -297,11 +306,15 @@ export function useGetLeavesAdminQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search = '',
+		from,
+		to,
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
+		from?: string;
+		to?: string;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -311,15 +324,18 @@ export function useGetLeavesAdminQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.LEAVES_ADMIN, { limit, offset, search }],
-		() =>
-			axiosInstance
-				.get(
-					`${LEAVES_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`
-				)
+		[tags.LEAVES_ADMIN, { limit, offset, search, from, to }],
+		async function () {
+			let url = `${LEAVES_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+			if (from && to) {
+				url += `from=${from}&to=${to}`;
+			}
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetLeavesResponseType>) => response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
