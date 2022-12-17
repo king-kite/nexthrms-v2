@@ -111,10 +111,14 @@ export const getLeaves = async (
 		prisma.leave.count({ where: query.where }),
 		prisma.leave.findMany(query),
 		prisma.leave.count({
-			where: { employeeId: params.id, status: 'APPROVED' },
+			where: { ...query.where, employeeId: params.id, status: 'APPROVED' },
 		}),
-		prisma.leave.count({ where: { employeeId: params.id, status: 'PENDING' } }),
-		prisma.leave.count({ where: { employeeId: params.id, status: 'DENIED' } }),
+		prisma.leave.count({
+			where: { ...query.where, employeeId: params.id, status: 'PENDING' },
+		}),
+		prisma.leave.count({
+			where: { ...query.where, employeeId: params.id, status: 'DENIED' },
+		}),
 	]);
 
 	return { total, approved, pending, denied, result };
@@ -226,9 +230,9 @@ export const getLeavesAdmin = async (
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.leave.count({ where: query.where }),
 		prisma.leave.findMany(query),
-		prisma.leave.count({ where: { status: 'APPROVED' } }),
-		prisma.leave.count({ where: { status: 'PENDING' } }),
-		prisma.leave.count({ where: { status: 'DENIED' } }),
+		prisma.leave.count({ where: { ...query.where, status: 'APPROVED' } }),
+		prisma.leave.count({ where: { ...query.where, status: 'PENDING' } }),
+		prisma.leave.count({ where: { ...query.where, status: 'DENIED' } }),
 	]);
 
 	return { total, approved, pending, denied, result };
