@@ -90,6 +90,7 @@ export function useGetLeavesQuery(
 	const query = useQuery(
 		[tags.LEAVES, { limit, offset, search, from, to }],
 		async () => {
+			console.log({ from, to });
 			let url = `${LEAVES_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) {
 				url += `&from=${from}&to=${to}`;

@@ -15,7 +15,7 @@ import {
 } from '../../types';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
-	const [dateQuery, setDateQuery] = useState({ from: '', to: '' });
+	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
 	const [errors, setErrors] = useState<
 		CreateLeaveErrorResponseType & {
 			message?: string;
@@ -24,12 +24,16 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [offset, setOffset] = useState(0);
 	const [modalVisible, setModalVisible] = useState(false);
 
+	console.log({ dateQuery });
+
 	const { open } = useAlertContext();
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesQuery(
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
+			from: dateQuery?.from || undefined,
+			to: dateQuery?.to || undefined,
 		},
 		{
 			initialData() {
@@ -71,10 +75,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			heading="Leaves"
 			refresh={{
 				loading: isFetching,
-				onClick: () => {
-					setDateQuery({ from: '', to: '' });
-					refetch();
-				},
+				onClick: refetch,
 			}}
 			loading={isLoading}
 			paginate={
@@ -96,9 +97,8 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			<Topbar
 				adminView={false}
 				loading={isFetching}
-				dateSubmit={({ fromDate, toDate }) =>
-					setDateQuery({ from: fromDate, to: toDate })
-				}
+				dateForm={dateQuery}
+				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
 			<LeaveTable leaves={data?.result || []} />
