@@ -182,10 +182,7 @@ export const getAttendanceAdminQuery = ({
 };
 
 export const getAttendanceAdmin = async (
-	params?: ParamsType & {
-		from?: string;
-		to?: string;
-	}
+	params?: ParamsType
 ): Promise<{
 	total: number;
 	result: AttendanceType[] | Attendance[];

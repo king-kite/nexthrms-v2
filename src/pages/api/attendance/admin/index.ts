@@ -19,11 +19,7 @@ export default auth()
 		}
 
 		const params = validateParams({ ...req.query });
-		const data = await getAttendanceAdmin({
-			...params,
-			from: (req.query.from as string) || undefined,
-			to: (req.query.to as string) || undefined,
-		});
+		const data = await getAttendanceAdmin(params);
 
 		return res.status(200).json({
 			status: 'success',
