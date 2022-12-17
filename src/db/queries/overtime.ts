@@ -2,13 +2,7 @@ import { Overtime, Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { OvertimeType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { OvertimeType, ParamsType } from '../../types';
 
 const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,
@@ -62,6 +56,8 @@ export const getAllOvertimeQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
 	id,
+	from,
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.OvertimeFindManyArgs => {
@@ -76,6 +72,16 @@ export const getAllOvertimeQuery = ({
 		},
 		select: overtimeSelectQuery,
 	};
+
+	if (from && to) {
+		query.where = {
+			...query.where,
+			date: {
+				gte: from,
+				lte: to,
+			},
+		};
+	}
 
 	return query;
 };
@@ -97,13 +103,13 @@ export const getAllOvertime = async (
 		prisma.overtime.count({ where: query.where }),
 		prisma.overtime.findMany(query),
 		prisma.overtime.count({
-			where: { employeeId: params.id, status: 'APPROVED' },
+			where: { ...query.where, employeeId: params.id, status: 'APPROVED' },
 		}),
 		prisma.overtime.count({
-			where: { employeeId: params.id, status: 'PENDING' },
+			where: { ...query.where, employeeId: params.id, status: 'PENDING' },
 		}),
 		prisma.overtime.count({
-			where: { employeeId: params.id, status: 'DENIED' },
+			where: { ...query.where, employeeId: params.id, status: 'DENIED' },
 		}),
 	]);
 
@@ -126,7 +132,9 @@ export const getOvertime = async (id: string) => {
 export const getAllOvertimeAdminQuery = ({
 	offset = 0,
 	limit = DEFAULT_PAGINATION_SIZE,
-	search,
+	search = '',
+	from,
+	to,
 }: ParamsType): Prisma.OvertimeFindManyArgs => {
 	const query: Prisma.OvertimeFindManyArgs = {
 		skip: offset,
@@ -134,42 +142,54 @@ export const getAllOvertimeAdminQuery = ({
 		orderBy: {
 			createdAt: 'desc',
 		},
-		where: search
-			? {
-					OR: [
-						{
-							employee: {
-								user: {
-									firstName: {
-										contains: search,
-										mode: 'insensitive',
+		where:
+			search || (from && to)
+				? {
+						OR: search
+							? [
+									{
+										employee: {
+											user: {
+												firstName: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-						{
-							employee: {
-								user: {
-									lastName: {
-										contains: search,
-										mode: 'insensitive',
+									{
+										employee: {
+											user: {
+												lastName: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-						{
-							employee: {
-								user: {
-									email: {
-										contains: search,
-										mode: 'insensitive',
+									{
+										employee: {
+											user: {
+												email: {
+													contains: search,
+													mode: 'insensitive',
+												},
+											},
+										},
 									},
-								},
-							},
-						},
-					],
-			  }
-			: {},
+							  ]
+							: undefined,
+						AND:
+							from && to
+								? {
+										date: {
+											gte: from,
+											lte: to,
+										},
+								  }
+								: undefined,
+				  }
+				: {},
 		select: overtimeSelectQuery,
 	};
 
@@ -194,9 +214,9 @@ export const getAllOvertimeAdmin = async (
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
 		prisma.overtime.findMany(query),
-		prisma.overtime.count({ where: { status: 'APPROVED' } }),
-		prisma.overtime.count({ where: { status: 'PENDING' } }),
-		prisma.overtime.count({ where: { status: 'DENIED' } }),
+		prisma.overtime.count({ where: { ...query.where, status: 'APPROVED' } }),
+		prisma.overtime.count({ where: { ...query.where, status: 'PENDING' } }),
+		prisma.overtime.count({ where: { ...query.where, status: 'DENIED' } }),
 	]);
 
 	return { total, approved, pending, denied, result };

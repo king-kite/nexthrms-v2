@@ -19,7 +19,7 @@ const Overtime = ({
 }: {
 	overtime: GetAllOvertimeResponseType['data'];
 }) => {
-	const [dateQuery, setDateQuery] = useState({ from: '', to: '' });
+	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
 	const [errors, setErrors] = useState<
 		CreateOvertimeErrorResponseType & {
 			message?: string;
@@ -34,6 +34,8 @@ const Overtime = ({
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
+			from: dateQuery?.from || undefined,
+			to: dateQuery?.to || undefined,
 		},
 		{
 			initialData() {
@@ -75,10 +77,7 @@ const Overtime = ({
 			heading="Overtime"
 			refresh={{
 				loading: isFetching,
-				onClick: () => {
-					setDateQuery({ from: '', to: '' });
-					refetch();
-				},
+				onClick: refetch,
 			}}
 			loading={isLoading}
 			paginate={
@@ -100,9 +99,8 @@ const Overtime = ({
 			<Topbar
 				adminView={false}
 				loading={isFetching}
-				dateSubmit={({ fromDate, toDate }) =>
-					setDateQuery({ from: fromDate, to: toDate })
-				}
+				dateForm={dateQuery}
+				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
 			<OvertimeTable overtime={data?.result || []} />

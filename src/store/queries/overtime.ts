@@ -70,11 +70,15 @@ export function useGetAllOvertimeQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search = '',
+		from,
+		to,
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
+		from?: string;
+		to?: string;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -84,14 +88,19 @@ export function useGetAllOvertimeQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.OVERTIME, { limit, offset, search }],
-		() =>
-			axiosInstance
-				.get(`${OVERTIME_URL}?limit=${limit}&offset=${offset}&search=${search}`)
+		[tags.OVERTIME, { limit, offset, search, from, to }],
+		async function () {
+			let url = `${OVERTIME_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+			if (from && to) {
+				url += `&from=${from}&to=${to}`;
+			}
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetAllOvertimeResponseType>) =>
 						response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
@@ -302,11 +311,15 @@ export function useGetAllOvertimeAdminQuery(
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
 		search = '',
+		from,
+		to,
 		onError,
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
+		from?: string;
+		to?: string;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -317,15 +330,18 @@ export function useGetAllOvertimeAdminQuery(
 ) {
 	const query = useQuery(
 		[tags.OVERTIME_ADMIN, { limit, offset, search }],
-		() =>
-			axiosInstance
-				.get(
-					`${OVERTIME_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`
-				)
+		async function () {
+			let url = `${OVERTIME_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+			if (from && to) {
+				url += `&from=${from}&to=${to}`;
+			}
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<GetAllOvertimeResponseType>) =>
 						response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);

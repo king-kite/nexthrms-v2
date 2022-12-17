@@ -24,7 +24,7 @@ const Overtime = ({
 }: {
 	overtime: GetAllOvertimeResponseType['data'];
 }) => {
-	const [dateQuery, setDateQuery] = useState({ from: '', to: '' });
+	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
 	const [errors, setErrors] = useState<
 		CreateOvertimeErrorResponseType & {
 			message?: string;
@@ -33,6 +33,7 @@ const Overtime = ({
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
 
@@ -41,6 +42,8 @@ const Overtime = ({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			from: dateQuery?.from || undefined,
+			to: dateQuery?.to || undefined,
 		},
 		{
 			initialData() {
@@ -87,10 +90,7 @@ const Overtime = ({
 			heading="Overtime (Admin)"
 			refresh={{
 				loading: isFetching,
-				onClick: () => {
-					setDateQuery({ from: '', to: '' });
-					refetch();
-				},
+				onClick: refetch,
 			}}
 			loading={isLoading}
 			paginate={
@@ -112,9 +112,8 @@ const Overtime = ({
 			<Topbar
 				adminView
 				loading={isFetching}
-				dateSubmit={({ fromDate, toDate }) =>
-					setDateQuery({ from: fromDate, to: toDate })
-				}
+				dateForm={dateQuery}
+				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
 			/>

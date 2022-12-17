@@ -9,10 +9,78 @@ type TopbarProps = {
 	adminView: boolean;
 	openModal: () => void;
 	loading: boolean;
-	dateSubmit: (form: { fromDate: string; toDate: string }) => void;
+
+	dateForm: { from?: string; to?: string } | undefined;
+	setDateForm: React.Dispatch<
+		React.SetStateAction<{ from?: string; to?: string } | undefined>
+	>;
+
 	searchSubmit?: (search: string) => void;
 	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
+	exportLoading?: boolean;
 };
+
+const Topbar: FC<TopbarProps> = ({
+	adminView,
+	loading,
+	openModal,
+	dateForm,
+	setDateForm,
+	searchSubmit,
+	exportData,
+	exportLoading,
+}) => (
+	<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
+		{adminView && searchSubmit && (
+			<>
+				<Form onSubmit={searchSubmit} loading={loading} />
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
+					<ButtonDropdown
+						component={() => (
+							<ExportForm
+								onSubmit={exportData ? exportData : undefined}
+								loading={exportLoading}
+							/>
+						)}
+						props={{
+							caps: true,
+							iconLeft: FaCloudDownloadAlt,
+							margin: 'lg:mr-6',
+							padding: 'px-3 py-2 md:px-6',
+							rounded: 'rounded-xl',
+							title: 'export',
+						}}
+					/>
+				</div>
+			</>
+		)}
+		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+			<ButtonDropdown
+				component={() => (
+					<FilterDropdownForm
+						loading={loading}
+						form={dateForm}
+						setForm={setDateForm}
+					/>
+				)}
+				props={{
+					title: 'Filter by Date',
+				}}
+			/>
+		</div>
+		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
+			<Button
+				caps
+				iconLeft={FaPlus}
+				margin="lg:mr-6"
+				onClick={openModal}
+				padding="px-3 py-2 md:px-6"
+				rounded="rounded-xl"
+				title={adminView ? 'Add Overtime' : 'Request Overtime'}
+			/>
+		</div>
+	</div>
+);
 
 const Form = ({
 	loading,
@@ -54,60 +122,5 @@ const Form = ({
 		</form>
 	);
 };
-
-const Topbar: FC<TopbarProps> = ({
-	adminView,
-	loading,
-	openModal,
-	dateSubmit,
-	searchSubmit,
-	exportData,
-}) => (
-	<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
-		{adminView && searchSubmit && (
-			<>
-				<Form onSubmit={searchSubmit} loading={loading} />
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
-					<ButtonDropdown
-						component={() => (
-							<ExportForm
-								onSubmit={exportData ? exportData : () => console.log('')}
-							/>
-						)}
-						props={{
-							caps: true,
-							iconLeft: FaCloudDownloadAlt,
-							margin: 'lg:mr-6',
-							padding: 'px-3 py-2 md:px-6',
-							rounded: 'rounded-xl',
-							title: 'export',
-						}}
-					/>
-				</div>
-			</>
-		)}
-		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
-			<ButtonDropdown
-				component={() => (
-					<FilterDropdownForm loading={loading} onSubmit={dateSubmit} />
-				)}
-				props={{
-					title: 'Filter by Date',
-				}}
-			/>
-		</div>
-		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
-			<Button
-				caps
-				iconLeft={FaPlus}
-				margin="lg:mr-6"
-				onClick={openModal}
-				padding="px-3 py-2 md:px-6"
-				rounded="rounded-xl"
-				title={adminView ? 'Add Overtime' : 'Request Overtime'}
-			/>
-		</div>
-	</div>
-);
 
 export default Topbar;
