@@ -50,8 +50,8 @@ function Form({ form, setForm, loading }: FormProps) {
 					type="date"
 				/>
 			</div>
-			<div className="flex flex-wrap gap-2 mb-3 mt-4 w-full">
-				<div className="w-full md:w-[48%]">
+			<div className="flex flex-wrap gap-2 justify-between mb-3 mt-4 w-full">
+				<div className="w-full md:w-[45%]">
 					<Button
 						caps
 						disabled={loading}
@@ -63,7 +63,7 @@ function Form({ form, setForm, loading }: FormProps) {
 						title="filter"
 					/>
 				</div>
-				<div className="w-full md:w-[48%]">
+				<div className="w-full md:w-[45%]">
 					<Button
 						bg="bg-red-600 hover:bg-red-500"
 						caps
@@ -72,7 +72,7 @@ function Form({ form, setForm, loading }: FormProps) {
 						padding="px-4 py-1"
 						rounded="rounded-lg"
 						type="reset"
-						title={loading ? 'Please Wait...' : 'Reset'}
+						title="Reset"
 					/>
 				</div>
 			</div>

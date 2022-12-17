@@ -82,6 +82,8 @@ export const getLeavesQuery = ({
 						gte: from,
 						lte: to,
 					},
+				},
+				{
 					endDate: {
 						gte: from,
 						lte: to,
@@ -196,6 +198,8 @@ export const getLeavesAdminQuery = ({
 													gte: from,
 													lte: to,
 												},
+											},
+											{
 												endDate: {
 													gte: from,
 													lte: to,

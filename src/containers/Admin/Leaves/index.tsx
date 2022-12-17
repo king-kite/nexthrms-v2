@@ -20,7 +20,7 @@ import {
 } from '../../../types';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
-	const [dateQuery, setDateQuery] = useState({ from: '', to: '' });
+	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
 	const [errors, setErrors] = useState<
 		CreateLeaveErrorResponseType & {
 			message?: string;
@@ -37,6 +37,8 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			from: dateQuery?.from || undefined,
+			to: dateQuery?.to || undefined,
 		},
 		{
 			initialData() {
@@ -83,10 +85,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			heading="Leaves (Admin)"
 			refresh={{
 				loading: isFetching,
-				onClick: () => {
-					setDateQuery({ from: '', to: '' });
-					refetch();
-				},
+				onClick: refetch,
 			}}
 			loading={isLoading}
 			paginate={
@@ -108,9 +107,8 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			<Topbar
 				adminView
 				loading={isFetching}
-				dateSubmit={({ fromDate, toDate }) =>
-					setDateQuery({ from: fromDate, to: toDate })
-				}
+				dateForm={dateQuery}
+				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
 			/>

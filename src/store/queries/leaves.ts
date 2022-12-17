@@ -90,7 +90,6 @@ export function useGetLeavesQuery(
 	const query = useQuery(
 		[tags.LEAVES, { limit, offset, search, from, to }],
 		async () => {
-			console.log({ from, to });
 			let url = `${LEAVES_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) {
 				url += `&from=${from}&to=${to}`;
@@ -329,7 +328,7 @@ export function useGetLeavesAdminQuery(
 		async function () {
 			let url = `${LEAVES_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) {
-				url += `from=${from}&to=${to}`;
+				url += `&from=${from}&to=${to}`;
 			}
 			return axiosInstance
 				.get(url)

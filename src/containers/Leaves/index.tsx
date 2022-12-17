@@ -24,8 +24,6 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [offset, setOffset] = useState(0);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	console.log({ dateQuery });
-
 	const { open } = useAlertContext();
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesQuery(
