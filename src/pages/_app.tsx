@@ -15,6 +15,7 @@ import '../styles/globals.css';
 type ComponentWithAuthRequiredProp = AppProps & {
 	Component: AppProps['Component'] & {
 		authRequired?: boolean;
+		noWrapper?: boolean; // do not add check auth wrapper. Mainly for documentation and error pages.
 	};
 };
 
@@ -31,7 +32,9 @@ function App({
 	Component,
 	pageProps: { auth, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
-	return (
+	return Component.noWrapper ? (
+		<Component {...pageProps} />
+	) : (
 		<GlobalContextProvider>
 			<QueryClientProvider client={queryClient}>
 				<CheckAuth authData={auth}>
