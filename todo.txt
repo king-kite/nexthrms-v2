@@ -6,4 +6,4 @@
 5. Add permissions to routes.
 6. Check the project file delete url to delete files from folders.
 7. Check the tokens to see if they've expired before creating new ones for email verification and password reset.
-8. Work on the filter by date in the leaves and overtime page.
+8. Fix the filtering by dates (Keeps going about 1 day forward).

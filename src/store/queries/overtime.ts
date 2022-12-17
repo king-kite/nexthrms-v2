@@ -329,7 +329,7 @@ export function useGetAllOvertimeAdminQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.OVERTIME_ADMIN, { limit, offset, search }],
+		[tags.OVERTIME_ADMIN, { limit, offset, search, from, to }],
 		async function () {
 			let url = `${OVERTIME_ADMIN_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) {
