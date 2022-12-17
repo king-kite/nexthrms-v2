@@ -198,8 +198,8 @@ export function useGetAttendanceAdminQuery(
 	{
 		limit = DEFAULT_PAGINATION_SIZE,
 		offset = 0,
-		search,
-		date = { from: '', to: '' },
+		search = '',
+		date,
 		onError,
 	}: {
 		limit?: number;
@@ -221,7 +221,7 @@ export function useGetAttendanceAdminQuery(
 				ATTENDANCE_ADMIN_URL +
 				`?limit=${limit}&offset=${offset}&search=${search}`;
 			if (date) {
-				url += `&from=${date?.from}&to=${date?.to}`;
+				url += `&from=${date.from}&to=${date.to}`;
 			}
 			return axiosInstance
 				.get(url)

@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { Container, Modal } from '../../components/common';
-import { AdminTable as Table, Form, Topbar } from '../../components/Attendance';
+import {
+	AdminTable as Table,
+	Form,
+	SearchForm,
+	Topbar,
+} from '../../components/Attendance';
 import {
 	ATTENDANCE_ADMIN_EXPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
@@ -28,15 +33,13 @@ function AttendanceAdmin({
 		date: date.toLocaleDateString('en-Ca'),
 		punchIn: '08:00',
 	});
-	const [dateQuery, setDateQuery] = React.useState<{
-		from: string;
-		to: string;
-	}>({
-		from: '',
-		to: getDate(undefined, true) as string,
-	});
+
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [search, setSearch] = React.useState('');
+	const [searchForm, setSearchForm] = React.useState<{
+		name?: string;
+		startDate?: string;
+		endDate?: string;
+	}>();
 	const [exportLoading, setExportLoading] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
@@ -46,8 +49,14 @@ function AttendanceAdmin({
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
-			search,
-			date: dateQuery,
+			search: searchForm?.name,
+			date:
+				searchForm?.startDate && searchForm?.endDate
+					? {
+							from: searchForm.startDate,
+							to: searchForm.endDate,
+					  }
+					: undefined,
 		},
 		{
 			initialData() {
@@ -93,10 +102,6 @@ function AttendanceAdmin({
 			}
 		>
 			<Topbar
-				loading={isFetching}
-				dateQuery={dateQuery}
-				setDateQuery={setDateQuery}
-				searchSubmit={(value) => setSearch(value)}
 				openModal={() => {
 					setForm({
 						employee: '',
@@ -110,7 +115,12 @@ function AttendanceAdmin({
 					if (filtered) {
 						url =
 							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+								searchForm?.name || ''
+							}`;
+						if (searchForm?.startDate && searchForm?.endDate) {
+							url += `&from=${searchForm?.startDate}&to=${searchForm?.endDate}`;
+						}
 					}
 					const result = await downloadFile({
 						url,
@@ -126,6 +136,13 @@ function AttendanceAdmin({
 				}}
 				exportLoading={exportLoading}
 			/>
+			<div className="py-2 md:pt-4 lg:pt-6">
+				<SearchForm
+					form={searchForm}
+					loading={isFetching}
+					setForm={setSearchForm}
+				/>
+			</div>
 			<Table
 				attendance={data ? data.result : []}
 				loading={isFetching}
