@@ -32,6 +32,7 @@ const user = {
 							},
 							form: {
 								type: "object",
+								required: ['firstName', 'lastName', 'email', 'profile'],
 								properties: {
 									firstName: {
 										type: "string",
@@ -45,6 +46,7 @@ const user = {
 									},
 									profile: {
 										type: "object",
+										required: ['image'],
 										properties: {
 											phone: {
 												type: "string",
@@ -122,7 +124,48 @@ const user = {
 										error: {
 											type: "object",
 											nullable: true,
-											properties: {},
+											properties: {
+												firstName: {
+													type: 'string',
+													nullable: true,
+												},
+												lastName: {
+													type: 'string',
+													nullable: true,
+												},
+												email: {
+													type: 'string',
+													nullable: true,
+												},
+												phone: {
+													type: 'string',
+													nullable: true,
+												},
+												image: {
+													type: 'string',
+													nullable: true,
+												},
+												gender: {
+													type: 'string',
+													nullable: true,
+												},
+												address: {
+													type: 'string',
+													nullable: true,
+												},
+												state: {
+													type: 'string',
+													nullable: true,
+												},
+												city: {
+													type: 'string',
+													nullable: true,
+												},
+												dob: {
+													type: 'string',
+													nullable: true,
+												},
+											},
 										},
 									},
 								},
