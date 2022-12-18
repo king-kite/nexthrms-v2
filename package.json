@@ -12,6 +12,10 @@
 	"prisma": {
 		"schema": "./src/db/schema.prisma"
 	},
+	"engines": {
+    "node": "^16.15.0",
+    "npm": "^8.5.5"
+  },
 	"dependencies": {
 		"@prisma/client": "^4.1.0",
 		"@reduxjs/toolkit": "^1.8.3",
