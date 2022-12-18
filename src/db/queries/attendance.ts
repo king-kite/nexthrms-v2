@@ -5,7 +5,7 @@ import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { AttendanceType, ParamsType } from '../../types';
 import { getFirstDateOfMonth, getWeekDate } from '../../utils';
 
-export const attendanceSelectQuery: Prisma.AttendanceSelect = {
+export const attendanceSelectQuery = {
 	id: true,
 	date: true,
 	punchIn: true,
