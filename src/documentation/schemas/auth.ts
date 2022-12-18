@@ -85,7 +85,7 @@ export const AuthUserDataModel = {
 export const LoginErrorModel = {
 	allOf: [
 		{
-			$ref: "#/components/schemas/BaseErrorModel",
+			$ref: "#/components/schemas/BaseModel",
 		},
 		{
 			type: "object",

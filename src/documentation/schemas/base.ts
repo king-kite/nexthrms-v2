@@ -1,4 +1,4 @@
-export const BaseErrorModel = {
+export const BaseModel = {
 	type: 'object',
 	properties: {
 		status: {
@@ -15,7 +15,7 @@ export const BaseErrorModel = {
 export const BaseErrorRedirectModel = {
 	allOf: [
 		{
-			$ref: "#/components/schemas/BaseErrorModel",
+			$ref: "#/components/schemas/BaseModel",
 		},
 		{
 			type: "object",
