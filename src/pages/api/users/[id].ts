@@ -43,8 +43,9 @@ export default auth()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateUserQueryType =
-			await createUserSchema.validateAsync(form);
+		const valid: CreateUserQueryType = await createUserSchema.validateAsync(
+			form
+		);
 
 		if (files.image) {
 			// Upload a file to the bucket using firebase admin
@@ -135,12 +136,12 @@ export default auth()
 			},
 			data,
 			select: selectQuery,
-		})) as UserType;
+		})) as unknown;
 
 		return res.status(200).json({
 			status: 'success',
 			message: 'User was updated successfully',
-			data: user,
+			data: user as UserType,
 		});
 	})
 	.delete(async (req, res) => {
