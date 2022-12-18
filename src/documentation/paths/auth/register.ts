@@ -1,8 +1,7 @@
-import responses from "../../responses";
+import responses from '../../responses';
 
-const login ={
+const path = {
 	post: {
-		// description: 'Sign In User',
 		requestBody: {
 			required: true,
 			content: {
@@ -30,15 +29,15 @@ const login ={
 		},
 		responses: {
 			...responses,
-			"200": {
+			"201": {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: "#/components/schemas/AuthUserDataModel",
+							$ref: "#/components/schemas/BaseModel",
 						},
-					}
+					}	
 				},
-				description: "User Authentication Data",
+				description: "Register user",
 			},
 			"400": {
 				content: {
@@ -52,9 +51,9 @@ const login ={
 			},
 			"401": undefined
 		},
-		summary: "Sign In User",
+		summary: "Sign Up User",
 		tags: ["Authentication"],
 	},
 }
 
-export default login;
+export default path;

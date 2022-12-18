@@ -13,7 +13,7 @@ const responses = {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: "#/components/schemas/BaseErrorModel",
+					$ref: "#/components/schemas/BaseModel",
 				}
 			}
 		},
@@ -23,7 +23,7 @@ const responses = {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: "#/components/schemas/BaseErrorModel"
+					$ref: "#/components/schemas/BaseModel"
 				}
 			}
 		},
