@@ -1,6 +1,6 @@
 import responses from "../../responses";
 
-const user = {
+const path = {
 	get: {
 		responses: {
 			...responses,
@@ -180,4 +180,4 @@ const user = {
 	},
 };
 
-export default user;
+export default path;

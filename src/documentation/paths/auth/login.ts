@@ -1,6 +1,6 @@
 import responses from "../../responses";
 
-const login ={
+const path ={
 	post: {
 		// description: 'Sign In User',
 		requestBody: {
@@ -57,4 +57,4 @@ const login ={
 	},
 }
 
-export default login;
+export default path;
