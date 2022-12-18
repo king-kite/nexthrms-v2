@@ -4,6 +4,7 @@ import emailConfirm from "./emailConfirm";
 import emailResend from "./emailResend";
 import login from "./login";
 import logout from "./logout";
+import passwordConfirm from './passwordConfirm';
 import passwordReset from './passwordReset';
 import passwordVerify from './passwordVerify';
 import profile from "./profile";
@@ -16,6 +17,7 @@ const paths = {
 	[routes.EMAIL_CONFIRM_URL]: emailConfirm,
 	[routes.PASSWORD_RESET_URL]: passwordReset,
 	[routes.PASSWORD_RESET_VERIFY_URL]: passwordVerify,
+	[routes.PASSWORD_RESET_CONFIRM_URL]: passwordConfirm,
 	[routes.LOGIN_URL]: login,
 	[routes.LOGOUT_URL]: logout,
 	[routes.USER_DATA_URL]: user,
