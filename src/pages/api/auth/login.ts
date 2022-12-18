@@ -124,6 +124,7 @@ async function handler(
 					firstName: user.firstName,
 					lastName: user.lastName,
 					email: user.email,
+					fullName: user.firstName + " " + user.lastName,
 					profile: null,
 					employee: null,
 				};

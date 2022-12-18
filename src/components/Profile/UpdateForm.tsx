@@ -53,6 +53,7 @@ const Form = ({
 					firstName: data.firstName,
 					lastName: data.lastName,
 					email: data.email,
+					fullName: data.firstName + " " + data.lastName,
 					profile: {
 						image: data.profile?.image || DEFAULT_IMAGE,
 					},

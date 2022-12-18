@@ -60,6 +60,34 @@ export const getStaticProps: GetStaticProps = async () => {
 					},
 				},
 			},
+			components: {
+				schemas: {
+					AuthUserData: {
+						type: 'object',
+						properties: {
+							email: {
+								type: 'string',
+								description: 'The user\'s email'
+							},
+							firstName: {
+								type: 'string',
+								description: 'The user\'s first name'
+							},
+							fullName: {
+								type: 'string',
+								description: 'The user\'s first name + The user\'s last name'
+							},
+							lastName: {
+								type: 'string',
+								description: 'The user\'s last name'
+							},
+						},
+						example: {
+							
+						}
+					}
+				}
+			}
 		},
 	});
 

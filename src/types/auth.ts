@@ -1,6 +1,7 @@
 import { BaseResponseType, SuccessResponseType } from './base';
 
 export interface AuthDataType extends UserDataType {
+	fullName: string;
 	profile: {
 		image: string;
 	} | null;

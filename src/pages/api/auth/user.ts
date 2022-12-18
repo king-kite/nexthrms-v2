@@ -5,6 +5,7 @@ export default auth().get((req, res) => {
 	const data: AuthDataType = {
 		firstName: req.user.firstName,
 		lastName: req.user.lastName,
+		fullName: req.user.fullName,
 		email: req.user.email,
 		profile: req.user.profile
 			? {

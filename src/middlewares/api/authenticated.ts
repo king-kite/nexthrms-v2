@@ -57,7 +57,7 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 			return await comparePassword(_password, password);
 		};
 
-		return { ...user, checkPassword };
+		return { ...user, fullName: user.firstName + " " + user.lastName, checkPassword };
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
 			console.log('AUTH MIDDLEWARE :>> ', error);

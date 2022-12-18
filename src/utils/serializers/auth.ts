@@ -6,6 +6,7 @@ export function serializeUserData(
 	let data: AuthDataType = {
 		firstName: user.firstName,
 		lastName: user.lastName,
+		fullName: user.firstName + " " + user.lastName,
 		email: user.email,
 		profile: user.profile
 			? {
