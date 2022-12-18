@@ -4,6 +4,7 @@ import { createSwaggerSpec } from "next-swagger-doc";
 import React from 'react';
 import "swagger-ui-react/swagger-ui.css";
 
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../config";
 import { paths, schemas } from "../documentation";
 import { Title } from "../utils"
 
@@ -38,7 +39,17 @@ export const getStaticProps: GetStaticProps = async () => {
 			paths,
 			components: {
 				schemas,
+				// securitySchemes: {
+				// 	cookieAuth: {
+				// 		type: 'apiKey',
+				// 		in: 'cookie',
+				// 		name: ACCESS_TOKEN
+				// 	}
+				// }
 			},
+			// security: [
+			// 	{ cookieAuth: [] }
+			// ]
 		},
 	});
 
