@@ -5,7 +5,7 @@ import fs from 'fs';
 type UploadFileType = {
 	file: File;
 	location: string;
-	type?: string;
+	type?: 'image' | 'video' | 'raw' | 'auto';
 };
 
 function uploadFile({ file, location, type }: UploadFileType): Promise<
@@ -21,10 +21,16 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 	return new Promise((resolve, reject) => {
 		if (process.env.NODE_ENV !== 'development') {
 			cloudinary.uploader
-				.upload(file.filepath, {
-					public_id: location,
-					resource_type: type,
-				})
+				.upload(
+					file.filepath,
+					{
+						public_id: location,
+						resource_type: type,
+					},
+					(error) => {
+						if (error) reject(error);
+					}
+				)
 				.then((result) => {
 					resolve(result);
 				})
