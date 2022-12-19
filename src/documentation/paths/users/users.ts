@@ -4,6 +4,32 @@ import * as tags from "../../tags";
 
 const path = {
 	get: {
+		parameters: [
+			{
+				in: 'query',
+				name: 'limit',
+				schema: {
+					type: 'number',
+					default: 10,
+				}
+			},
+			{
+				in: 'query',
+				name: 'offset',
+				schema: {
+					type: 'number',
+					default: 0,
+				}
+			},
+			{
+				in: 'query',
+				name: 'search',
+				required: false,
+				schema: {
+					type: 'string',
+				}
+			},
+		],
 		responses: {
 			...responses,
 			"200": {
