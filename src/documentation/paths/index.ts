@@ -1,5 +1,5 @@
-import { default as authPaths } from './auth';
+import auth from './auth';
 
 export default {
-	...authPaths
+	...auth
 }

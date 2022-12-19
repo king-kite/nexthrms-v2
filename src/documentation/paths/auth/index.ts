@@ -4,6 +4,7 @@ import emailConfirm from "./emailConfirm";
 import emailResend from "./emailResend";
 import login from "./login";
 import logout from "./logout";
+import passwordChange from './passwordChange';
 import passwordConfirm from './passwordConfirm';
 import passwordReset from './passwordReset';
 import passwordVerify from './passwordVerify';
@@ -18,6 +19,7 @@ const paths = {
 	[routes.PASSWORD_RESET_URL]: passwordReset,
 	[routes.PASSWORD_RESET_VERIFY_URL]: passwordVerify,
 	[routes.PASSWORD_RESET_CONFIRM_URL]: passwordConfirm,
+	[routes.PASSWORD_CHANGE_URL]: passwordChange,
 	[routes.LOGIN_URL]: login,
 	[routes.LOGOUT_URL]: logout,
 	[routes.USER_DATA_URL]: user,
