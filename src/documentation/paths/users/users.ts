@@ -36,10 +36,43 @@ const path = {
 				content: {
 					"application/json": {
 						schema: {
-							type: "array",
-							items: {
-								$ref: refs.USER,
-							},
+							allOf: [
+								{ $ref: refs.BASE },
+								{
+									type: 'object',
+									properties: {
+										data: {
+											type: 'object',
+											properties: {
+												clients: {
+													type: 'number',
+												},
+												employees: {
+													type: 'number',
+												},
+												total: {
+													type: 'number'
+												},
+												active: {
+													type: 'number'
+												},
+												inactive: {
+													type: 'number'
+												},
+												on_leave: {
+													type: 'number'
+												},
+												result: {
+													type: "array",
+													items: {
+														$ref: refs.USER,
+													},
+												}
+											}
+										}
+									}
+								}
+							],
 						},
 					},
 				},
