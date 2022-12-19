@@ -1,9 +1,11 @@
+import * as refs from "./responses"
+
 const responses = {
 	"307": {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: "#/components/schemas/BaseErrorRedirectModel"
+					$ref: refs.BASE_ERROR_REDIRECT
 				}
 			}
 		},
@@ -13,7 +15,7 @@ const responses = {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: "#/components/schemas/BaseModel",
+					$ref: refs.BASE,
 				}
 			}
 		},
@@ -23,7 +25,7 @@ const responses = {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: "#/components/schemas/BaseModel"
+					$ref: refs.BASE,
 				}
 			}
 		},

@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as refs from "../../refs";
 import * as tags from "../../tags";
 
 const path ={
@@ -35,7 +36,7 @@ const path ={
 				content: {
 					"application/json": {
 						schema: {
-							$ref: "#/components/schemas/AuthUserDataModel",
+							$ref: refs.AUTH_USER_DATA,
 						},
 					}
 				},
@@ -45,7 +46,7 @@ const path ={
 				content: {
 					"application/json": {
 						schema: {
-							$ref: "#/components/schemas/LoginErrorModel"
+							$ref: refs.LOGIN_ERROR
 						}
 					}
 				},

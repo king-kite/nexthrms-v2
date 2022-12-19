@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as refs from "../../refs";
 import * as tags from "../../tags";
 
 const path ={
@@ -33,7 +34,7 @@ const path ={
 				content: {
 					"application/json": {
 						schema: {
-							$ref: "#/components/schemas/BaseModel",
+							$ref: refs.BASE,
 						},
 					}
 				},
@@ -44,7 +45,7 @@ const path ={
 					"application/json": {
 						schema: {
 							allOf: [
-								{$ref: "#/components/schemas/BaseModel"},
+								{$ref: refs.BASE},
 								{
 									type: "object",
 									properties: {
