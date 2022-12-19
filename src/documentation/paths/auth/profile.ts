@@ -18,7 +18,7 @@ const path = {
 			},
 		},
 		summary: "Get User Profile Data",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 	put: {
 		requestBody: {

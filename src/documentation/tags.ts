@@ -1,1 +1,1 @@
-export const AUTHENTICATION = 'Authentication and Personal Information';
+export const Authentication = 'Authentication and Personal Information';
