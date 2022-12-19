@@ -8,6 +8,7 @@ const path = {
 			{
 				in: 'path',
 				name: 'id',
+				required: true,
 				schema: {
 					type: 'string',
 					format: 'uuid'
@@ -54,6 +55,7 @@ const path = {
 			{
 				in: 'path',
 				name: 'id',
+				required: true,
 				schema: {
 					type: 'string',
 					format: 'uuid'
@@ -353,6 +355,7 @@ const path = {
 			{
 				in: 'path',
 				name: 'id',
+				required: true,
 				schema: {
 					type: 'string',
 					format: 'uuid'

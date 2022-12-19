@@ -13,10 +13,6 @@ export const PROFILE_URL = `${ROOT_URL}/auth/profile/`;
 export const REGISTER_URL = `${ROOT_URL}/auth/register/`;
 export const USER_DATA_URL = `${ROOT_URL}/auth/user/`;
 
-// Users URLs Start
-export const ACTIVATE_USER_URL = `${ROOT_URL}/users/activate/`;
-export const CHANGE_USER_PASSWORD_URL = `${ROOT_URL}/users/password/change/`;
-
 export const NOTIFICATIONS_URL = `${ROOT_URL}/notifications/`;
 export const NOTIFICATION_URL = (id: number | string) =>
 	`${ROOT_URL}/notifications/${id}/`;
@@ -98,8 +94,11 @@ export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 
+// Users URLs Start
 export const USERS_URL = `${ROOT_URL}/users/`;
-export const USERS_EXPORT_URL = `${ROOT_URL}/users/export/`;
 export const USER_URL = (id: string) => `${USERS_URL}${id}/`;
+export const USERS_EXPORT_URL = `${ROOT_URL}/users/export/`;
+export const ACTIVATE_USER_URL = `${ROOT_URL}/users/activate/`;
+export const CHANGE_USER_PASSWORD_URL = `${ROOT_URL}/users/password/change/`;
 
 // Administration URLs Stop
