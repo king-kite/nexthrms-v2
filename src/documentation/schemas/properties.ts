@@ -59,11 +59,6 @@ export const userProperties = {
 	},
 }
 
-export const userProfileProperties = {
-	...userProperties,
-	...profileProperties
-}
-
 export const userProfileEmployeeProperties = {
 	user: {
 		type: "object",
@@ -102,3 +97,88 @@ export const userProfileEmployeeProperties = {
 		},
 	},
 };
+
+export const userEmployeeProperties = {
+	id: {
+		type: "string",
+		format: "uuid",
+	},
+	dateEmployed: {
+		type: "string",
+		format: "date-time",
+	},
+	department: {
+		type: "object",
+		nullable: true,
+		required: ["name"],
+		description: "Information about the employee department.",
+		properties: {
+			name: {
+				type: "string",
+				description: "The name of the employee's department",
+			},
+			hod: {
+				type: "object",
+				nullable: true,
+				description:
+					"Information about the employee's department HOD",
+				properties: userProfileEmployeeProperties,
+			},
+		},
+	},
+	supervisor: {
+		type: "object",
+		nullable: true,
+		description:
+			"Information about the employee's supervisor",
+		properties: userProfileEmployeeProperties,
+	},
+	job: {
+		type: "object",
+		nullable: true,
+		required: ["name"],
+		description: "Information about the employee job.",
+		properties: {
+			name: {
+				type: "string",
+				description: "The name of the employee job",
+			},
+		},
+	},
+	leaves: {
+		type: "array",
+		items: {
+			type: "object",
+			properties: {
+				startDate: {
+					type: "string",
+					format: "date-time",
+					description: "The employee's leaves commences here",
+				},
+				endDate: {
+					type: "string",
+					format: "date-time",
+					description: "The employee's leaves ends here",
+				},
+				reason: {
+					type: "string",
+					description: "The reason for the leave",
+				},
+				type: {
+					type: "string",
+					description: "Type of leave",
+				},
+				approved: {
+					type: "boolean",
+					description: "leave approved?",
+				},
+			},
+		},
+	},
+}
+
+export const userProfileProperties = {
+	...userProperties,
+	...profileProperties
+}
+

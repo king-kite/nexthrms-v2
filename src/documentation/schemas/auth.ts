@@ -1,8 +1,9 @@
-import { userProfileProperties, userProfileEmployeeProperties } from "./properties"
+import { userEmployeeProperties, userProfileProperties } from "./properties"
+import * as refs from '../refs';
 
 export const AuthUserDataModel = {
 	allOf: [
-		{ $ref: "#/components/schemas/BaseModel" },
+		{ $ref: refs.BASE },
 		{
 			type: "object",
 			properties: {
@@ -98,7 +99,7 @@ export const AuthUserDataModel = {
 export const LoginErrorModel = {
 	allOf: [
 		{
-			$ref: "#/components/schemas/BaseModel",
+			$ref: refs.BASE,
 		},
 		{
 			type: "object",
@@ -125,7 +126,7 @@ export const LoginErrorModel = {
 
 export const UserProfileDataModel = {
 	allOf: [
-		{ $ref: "#/components/schemas/BaseModel" },
+		{ $ref: refs.BASE },
 		{
 			type: "object",
 			properties: {
@@ -143,87 +144,7 @@ export const UserProfileDataModel = {
 							nullable: true,
 							required: ["id"],
 							description: "Information if the user is an employee.",
-							properties: {
-								id: {
-									type: "string",
-									format: "uuid",
-									description: "The user's employee ID",
-								},
-								dateEmployed: {
-									type: "string",
-									nullable: true,
-									format: "date-time",
-									description: "The user's date of birth",
-								},
-								department: {
-									type: "object",
-									nullable: true,
-									required: ["name"],
-									description: "Information about the employee department.",
-									properties: {
-										name: {
-											type: "string",
-											description: "The name of the employee's department",
-										},
-										hod: {
-											type: "object",
-											nullable: true,
-											description:
-												"Information about the employee's department HOD",
-											properties: userProfileEmployeeProperties,
-										},
-										supervisor: {
-											type: "object",
-											nullable: true,
-											description:
-												"Information about the employee's supervisor",
-											properties: userProfileEmployeeProperties,
-										},
-									},
-								},
-								job: {
-									type: "object",
-									nullable: true,
-									required: ["name"],
-									description: "Information about the employee job.",
-									properties: {
-										name: {
-											type: "string",
-											description: "The name of the employee job",
-										},
-									},
-								},
-								leaves: {
-									type: "array",
-									items: {
-										type: "object",
-										properties: {
-											startDate: {
-												type: "string",
-												format: "date-time",
-												description: "The employee's leaves commences here",
-											},
-											endDate: {
-												type: "string",
-												format: "date-time",
-												description: "The employee's leaves ends here",
-											},
-											reason: {
-												type: "string",
-												description: "The reason for the leave",
-											},
-											type: {
-												type: "string",
-												description: "Type of leave",
-											},
-											approved: {
-												type: "boolean",
-												description: "leave approved?",
-											},
-										},
-									},
-								},
-							},
+							properties: userEmployeeProperties,
 						},
 					},
 					example: {

@@ -1,3 +1,5 @@
+import * as refs from '../refs';
+
 export const BaseModel = {
 	type: 'object',
 	properties: {
@@ -15,7 +17,7 @@ export const BaseModel = {
 export const BaseErrorRedirectModel = {
 	allOf: [
 		{
-			$ref: "#/components/schemas/BaseModel",
+			$ref: refs.BASE,
 		},
 		{
 			type: "object",

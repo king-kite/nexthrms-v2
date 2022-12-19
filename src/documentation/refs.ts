@@ -9,3 +9,6 @@ export const BASE_ERROR_REDIRECT = PATH + "BaseErrorRedirectModel";
 export const AUTH_USER_DATA = PATH + "AuthUserDataModel"
 export const LOGIN_ERROR = PATH + "LoginErrorModel";
 export const USER_PROFILE_DATA = PATH + "UserProfileDataModel";
+
+// Users
+export const USER = PATH + "UserModel"
