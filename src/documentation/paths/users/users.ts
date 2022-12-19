@@ -10,11 +10,14 @@ const path = {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.USER_PROFILE_DATA,
+							type: "array",
+							items: {
+								$ref: refs.USER,
+							},
 						},
 					},
 				},
-				description: "User Profile Information",
+				description: "Get All Users Information",
 			},
 		},
 		summary: "Get All Users",
@@ -34,7 +37,16 @@ const path = {
 							},
 							form: {
 								type: "object",
-								required: ['firstName', 'lastName', 'email', 'profile'],
+								required: [
+									"firstName",
+									"lastName",
+									"email",
+									"profile",
+									"isActive",
+									"isEmailVerified",
+									"isAdmin",
+									"isSuperUser",
+								],
 								properties: {
 									firstName: {
 										type: "string",
@@ -46,9 +58,25 @@ const path = {
 									email: {
 										type: "string",
 									},
+									isActive: {
+										type: "boolean",
+									},
+									isEmailVerified: {
+										type: "boolean",
+									},
+									isAdmin: {
+										type: "boolean",
+									},
+									isSuperUser: {
+										type: "boolean",
+									},
+									createdAt: {
+										type: "string",
+										format: "date-time",
+									},
 									profile: {
 										type: "object",
-										required: ['image'],
+										required: ["image"],
 										properties: {
 											phone: {
 												type: "string",
@@ -75,11 +103,51 @@ const path = {
 											},
 										},
 									},
+									employee: {
+										type: "object",
+										nullable: true,
+										properties: {
+											dateEmployed: {
+												type: "string",
+												format: "date-time",
+											},
+											department: {
+												type: "string",
+												format: "uuid",
+											},
+											job: {
+												type: "string",
+												format: "uuid",
+											},
+											supervisor: {
+												type: "string",
+												nullable: true,
+												format: "uuid",
+											},
+										},
+									},
+									client: {
+										type: "object",
+										nullable: true,
+										properties: {
+											company: {
+												type: "string",
+											},
+											position: {
+												type: "string",
+											},
+										},
+									},
 								},
 								example: {
 									firstName: "Jan",
 									lastName: "Doe",
 									email: "jandoe@gmail.com",
+									isActive: true,
+									isAdmin: false,
+									isEmailVerified: true,
+									isSuperUser: false,
+									createdAt: "2022-10-29T00:00:00.000Z",
 									profile: {
 										phone: "08123456789",
 										gender: "MALE",
@@ -90,6 +158,16 @@ const path = {
 										state: "New State",
 										city: "New City",
 										dob: "2000-02-12",
+									},
+									client: {
+										company: "Kite Holdings",
+										position: "CEO",
+									},
+									employee: {
+										dateEmployed: "2022-10-29T00:00:00.000Z",
+										department: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+										supervisor: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+										job: "9c48f93c-35d8-47b3-ad2a-938689b63262",
 									},
 								},
 							},
@@ -105,11 +183,21 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"200": {
+			"201": {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.USER_PROFILE_DATA,
+							allOf: [
+								{ $ref: refs.BASE },
+								{
+									type: "object",
+									properties: {
+										data: {
+											$ref: refs.USER,
+										},
+									},
+								},
+							],
 						},
 					},
 				},
@@ -128,43 +216,87 @@ const path = {
 											nullable: true,
 											properties: {
 												firstName: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												lastName: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												email: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												phone: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												image: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												gender: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												address: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												state: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												city: {
-													type: 'string',
+													type: "string",
 													nullable: true,
 												},
 												dob: {
-													type: 'string',
+													type: "string",
+													nullable: true,
+												},
+												isActive: {
+													type: "string",
+													nullable: true,
+												},
+												isAdmin: {
+													type: "string",
+													nullable: true,
+												},
+												isEmailVerified: {
+													type: "string",
+													nullable: true,
+												},
+												isSuperUser: {
+													type: "string",
+													nullable: true,
+												},
+												createdAt: {
+													type: "string",
+													nullable: true,
+												},
+												dateEmployed: {
+													type: "string",
+													nullable: true,
+												},
+												department: {
+													type: "string",
+													nullable: true,
+												},
+												job: {
+													type: "string",
+													nullable: true,
+												},
+												supervisor: {
+													type: "string",
+													nullable: true,
+												},
+												company: {
+													type: "string",
+													nullable: true,
+												},
+												position: {
+													type: "string",
 													nullable: true,
 												},
 											},
