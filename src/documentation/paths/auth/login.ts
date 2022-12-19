@@ -36,7 +36,17 @@ const path ={
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.AUTH_USER_DATA,
+							allOf: [
+								{ $ref: refs.BASE },
+								{ 
+									type: 'object',
+									properties: {
+										data: {
+											$ref: refs.AUTH_USER_DATA 
+										}
+									}
+								},
+							]
 						},
 					}
 				},
@@ -46,7 +56,20 @@ const path ={
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.LOGIN_ERROR
+							allOf: [
+								{
+									$ref: refs.BASE
+								},
+								{
+									type: "object",
+									nullable: true,
+									properties: {
+										error: {
+											$ref: refs.LOGIN_ERROR											
+										},
+									},
+								}
+							]
 						}
 					}
 				},

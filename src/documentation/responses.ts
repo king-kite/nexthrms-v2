@@ -5,7 +5,10 @@ const responses = {
 		content: {
 			"application/json": {
 				schema: {
-					$ref: refs.BASE_ERROR_REDIRECT
+					allOf: [
+						{ $ref: refs.BASE },
+						{ $ref: refs.BASE_ERROR_REDIRECT }
+					]
 				}
 			}
 		},

@@ -10,8 +10,18 @@ const path = {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.USER_PROFILE_DATA,
-						},
+							allOf: [
+								{ $ref: refs.BASE },
+								{ 
+									type: 'object',
+									properties: {
+										data: {
+											$ref: refs.USER_PROFILE_DATA,
+										}
+									}
+								},
+							]
+						}
 					},
 				},
 				description: "User Profile Information",
@@ -109,8 +119,18 @@ const path = {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.USER_PROFILE_DATA,
-						},
+							allOf: [
+								{ $ref: refs.BASE },
+								{ 
+									type: 'object',
+									properties: {
+										data: {
+											$ref: refs.USER_PROFILE_DATA,
+										}
+									}
+								},
+							]
+						}
 					},
 				},
 			},

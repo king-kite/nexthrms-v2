@@ -15,24 +15,18 @@ export const BaseModel = {
 }
 
 export const BaseErrorRedirectModel = {
-	allOf: [
-		{
-			$ref: refs.BASE,
-		},
-		{
-			type: "object",
-			nullable: true,
+	type: "object",
+	nullable: true,
+	properties: {
+		redirect: {
+			type: 'object',
 			properties: {
-				redirect: {
-					type: 'object',
-					properties: {
-						url: {
-							type: 'string',
-							format: 'uri'
-						}
-					}
+				url: {
+					type: 'string',
+					format: 'uri'
 				}
 			}
 		}
-	]
+	}
 }
+

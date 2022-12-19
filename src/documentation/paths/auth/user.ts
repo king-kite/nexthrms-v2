@@ -10,7 +10,17 @@ const path = {
 				content: {
 					"application/json": {
 						schema: {
-							$ref: refs.AUTH_USER_DATA,
+							allOf: [
+								{ $ref: refs.BASE },
+								{ 
+									type: 'object',
+									properties: {
+										data: {
+											$ref: refs.AUTH_USER_DATA 
+										}
+									}
+								},
+							]
 						},
 					}	
 				},
