@@ -1,4 +1,4 @@
-import * as refs from "./responses"
+import * as refs from "./refs"
 
 const responses = {
 	"307": {
