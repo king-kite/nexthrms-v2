@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as tags from "../../tags";
 
 const path ={
 	post: {
@@ -70,7 +71,7 @@ const path ={
 			"401": undefined
 		},
 		summary: "Verify Password Reset Link",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 }
 

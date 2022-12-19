@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as tags from "../../tags";
 
 const path ={
 	post: {
@@ -82,7 +83,7 @@ const path ={
 			}
 		},
 		summary: "Change Password",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 }
 

@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as tags from "../../tags";
 
 const path = {
 	get: {
@@ -176,7 +177,7 @@ const path = {
 			},
 		},
 		summary: "Update User Profile Data",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 };
 

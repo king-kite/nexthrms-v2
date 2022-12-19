@@ -1,4 +1,5 @@
 import responses from "../../responses";
+import * as tags from "../../tags";
 
 const path ={
 	post: {
@@ -53,7 +54,7 @@ const path ={
 			"401": undefined
 		},
 		summary: "Sign In User",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 }
 

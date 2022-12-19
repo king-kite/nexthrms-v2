@@ -1,4 +1,5 @@
 import responses from '../../responses';
+import * as tags from "../../tags";
 
 const path = {
 	get: {
@@ -16,7 +17,7 @@ const path = {
 			},
 		},
 		summary: "Get User Data",
-		tags: ["Authentication"],
+		tags: [tags.Authentication],
 	},
 }
 
