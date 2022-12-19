@@ -7,6 +7,7 @@ import {
 	FaCalendarAlt,
 	FaClipboardList,
 	FaClock,
+	FaFileArchive,
 	FaHandshake,
 	FaPeopleArrows,
 	FaProjectDiagram,
@@ -180,6 +181,11 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 						icon: FaArchive,
 						title: 'assets',
 						href: routes.ASSETS_PAGE_URL,
+					},
+					{
+						icon: FaFileArchive,
+						title: 'API documentation',
+						href: routes.DOCS_PAGE_URL,
 					},
 					{
 						icon: FaRProject,

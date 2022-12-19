@@ -1,10 +1,12 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import dynamic from "next/dynamic";
+import Link from 'next/link';
 import { createSwaggerSpec } from "next-swagger-doc";
+import { Button } from 'kite-react-tailwind'
 import React from 'react';
 import "swagger-ui-react/swagger-ui.css";
 
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../config";
+import { ACCESS_TOKEN, HOME_PAGE_URL, REFRESH_TOKEN } from "../config";
 import { paths, schemas } from "../documentation";
 import { Title } from "../utils"
 
@@ -19,6 +21,22 @@ function ApiDoc({ spec }: InferGetStaticPropsType<typeof getStaticProps>) {
 		<React.Fragment>
 			<Title title="KiteHRMS Swagger Documentation" />
 			<div className="container mx-auto">
+				<div className="flex justify-end px-2 py-4">
+					<div>
+						<Button 
+							bg="bg-[#7eaf04] hover:bg-[#5a7d03]"
+							link={HOME_PAGE_URL}
+							padding="px-4 py-2 md:px-8 py-4"
+							renderLinkAs={({children, link, ...props}) => (
+								<Link href={link}>
+									<a {...props}>{children}</a>
+								</Link>
+							)}
+							title="Go to Dashboard"
+							titleSize="text-base md:text-lg"
+						/>
+					</div>
+				</div>
 				<SwaggerUI spec={spec} />
 			</div>
 		</React.Fragment>

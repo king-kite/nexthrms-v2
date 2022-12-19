@@ -1,3 +1,4 @@
+export const DOCS_PAGE_URL = '/docs/';
 export const HOME_PAGE_URL = '/';
 export const JOBS_PAGE_URL = '/jobs/';
 
