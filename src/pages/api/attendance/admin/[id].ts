@@ -39,14 +39,18 @@ export default auth()
 		};
 		if (data.overtime) {
 			input.overtime = {
-				connectOrCreate: {
-					where: {
-						date_employeeId: {
-							date,
-							employeeId: data.employee,
-						},
-					},
+				upsert: {
 					create: {
+						date,
+						employee: {
+							connect: {
+								id: data.employee,
+							},
+						},
+						hours: data.overtime.hours,
+						reason: data.overtime.reason,
+					},
+					update: {
 						date,
 						employee: {
 							connect: {
