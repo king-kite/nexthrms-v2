@@ -6,14 +6,6 @@ const path = {
 		parameters: [
 			{
 				in: 'query',
-				name: 'type',
-				schema: {
-					type: "'csv' | 'excel'",
-					default: "csv"
-				}
-			},
-			{
-				in: 'query',
 				name: 'limit',
 				schema: {
 					type: 'number',
@@ -26,6 +18,22 @@ const path = {
 				schema: {
 					type: 'number',
 					default: 0,
+				}
+			},
+			{
+				in: 'query',
+				name: 'from',
+				schema: {
+					type: 'string',
+					format: 'date-time'
+				}
+			},
+			{
+				in: 'query',
+				name: 'to',
+				schema: {
+					type: 'string',
+					format: 'date-time'
 				}
 			},
 			{
@@ -54,11 +62,11 @@ const path = {
 						},
 					},
 				},
-				description: "Export Employees Information",
+				description: "Export Assets Information",
 			},
 		},
-		summary: "Export Employees Data",
-		tags: [tags.Employees],
+		summary: "Export Assets Data",
+		tags: [tags.Assets],
 	},
 };
 
