@@ -54,11 +54,11 @@ const path = {
 						},
 					},
 				},
-				description: "Export Users Information",
+				description: "Export Employees Information",
 			},
 		},
-		summary: "Export Users Data",
-		tags: [tags.Users],
+		summary: "Export Employees Data",
+		tags: [tags.Employees],
 	},
 };
 
