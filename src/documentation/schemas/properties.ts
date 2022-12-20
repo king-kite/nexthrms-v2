@@ -98,6 +98,32 @@ export const userProfileEmployeeProperties = {
 	},
 };
 
+export const userEmployeeLeavesProperties = {
+	type: "array",
+	items: {
+		type: "object",
+		properties: {
+			startDate: {
+				type: "string",
+				format: "date-time",
+			},
+			endDate: {
+				type: "string",
+				format: "date-time",
+			},
+			reason: {
+				type: "string",
+			},
+			type: {
+				type: "string",
+			},
+			approved: {
+				type: "boolean",
+			},
+		},
+	},
+}
+
 export const userEmployeeProperties = {
 	id: {
 		type: "string",
@@ -145,36 +171,7 @@ export const userEmployeeProperties = {
 			},
 		},
 	},
-	leaves: {
-		type: "array",
-		items: {
-			type: "object",
-			properties: {
-				startDate: {
-					type: "string",
-					format: "date-time",
-					description: "The employee's leaves commences here",
-				},
-				endDate: {
-					type: "string",
-					format: "date-time",
-					description: "The employee's leaves ends here",
-				},
-				reason: {
-					type: "string",
-					description: "The reason for the leave",
-				},
-				type: {
-					type: "string",
-					description: "Type of leave",
-				},
-				approved: {
-					type: "boolean",
-					description: "leave approved?",
-				},
-			},
-		},
-	},
+	leaves: userEmployeeLeavesProperties,
 }
 
 export const userProfileProperties = {
