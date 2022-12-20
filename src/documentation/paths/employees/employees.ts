@@ -91,137 +91,101 @@ const path = {
 							form: {
 								type: "object",
 								required: [
-									"firstName",
-									"lastName",
-									"email",
-									"profile",
-									"isActive",
-									"isEmailVerified",
-									"isAdmin",
-									"isSuperEmployee",
+									"department",
+									"job"
 								],
 								properties: {
-									firstName: {
-										type: "string",
+									dateEmployed: {
+										type: 'string',
+										format: 'date-time'
 									},
-									lastName: {
-										type: "string",
-										format: "email",
+									department: {
+										type: 'string',
+										format: 'uuid'
 									},
-									email: {
-										type: "string",
+									job: {
+										type: 'string',
+										format: 'uuid'
 									},
-									isActive: {
-										type: "boolean",
-									},
-									isEmailVerified: {
-										type: "boolean",
-									},
-									isAdmin: {
-										type: "boolean",
-									},
-									isSuperEmployee: {
-										type: "boolean",
-									},
-									createdAt: {
-										type: "string",
-										format: "date-time",
-									},
-									profile: {
-										type: "object",
-										required: ["image"],
-										properties: {
-											phone: {
-												type: "string",
-											},
-											gender: {
-												type: "string",
-												format: "MALE | FEMALE",
-											},
-											image: {
-												type: "string",
-											},
-											dob: {
-												type: "string",
-												format: "date-time",
-											},
-											address: {
-												type: "string",
-											},
-											state: {
-												type: "string",
-											},
-											city: {
-												type: "string",
-											},
-										},
-									},
-									employee: {
-										type: "object",
+									supervisor: {
+										type: 'string',
 										nullable: true,
-										properties: {
-											dateEmployed: {
-												type: "string",
-												format: "date-time",
-											},
-											department: {
-												type: "string",
-												format: "uuid",
-											},
-											job: {
-												type: "string",
-												format: "uuid",
-											},
-											supervisor: {
-												type: "string",
-												nullable: true,
-												format: "uuid",
-											},
-										},
+										format: 'uuid'
 									},
-									client: {
-										type: "object",
+									userId: {
+										type: 'string',
 										nullable: true,
-										properties: {
-											company: {
-												type: "string",
-											},
-											position: {
-												type: "string",
-											},
-										},
+										format: 'uuid'
 									},
+									user: {
+										type: 'object',
+										nullable: true,
+										required: ["firstName", "lastName", "email", "profile"],
+										properties: {
+											firstName: {
+												type: "string",
+											},
+											lastName: {
+												type: "string",
+											},
+											email: {
+												type: "string",
+												format: 'email'
+											},
+											profile: {
+												type: "object",
+												required: ["image"],
+												properties: {
+													phone: {
+														type: "string",
+													},
+													gender: {
+														type: "string",
+														format: "MALE | FEMALE",
+													},
+													image: {
+														type: "string",
+													},
+													dob: {
+														type: "string",
+														format: "date-time",
+													},
+													address: {
+														type: "string",
+													},
+													state: {
+														type: "string",
+													},
+													city: {
+														type: "string",
+													},
+												},
+											},
+										}
+									}
 								},
 								example: {
-									firstName: "Jan",
-									lastName: "Doe",
-									email: "jandoe@gmail.com",
-									isActive: true,
-									isAdmin: false,
-									isEmailVerified: true,
-									isSuperEmployee: false,
-									createdAt: "2022-10-29T00:00:00.000Z",
-									profile: {
-										phone: "08123456789",
-										gender: "MALE",
-										image:
-											"/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg",
-										address:
-											"This is Jan Doe's Home Address. Leave any message or letter at this address",
-										state: "New State",
-										city: "New City",
-										dob: "2000-02-12",
+									dateEmployed: "2022-10-29T00:00:00.000Z",
+									department: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+									supervisor: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+									job: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+									user: {
+										firstName: "Jan",
+										lastName: "Doe",
+										email: "jandoe@gmail.com",
+										profile: {
+											phone: "08123456789",
+											gender: "MALE",
+											image:
+												"/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg",
+											address:
+												"This is Jan Doe's Home Address. Leave any message or letter at this address",
+											state: "New State",
+											city: "New City",
+											dob: "2000-02-12",
+										}
 									},
-									client: {
-										company: "Kite Holdings",
-										position: "CEO",
-									},
-									employee: {
-										dateEmployed: "2022-10-29T00:00:00.000Z",
-										department: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-										supervisor: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-										job: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-									},
+									userId: null
 								},
 							},
 						},
@@ -308,26 +272,6 @@ const path = {
 													type: "string",
 													nullable: true,
 												},
-												isActive: {
-													type: "string",
-													nullable: true,
-												},
-												isAdmin: {
-													type: "string",
-													nullable: true,
-												},
-												isEmailVerified: {
-													type: "string",
-													nullable: true,
-												},
-												isSuperEmployee: {
-													type: "string",
-													nullable: true,
-												},
-												createdAt: {
-													type: "string",
-													nullable: true,
-												},
 												dateEmployed: {
 													type: "string",
 													nullable: true,
@@ -344,14 +288,10 @@ const path = {
 													type: "string",
 													nullable: true,
 												},
-												company: {
-													type: "string",
-													nullable: true,
-												},
-												position: {
-													type: "string",
-													nullable: true,
-												},
+												userId: {
+													type: 'string',
+													nullable: true
+												}
 											},
 										},
 									},
