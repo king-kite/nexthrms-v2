@@ -1,11 +1,11 @@
-import assets from './assets';
 import auth from './auth';
+import assets from './assets';
 import employees from './employees';
 import users from './users';
 
 export default {
-	...assets,
 	...auth,
+	...assets,
 	...employees,
 	...users
 }
