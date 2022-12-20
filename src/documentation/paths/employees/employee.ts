@@ -371,12 +371,11 @@ const path = {
 							$ref: refs.BASE
 						}
 					}
-				},
-				description: "User Deleted Successfully",
+				}
 			}
 		},
-		summary: "Delete Single User",
-		tags: [tags.Users]
+		summary: "Delete Single Employee",
+		tags: [tags.Employees]
 	}
 };
 
