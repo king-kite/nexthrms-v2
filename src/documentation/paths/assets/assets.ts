@@ -5,7 +5,7 @@ import * as tags from "../../tags";
 import { AssetModel } from "../../schemas/assets";
 
 const {user, id, updatedAt, ...assetProperties} = AssetModel.properties
-const {id: eid, updatedAt: eupdatedAt, user: euser, ...assetExample } = AssetModel.example
+const {id: eid, user: euser, ...assetExample } = AssetModel.example
 
 export const content = {
 	"application/json": {
