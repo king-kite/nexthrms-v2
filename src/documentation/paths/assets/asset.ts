@@ -338,8 +338,8 @@ const path = {
 				}
 			}
 		},
-		summary: "Delete Single Employee",
-		tags: [tags.Employees]
+		summary: "Delete Single Asset",
+		tags: [tags.Assets]
 	}
 };
 
