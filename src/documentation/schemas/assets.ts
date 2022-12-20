@@ -1,5 +1,9 @@
 export const AssetModel = {
 	type: "object",
+	required: [
+		'assetId', 'condition', 'manufacturer', 'name', 'purchaseDate', 'purchaseFrom', 'serialNo',
+		'supplier', 'status', 'warranty', 'value'
+	],
 	properties: {
 		id: {
 			type: "string",
