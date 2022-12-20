@@ -26,6 +26,7 @@ const path = {
 				},
 				description: "User Profile Information",
 			},
+			"403": undefined
 		},
 		summary: "Get User Profile Data",
 		tags: [tags.Authentication],
@@ -196,6 +197,7 @@ const path = {
 					},
 				},
 			},
+			"403": undefined
 		},
 		summary: "Update User Profile Data",
 		tags: [tags.Authentication],

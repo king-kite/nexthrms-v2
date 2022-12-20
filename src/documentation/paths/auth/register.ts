@@ -64,7 +64,8 @@ const path = {
 				},
 				description: "Bad Request"
 			},
-			"401": undefined
+			"401": undefined,
+			"403": undefined
 		},
 		summary: "Sign Up User",
 		tags: [tags.Authentication],

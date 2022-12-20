@@ -81,7 +81,8 @@ const path ={
 					}
 				},
 				description: "Bad Request"
-			}
+			},
+			"403": undefined
 		},
 		summary: "Change Password",
 		tags: [tags.Authentication],

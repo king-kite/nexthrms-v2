@@ -16,6 +16,7 @@ const path = {
 				},
 				description: "Log out the user",
 			},
+			"403": undefined
 		},
 		summary: "Sign Out User",
 		tags: [tags.Authentication],

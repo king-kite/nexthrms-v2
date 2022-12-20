@@ -69,7 +69,8 @@ const path ={
 				description: "Bad Request"
 			},
 			"307": undefined,
-			"401": undefined
+			"401": undefined,
+			"403": undefined
 		},
 		summary: "Confirm User Email Verification Link",
 		tags: [tags.Authentication],

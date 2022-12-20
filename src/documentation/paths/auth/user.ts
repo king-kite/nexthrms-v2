@@ -26,6 +26,7 @@ const path = {
 				},
 				description: "User Authentication Data",
 			},
+			"403": undefined
 		},
 		summary: "Get User Data",
 		tags: [tags.Authentication],

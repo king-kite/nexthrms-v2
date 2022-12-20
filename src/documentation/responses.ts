@@ -24,6 +24,16 @@ const responses = {
 		},
 		description: "Authentication Failed"
 	},
+	"403": {
+		content: {
+			"application/json": {
+				schema: {
+					$ref: refs.BASE,
+				}
+			}
+		},
+		description: "Unauthorized"
+	},
 	"500": {
 		content: {
 			"application/json": {

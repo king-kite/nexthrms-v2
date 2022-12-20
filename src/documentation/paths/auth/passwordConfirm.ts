@@ -87,7 +87,8 @@ const path ={
 				description: "Bad Request"
 			},
 			"307": undefined,
-			"401": undefined
+			"401": undefined,
+			"403": undefined
 		},
 		summary: "Confirm Password Reset",
 		tags: [tags.Authentication],
