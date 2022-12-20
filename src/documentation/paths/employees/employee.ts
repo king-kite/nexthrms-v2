@@ -311,8 +311,8 @@ const path = {
 				},
 			},
 		},
-		summary: "Updated Single User",
-		tags: [tags.Users],
+		summary: "Updated Single Employee",
+		tags: [tags.Employees],
 	},
 	delete: {
 		parameters: [
