@@ -38,29 +38,32 @@ export const AttendanceModel = {
 			format: 'uuid'
 		},
 		employee: {
-			id: {
-				type: 'string',
-				format: 'uuid'
-			},
-			user: {
-				type: 'object',
-				properties: {
-					firstName: {
-						type: 'string',								
-					},
-					lastName: {
-						type: 'string',								
-					},
-					email: {
-						format: 'email',
-						type: 'string',								
-					},
-					profile: {
-						type: 'object',
-						nullable: true,
-						properties: {
-							image: {
-								type: 'string'
+			type: 'object',
+			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid'
+				},
+				user: {
+					type: 'object',
+					properties: {
+						firstName: {
+							type: 'string',								
+						},
+						lastName: {
+							type: 'string',								
+						},
+						email: {
+							format: 'email',
+							type: 'string',								
+						},
+						profile: {
+							type: 'object',
+							nullable: true,
+							properties: {
+								image: {
+									type: 'string'
+								}
 							}
 						}
 					}
