@@ -27,7 +27,7 @@ const path = {
 									type: 'object',
 									properties: {
 										data: {
-											$ref: refs.EMPLOYEE,
+											$ref: refs.ASSET,
 										}
 									}
 								}
@@ -35,7 +35,7 @@ const path = {
 						},
 					},
 				},
-				description: "Get Single Employee Information",
+				description: "Get Single Asset Information",
 			},
 			"404": {
 				content: {
@@ -47,8 +47,8 @@ const path = {
 				}
 			}
 		},
-		summary: "Get Single Employee",
-		tags: [tags.Employees],
+		summary: "Get Single Asset",
+		tags: [tags.Assets],
 	},
 	put: {
 		parameters: [
