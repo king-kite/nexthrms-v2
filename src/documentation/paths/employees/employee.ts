@@ -195,7 +195,7 @@ const path = {
 									type: "object",
 									properties: {
 										data: {
-											$ref: refs.USER,
+											$ref: refs.EMPLOYEE,
 										},
 									},
 								},

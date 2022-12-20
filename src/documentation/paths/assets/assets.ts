@@ -7,6 +7,85 @@ import { AssetModel } from "../../schemas/assets";
 const {user, id, updatedAt, ...assetProperties} = AssetModel.properties
 const {id: eid, updatedAt: eupdatedAt, user: euser, ...assetExample } = AssetModel.example
 
+export const content = {
+	"application/json": {
+		schema: {
+			...AssetModel,
+			required: [ ...AssetModel.required, 'userId'],
+			properties: {
+				...assetProperties,
+				userId: {
+					type: 'string',
+					format: 'uuid'
+				}
+			},
+			example: {
+				...assetExample,
+				userId: "3be85792-7bc0-44b6-ba80-4cfc6a14313b"
+			}
+		}
+	}
+}
+
+export const errorProperties = {
+	assetId: {
+		type: 'string',
+		nullable: true
+	},
+	condition: {
+		type: 'string',
+		nullable: true
+	},
+	description: {
+		type: 'string',
+		nullable: true
+	},
+	manufacturer: {
+		type: 'string',
+		nullable: true
+	},
+	model: {
+		type: 'string',
+		nullable: true,
+	},
+	name: {
+		type: 'string',
+		nullable: true
+	},
+	purchaseDate: {
+		type: 'string',
+		nullable: true
+	},
+	purchaseFrom: {
+		type: 'string',
+		nullable: true
+	},
+	serialNo: {
+		type: 'string',
+		nullable: true
+	},
+	supplier: {
+		type: 'string',
+		nullable: true
+	},
+	status: {
+		type: 'string',
+		nullable: true
+	},
+	userId: {
+		type: 'string',
+		nullable: true
+	},
+	warranty: {
+		type: 'string',
+		nullable: true
+	},
+	value: {
+		type: 'string',
+		nullable: true
+	}
+}
+
 const path = {
 	get: {
 		parameters: [
@@ -90,25 +169,7 @@ const path = {
 	post: {
 		requestBody: {
 			required: true,
-			content: {
-				"application/json": {
-					schema: {
-						...AssetModel,
-						required: [ ...AssetModel.required, 'userId'],
-						properties: {
-							...assetProperties,
-							userId: {
-								type: 'string',
-								format: 'uuid'
-							}
-						},
-						example: {
-							...assetExample,
-							userId: "3be85792-7bc0-44b6-ba80-4cfc6a14313b"
-						}
-					}
-				}
-			},
+			content,
 		},
 		responses: {
 			...responses,
@@ -143,64 +204,7 @@ const path = {
 										error: {
 											type: "object",
 											nullable: true,
-											properties: {
-												assetId: {
-													type: 'string',
-													nullable: true
-												},
-												condition: {
-													type: 'string',
-													nullable: true
-												},
-												description: {
-													type: 'string',
-													nullable: true
-												},
-												manufacturer: {
-													type: 'string',
-													nullable: true
-												},
-												model: {
-													type: 'string',
-													nullable: true,
-												},
-												name: {
-													type: 'string',
-													nullable: true
-												},
-												purchaseDate: {
-													type: 'string',
-													nullable: true
-												},
-												purchaseFrom: {
-													type: 'string',
-													nullable: true
-												},
-												serialNo: {
-													type: 'string',
-													nullable: true
-												},
-												supplier: {
-													type: 'string',
-													nullable: true
-												},
-												status: {
-													type: 'string',
-													nullable: true
-												},
-												userId: {
-													type: 'string',
-													nullable: true
-												},
-												warranty: {
-													type: 'string',
-													nullable: true
-												},
-												value: {
-													type: 'string',
-													nullable: true
-												}
-											},
+											properties: errorProperties,
 										},
 									},
 								},
