@@ -60,9 +60,6 @@ export default auth()
 			};
 		}
 
-		console.log('\n\nData :>> ', data, '\n\n');
-		console.log('\n\nInput :>> ', input, '\n\n');
-
 		const result = await prisma.attendance.update({
 			where: {
 				id: req.query.id as string,
@@ -71,8 +68,8 @@ export default auth()
 			select: selectQuery,
 		});
 
-		return res.status(201).json({
-			message: 'Attendance record created successfully!',
+		return res.status(200).json({
+			message: 'Attendance record updated successfully!',
 			status: 'success',
 			data: result,
 		});

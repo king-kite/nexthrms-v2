@@ -5,6 +5,7 @@ import attendanceInfo from './info';
 
 // Admin
 import attendanceAdmin from './attendanceAdmin'
+import attendanceSingleAdmin from './attendanceSingleAdmin'
 import attendanceAdminExport from './adminExportAttendance';
 
 const paths = {
@@ -12,6 +13,7 @@ const paths = {
 	[routes.ATTENDANCE_INFO_URL]: attendanceInfo,
 
 	[routes.ATTENDANCE_ADMIN_URL]: attendanceAdmin,
+	[routes.ATTENDANCE_ADMIN_SINGLE_URL("{id}")]: attendanceSingleAdmin,
 	[routes.ATTENDANCE_ADMIN_EXPORT_URL]: attendanceAdminExport,
 };
 
