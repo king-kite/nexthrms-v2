@@ -38,6 +38,7 @@ export default auth()
 				id: req.query.id as string,
 			},
 			data,
+			select: selectQuery
 		});
 		return res.status(200).json({
 			status: 'success',
