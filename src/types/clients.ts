@@ -3,6 +3,7 @@ import { SuccessResponseType } from './base';
 export type ClientType = {
 	id: string;
 	company: string;
+	position: string;
 	contact: {
 		firstName: string;
 		lastName: string;
@@ -18,7 +19,6 @@ export type ClientType = {
 		} | null;
 		isActive: boolean;
 	};
-	position: string;
 };
 
 export type ClientCreateQueryType = {
