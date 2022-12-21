@@ -17,6 +17,7 @@ export const ATTENDANCE_INFO = PATH + "AttendanceInfoModel";
 export const CLIENT = PATH + "ClientModel";
 export const DEPARTMENT = PATH + "DepartmentModel";
 export const EMPLOYEE = PATH + "EmployeeModel";
+export const HOLIDAY = PATH + "HolidayModel";
 
 // Administration Section
 export const ASSET = PATH + "AssetModel";
