@@ -14,6 +14,7 @@ export const USER_PROFILE_DATA = PATH + "UserProfileDataModel";
 // Employees Section
 export const ATTENDANCE = PATH + "AttendanceModel";
 export const ATTENDANCE_INFO = PATH + "AttendanceInfoModel";
+export const CLIENT = PATH + "ClientModel";
 export const EMPLOYEE = PATH + "EmployeeModel";
 
 // Administration Section

@@ -45,6 +45,6 @@ export const ClientModel = {
         phone: '12345678902',
         state: 'New Earth',
       },
-    },
+    }
   },
 };
