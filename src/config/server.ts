@@ -93,6 +93,7 @@ export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
+export const JOB_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 
 // Users URLs Start
 export const USERS_URL = `${ROOT_URL}/users/`;
