@@ -10,10 +10,6 @@ import { ACCESS_TOKEN, HOME_PAGE_URL, REFRESH_TOKEN } from "../config";
 import { paths, schemas } from "../documentation";
 import { Title } from "../utils"
 
-// const SwaggerUI = dynamic<{
-// 	spec: any;
-// }>(import('swagger-ui-react'), { ssr: false });
-
 const SwaggerUI = dynamic<any>(import("swagger-ui-react"), { ssr: false });
 
 function ApiDoc({ spec }: InferGetStaticPropsType<typeof getStaticProps>) {
