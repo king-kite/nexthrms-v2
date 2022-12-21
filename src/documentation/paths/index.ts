@@ -4,6 +4,7 @@ import attendance from './attendance';
 import clients from './clients';
 import departments from './departments';
 import employees from './employees';
+import holidays from './holidays';
 import users from './users';
 
 const paths = {
@@ -13,6 +14,7 @@ const paths = {
 	...clients,
 	...departments,
 	...employees,
+	...holidays,
 	...users
 }
 

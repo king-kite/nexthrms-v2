@@ -1,5 +1,6 @@
 export const HolidayModel = {
 	type: 'object',
+	required: ["name", "date"],
 	properties: {
 		id: {
 			type: 'string',
