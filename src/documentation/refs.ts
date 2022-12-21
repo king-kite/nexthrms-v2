@@ -11,6 +11,8 @@ export const AUTH_USER_DATA = PATH + "AuthUserDataModel"
 export const LOGIN_ERROR = PATH + "LoginErrorModel";
 export const USER_PROFILE_DATA = PATH + "UserProfileDataModel";
 
+export const NOTIFICATION = PATH + "NotificationModel";
+
 // Employees Section
 export const ATTENDANCE = PATH + "AttendanceModel";
 export const ATTENDANCE_INFO = PATH + "AttendanceInfoModel";

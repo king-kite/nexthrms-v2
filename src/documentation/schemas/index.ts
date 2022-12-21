@@ -7,4 +7,5 @@ export * from './departments';
 export * from './employees';
 export * from './holidays';
 export * from './jobs';
+export * from './notifications';
 export * from './users';
