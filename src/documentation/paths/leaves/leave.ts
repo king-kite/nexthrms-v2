@@ -59,6 +59,7 @@ const path = {
 			content: {
 				'application/json': {
 					schema: {
+						type: 'object',
 						properties: requestProperties,
 						example: requestExample,
 					},
@@ -90,25 +91,35 @@ const path = {
 				content: {
 					'application/json': {
 						schema: {
-							type: 'object',
-							properties: {
-								type: {
-									type: 'string',
-									nullable: true,
+							allOf: [
+								{ $ref: refs.BASE },
+								{
+									type: 'object',
+									properties: {
+										error: {
+											type: 'object',
+											properties: {
+												type: {
+													type: 'string',
+													nullable: true,
+												},
+												startDate: {
+													type: 'string',
+													nullable: true,
+												},
+												endDate: {
+													type: 'string',
+													nullable: true,
+												},
+												reason: {
+													type: 'string',
+													nullable: true,
+												},
+											},
+										},
+									},
 								},
-								startDate: {
-									type: 'string',
-									nullable: true,
-								},
-								endDate: {
-									type: 'string',
-									nullable: true,
-								},
-								reason: {
-									type: 'string',
-									nullable: true,
-								},
-							},
+							],
 						},
 					},
 				},
