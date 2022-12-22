@@ -8,4 +8,5 @@ export const Holidays = 'Holidays';
 export const Notifications = 'Notifications';
 export const Jobs = 'Jobs';
 export const Leaves = 'Leaves';
+export const Overtime = 'Overtime';
 export const Users = 'Users';

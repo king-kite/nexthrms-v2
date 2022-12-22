@@ -22,6 +22,7 @@ export const EMPLOYEE = PATH + "EmployeeModel";
 export const HOLIDAY = PATH + "HolidayModel";
 export const JOB = PATH + "JobModel";
 export const LEAVE = PATH + "LeaveModel";
+export const OVERTIME = PATH + "OvertimeModel";
 
 // Administration Section
 export const ASSET = PATH + "AssetModel";
