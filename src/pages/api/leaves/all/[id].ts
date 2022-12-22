@@ -18,30 +18,30 @@ export default auth()
 			data: leave,
 		});
 	})
-	.post(async (req, res) => {
-		const {
-			approval,
-		}: {
-			approval: 'APPROVED' | 'DENIED';
-		} = await leaveApprovalSchema.validateAsync({ ...req.body });
-		const leave = await prisma.leave.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data: {
-				status: approval,
-			},
-			select: selectQuery,
-		});
+	// .post(async (req, res) => {
+	// 	const {
+	// 		approval,
+	// 	}: {
+	// 		approval: 'APPROVED' | 'DENIED';
+	// 	} = await leaveApprovalSchema.validateAsync({ ...req.body });
+	// 	const leave = await prisma.leave.update({
+	// 		where: {
+	// 			id: req.query.id as string,
+	// 		},
+	// 		data: {
+	// 			status: approval,
+	// 		},
+	// 		select: selectQuery,
+	// 	});
 
-		return res.status(200).json({
-			status: 'success',
-			mesage:
-				'Leave request was ' +
-				(approval === 'DENIED' ? 'denied!' : 'approved!'),
-			data: leave,
-		});
-	})
+	// 	return res.status(200).json({
+	// 		status: 'success',
+	// 		mesage:
+	// 			'Leave request was ' +
+	// 			(approval === 'DENIED' ? 'denied!' : 'approved!'),
+	// 		data: leave,
+	// 	});
+	// })
 	.put(async (req, res) => {
 		if (!req.user.employee) {
 			return res.status(403).json({
