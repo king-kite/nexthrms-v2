@@ -8,6 +8,7 @@ import holidays from './holidays';
 import jobs from './jobs';
 import leaves from './leaves';
 import notifications from './notifications';
+import overtime from './overtime';
 import users from './users';
 
 const paths = {
@@ -21,6 +22,7 @@ const paths = {
 	...jobs,
 	...leaves,
 	...notifications,
+	...overtime,
 	...users
 }
 

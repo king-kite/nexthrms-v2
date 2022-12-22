@@ -1,5 +1,5 @@
-import responses from "../../responses";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
@@ -9,8 +9,8 @@ const path = {
 				name: 'type',
 				schema: {
 					type: "'csv' | 'excel'",
-					default: "csv"
-				}
+					default: 'csv',
+				},
 			},
 			{
 				in: 'query',
@@ -18,7 +18,7 @@ const path = {
 				schema: {
 					type: 'number',
 					default: 10,
-				}
+				},
 			},
 			{
 				in: 'query',
@@ -26,7 +26,7 @@ const path = {
 				schema: {
 					type: 'number',
 					default: 0,
-				}
+				},
 			},
 			{
 				in: 'query',
@@ -34,30 +34,48 @@ const path = {
 				required: false,
 				schema: {
 					type: 'string',
-				}
+				},
+			},
+			{
+				in: 'query',
+				name: 'from',
+				required: false,
+				schema: {
+					type: 'string',
+					format: 'date-time',
+				},
+			},
+			{
+				in: 'query',
+				name: 'to',
+				required: false,
+				schema: {
+					type: 'string',
+					format: 'date-time',
+				},
 			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/csv": {
+					'application/csv': {
 						schema: {
 							type: 'string',
-							format: 'binary'
+							format: 'binary',
 						},
 					},
-					"application/excel": {
+					'application/excel': {
 						schema: {
 							type: 'string',
-							format: 'binary'
+							format: 'binary',
 						},
 					},
 				},
-				description: "Export Leaves Information",
+				description: 'Export Leaves Information',
 			},
 		},
-		summary: "Export Leaves Data",
+		summary: 'Export Leaves Data',
 		tags: [tags.Leaves],
 	},
 };
