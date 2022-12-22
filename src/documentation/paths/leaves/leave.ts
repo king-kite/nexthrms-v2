@@ -11,9 +11,9 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		responses: {
 			...responses,
@@ -27,19 +27,46 @@ const path = {
 									type: 'object',
 									properties: {
 										data: {
-											$ref: refs.LEAVE
-										}
-									}
-								}
-							]
+											$ref: refs.LEAVE,
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+		},
+		summary: 'Get Single Leave',
+		tags: [tags.Leaves],
+	},
+	delete: {
+		parameters: [
+			{
+				in: 'path',
+				name: 'id',
+				required: true,
+				schema: {
+					type: 'string',
+					format: 'uuid',
+				},
+			},
+		],
+		responses: {
+			...responses,
+			'200': {
+				content: {
+					'application/json': {
+						schema: {
+							$ref: refs.BASE
 						}
 					}
 				}
 			}
 		},
-		summary: 'Get Single Leave',
+		summary: 'Delete Single Leave',
 		tags: [tags.Leaves]
-	}
-}
+	},
+};
 
 export default path;
