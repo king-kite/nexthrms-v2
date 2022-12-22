@@ -6,7 +6,7 @@ import { Button } from 'kite-react-tailwind'
 import React from 'react';
 import "swagger-ui-react/swagger-ui.css";
 
-import { ACCESS_TOKEN, HOME_PAGE_URL, REFRESH_TOKEN } from "../config";
+import { HOME_PAGE_URL } from "../config";
 import { paths, schemas } from "../documentation";
 import { Title } from "../utils"
 
