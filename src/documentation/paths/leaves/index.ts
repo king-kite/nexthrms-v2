@@ -1,9 +1,9 @@
 import * as routes from '../../../config/server';
 
-import getLeaves from './getLeaves';
+import leaves from './leaves';
 
 const paths = {
-    [routes.LEAVES_URL]: getLeaves,
+    [routes.LEAVES_URL]: leaves,
 };
 
 export default paths
