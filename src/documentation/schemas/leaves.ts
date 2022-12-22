@@ -70,6 +70,9 @@ export const LeaveModel = {
 			type: 'string',
 			foramt: 'date-time',
 		},
+		reason: {
+			type: 'string'
+		},
 		status: {
 			type: 'string',
 			format: "'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING'",
