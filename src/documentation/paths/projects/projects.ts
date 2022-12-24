@@ -7,20 +7,18 @@ const path = {
 		parameters: [
 			{
 				in: 'query',
-				name: 'from',
+				name: 'limit',
 				required: false,
 				schema: {
-					type: 'string',
-					format: 'date-time'
+					type: 'number',
 				}
 			},
 			{
 				in: 'query',
-				name: 'to',
+				name: 'offset',
 				required: false,
 				schema: {
-					type: 'string',
-					format: 'date-time'
+					type: 'number',
 				}
 			},
 			{
