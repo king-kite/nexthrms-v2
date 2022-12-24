@@ -1,3 +1,5 @@
+import { PROJECT_TEAM } from '../refs';
+
 export const ProjectTeamModel = {
 	type: 'object',
 	properties: {
@@ -32,7 +34,7 @@ export const ProjectTeamModel = {
 							type: 'object',
 							properties: {
 								image: {
-									type: 'image'
+									type: 'string'
 								}
 							}
 						}
@@ -90,7 +92,7 @@ export const ProjectModel = {
 							type: 'object',
 							properties: {
 								image: {
-									type: 'image'
+									type: 'string'
 								}
 							}
 						}
@@ -131,7 +133,7 @@ export const ProjectModel = {
 		team: {
 			type: 'array',
 			items: {
-				$ref: ProjectTeamModel
+				$ref: PROJECT_TEAM
 			}
 		},
 		updatedAt: {
