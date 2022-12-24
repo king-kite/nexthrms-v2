@@ -9,4 +9,5 @@ export const Notifications = 'Notifications';
 export const Jobs = 'Jobs';
 export const Leaves = 'Leaves';
 export const Overtime = 'Overtime';
+export const Projects = 'Projects';
 export const Users = 'Users';
