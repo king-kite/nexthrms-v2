@@ -46,6 +46,12 @@ const path = {
 										data: {
 											type: 'object',
 											properties: {
+												completed: {
+													type: 'number'
+												},
+												ongoing: {
+													type: 'number'
+												},
 												total: {
 													type: 'number'
 												},
