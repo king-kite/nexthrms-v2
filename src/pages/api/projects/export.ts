@@ -11,24 +11,31 @@ export default auth().get(async (req, res) => {
 
 	const data = await getProjects({ ...params });
 
-	const projects = data.result.map((project: ProjectType) => ({
-		id: project.id,
-		name: project.name,
-		description: project.description,
-		startDate: project.startDate,
-		endDate: project.endDate,
-		completed: project.completed,
-		initial_cost: project.initialCost,
-		rate: project.rate,
-		priority: project.priority,
-		client_id: project.client.id,
-		client_company: project.client.company,
-		client_position: project.client.position,
-		client_first_name: project.client.contact.firstName,
-		client_last_name: project.client.contact.lastName,
-		client_email: project.client.contact.email,
-		updated_at: project.updatedAt,
-	}));
+	const projects = data.result.map((project: ProjectType) => {
+		const data = {
+			id: project.id,
+			name: project.name,
+			description: project.description,
+			startDate: project.startDate,
+			endDate: project.endDate,
+			completed: project.completed,
+			initial_cost: project.initialCost,
+			rate: project.rate,
+			priority: project.priority,
+		}
+		if (project.client) {
+			Object.assign(data, {
+				client_id: project.client.id,
+				client_company: project.client.company,
+				client_position: project.client.position,
+				client_first_name: project.client.contact.firstName,
+				client_last_name: project.client.contact.lastName,
+				client_email: project.client.contact.email,
+			})
+		}
+
+		return {...data, updated_at: project.updatedAt};
+	});
 
 	if (req.query.type === 'csv') {
 		const data = parse(projects);

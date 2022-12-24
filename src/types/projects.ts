@@ -8,7 +8,7 @@ import {
 
 export type ProjectType = {
 	id: string;
-	client: {
+	client?: {
 		id: string;
 		company: string;
 		position: string;
@@ -20,7 +20,7 @@ export type ProjectType = {
 				image: string;
 			};
 		};
-	};
+	} | null;
 	name: string;
 	description: string;
 	completed: boolean;
