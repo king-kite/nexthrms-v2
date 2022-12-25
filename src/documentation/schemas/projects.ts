@@ -1,5 +1,68 @@
 import { PROJECT_TEAM } from '../refs';
 
+export const ProjectFileModel = {
+	type: 'object',
+	properties: {
+		id: {
+			type: 'string',
+			format: 'uuid'
+		},
+		name: {
+			type: 'string'
+		},
+		file: {
+			type: 'string',
+			format: 'url'
+		},
+		size: {
+			type: 'number'
+		},
+		type: {
+			type: 'string'
+		},
+		project: {
+			type: 'object',
+			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid'
+				},
+				name: {
+					type: 'string'
+				}
+			}
+		},
+		employee: {
+			type: 'object',
+			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid'
+				},
+				user: {
+					type: 'object',
+					properties: {
+						firstName: {
+							type: 'string'
+						},
+						lastName: {
+							type: 'string'
+						},
+						email: {
+							type: 'string',
+							format: 'email'
+						}
+					}
+				}
+			}
+		},
+		updatedAt: {
+			type: 'string',
+			format: 'date-time'
+		}
+	}
+}
+
 export const ProjectTeamModel = {
 	type: 'object',
 	properties: {

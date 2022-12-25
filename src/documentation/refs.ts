@@ -24,6 +24,7 @@ export const JOB = PATH + "JobModel";
 export const LEAVE = PATH + "LeaveModel";
 export const OVERTIME = PATH + "OvertimeModel";
 export const PROJECT = PATH + "ProjectModel";
+export const PROJECT_FILE = PATH + "ProjectFileModel";
 export const PROJECT_TEAM = PATH + "ProjectTeamModel";
 
 // Administration Section
