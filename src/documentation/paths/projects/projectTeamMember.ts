@@ -86,17 +86,12 @@ const path = {
 					schema: {
 						type: 'object',
 						properties: {
-							team: {
-								type: 'object',
-								properties: {
-									employeeId: {
-										type: 'string',
-										format: 'uuid'
-									},
-									isLeader: {
-										type: 'boolean'
-									}
-								}
+							employeeId: {
+								type: 'string',
+								format: 'uuid'
+							},
+							isLeader: {
+								type: 'boolean'
 							}
 						}
 					}
