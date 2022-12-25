@@ -99,7 +99,6 @@ const path = {
 			}
 		},
 		responses: {
-			responses: {
 			...responses,
 			"200": {
 				content: {
@@ -158,7 +157,6 @@ const path = {
 					}
 				}
 			}
-		}
 		},
 		summary: "Update Project Team Member",
 		tags: [tags.Projects],
