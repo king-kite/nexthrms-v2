@@ -8,6 +8,7 @@ import projectFile from './projectFile';
 import projectFiles from './projectFiles';
 
 import projectTeam from './projectTeam';
+import projectTeamMember from './projectTeamMember';
 
 const paths = {
 	[routes.PROJECTS_URL]: projects,
@@ -18,6 +19,7 @@ const paths = {
 	[routes.PROJECT_FILE_URL("{projectId}", "{projectFileId}")]: projectFile,
 
 	[routes.PROJECT_TEAM_URL("{projectId}")]: projectTeam,
+	[routes.PROJECT_TEAM_MEMBER_URL("{projectId}", "{memberId}")]: projectTeamMember,
 }
 
 export default paths;
