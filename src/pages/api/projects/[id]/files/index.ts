@@ -49,7 +49,7 @@ export default auth()
 		const location = `media/projects/${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`;
 
 		const result = await uploadFile({
-			file: files.image,
+			file: files.file,
 			location,
 		});
 
