@@ -57,6 +57,51 @@ const path = {
 		},
 		summary: "Get a single project task",
 		tags: [tags.Projects]
+	},
+	delete: {
+		parameters: [
+			{
+				in: 'path',
+				name: 'projectId',
+				required: true,
+				schema: {
+					type: 'string',
+					format: 'uuid'
+				}
+			},
+			{
+				in: 'path',
+				name: 'taskId',
+				required: true,
+				schema: {
+					type: 'string',
+					format: 'uuid'
+				}
+			}
+		],
+		responses: {
+			...responses,
+			"200": {
+				content: {
+					"application/json": {
+						schema: {
+							$ref: refs.BASE
+						}
+					}
+				}
+			},
+			"404": {
+				content: {
+					"application/json": {
+						schema: {
+							$ref: refs.BASE
+						}
+					}
+				}
+			}
+		},
+		summary: "Delete a single project task",
+		tags: [tags.Projects]
 	}
 };
 
