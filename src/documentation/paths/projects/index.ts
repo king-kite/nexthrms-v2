@@ -12,6 +12,7 @@ import projectTeamMember from './projectTeamMember';
 
 import projectTask from './projectTask';
 import projectTasks from './projectTasks';
+import exportProjectTasks from './exportProjectTasks';
 
 const paths = {
 	[routes.PROJECTS_URL]: projects,
@@ -26,6 +27,7 @@ const paths = {
 
 	[routes.PROJECT_TASKS_URL("{projectId}")]: projectTasks,
 	[routes.PROJECT_TASK_URL("{projectId}", "{taskId}")]: projectTask,
+	[routes.PROJECT_TASKS_EXPORTS_URL("{projectId}")]: exportProjectTasks,
 }
 
 export default paths;
