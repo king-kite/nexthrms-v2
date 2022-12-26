@@ -205,3 +205,52 @@ export const ProjectModel = {
 		}
 	}
 }
+
+export const ProjectTaskModel = {
+	type: 'object',
+	properties: {
+		id: {
+			type: 'string',
+			format: 'uuid'
+		},
+		name: {
+			type: 'string'
+		},
+		description: {
+			type: 'string'
+		},
+		completed: {
+			type: 'boolean'
+		},
+		dueDate: {
+			type: 'string',
+			format: 'date-time'
+		},
+		priority: {
+			type: 'string',
+			format: "'HIGH' | 'MEDIUM' | 'LOW'"
+		},
+		followers: {
+			type: 'array',
+			items: {
+				$ref: PROJECT_TEAM
+			}
+		},
+		project: {
+			type: 'object',
+			properties: {
+				id: {
+					type: 'string',
+					format: 'date-time'
+				},
+				name: {
+					type: 'string'
+				}
+			}
+		},
+		updatedAt: {
+			type: 'string',
+			format: 'date-time'
+		}
+	}
+}
