@@ -14,6 +14,7 @@ import projectTask from './projectTask';
 import projectTasks from './projectTasks';
 import exportProjectTasks from './exportProjectTasks';
 
+import projectTaskFollower from './projectTaskFollower';
 import projectTaskFollowers from './projectTaskFollowers';
 
 const paths = {
@@ -32,6 +33,7 @@ const paths = {
 	[routes.PROJECT_TASKS_EXPORTS_URL("{projectId}")]: exportProjectTasks,
 
 	[routes.PROJECT_TASK_FOLLOWERS_URL("{projectId}", "{taskId}")]: projectTaskFollowers,
+	[routes.PROJECT_TASK_FOLLOWER_URL("{projectId}", "{taskId}", "{followerId}")]: projectTaskFollower,
 }
 
 export default paths;
