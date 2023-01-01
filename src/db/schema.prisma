@@ -256,11 +256,24 @@ model Permission {
   codename    String  @unique @db.VarChar(100)
   description String? @db.VarChar(300)
 
+  categoryId String?             @map("category_id") @db.Uuid
+  category   PermissionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   groups Group[] @relation("group_permissions")
   users  User[]  @relation("permission_users")
 
   @@index([id], map: "permission_id")
   @@map("permissions")
+}
+
+model PermissionCategory {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(100)
+
+  permissions Permission[]
+
+  @@index([id], map: "permission_category_id")
+  @@map("permission_categories")
 }
 
 model Profile {
