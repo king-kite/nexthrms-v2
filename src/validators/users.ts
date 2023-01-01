@@ -33,6 +33,10 @@ export const createPermissionSchema = Joi.object({
 	name: Joi.string().required().label('Name'),
 });
 
+export const createPermissionCategorySchema = Joi.object({
+	name: Joi.string().required().label('Name'),
+});
+
 export const createUserSchema = Joi.object({
 	email: Joi.string()
 		.email({ tlds: { allow: false } })
