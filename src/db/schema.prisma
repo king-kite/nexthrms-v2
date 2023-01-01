@@ -256,6 +256,7 @@ model Permission {
   description String? @db.VarChar(300)
 
   groups Group[]
+  users  User[]
 
   @@index([id], map: "permission_id")
   @@map("permissions")
@@ -420,12 +421,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  assets    Asset[]
-  client    Client?
-  employee  Employee?
-  profile   Profile?
-  sender    Notification[] @relation("notificationSender")
-  recipient Notification[] @relation("notificationRecipient")
+  assets      Asset[]
+  client      Client?
+  employee    Employee?
+  permissions Permission[]
+  profile     Profile?
+  sender      Notification[] @relation("notificationSender")
+  recipient   Notification[] @relation("notificationRecipient")
 
   @@index([id], map: "user_id")
   @@index([email], map: "user_email")
