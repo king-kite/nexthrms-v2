@@ -140,6 +140,7 @@ model Group {
   name String @unique @db.VarChar(100)
 
   permissions Permission[]
+  users       User[]
 
   @@index([id], map: "group_id")
   @@map("groups")
@@ -424,6 +425,7 @@ model User {
   assets      Asset[]
   client      Client?
   employee    Employee?
+  groups      Group[]
   permissions Permission[]
   profile     Profile?
   sender      Notification[] @relation("notificationSender")
