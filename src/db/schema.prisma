@@ -135,18 +135,12 @@ model Employee {
   @@map("employees")
 }
 
-model Job {
+model Group {
   id   String @id @default(uuid()) @db.Uuid
-  name String @unique @db.VarChar(50)
+  name String @unique @db.VarChar(100)
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  employees Employee[]
-
-  @@index([id], map: "job_id")
-  @@index([name], map: "job_name")
-  @@map("jobs")
+  @@index([id], map: "group_id")
+  @@map("groups")
 }
 
 model Holiday {
@@ -160,6 +154,20 @@ model Holiday {
   @@unique([name, date])
   @@index([id], map: "holiday_id")
   @@map("holiday")
+}
+
+model Job {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(50)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  employees Employee[]
+
+  @@index([id], map: "job_id")
+  @@index([name], map: "job_name")
+  @@map("jobs")
 }
 
 model Leave {
