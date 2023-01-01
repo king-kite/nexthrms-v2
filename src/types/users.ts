@@ -1,50 +1,58 @@
 import { PaginatedResponseType, SuccessResponseType } from './base';
 
 // Groups Types Start
-export type GroupType = { 
+export type GroupType = {
 	id: string;
 	name: string;
 	permissions: PermissionType[];
-}
+};
 
 export type CreateGroupQueryType = {
 	name: string;
 	permissions: string[];
-}
+};
 
 export type CreateGroupErrorResponseType = {
 	name?: string;
 	permissions?: string;
-}
+};
 
 export type CreateGroupResponseType = SuccessResponseType<GroupType>;
 
-export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>
+export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Groups Types Stop
 
 // Permissions Types Start
 export type PermissionType = {
 	id: string;
 	name: string;
+	category?: PermissionCategoryType | null;
 	codename: string;
 	description?: string;
-}
+};
+
+export type PermissionCategoryType = {
+	id: string;
+	name: string;
+};
 
 export type CreatePermissionQueryType = {
 	name: string;
 	codename: string;
 	description?: string;
-}
+};
 
 export type CreatePermissionErrorResponseType = {
 	name?: string;
 	codename?: string;
 	description?: string;
-}
+};
 
 export type CreatePermissionResponseType = SuccessResponseType<PermissionType>;
 
-export type GetPermissionsResponseType = PaginatedResponseType<PermissionType[]>
+export type GetPermissionsResponseType = PaginatedResponseType<
+	PermissionType[]
+>;
 // Permisssions Types Stop
 
 // Users Types Start
