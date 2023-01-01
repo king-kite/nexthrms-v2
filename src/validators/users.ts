@@ -12,11 +12,25 @@ const passwordComplexityOptions = {
 };
 
 export const changeUserPasswordSchema = Joi.object({
-	email: Joi.string().email({ tlds: { allow: false } }),
+	email: Joi.string()
+		.email({ tlds: { allow: false } })
+		.required()
+		.label('Email'),
 	password1: JoiPasswordComplexity(passwordComplexityOptions, 'New Password')
 		.required()
 		.label('New Password'),
 	password2: Joi.string().required().label('Confirm Password'),
+});
+
+export const createGroupSchema = Joi.object({
+	name: Joi.string().required().label('Name'),
+	permissions: Joi.array().items(Joi.string().uuid()).required(),
+});
+
+export const createPermissionSchema = Joi.object({
+	codename: Joi.string().required().label('Code Name'),
+	description: Joi.string().optional().allow('').label('Description'),
+	name: Joi.string().required().label('Name'),
 });
 
 export const createUserSchema = Joi.object({
