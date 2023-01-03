@@ -34,8 +34,7 @@ export const getPermissionsQuery = ({
 		orderBy: {
 			category: {
 				name: 'asc' as const,
-			},
-			name: 'asc' as const,
+			}
 		},
 		where: search
 			? {
