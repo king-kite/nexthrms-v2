@@ -10,4 +10,5 @@ export const Jobs = 'Jobs';
 export const Leaves = 'Leaves';
 export const Overtime = 'Overtime';
 export const Projects = 'Projects';
+export const Permissions = 'Permissions';
 export const Users = 'Users';

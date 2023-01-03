@@ -30,4 +30,6 @@ export const PROJECT_TEAM = PATH + "ProjectTeamModel";
 
 // Administration Section
 export const ASSET = PATH + "AssetModel";
+export const PERMISSION = PATH + "PermissionModel";
+export const PERMISSION_CATEGORY = PATH + "PermissionCategoryModel";
 export const USER = PATH + "UserModel"
