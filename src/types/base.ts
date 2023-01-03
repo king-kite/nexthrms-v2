@@ -11,6 +11,7 @@ export type ParamsType = {
 	search?: string;
 	from?: Date;
 	to?: Date;
+	all?: boolean;
 };
 
 export interface SuccessResponseType<DataType = unknown> extends ResponseType {
