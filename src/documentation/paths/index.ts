@@ -9,6 +9,7 @@ import jobs from './jobs';
 import leaves from './leaves';
 import notifications from './notifications';
 import overtime from './overtime';
+import permissions from './permissions';
 import projects from './projects';
 import users from './users';
 
@@ -24,6 +25,7 @@ const paths = {
 	...leaves,
 	...notifications,
 	...overtime,
+	...permissions,
 	...projects,
 	...users
 }
