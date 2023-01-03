@@ -95,6 +95,10 @@ export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 
+export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
+export const PERMISSON_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
+export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export`;
+
 // Users URLs Start
 export const USERS_URL = `${ROOT_URL}/users/`;
 export const USER_URL = (id: string) => `${USERS_URL}${id}/`;
