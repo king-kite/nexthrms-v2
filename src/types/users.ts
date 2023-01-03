@@ -38,12 +38,14 @@ export type PermissionCategoryType = {
 
 export type CreatePermissionQueryType = {
 	name: string;
+	categoryId?: string;
 	codename: string;
 	description?: string;
 };
 
 export type CreatePermissionErrorResponseType = {
 	name?: string;
+	categoryId?: string;
 	codename?: string;
 	description?: string;
 };

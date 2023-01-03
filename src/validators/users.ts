@@ -29,7 +29,8 @@ export const createGroupSchema = Joi.object({
 
 export const createPermissionSchema = Joi.object({
 	codename: Joi.string().required().label('Code Name'),
-	description: Joi.string().optional().allow('').label('Description'),
+	description: Joi.string().optional().allow('', null).label('Description'),
+	categoryId: Joi.string().uuid().optional().allow('', null).label('Category'),
 	name: Joi.string().required().label('Name'),
 });
 
