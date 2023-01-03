@@ -23,6 +23,7 @@ export const PermissionModel = {
 		},
 		category: {
 			$ref: PermissionCategoryModel,
+			nullable: true,
 		},
 		codename: {
 			type: 'string',
