@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import { getPermissions, permissionSelectQuery, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
 import { CreatePermissionQueryType } from '../../../types';
