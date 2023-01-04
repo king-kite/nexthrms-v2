@@ -100,9 +100,9 @@ export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
 export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export`;
 
 export const PERMISSION_CATEGORIES_URL = `${ROOT_URL}/permissions/categories/`;
-export const PERMISSON_CATEGORY_URL = (id: string) =>
+export const PERMISSION_CATEGORY_URL = (id: string) =>
 	`${PERMISSION_CATEGORIES_URL}${id}/`;
-export const PERMISSIONS_CATEGORIES_EXPORT_URL = `${ROOT_URL}/permissions/categories/export`;
+export const PERMISSION_CATEGORIES_EXPORT_URL = `${ROOT_URL}/permissions/categories/export`;
 
 // Users URLs Start
 export const USERS_URL = `${ROOT_URL}/users/`;
