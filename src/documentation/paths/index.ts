@@ -4,6 +4,7 @@ import attendance from './attendance';
 import clients from './clients';
 import departments from './departments';
 import employees from './employees';
+import groups from './groups';
 import holidays from './holidays';
 import jobs from './jobs';
 import leaves from './leaves';
@@ -20,6 +21,7 @@ const paths = {
 	...clients,
 	...departments,
 	...employees,
+	...groups,
 	...holidays,
 	...jobs,
 	...leaves,
