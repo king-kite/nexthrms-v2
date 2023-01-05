@@ -5,9 +5,9 @@ import groups from './groups';
 import exportGroups from './exportGroups';
 
 const path = {
-	[routes.PERMISSIONS_URL]: groups,
-	[routes.PERMISSION_URL('{id}')]: group,
-	[routes.PERMISSIONS_EXPORT_URL]: exportGroups,
+	[routes.GROUPS_URL]: groups,
+	[routes.GROUP_URL('{id}')]: group,
+	[routes.GROUPS_EXPORT_URL]: exportGroups,
 };
 
 export default path;
