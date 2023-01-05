@@ -2,6 +2,10 @@ import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { File } from 'formidable';
 import fs from 'fs';
 
+const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
+	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
+	: false;
+
 type UploadFileType = {
 	file: File;
 	location: string;
@@ -19,25 +23,7 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 	  }
 > {
 	return new Promise((resolve, reject) => {
-		if (process.env.NODE_ENV !== 'development') {
-			cloudinary.uploader
-				.upload(
-					file.filepath,
-					{
-						public_id: location,
-						resource_type: type,
-					},
-					(error) => {
-						if (error) reject(error);
-					}
-				)
-				.then((result) => {
-					resolve(result);
-				})
-				.catch((error) => {
-					reject(error);
-				});
-		} else {
+		if (process.env.NODE_ENV === 'development' && USE_LOCAL_MEDIA_STORAGE) {
 			fs.readFile(file.filepath, (err, data) => {
 				if (err) reject(err);
 				else {
@@ -75,6 +61,24 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 					});
 				}
 			});
+		} else {
+			cloudinary.uploader
+				.upload(
+					file.filepath,
+					{
+						public_id: location,
+						resource_type: type,
+					},
+					(error) => {
+						if (error) reject(error);
+					}
+				)
+				.then((result) => {
+					resolve(result);
+				})
+				.catch((error) => {
+					reject(error);
+				});
 		}
 	});
 }
