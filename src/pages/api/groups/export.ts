@@ -1,50 +1,46 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
-import { getPermissions } from '../../../db';
+import { getGroups } from '../../../db';
 import { auth } from '../../../middlewares';
-import { PermissionType } from '../../../types';
+import { GroupType } from '../../../types';
 import { validateParams } from '../../../validators';
 
 export default auth().get(async (req, res) => {
 	const params = validateParams(req.query);
 
-	const data = await getPermissions(params);
+	const data = await getGroups(params);
 
-	const permissions = data.result.map((perm) => {
-		const permission = perm as PermissionType;
+	const groups = data.result.map((item) => {
+		const group = item as GroupType;
 		return {
-			id: permission.id,
-			name: permission.name,
-			codename: permission.codename,
-			description: permission.description || null,
-			category: permission.category ? permission.category.name : null,
+			id: group.id,
+			name: group.name,
+			permissions: group.permissions.map(perm => perm.id).join(",")
 		};
 	});
 
 	if (req.query.type === 'csv') {
-		const data = parse(permissions);
+		const data = parse(groups);
 
 		res.setHeader('Content-Type', 'text/csv');
 		res.setHeader(
 			'Content-Disposition',
-			'attachment; filename="permissions.csv"'
+			'attachment; filename="groups.csv"'
 		);
 
 		return res.status(200).end(data);
 	} else {
 		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Permissions'); // New Worksheet
+		const worksheet = workbook.addWorksheet('Groups'); // New Worksheet
 
 		worksheet.columns = [
 			{ header: 'ID', key: 'id', width: 10 },
 			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'Code Name', key: 'codename', width: 10 },
-			{ header: 'Description', key: 'description', width: 10 },
-			{ header: 'Category', key: 'category', width: 10 },
+			{ header: 'Permissions', key: 'permissions', width: 10 },
 		];
 
-		worksheet.addRows(permissions);
+		worksheet.addRows(groups);
 
 		// Making first line in excel bold
 		worksheet.getRow(1).eachCell((cell) => {
@@ -57,7 +53,7 @@ export default auth().get(async (req, res) => {
 		);
 		res.setHeader(
 			'Content-Disposition',
-			'attachment; filename="permissions.xlsx"'
+			'attachment; filename="groups.xlsx"'
 		);
 
 		return workbook.xlsx.write(res).then(function () {
