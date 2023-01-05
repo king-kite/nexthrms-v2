@@ -144,7 +144,6 @@ const path = {
 												},
 												categoryId: {
 													type: 'string',
-													format: 'uuid',
 													nullable: true,
 												},
 											},
