@@ -1,3 +1,5 @@
+import * as refs from '../refs';
+
 export const PermissionCategoryModel = {
 	type: 'object',
 	properties: {
@@ -22,7 +24,7 @@ export const PermissionModel = {
 			type: 'string',
 		},
 		category: {
-			$ref: PermissionCategoryModel,
+			$ref: refs.PERMISSION_CATEGORY,
 			nullable: true,
 		},
 		codename: {
