@@ -1,7 +1,5 @@
-import { prisma, getPermission, permissionSelectQuery } from '../../../db';
+import { getPermission } from '../../../db';
 import { auth } from '../../../middlewares';
-import { CreatePermissionQueryType } from '../../../types';
-import { createPermissionSchema } from '../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -19,35 +17,35 @@ export default auth()
 			data,
 		});
 	})
-	.put(async (req, res) => {
-		const data: CreatePermissionQueryType =
-			await createPermissionSchema.validateAsync(
-				{ ...req.body },
-				{ abortEarly: false }
-			);
+	// .put(async (req, res) => {
+	// 	const data: CreatePermissionQueryType =
+	// 		await createPermissionSchema.validateAsync(
+	// 			{ ...req.body },
+	// 			{ abortEarly: false }
+	// 		);
 
-		const permission = await prisma.permission.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data,
-			select: permissionSelectQuery,
-		});
+	// 	const permission = await prisma.permission.update({
+	// 		where: {
+	// 			id: req.query.id as string,
+	// 		},
+	// 		data,
+	// 		select: permissionSelectQuery,
+	// 	});
 
-		return res.status(200).json({
-			status: 'success',
-			message: 'Permission updated successfully!',
-			data: permission,
-		});
-	})
-	.delete(async (req, res) => {
-		await prisma.permission.delete({
-			where: {
-				id: req.query.id as string,
-			},
-		});
-		return res.status(200).json({
-			status: 'success',
-			message: 'Permission deleted successfully!',
-		});
-	});
+	// 	return res.status(200).json({
+	// 		status: 'success',
+	// 		message: 'Permission updated successfully!',
+	// 		data: permission,
+	// 	});
+	// })
+	// .delete(async (req, res) => {
+	// 	await prisma.permission.delete({
+	// 		where: {
+	// 			id: req.query.id as string,
+	// 		},
+	// 	});
+	// 	return res.status(200).json({
+	// 		status: 'success',
+	// 		message: 'Permission deleted successfully!',
+	// 	});
+	// });

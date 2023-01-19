@@ -1,7 +1,6 @@
-import { getPermissions, permissionSelectQuery, prisma } from '../../../db';
+import { getPermissions } from '../../../db';
 import { auth } from '../../../middlewares';
-import { CreatePermissionQueryType } from '../../../types';
-import { createPermissionSchema, validateParams } from '../../../validators';
+import { validateParams } from '../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -15,23 +14,23 @@ export default auth()
 			data,
 		});
 	})
-	.post(async (req, res) => {
-		const data: CreatePermissionQueryType =
-			await createPermissionSchema.validateAsync(
-				{ ...req.body },
-				{
-					abortEarly: false,
-				}
-			);
+	// .post(async (req, res) => {
+	// 	const data: CreatePermissionQueryType =
+	// 		await createPermissionSchema.validateAsync(
+	// 			{ ...req.body },
+	// 			{
+	// 				abortEarly: false,
+	// 			}
+	// 		);
 
-		const permission = await prisma.permission.create({
-			data,
-			select: permissionSelectQuery,
-		});
+	// 	const permission = await prisma.permission.create({
+	// 		data,
+	// 		select: permissionSelectQuery,
+	// 	});
 
-		return res.status(201).json({
-			status: 'success',
-			message: 'Permission added successfully',
-			data: permission,
-		});
-	});
+	// 	return res.status(201).json({
+	// 		status: 'success',
+	// 		message: 'Permission added successfully',
+	// 		data: permission,
+	// 	});
+	// });
