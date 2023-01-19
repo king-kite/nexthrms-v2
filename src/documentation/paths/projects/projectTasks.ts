@@ -1,3 +1,4 @@
+import { parametersWithSearch as parameters } from '../../parameters';
 import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
@@ -14,30 +15,7 @@ const path = {
 					format: 'uuid'
 				}
 			},
-			{
-				in: 'query',
-				name: 'limit',
-				required: false,
-				schema: {
-					type: 'number',
-				}
-			},
-			{
-				in: 'query',
-				name: 'offset',
-				required: false,
-				schema: {
-					type: 'number',
-				}
-			},
-			{
-				in: 'query',
-				name: 'search',
-				required: false,
-				schema: {
-					type: 'string',
-				}
-			},
+			...parameters
 		],
 		responses: {
 			...responses,
