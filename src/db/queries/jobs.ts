@@ -1,19 +1,14 @@
 import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { JobType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { JobType, ParamsType } from '../../types';
 
 export const getJobsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.JobFindManyArgs => {
 	const query: Prisma.JobFindManyArgs = {
 		skip: offset,
@@ -35,6 +30,13 @@ export const getJobsQuery = ({
 			: {},
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
@@ -44,8 +46,6 @@ export const getJobs = async (
 		limit?: number;
 		search?: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 	}
 ): Promise<{ total: number; result: JobType[] }> => {
