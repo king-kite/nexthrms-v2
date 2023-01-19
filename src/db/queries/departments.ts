@@ -1,14 +1,7 @@
 import { Department, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { DepartmentType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { DepartmentType, ParamsType } from '../../types';
 
 export const departmentSelectQuery: Prisma.DepartmentSelect = {
 	id: true,
@@ -45,9 +38,11 @@ export const departmentSelectQuery: Prisma.DepartmentSelect = {
 };
 
 export const getDepartmentsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.DepartmentFindManyArgs => {
 	const query: Prisma.DepartmentFindManyArgs = {
 		skip: offset,
@@ -63,13 +58,20 @@ export const getDepartmentsQuery = ({
 			: {},
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
 export const getDepartments = async (
 	params?: ParamsType
 ): Promise<{ total: number; result: Department[] | DepartmentType[] }> => {
-	const query = getDepartmentsQuery({ ...params });
+	const query = getDepartmentsQuery({...params});
 	const [total, result] = await prisma.$transaction([
 		prisma.department.count({ where: query.where }),
 		prisma.department.findMany({

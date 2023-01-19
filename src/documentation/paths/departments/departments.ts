@@ -31,6 +31,23 @@ const path = {
 					type: 'string',
 				},
 			},
+			{
+				in: 'query',
+				name: 'from',
+				required: false,
+				schema: {
+					type: 'date-time',
+				},
+			},
+			{
+				in: 'query',
+				name: 'to',
+				required: false,
+				schema: {
+					type: 'date-time',
+					default: new Date().toLocaleDateString('en-Ca')
+				},
+			},
 		],
 		responses: {
 			...responses,
