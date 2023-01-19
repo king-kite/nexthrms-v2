@@ -1,3 +1,4 @@
+import parameters from '../../parameters';
 import responses from "../../responses";
 import * as refs from "../../refs";
 import * as tags from "../../tags";
@@ -88,48 +89,7 @@ export const errorProperties = {
 
 const path = {
 	get: {
-		parameters: [
-			{
-				in: 'query',
-				name: 'limit',
-				schema: {
-					type: 'number',
-					default: 10,
-				}
-			},
-			{
-				in: 'query',
-				name: 'offset',
-				schema: {
-					type: 'number',
-					default: 0,
-				}
-			},
-			{
-				in: 'query',
-				name: 'from',
-				schema: {
-					type: 'string',
-					format: 'date-time'
-				}
-			},
-			{
-				in: 'query',
-				name: 'to',
-				schema: {
-					type: 'string',
-					format: 'date-time'
-				}
-			},
-			{
-				in: 'query',
-				name: 'search',
-				required: false,
-				schema: {
-					type: 'string',
-				}
-			},
-		],
+		parameters,
 		responses: {
 			...responses,
 			"200": {

@@ -1,71 +1,41 @@
+import {exportDataParameters as parameters} from "../../parameters";
 import responses from "../../responses";
 import * as tags from "../../tags";
 
 const path = {
 	get: {
 		parameters: [
+			...parameters,
 			{
 				in: 'query',
-				name: 'limit',
+				name: 'type',
 				schema: {
-					type: 'number',
-					default: 10,
-				}
-			},
-			{
-				in: 'query',
-				name: 'offset',
-				schema: {
-					type: 'number',
-					default: 0,
-				}
-			},
-			{
-				in: 'query',
-				name: 'from',
-				schema: {
-					type: 'string',
-					format: 'date-time'
-				}
-			},
-			{
-				in: 'query',
-				name: 'to',
-				schema: {
-					type: 'string',
-					format: 'date-time'
-				}
-			},
-			{
-				in: 'query',
-				name: 'search',
-				required: false,
-				schema: {
-					type: 'string',
-				}
+					type: "'csv' | 'excel'",
+					default: 'csv',
+				},
 			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/csv": {
+					'application/csv': {
 						schema: {
 							type: 'string',
-							format: 'binary'
+							format: 'binary',
 						},
 					},
-					"application/excel": {
+					'application/excel': {
 						schema: {
 							type: 'string',
-							format: 'binary'
+							format: 'binary',
 						},
 					},
 				},
-				description: "Export Assets Information",
+				description: 'Export Assets Information',
 			},
 		},
-		summary: "Export Assets Data",
+		summary: 'Export Assets Data',
 		tags: [tags.Assets],
 	},
 };
