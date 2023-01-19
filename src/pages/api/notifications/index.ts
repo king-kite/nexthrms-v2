@@ -3,7 +3,7 @@ import { auth } from '../../../middlewares';
 import { validateParams } from '../../../validators';
 
 export default auth().get(async (req, res) => {
-	const { limit, offset } = validateParams(req.query);
+	const { limit, offset, from, to } = validateParams(req.query);
 	const [total, notifications] = await prisma.$transaction([
 		prisma.notification.count({
 			where: { recipientId: req.user.id },
@@ -11,7 +11,13 @@ export default auth().get(async (req, res) => {
 		prisma.notification.findMany({
 			skip: offset,
 			take: limit,
-			where: { recipientId: req.user.id },
+			where: { 
+				recipientId: req.user.id,
+				createdAt: from && to ? {
+					gte: from,
+					lte: to,
+				} : undefined
+			},
 			select: {
 				createdAt: true,
 				id: true,
