@@ -41,6 +41,10 @@ const parameters: {
       default: new Date().toLocaleDateString('en-Ca')
 		},
 	},
+];
+
+export const parametersWithSearch = [
+	...parameters,
 	{
 		in: 'query',
 		name: 'search',
