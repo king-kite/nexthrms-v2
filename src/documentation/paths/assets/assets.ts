@@ -1,4 +1,4 @@
-import parameters from '../../parameters';
+import {parametersWithSearch as parameters} from '../../parameters';
 import responses from "../../responses";
 import * as refs from "../../refs";
 import * as tags from "../../tags";

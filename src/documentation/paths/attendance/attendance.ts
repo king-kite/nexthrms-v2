@@ -1,3 +1,4 @@
+import parameters from "../../parameters";
 import responses from "../../responses";
 
 import * as refs from '../../refs';
@@ -5,41 +6,7 @@ import * as tags from '../../tags';
 
 const path = {
 	get: {
-		parameters: [
-			{
-				in: 'query',
-				name: 'limit',
-				schema: {
-					type: 'number',
-					default: 10,
-				},
-			},
-			{
-				in: 'query',
-				name: 'offset',
-				schema: {
-					type: 'number',
-					default: 0,
-				},
-			},
-			{
-				in: 'query',
-				name: 'from',
-				required: false,
-				schema: {
-					type: 'date-time',
-				},
-			},
-			{
-				in: 'query',
-				name: 'to',
-				required: false,
-				schema: {
-					type: 'date-time',
-					default: new Date().toLocaleDateString('en-Ca')
-				},
-			},
-		],
+		parameters,
 		responses: {
 			...responses,
 			'200': {

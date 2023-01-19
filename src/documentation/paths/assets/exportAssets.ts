@@ -1,20 +1,10 @@
-import {exportDataParameters as parameters} from "../../parameters";
+import {exportDataParametersWithSearch as parameters} from "../../parameters";
 import responses from "../../responses";
 import * as tags from "../../tags";
 
 const path = {
 	get: {
-		parameters: [
-			...parameters,
-			{
-				in: 'query',
-				name: 'type',
-				schema: {
-					type: "'csv' | 'excel'",
-					default: 'csv',
-				},
-			},
-		],
+		parameters,
 		responses: {
 			...responses,
 			'200': {
