@@ -1,14 +1,7 @@
 import { Prisma, User } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { UserType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { UserType, ParamsType } from '../../types';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
@@ -85,9 +78,11 @@ export const userSelectQuery: Prisma.UserSelect = {
 };
 
 export const getUsersQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.UserFindManyArgs => {
 	const query: Prisma.UserFindManyArgs = {
 		select: userSelectQuery,
@@ -123,6 +118,13 @@ export const getUsersQuery = ({
 	if (offset !== undefined) query.skip = offset;
 	if (limit !== undefined) query.take = limit;
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
@@ -137,8 +139,6 @@ export const getUser = async (id: string) => {
 
 export const getUsers = async (
 	params: ParamsType = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 	}
 ): Promise<{
