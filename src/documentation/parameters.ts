@@ -67,4 +67,26 @@ export const exportDataParameters = [
 	},
 ];
 
+export const exportDataParametersWithSearch = [
+	...parameters,
+	{
+		in: 'query',
+		name: 'search',
+		required: false,
+		schema: {
+			type: 'string',
+		},
+	},
+	{
+		in: 'query',
+		name: 'type',
+		schema: {
+			type: "'csv' | 'excel'",
+			default: 'csv',
+		},
+	},
+];
+
+
+
 export default parameters;
