@@ -69,8 +69,8 @@ export const getProjectsQuery = ({
 	offset,
 	limit,
 	search = undefined,
-	from, 
-	to
+	from,
+	to,
 }: ParamsType): Prisma.ProjectFindManyArgs => {
 	const query: Prisma.ProjectFindManyArgs = {
 		skip: offset,
@@ -276,8 +276,8 @@ export const getProjectTeamQuery = ({
 	limit,
 	search = undefined,
 	id,
-	from, 
-	to
+	from,
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTeamFindManyArgs => {
@@ -332,7 +332,7 @@ export const getProjectTeamQuery = ({
 					projectId: id,
 			  },
 	};
-	
+
 	if (from && to && query.where) {
 		query.where.createdAt = {
 			gte: from,
@@ -423,7 +423,7 @@ export const getProjectTasksQuery = ({
 	search = undefined,
 	id,
 	from,
-	to
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTaskFindManyArgs => {
@@ -557,7 +557,7 @@ export const getTaskFollowersQuery = ({
 	search = undefined,
 	id,
 	from,
-	to
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTaskFollowerFindManyArgs => {
@@ -649,4 +649,4 @@ export const getTaskFollower = async (id: string) => {
 	return follower;
 };
 
-// ******** Task Followers Queries Stop **********
+// ******** Task Followers Queries Stop *********
