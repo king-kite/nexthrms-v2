@@ -1,14 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { HolidayType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { HolidayType, ParamsType } from '../../types';
 
 export const holidaySelectQuery: Prisma.HolidaySelect = {
 	id: true,
@@ -17,9 +10,11 @@ export const holidaySelectQuery: Prisma.HolidaySelect = {
 };
 
 export const getHolidaysQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.HolidayFindManyArgs => {
 	const query: Prisma.HolidayFindManyArgs = {
 		skip: offset,
@@ -38,6 +33,13 @@ export const getHolidaysQuery = ({
 			: {},
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
@@ -47,8 +49,6 @@ export const getHolidays = async (
 		limit?: number;
 		search?: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 	}
 ): Promise<{ total: number; result: HolidayType[] }> => {
