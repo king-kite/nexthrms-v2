@@ -79,86 +79,86 @@ const path = {
 		summary: 'Get All Groups',
 		tags: [tags.Groups],
 	},
-	post: {
-		requestBody: {
-			required: true,
-			content: {
-				'application/json': {
-					schema: {
-						type: 'object',
-						properties: {
-							name: {
-								required: true,
-								type: 'string',
-							},
-							permissions: {
-								required: true,
-								type: 'array',
-								items: {
-									type: 'string',
-									format: 'uuid'
-								}
-							}
-						},
-					},
-				},
-			},
-		},
-		responses: {
-			...responses,
-			'201': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										data: {
-											$ref: refs.GROUP,
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-			'400': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										error: {
-											type: 'object',
-											nullable: true,
-											properties: {
-												name: {
-													nullable: true,
-													type: 'string',
-												},
-												permissions: {
-													nullable: true,
-													type: 'string',
-												}
-											},
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-		},
-		summary: 'Add new group',
-		tags: [tags.Groups],
-	},
+	// post: {
+	// 	requestBody: {
+	// 		required: true,
+	// 		content: {
+	// 			'application/json': {
+	// 				schema: {
+	// 					type: 'object',
+	// 					properties: {
+	// 						name: {
+	// 							required: true,
+	// 							type: 'string',
+	// 						},
+	// 						permissions: {
+	// 							required: true,
+	// 							type: 'array',
+	// 							items: {
+	// 								type: 'string',
+	// 								format: 'uuid'
+	// 							}
+	// 						}
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	responses: {
+	// 		...responses,
+	// 		'201': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									data: {
+	// 										$ref: refs.GROUP,
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 		'400': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									error: {
+	// 										type: 'object',
+	// 										nullable: true,
+	// 										properties: {
+	// 											name: {
+	// 												nullable: true,
+	// 												type: 'string',
+	// 											},
+	// 											permissions: {
+	// 												nullable: true,
+	// 												type: 'string',
+	// 											}
+	// 										},
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	summary: 'Add new group',
+	// 	tags: [tags.Groups],
+	// },
 };
 
 export default path;
