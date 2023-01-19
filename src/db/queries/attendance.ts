@@ -1,7 +1,6 @@
 import { Attendance, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { AttendanceType, ParamsType } from '../../types';
 import { getFirstDateOfMonth, getWeekDate } from '../../utils';
 
@@ -38,9 +37,11 @@ export const attendanceSelectQuery = {
 };
 
 export const getAttendanceQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	id,
+	from, 
+	to = new Date()
 }: ParamsType & {
 	id: string;
 }): Prisma.AttendanceFindManyArgs => {
@@ -53,6 +54,12 @@ export const getAttendanceQuery = ({
 		where: { employeeId: id },
 		select: attendanceSelectQuery,
 	};
+	if (from && to && query.where) {
+		query.where.date = {
+			gte: from,
+			lte: to,
+		};
+	}
 
 	return query;
 };
@@ -65,7 +72,7 @@ export const getAttendance = async (
 	total: number;
 	result: AttendanceType[] | Attendance[];
 }> => {
-	const query = getAttendanceQuery({ ...params });
+	const query = getAttendanceQuery(params);
 
 	const [total, result] = await prisma.$transaction([
 		prisma.attendance.count({ where: query.where }),
@@ -129,11 +136,11 @@ export const getAttendanceInfo = async (id: string) => {
 
 // ****** Attendance Admin ******
 export const getAttendanceAdminQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search,
 	from,
-	to,
+	to = new Date(),
 }: ParamsType): Prisma.AttendanceFindManyArgs => {
 	const whereQuery: Prisma.AttendanceWhereInput = {};
 

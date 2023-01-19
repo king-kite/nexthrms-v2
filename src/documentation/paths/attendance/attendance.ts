@@ -12,7 +12,7 @@ const path = {
 				schema: {
 					type: 'number',
 					default: 10,
-				}
+				},
 			},
 			{
 				in: 'query',
@@ -20,14 +20,31 @@ const path = {
 				schema: {
 					type: 'number',
 					default: 0,
-				}
+				},
+			},
+			{
+				in: 'query',
+				name: 'from',
+				required: false,
+				schema: {
+					type: 'date-time',
+				},
+			},
+			{
+				in: 'query',
+				name: 'to',
+				required: false,
+				schema: {
+					type: 'date-time',
+					default: new Date().toLocaleDateString('en-Ca')
+				},
 			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -38,42 +55,42 @@ const path = {
 											type: 'object',
 											properties: {
 												total: {
-													type: 'number'
+													type: 'number',
 												},
 												result: {
 													type: 'array',
 													items: {
-														$ref: refs.ATTENDANCE
-													}
+														$ref: refs.ATTENDANCE,
+													},
 												},
-											}
-										}
-									}
+											},
+										},
+									},
 								},
-							]
-						}
-					}
-				}
+							],
+						},
+					},
+				},
 			},
 		},
 		summary: 'Get All Attendance',
-		tags: [tags.Attendance]
+		tags: [tags.Attendance],
 	},
 	post: {
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							action: {
-								type: "string",
+								type: 'string',
 								format: "'IN' | 'OUT'",
-							}
+							},
 						},
 						example: {
-							action: "IN",
+							action: 'IN',
 						},
 					},
 				},
@@ -81,9 +98,9 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -91,18 +108,18 @@ const path = {
 									type: 'object',
 									properties: {
 										data: {
-											$ref: refs.ATTENDANCE
-										}
-									}
-								}
-							]
-						}
-					}
-				}
+											$ref: refs.ATTENDANCE,
+										},
+									},
+								},
+							],
+						},
+					},
+				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -113,21 +130,21 @@ const path = {
 											type: 'object',
 											properties: {
 												action: {
-													type: 'string'
-												}
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				}
-			}
+													type: 'string',
+												},
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
 		},
 		summary: 'Clock in or out for the day',
-		tags: [tags.Attendance]
-	}
-}
+		tags: [tags.Attendance],
+	},
+};
 
 export default path;
