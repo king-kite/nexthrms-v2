@@ -22,8 +22,6 @@ export function validateParams(query: NextApiRequest['query']): ParamsType {
 		query.to && (typeof query.to === 'string' || query.to instanceof Date)
 			? new Date(query.to)
 			: new Date();
-	const all =
-		query.all && !isNaN(Number(query.all)) ? Boolean(Number(query.all)) : false;
 
-	return { limit, offset, search, from, to, all };
+	return { limit, offset, search, from, to };
 }
