@@ -1,13 +1,6 @@
-import {
-	getPermissionCategories,
-	permissionCategorySelectQuery,
-	prisma,
-} from '../../../../db';
+import { getPermissionCategories } from '../../../../db';
 import { auth } from '../../../../middlewares';
-import {
-	createPermissionCategorySchema,
-	validateParams,
-} from '../../../../validators';
+import { validateParams } from '../../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -22,23 +15,23 @@ export default auth()
 			data,
 		});
 	})
-	.post(async (req, res) => {
-		const data: { name: string } =
-			await createPermissionCategorySchema.validateAsync(
-				{ ...req.body },
-				{
-					abortEarly: false,
-				}
-			);
+	// .post(async (req, res) => {
+	// 	const data: { name: string } =
+	// 		await createPermissionCategorySchema.validateAsync(
+	// 			{ ...req.body },
+	// 			{
+	// 				abortEarly: false,
+	// 			}
+	// 		);
 
-		const category = await prisma.permissionCategory.create({
-			data,
-			select: permissionCategorySelectQuery,
-		});
+	// 	const category = await prisma.permissionCategory.create({
+	// 		data,
+	// 		select: permissionCategorySelectQuery,
+	// 	});
 
-		return res.status(201).json({
-			status: 'success',
-			message: 'Permission Category added successfully',
-			data: category,
-		});
-	});
+	// 	return res.status(201).json({
+	// 		status: 'success',
+	// 		message: 'Permission Category added successfully',
+	// 		data: category,
+	// 	});
+	// });
