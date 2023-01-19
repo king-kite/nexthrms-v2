@@ -79,77 +79,77 @@ const path = {
 		summary: 'Get All Permission Categories',
 		tags: [tags.Permissions],
 	},
-	post: {
-		requestBody: {
-			required: true,
-			content: {
-				'application/json': {
-					schema: {
-						type: 'object',
-						properties: {
-							name: {
-								required: true,
-								type: 'string',
-							},
-						},
-						example: {
-							name: 'users',
-						},
-					},
-				},
-			},
-		},
-		responses: {
-			...responses,
-			'201': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										data: {
-											$ref: refs.PERMISSION_CATEGORY,
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-			'400': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										error: {
-											type: 'object',
-											nullable: true,
-											properties: {
-												name: {
-													nullable: true,
-													type: 'string',
-												},
-											},
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-		},
-		summary: 'Add new permission category',
-		tags: [tags.Permissions],
-	},
+	// post: {
+	// 	requestBody: {
+	// 		required: true,
+	// 		content: {
+	// 			'application/json': {
+	// 				schema: {
+	// 					type: 'object',
+	// 					properties: {
+	// 						name: {
+	// 							required: true,
+	// 							type: 'string',
+	// 						},
+	// 					},
+	// 					example: {
+	// 						name: 'users',
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	responses: {
+	// 		...responses,
+	// 		'201': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									data: {
+	// 										$ref: refs.PERMISSION_CATEGORY,
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 		'400': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									error: {
+	// 										type: 'object',
+	// 										nullable: true,
+	// 										properties: {
+	// 											name: {
+	// 												nullable: true,
+	// 												type: 'string',
+	// 											},
+	// 										},
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	summary: 'Add new permission category',
+	// 	tags: [tags.Permissions],
+	// },
 };
 
 export default path;
