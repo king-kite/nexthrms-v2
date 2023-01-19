@@ -1,14 +1,7 @@
 import { Client, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { ClientType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { ClientType, ParamsType } from '../../types';
 
 export const clientSelectQuery = {
 	id: true,
@@ -36,9 +29,11 @@ export const clientSelectQuery = {
 };
 
 export const getClientsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.ClientFindManyArgs => {
 	const query: Prisma.ClientFindManyArgs = {
 		skip: offset,
@@ -85,22 +80,23 @@ export const getClientsQuery = ({
 		select: clientSelectQuery,
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
-export const getClients = async (
-	params: ParamsType = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
-		search: undefined,
-	}
-): Promise<{
+export const getClients = async (params: ParamsType): Promise<{
 	active: number;
 	inactive: number;
 	total: number;
 	result: ClientType[] | Client[];
 }> => {
-	const query = getClientsQuery({ ...params });
+	const query = getClientsQuery(params);
 
 	const [total, active, inactive, result] = await prisma.$transaction([
 		prisma.client.count({ where: query.where }),

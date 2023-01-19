@@ -41,7 +41,7 @@ export const getAttendanceQuery = ({
 	limit,
 	id,
 	from, 
-	to = new Date()
+	to
 }: ParamsType & {
 	id: string;
 }): Prisma.AttendanceFindManyArgs => {
