@@ -1,7 +1,6 @@
 import { Leave, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
 import { LeaveType, ParamsType } from '../../types';
 
 const employeeSelectQuery: Prisma.EmployeeSelect = {
@@ -53,8 +52,8 @@ export const leaveSelectQuery: Prisma.LeaveSelect = {
 // ****** Personal Leaves Start ******
 
 export const getLeavesQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	id,
 	from,
 	to,
@@ -140,8 +139,8 @@ export const getLeave = async (id: string) => {
 
 // TODO: ADD PERMISSIONS
 export const getLeavesAdminQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = '',
 	from,
 	to,
@@ -218,8 +217,6 @@ export const getLeavesAdminQuery = ({
 
 export const getLeavesAdmin = async (
 	params: ParamsType = {
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset: 0,
 		search: '',
 	}
 ): Promise<{

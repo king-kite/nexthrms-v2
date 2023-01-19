@@ -1,3 +1,4 @@
+import { parametersWithSearch as parameters } from '../../parameters';
 import responses from '../../responses';
 
 import * as refs from '../../refs';
@@ -33,52 +34,7 @@ export const requestExample = {
 
 const path = {
 	get: {
-		parameters: [
-			{
-				in: 'query',
-				name: 'limit',
-				required: false,
-				schema: {
-					type: 'number',
-					default: 10,
-				},
-			},
-			{
-				in: 'query',
-				name: 'offset',
-				required: false,
-				schema: {
-					type: 'number',
-					default: 0,
-				},
-			},
-			{
-				in: 'query',
-				name: 'search',
-				required: false,
-				schema: {
-					type: 'string',
-				},
-			},
-			{
-				in: 'query',
-				name: 'from',
-				required: false,
-				schema: {
-					type: 'string',
-					format: 'date-time',
-				},
-			},
-			{
-				in: 'query',
-				name: 'to',
-				required: false,
-				schema: {
-					type: 'string',
-					format: 'date-time',
-				},
-			},
-		],
+		parameters,
 		responses: {
 			...responses,
 			'200': {

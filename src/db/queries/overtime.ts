@@ -1,7 +1,6 @@
 import { Overtime, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
 import { OvertimeType, ParamsType } from '../../types';
 
 const employeeSelectQuery: Prisma.EmployeeSelect = {
@@ -53,8 +52,8 @@ export const overtimeSelectQuery: Prisma.OvertimeSelect = {
 // ****** Personal Overtime Start ******
 
 export const getAllOvertimeQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	id,
 	from,
 	to,
@@ -130,8 +129,8 @@ export const getOvertime = async (id: string) => {
 
 // TODO: ADD PERMISSIONS
 export const getAllOvertimeAdminQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = '',
 	from,
 	to,
@@ -198,8 +197,6 @@ export const getAllOvertimeAdminQuery = ({
 
 export const getAllOvertimeAdmin = async (
 	params: ParamsType = {
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset: 0,
 		search: '',
 	}
 ): Promise<{
