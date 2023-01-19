@@ -7,18 +7,6 @@ export type GroupType = {
 	permissions: PermissionType[];
 };
 
-export type CreateGroupQueryType = {
-	name: string;
-	permissions: string[];
-};
-
-export type CreateGroupErrorResponseType = {
-	name?: string;
-	permissions?: string;
-};
-
-export type CreateGroupResponseType = SuccessResponseType<GroupType>;
-
 export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Groups Types Stop
 
@@ -35,22 +23,6 @@ export type PermissionCategoryType = {
 	id: string;
 	name: string;
 };
-
-export type CreatePermissionQueryType = {
-	name: string;
-	categoryId?: string;
-	codename: string;
-	description?: string;
-};
-
-export type CreatePermissionErrorResponseType = {
-	name?: string;
-	categoryId?: string;
-	codename?: string;
-	description?: string;
-};
-
-export type CreatePermissionResponseType = SuccessResponseType<PermissionType>;
 
 export type GetPermissionsResponseType = PaginatedResponseType<
 	PermissionType[]
