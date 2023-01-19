@@ -1,14 +1,7 @@
 import { Prisma, ProjectTask } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { ProjectTaskType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { ProjectTaskType, ParamsType } from '../../types';
 
 // ******** Project Queries Start ***********
 
@@ -73,9 +66,11 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 };
 
 export const getProjectsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from, 
+	to
 }: ParamsType): Prisma.ProjectFindManyArgs => {
 	const query: Prisma.ProjectFindManyArgs = {
 		skip: offset,
@@ -124,13 +119,18 @@ export const getProjectsQuery = ({
 			: {},
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
 export const getProjects = async (
 	params: ParamsType = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 	}
 ) => {
@@ -272,10 +272,12 @@ export const teamSelectQuery: Prisma.ProjectTeamSelect = {
 };
 
 export const getProjectTeamQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
 	id,
+	from, 
+	to
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTeamFindManyArgs => {
@@ -330,6 +332,13 @@ export const getProjectTeamQuery = ({
 					projectId: id,
 			  },
 	};
+	
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
 
 	return query;
 };
@@ -338,8 +347,6 @@ export const getProjectTeam = async (
 	params: ParamsType & {
 		id: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 		id: '',
 	}
@@ -411,10 +418,12 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 };
 
 export const getProjectTasksQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
 	id,
+	from,
+	to
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTaskFindManyArgs => {
@@ -450,6 +459,13 @@ export const getProjectTasksQuery = ({
 			  },
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
@@ -457,8 +473,6 @@ export const getProjectTasks = async (
 	params: ParamsType & {
 		id: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 		id: '',
 	}
@@ -538,10 +552,12 @@ export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 };
 
 export const getTaskFollowersQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
 	id,
+	from,
+	to
 }: ParamsType & {
 	id: string;
 }): Prisma.ProjectTaskFollowerFindManyArgs => {
@@ -597,6 +613,13 @@ export const getTaskFollowersQuery = ({
 			  },
 	};
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
@@ -604,8 +627,6 @@ export const getTaskFollowers = async (
 	params: ParamsType & {
 		id: string;
 	} = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
 		search: undefined,
 		id: '',
 	}
