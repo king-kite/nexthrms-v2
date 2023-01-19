@@ -1,7 +1,6 @@
 import { Prisma, Permission, PermissionCategory } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
 import {
 	ParamsType,
 	PermissionType,
@@ -24,10 +23,9 @@ export const permissionSelectQuery: Prisma.PermissionSelect = {
 };
 
 export const getPermissionsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
-	search = undefined,
-	all = false,
+	offset,
+	limit,
+	search = undefined
 }: ParamsType): Prisma.PermissionFindManyArgs => {
 	const query: Prisma.PermissionFindManyArgs = {
 		select: permissionSelectQuery,
@@ -64,19 +62,16 @@ export const getPermissionsQuery = ({
 			: {},
 	};
 
-	if (all === false) {
-		if (offset !== undefined) query.skip = offset;
-		if (limit !== undefined) query.take = limit;
-	}
+	if (offset) query.skip = offset;
+	if (limit) query.take = limit;
 
 	return query;
 };
 
 export const getPermissionCategoriesQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
-	search = undefined,
-	all = false,
+	offset,
+	limit,
+	search = undefined
 }: ParamsType): Prisma.PermissionCategoryFindManyArgs => {
 	const query: Prisma.PermissionCategoryFindManyArgs = {
 		select: permissionCategorySelectQuery,
@@ -97,10 +92,8 @@ export const getPermissionCategoriesQuery = ({
 			: {},
 	};
 
-	if (all === false) {
-		if (offset !== undefined) query.skip = offset;
-		if (limit !== undefined) query.take = limit;
-	}
+	if (offset !== undefined) query.skip = offset;
+	if (limit !== undefined) query.take = limit;
 
 	return query;
 };
@@ -124,7 +117,9 @@ export const getPermissionCategory = async (id: string) => {
 };
 
 export const getPermissions = async (
-	params: ParamsType
+	params: ParamsType = {
+		search: undefined
+	}
 ): Promise<{
 	total: number;
 	result: PermissionType[] | Permission[];
@@ -143,7 +138,9 @@ export const getPermissions = async (
 };
 
 export const getPermissionCategories = async (
-	params: ParamsType
+	params: ParamsType = {
+		search: undefined
+	}
 ): Promise<{
 	total: number;
 	result: PermissionCategoryType[] | PermissionCategory[];

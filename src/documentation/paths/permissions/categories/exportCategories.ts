@@ -36,17 +36,6 @@ const path = {
 					type: 'string',
 				},
 			},
-			{
-				in: 'query',
-				name: 'all',
-				required: false,
-				schema: {
-					type: 'number',
-					default: 0,
-					description:
-						'Fetch all permission categories from the database. Enter 0 for false and 1 for true',
-				},
-			},
 		],
 		responses: {
 			...responses,
