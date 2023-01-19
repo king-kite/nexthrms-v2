@@ -51,4 +51,16 @@ const parameters: {
 	},
 ];
 
+export const exportDataParameters = [
+	...parameters,
+	{
+		in: 'query',
+		name: 'type',
+		schema: {
+			type: "'csv' | 'excel'",
+			default: 'csv',
+		},
+	},
+];
+
 export default parameters;
