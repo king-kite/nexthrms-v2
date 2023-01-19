@@ -1,7 +1,6 @@
 import { Prisma, Group } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
 import {
 	ParamsType,
 	GroupType,
@@ -9,19 +8,18 @@ import {
 
 export const groupSelectQuery: Prisma.GroupSelect = {
 	id: true,
-	name: true
+	name: true,
 };
 
 export const getGroupsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
-	all = false,
 }: ParamsType): Prisma.GroupFindManyArgs => {
 	const query: Prisma.GroupFindManyArgs = {
 		select: groupSelectQuery,
 		orderBy: {
-            name: 'asc' as const			
+      name: 'asc' as const			
 		},
 		where: search
 			? {
@@ -37,10 +35,8 @@ export const getGroupsQuery = ({
 			: {},
 	};
 
-	if (all === false) {
-		if (offset !== undefined) query.skip = offset;
-		if (limit !== undefined) query.take = limit;
-	}
+	if (offset) query.skip = offset;
+	if (limit) query.take = limit;
 
 	return query;
 };
@@ -55,7 +51,7 @@ export const getGroup = async (id: string) => {
 };
 
 export const getGroups = async (
-	params: ParamsType
+	params: ParamsType = { search: undefined }
 ): Promise<{
 	total: number;
 	result: GroupType[] | Group[];
