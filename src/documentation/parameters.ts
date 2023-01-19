@@ -38,6 +38,7 @@ const parameters: {
 		schema: {
 			type: 'string',
 			format: 'date-time',
+      default: new Date().toLocaleDateString('en-Ca')
 		},
 	},
 	{
