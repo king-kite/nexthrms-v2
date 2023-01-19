@@ -79,105 +79,105 @@ const path = {
 		summary: 'Get All Permissions',
 		tags: [tags.Permissions],
 	},
-	post: {
-		requestBody: {
-			required: true,
-			content: {
-				'application/json': {
-					schema: {
-						type: 'object',
-						properties: {
-							name: {
-								required: true,
-								type: 'string',
-							},
-							codename: {
-								required: true,
-								type: 'string',
-							},
-							description: {
-								type: 'string',
-								nullable: true,
-							},
-							categoryId: {
-								type: 'string',
-								format: 'uuid',
-								nullable: true,
-							},
-						},
-						example: {
-							name: 'can view users',
-							codename: 'can_view_users',
-							description: 'Permits user to view all users.',
-							categoryId: null,
-						},
-					},
-				},
-			},
-		},
-		responses: {
-			...responses,
-			'201': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										data: {
-											$ref: refs.PERMISSION,
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-			'400': {
-				content: {
-					'application/json': {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{
-									type: 'object',
-									properties: {
-										error: {
-											type: 'object',
-											nullable: true,
-											properties: {
-												name: {
-													nullable: true,
-													type: 'string',
-												},
-												codename: {
-													nullable: true,
-													type: 'string',
-												},
-												description: {
-													type: 'string',
-													nullable: true,
-												},
-												categoryId: {
-													type: 'string',
-													nullable: true,
-												},
-											},
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			},
-		},
-		summary: 'Add new permission',
-		tags: [tags.Permissions],
-	},
+	// post: {
+	// 	requestBody: {
+	// 		required: true,
+	// 		content: {
+	// 			'application/json': {
+	// 				schema: {
+	// 					type: 'object',
+	// 					properties: {
+	// 						name: {
+	// 							required: true,
+	// 							type: 'string',
+	// 						},
+	// 						codename: {
+	// 							required: true,
+	// 							type: 'string',
+	// 						},
+	// 						description: {
+	// 							type: 'string',
+	// 							nullable: true,
+	// 						},
+	// 						categoryId: {
+	// 							type: 'string',
+	// 							format: 'uuid',
+	// 							nullable: true,
+	// 						},
+	// 					},
+	// 					example: {
+	// 						name: 'can view users',
+	// 						codename: 'can_view_users',
+	// 						description: 'Permits user to view all users.',
+	// 						categoryId: null,
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	responses: {
+	// 		...responses,
+	// 		'201': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									data: {
+	// 										$ref: refs.PERMISSION,
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 		'400': {
+	// 			content: {
+	// 				'application/json': {
+	// 					schema: {
+	// 						allOf: [
+	// 							{ $ref: refs.BASE },
+	// 							{
+	// 								type: 'object',
+	// 								properties: {
+	// 									error: {
+	// 										type: 'object',
+	// 										nullable: true,
+	// 										properties: {
+	// 											name: {
+	// 												nullable: true,
+	// 												type: 'string',
+	// 											},
+	// 											codename: {
+	// 												nullable: true,
+	// 												type: 'string',
+	// 											},
+	// 											description: {
+	// 												type: 'string',
+	// 												nullable: true,
+	// 											},
+	// 											categoryId: {
+	// 												type: 'string',
+	// 												nullable: true,
+	// 											},
+	// 										},
+	// 									},
+	// 								},
+	// 							},
+	// 						],
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	summary: 'Add new permission',
+	// 	tags: [tags.Permissions],
+	// },
 };
 
 export default path;
