@@ -102,12 +102,12 @@ export const getAssetsQuery = ({
 };
 
 export const getAssets = async (
-	params: ParamsType
+	params?: ParamsType
 ): Promise<{
 	total: number;
 	result: AssetType[] | Asset[];
 }> => {
-	const query = getAssetsQuery(params);
+	const query = getAssetsQuery({...params});
 
 	const [total, result] = await prisma.$transaction([
 		prisma.asset.count({ where: query.where }),

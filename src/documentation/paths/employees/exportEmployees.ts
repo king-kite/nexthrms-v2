@@ -1,3 +1,4 @@
+import { exportDataParametersWithSearch as parameters } from "../../parameters"
 import responses from "../../responses";
 import * as tags from "../../tags";
 

@@ -90,13 +90,13 @@ export const getClientsQuery = ({
 	return query;
 };
 
-export const getClients = async (params: ParamsType): Promise<{
+export const getClients = async (params?: ParamsType): Promise<{
 	active: number;
 	inactive: number;
 	total: number;
 	result: ClientType[] | Client[];
 }> => {
-	const query = getClientsQuery(params);
+	const query = getClientsQuery({...params});
 
 	const [total, active, inactive, result] = await prisma.$transaction([
 		prisma.client.count({ where: query.where }),

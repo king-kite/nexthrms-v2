@@ -1,14 +1,7 @@
 import { Employee, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
-import { EmployeeType } from '../../types';
-
-type ParamsType = {
-	offset?: number;
-	limit?: number;
-	search?: string;
-};
+import { EmployeeType, ParamsType } from '../../types';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
@@ -115,9 +108,11 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 };
 
 export const getEmployeesQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
+	offset,
+	limit,
 	search = undefined,
+	from,
+	to
 }: ParamsType): Prisma.EmployeeFindManyArgs => {
 	const query: Prisma.EmployeeFindManyArgs = {
 		select: employeeSelectQuery,
@@ -157,23 +152,24 @@ export const getEmployeesQuery = ({
 	if (offset !== undefined) query.skip = offset;
 	if (limit !== undefined) query.take = limit;
 
+	if (from && to && query.where) {
+		query.where.createdAt = {
+			gte: from,
+			lte: to,
+		};
+	}
+
 	return query;
 };
 
-export const getEmployees = async (
-	params: ParamsType = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
-		search: undefined,
-	}
-): Promise<{
+export const getEmployees = async (params?: ParamsType): Promise<{
 	active: number;
 	inactive: number;
 	total: number;
 	on_leave: number;
 	result: EmployeeType[] | Employee[];
 }> => {
-	const query = getEmployeesQuery({ ...params });
+	const query = getEmployeesQuery({...params});
 
 	const [total, result, active, on_leave] = await prisma.$transaction([
 		prisma.employee.count({ where: query.where }),
