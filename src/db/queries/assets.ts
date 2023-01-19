@@ -1,7 +1,6 @@
 import { Asset, Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { DEFAULT_PAGINATION_SIZE } from '../../config/settings';
 import { AssetType, ParamsType } from '../../types';
 
 export const assetSelectQuery: Prisma.AssetSelect = {
@@ -36,9 +35,9 @@ export const assetSelectQuery: Prisma.AssetSelect = {
 };
 
 export const getAssetsQuery = ({
-	offset = 0,
-	limit = DEFAULT_PAGINATION_SIZE,
-	search = '',
+	offset,
+	limit,
+	search,
 	from,
 	to,
 }: ParamsType): Prisma.AssetFindManyArgs => {
@@ -103,16 +102,12 @@ export const getAssetsQuery = ({
 };
 
 export const getAssets = async (
-	params: ParamsType = {
-		offset: 0,
-		limit: DEFAULT_PAGINATION_SIZE,
-		search: undefined,
-	}
+	params: ParamsType
 ): Promise<{
 	total: number;
 	result: AssetType[] | Asset[];
 }> => {
-	const query = getAssetsQuery({ ...params });
+	const query = getAssetsQuery(params);
 
 	const [total, result] = await prisma.$transaction([
 		prisma.asset.count({ where: query.where }),
