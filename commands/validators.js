@@ -42,7 +42,7 @@ async function validatePassword(value) {
 			.label('password')
 
 		const valid = await validate.validateAsync(value);
-		return { value: true, message: valid };
+		return { valid: true, message: valid };
 	} catch (err) {
 		const joiError = handleJoiError(err);
 		if (joiError) {
@@ -87,7 +87,6 @@ async function getEmail() {
 	const email = prompt("Enter e-mail: ");
 	const [isValid, value] = await validateEmail(email.trim());
 	if (!isValid) {
-		logger.error(value + "\n");
 		return getEmail()
 	}
 	return value;
@@ -103,7 +102,7 @@ async function getPassword() {
 	} else {
 		const {valid, message} = await validatePassword(password1);
 		if (!valid && message) {
-			logger.error(message);
+			logger.error(message + " A fail " + valid);
 		}
 		return message
 	};
