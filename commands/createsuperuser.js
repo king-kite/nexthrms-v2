@@ -1,22 +1,58 @@
-// const readline = require('readline').createInterface({
-// 	input: process.stdin,
-// 	output: process.stdout
-// });
-
-// readline.question('Who are you?', name => {
-// 	console.log(`Hey there ${name}!`);
-// 	readline.close();
-// })
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 const prompt = require("prompt-sync")({ sigint: true });
 
-const { getEmail, getPassword, handleJoiError, logger } = require("./utils/index.js");
+const {
+	getEmail,
+	getPassword,
+	handleJoiError,
+	bcrypt: { hash },
+	logger,
+} = require("./utils/index.js");
 
 (async function main() {
-	const fisrtName = prompt("Enter First Name: ");
+	const firstName = prompt("Enter First Name: ");
 	const lastName = prompt("Enter Last Name: ");
 	const email = await getEmail();
 	const password = await getPassword();
 
-	console.log({ email, password, fisrtName, lastName })
-})();
+	await prisma.user.create({
+		data: {
+			firstName,
+			lastName,
+			email: email.toLowerCase().trim(),
+			password: await hash(password),
+			isAdmin: true,
+			isSuperUser: true,
+			isEmailVerified: true,
+			profile: {
+				create: {},
+			},
+			employee: {
+				create: {
+					dateEmployed: new Date(),
+					job: {
+						connectOrCreate: {
+							where: {
+								name: "CEO",
+							},
+							create: {
+								name: "CEO",
+							},
+						},
+					},
+				},
+			},
+		},
+		select: {
+			id: true
+		},
+	});
+})()
+	.catch((error) => {
+		logger.error(error.message);
+	})
+	.finally(async () => {
+		await prisma.$disconnect();
+	});
