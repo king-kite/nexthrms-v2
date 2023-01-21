@@ -10,7 +10,7 @@
 
 const prompt = require("prompt-sync")({ sigint: true });
 
-const { getEmail, getPassword, handleJoiError, logger } = require("./index.js");
+const { getEmail, getPassword, handleJoiError, logger } = require("./utils/index.js");
 
 (async function main() {
 	const fisrtName = prompt("Enter First Name: ");
