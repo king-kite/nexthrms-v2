@@ -120,9 +120,9 @@ async function validatePassword(value) {
 }
 
 (async function main() {
-	const email = await getEmail();
 	const fisrtName = prompt("Enter First Name: ");
 	const lastName = prompt("Enter Last Name: ");
+	const email = await getEmail();
 	const password = await getPassword();
 
 	console.log({ email, password, fisrtName, lastName })
