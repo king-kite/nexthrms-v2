@@ -6,7 +6,7 @@ import {
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../../config';
 import { EMAIL_VERIFICATION_REQUIRED } from '../../../config/settings';
-import { prisma } from '../../../db';
+import { prisma, authSelectQuery } from '../../../db';
 import { createToken } from '../../../db/utils';
 import { AuthDataType, BaseResponseType } from '../../../types';
 import { comparePassword } from '../../../utils/bcrypt';
@@ -50,44 +50,7 @@ async function handler(
 			where: {
 				email: email.toLowerCase(),
 			},
-			select: {
-				email: true,
-				firstName: true,
-				lastName: true,
-				id: true,
-				isActive: true,
-				isEmailVerified: true,
-				password: true,
-				employee: {
-					select: {
-						id: true,
-						job: {
-							select: {
-								name: true,
-							},
-						},
-					},
-				},
-				profile: {
-					select: {
-						image: true,
-					},
-				},
-				permissions: {
-					select: {
-						id: true,
-						name: true,
-						category: {
-							select: {
-								id: true,
-								name: true,
-							}
-						},
-						codename: true,
-						description: true,
-					}
-				}
-			},
+			select: authSelectQuery,
 		});
 
 		if (user) {
@@ -138,10 +101,10 @@ async function handler(
 					firstName: user.firstName,
 					lastName: user.lastName,
 					email: user.email,
-					fullName: user.firstName + " " + user.lastName,
+					fullName: user.firstName + ' ' + user.lastName,
 					profile: null,
 					employee: null,
-					permissions: user.permissions
+					permissions: user.permissions,
 				};
 				if (user.profile) {
 					data.profile = {

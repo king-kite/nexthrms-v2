@@ -11,7 +11,7 @@ import {
 	REFRESH_TOKEN_LIFETIME,
 } from '../../config';
 import { SECRET_KEY } from '../../config/settings';
-import { prisma } from '../../db';
+import { prisma, authSelectQuery } from '../../db';
 import { RequestUserType as BaseRequestUserType } from '../../types';
 import { createJWT, setTokens } from '../../utils/tokens';
 
@@ -27,47 +27,10 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 	try {
 		const { password, ...user } = await prisma.user.findUniqueOrThrow({
 			where: { id },
-			select: {
-				id: true,
-				email: true,
-				firstName: true,
-				lastName: true,
-				isActive: true,
-				isEmailVerified: true,
-				password: true,
-				profile: {
-					select: {
-						image: true,
-					},
-				},
-				employee: {
-					select: {
-						id: true,
-						job: {
-							select: {
-								name: true,
-							},
-						},
-					},
-				},
-				permissions: {
-					select: {
-						id: true,
-						name: true,
-						category: {
-							select: {
-								id: true,
-								name: true,
-							}
-						},
-						codename: true,
-						description: true,
-					}
-				}
-			},
+			select: authSelectQuery,
 		});
 
-		return {...user, fullName: user.firstName + " " + user.lastName };
+		return { ...user, fullName: user.firstName + ' ' + user.lastName };
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
 			console.log('AUTH MIDDLEWARE :>> ', error);

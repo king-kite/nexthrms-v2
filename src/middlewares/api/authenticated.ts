@@ -11,7 +11,7 @@ import {
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../config';
 import { EMAIL_VERIFICATION_REQUIRED, SECRET_KEY } from '../../config/settings';
-import { prisma } from '../../db';
+import { prisma, authSelectQuery } from '../../db';
 import { NextApiRequestExtendUser, RequestUserType } from '../../types';
 import { comparePassword } from '../../utils/bcrypt';
 import { createJWT, setTokens } from '../../utils/tokens';
@@ -27,51 +27,18 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 	try {
 		const { password, ...user } = await prisma.user.findUniqueOrThrow({
 			where: { id },
-			select: {
-				id: true,
-				email: true,
-				firstName: true,
-				lastName: true,
-				isActive: true,
-				isEmailVerified: true,
-				password: true,
-				profile: {
-					select: {
-						image: true,
-					},
-				},
-				employee: {
-					select: {
-						id: true,
-						job: {
-							select: {
-								name: true,
-							},
-						},
-					},
-				},
-				permissions: {
-					select: {
-						id: true,
-						name: true,
-						category: {
-							select: {
-								id: true,
-								name: true,
-							}
-						},
-						codename: true,
-						description: true,
-					}
-				}
-			},
+			select: authSelectQuery,
 		});
 
 		const checkPassword = async (_password: string) => {
 			return await comparePassword(_password, password);
 		};
 
-		return { ...user, fullName: user.firstName + " " + user.lastName, checkPassword };
+		return {
+			...user,
+			fullName: user.firstName + ' ' + user.lastName,
+			checkPassword,
+		};
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
 			console.log('AUTH MIDDLEWARE :>> ', error);

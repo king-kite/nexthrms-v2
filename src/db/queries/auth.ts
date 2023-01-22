@@ -103,3 +103,42 @@ export const getProfile = async (id: string): Promise<ProfileType | null> => {
 
 	return user;
 };
+
+export const authSelectQuery = {
+	id: true,
+	email: true,
+	firstName: true,
+	lastName: true,
+	isActive: true,
+	isEmailVerified: true,
+	password: true,
+	profile: {
+		select: {
+			image: true,
+		},
+	},
+	employee: {
+		select: {
+			id: true,
+			job: {
+				select: {
+					name: true,
+				},
+			},
+		},
+	},
+	permissions: {
+		select: {
+			id: true,
+			name: true,
+			category: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
+			codename: true,
+			description: true,
+		},
+	},
+};
