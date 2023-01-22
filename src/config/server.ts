@@ -100,7 +100,7 @@ export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
-// export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
+export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
 export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export`;
 
 export const PERMISSION_CATEGORIES_URL = `${ROOT_URL}/permissions/categories/`;
