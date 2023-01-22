@@ -11,7 +11,7 @@ const models = [
 	{ name: 'Notification', title: 'Notification' },
 	{ name: 'Overtime', title: 'Overtime' },
 	{ name: 'Permission', title: 'Permission' },
-	{ name: 'Permission', title: 'Permission Category' },
+	{ name: 'PermissionCategory', title: 'Permission Category' },
 	{ name: 'Profile', title: 'Profile' },
 	{ name: 'Project', title: 'Project' },
 	{ name: 'ProjectFile', title: 'Project File' },
