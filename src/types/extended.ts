@@ -6,7 +6,7 @@ import type {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 
-import { PermissionType } from './users';
+import { GroupType, PermissionType } from './users';
 
 export type RequestUserType = {
 	id: string;
@@ -25,6 +25,7 @@ export type RequestUserType = {
 			name: string;
 		} | null;
 	} | null;
+	groups: GroupType[];
 	permissions: PermissionType[];
 	checkPassword: (password: string) => Promise<boolean>;
 };

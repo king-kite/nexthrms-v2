@@ -104,6 +104,19 @@ export const getProfile = async (id: string): Promise<ProfileType | null> => {
 	return user;
 };
 
+const permissionSelect = {
+	id: true,
+	name: true,
+	category: {
+		select: {
+			id: true,
+			name: true,
+		},
+	},
+	codename: true,
+	description: true,
+};
+
 export const authSelectQuery = {
 	id: true,
 	email: true,
@@ -127,18 +140,16 @@ export const authSelectQuery = {
 			},
 		},
 	},
-	permissions: {
+	groups: {
 		select: {
 			id: true,
 			name: true,
-			category: {
-				select: {
-					id: true,
-					name: true,
-				},
+			permissions: {
+				select: permissionSelect,
 			},
-			codename: true,
-			description: true,
 		},
+	},
+	permissions: {
+		select: permissionSelect,
 	},
 };
