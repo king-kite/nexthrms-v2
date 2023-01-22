@@ -10,6 +10,7 @@ import { prisma, authSelectQuery } from '../../../db';
 import { createToken } from '../../../db/utils';
 import { AuthDataType, BaseResponseType } from '../../../types';
 import { comparePassword } from '../../../utils/bcrypt';
+import { serializeUserData } from '../../../utils/serializers';
 import { createJWT, setTokens } from '../../../utils/tokens';
 import {
 	handleJoiErrors,
@@ -97,30 +98,11 @@ async function handler(
 					{ expiresIn: REFRESH_TOKEN_LIFETIME }
 				);
 				setTokens(res, accessToken, refreshToken);
-				const data: AuthDataType = {
-					firstName: user.firstName,
-					lastName: user.lastName,
-					email: user.email,
+				const data = serializeUserData({
+					...user,
 					fullName: user.firstName + ' ' + user.lastName,
-					profile: null,
-					employee: null,
-					permissions: user.permissions,
-				};
-				if (user.profile) {
-					data.profile = {
-						image: user.profile.image,
-					};
-				}
-				if (user.employee) {
-					data.employee = {
-						id: user.employee.id,
-					};
-					if (user.employee.job) {
-						data.employee.job = {
-							name: user.employee.job.name,
-						};
-					}
-				}
+				});
+
 				return res.status(200).json({
 					status: 'success',
 					message: 'Signed in successfully',
