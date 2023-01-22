@@ -7,6 +7,10 @@ export type GroupType = {
 	permissions: PermissionType[];
 };
 
+export type CreateGroupQueryType = {
+	name: string;
+	permissions: string[];
+};
 export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Groups Types Stop
 

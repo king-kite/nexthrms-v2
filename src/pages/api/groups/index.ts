@@ -1,6 +1,7 @@
-import { getGroups } from '../../../db';
+import { getGroups, groupSelectQuery, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
-import { validateParams } from '../../../validators';
+import { CreateGroupQueryType } from '../../../types';
+import { createGroupSchema, validateParams } from '../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -14,23 +15,23 @@ export default auth()
 			data,
 		});
 	})
-	// .post(async (req, res) => {
-	// 	const data: CreateGroupQueryType =
-	// 		await createGroupSchema.validateAsync(
-	// 			{ ...req.body },
-	// 			{
-	// 				abortEarly: false,
-	// 			}
-	// 		);
+	.post(async (req, res) => {
+		const data: CreateGroupQueryType =
+			await createGroupSchema.validateAsync(
+				{ ...req.body },
+				{
+					abortEarly: false,
+				}
+			);
 
-	// 	const group = await prisma.group.create({
-	// 		data,
-	// 		select: groupSelectQuery,
-	// 	});
+		const group = await prisma.group.create({
+			data,
+			select: groupSelectQuery,
+		});
 
-	// 	return res.status(201).json({
-	// 		status: 'success',
-	// 		message: 'Group added successfully',
-	// 		data: group,
-	// 	});
-	// });
+		return res.status(201).json({
+			status: 'success',
+			message: 'Group added successfully',
+			data: group,
+		});
+	});

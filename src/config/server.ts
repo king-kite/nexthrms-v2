@@ -92,7 +92,7 @@ export const ASSETS_EXPORT_URL = `${ROOT_URL}/assets/export/`;
 export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 
 export const GROUPS_URL = `${ROOT_URL}/groups/`;
-// export const GROUP_URL = (id: string) => `${GROUPS_URL}${id}/`;
+export const GROUP_URL = (id: string) => `${GROUPS_URL}${id}/`;
 export const GROUPS_EXPORT_URL = `${ROOT_URL}/groups/export`;
 
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
