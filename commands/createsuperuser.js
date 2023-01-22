@@ -6,7 +6,6 @@ const prompt = require("prompt-sync")({ sigint: true });
 const {
 	getEmail,
 	getPassword,
-	handleJoiError,
 	bcrypt: { hash },
 	logger,
 } = require("./utils/index.js");
