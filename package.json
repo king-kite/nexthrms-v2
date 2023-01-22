@@ -8,6 +8,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"createsuperuser": "node commands/createsuperuser",
+		"loadpermissions": "node commands/loadpermissions",
 		"merge-schema": "cat *.prisma > schema.prisma"
 	},
 	"prisma": {
