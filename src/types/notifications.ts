@@ -1,11 +1,19 @@
-import { AuthDataType } from './auth';
 import { PaginatedResponseType } from './base';
+
+export type ParticipantType = {
+	firstName: string;
+	lastName: string;
+	email: string;
+	profile: {
+		image: string;
+	},
+}
 
 export type NotificationType = {
 	id: string;
 	type: 'LEAVE' | 'OVERTIME';
-	sender: Omit<AuthDataType, "fullName" | "employee">;
-	recipient: Omit<AuthDataType, "fullName" | "employee">;
+	sender: ParticipantType;
+	recipient: ParticipantType;
 	message: string;
 	messageId: string | null;
 	title: string;
