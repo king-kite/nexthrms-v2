@@ -50,6 +50,20 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 						},
 					},
 				},
+				permissions: {
+					select: {
+						id: true,
+						name: true,
+						category: {
+							select: {
+								id: true,
+								name: true,
+							}
+						},
+						codename: true,
+						description: true,
+					}
+				}
 			},
 		});
 

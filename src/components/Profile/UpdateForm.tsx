@@ -36,7 +36,7 @@ const Form = ({
 
 	const queryClient = useQueryClient();
 
-	const { login } = useAuthContext();
+	const { data: previousData, login } = useAuthContext();
 
 	const { mutate: updateProfile, isLoading: loading } = useMutation(
 		(data: FormData) =>
@@ -50,6 +50,8 @@ const Form = ({
 			onSuccess(data) {
 				queryClient.invalidateQueries([tags.PROFILE]);
 				login({
+					...previousData,
+					permissions: previousData ? previousData.permissions : [],
 					firstName: data.firstName,
 					lastName: data.lastName,
 					email: data.email,

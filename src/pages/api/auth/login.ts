@@ -73,6 +73,20 @@ async function handler(
 						image: true,
 					},
 				},
+				permissions: {
+					select: {
+						id: true,
+						name: true,
+						category: {
+							select: {
+								id: true,
+								name: true,
+							}
+						},
+						codename: true,
+						description: true,
+					}
+				}
 			},
 		});
 
@@ -127,6 +141,7 @@ async function handler(
 					fullName: user.firstName + " " + user.lastName,
 					profile: null,
 					employee: null,
+					permissions: user.permissions
 				};
 				if (user.profile) {
 					data.profile = {

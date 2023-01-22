@@ -13,6 +13,7 @@ export default auth().get((req, res) => {
 			  }
 			: null,
 		employee: null,
+		permissions: req.user.permissions
 	};
 	if (req.user.employee) {
 		data.employee = {

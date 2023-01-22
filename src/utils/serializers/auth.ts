@@ -14,6 +14,7 @@ export function serializeUserData(
 			  }
 			: null,
 		employee: null,
+		permissions: user.permissions
 	};
 	if (user.employee) {
 		data.employee = {

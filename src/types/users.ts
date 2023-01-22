@@ -28,7 +28,7 @@ export type PermissionType = {
 	name: string;
 	category?: PermissionCategoryType | null;
 	codename: string;
-	description?: string;
+	description?: string | null;
 };
 
 export type PermissionCategoryType = {

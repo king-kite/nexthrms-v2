@@ -68,22 +68,13 @@ export const AuthUserDataModel = {
 				},
 			},
 		},
-	},
-	example: {
-		email: "johndoe@gmail.com",
-		firstName: "John",
-		fullName: "John Doe",
-		lastName: "Doe",
-		profile: {
-			image: "/images/default.png",
-		},
-		employee: {
-			id: "0c5535d3-9c05-4704-9269-c7229115f6e3",
-			job: {
-				name: "CEO",
-			},
-		},
-	},
+		permissions: {
+			type: "array",
+			items: {
+				$ref: refs.PERMISSION
+			}
+		}
+	}
 }
 
 export const LoginErrorModel = {

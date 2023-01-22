@@ -1,4 +1,5 @@
 import { BaseResponseType, SuccessResponseType } from './base';
+import { PermissionType } from './users';
 
 export interface AuthDataType extends UserDataType {
 	fullName: string;
@@ -11,6 +12,7 @@ export interface AuthDataType extends UserDataType {
 			name: string;
 		} | null;
 	} | null;
+	permissions: PermissionType[]
 }
 
 export type ProfileType = {
