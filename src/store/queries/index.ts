@@ -7,5 +7,6 @@ export * from './holidays';
 export * from './jobs';
 export * from './leaves';
 export * from './overtime';
+export * from './permissions';
 export * from './projects';
 export * from './users';
