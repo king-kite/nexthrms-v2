@@ -24,7 +24,13 @@ export const changeUserPasswordSchema = Joi.object({
 
 export const createGroupSchema = Joi.object({
 	name: Joi.string().required().label('Name'),
-	permissions: Joi.array().items(Joi.string().uuid()).required().label('Permissions'),
+	description: Joi.string().optional().allow('').label('Description'),
+	active: Joi.boolean().optional().label('Active'),
+	permissions: Joi.array()
+		.items(Joi.string().uuid())
+		.optional()
+		.label('Permissions'),
+	users: Joi.array().items(Joi.string().uuid()).optional().label('Permissions'),
 });
 
 export const createPermissionSchema = Joi.object({

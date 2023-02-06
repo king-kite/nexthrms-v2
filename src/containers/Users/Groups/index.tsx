@@ -1,18 +1,29 @@
 import { useState } from 'react';
 
 import { Container, Modal } from '../../../components/common';
-import { GroupTable, Topbar } from '../../../components/Groups';
+import { GroupTable, Form, Topbar } from '../../../components/Groups';
 import { DEFAULT_PAGINATION_SIZE, GROUPS_EXPORT_URL } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
-import { useGetGroupsQuery } from '../../../store/queries';
-import { GetGroupsResponseType } from '../../../types';
+import {
+	useCreateGroupMutation,
+	useGetGroupsQuery,
+} from '../../../store/queries';
+import {
+	CreateGroupErrorResponseType,
+	GetGroupsResponseType,
+} from '../../../types';
 import { downloadFile } from '../../../utils';
+
+interface ErrorType extends CreateGroupErrorResponseType {
+	message?: string;
+}
 
 const Groups = ({
 	groups: groupData,
 }: {
 	groups: GetGroupsResponseType['data'];
 }) => {
+	const [errors, setErrors] = useState<ErrorType>();
 	const [offset, setOffset] = useState(0);
 	const [search, setSearch] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
@@ -32,6 +43,33 @@ const Groups = ({
 			},
 		}
 	);
+
+	const {
+		mutate: createGroup,
+		isLoading: loading,
+		isSuccess: formSuccess,
+	} = useCreateGroupMutation({
+		onSuccess() {
+			setModalVisible(false);
+			open({
+				type: 'success',
+				message: 'Group was created successfully!',
+			});
+		},
+		onError(err) {
+			setErrors((prevState) => {
+				if (err?.data)
+					return {
+						...prevState,
+						...err?.data,
+					};
+				return {
+					...prevState,
+					message: err?.message || 'Unable to create group. Please try again!',
+				};
+			});
+		},
+	});
 
 	return (
 		<Container
@@ -81,7 +119,15 @@ const Groups = ({
 			</div>
 			<Modal
 				close={() => setModalVisible(false)}
-				component={<>add group</>}
+				component={
+					<Form
+						errors={errors}
+						resetErrors={() => setErrors(undefined)}
+						loading={loading}
+						success={formSuccess}
+						onSubmit={createGroup}
+					/>
+				}
 				description="Fill in the form below to add a new group"
 				title="Add Group"
 				visible={modalVisible}

@@ -1,6 +1,6 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
 import { FC, useRef } from 'react';
-import { FaCloudDownloadAlt, FaSearch, FaUserTimes } from 'react-icons/fa';
+import { FaCloudDownloadAlt, FaSearch, FaUserShield } from 'react-icons/fa';
 import { ExportForm } from '../common';
 
 type TopbarProps = {
@@ -70,7 +70,7 @@ const Topbar: FC<TopbarProps> = ({
 			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 lg:w-1/4">
 				<Button
 					caps
-					iconLeft={FaUserTimes}
+					iconLeft={FaUserShield}
 					onClick={openModal}
 					margin="lg:mr-6"
 					padding="px-3 py-2 md:px-6"

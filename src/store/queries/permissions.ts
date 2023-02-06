@@ -3,16 +3,21 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import * as tags from '../tagTypes';
-import { GROUPS_URL, PERMISSIONS_URL, DEFAULT_PAGINATION_SIZE, GROUP_URL } from '../../config';
+import {
+	GROUPS_URL,
+	PERMISSIONS_URL,
+	DEFAULT_PAGINATION_SIZE,
+	GROUP_URL,
+} from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
 import {
-  CreateGroupQueryType,
-  CreateGroupErrorResponseType,
+	CreateGroupQueryType,
+	CreateGroupErrorResponseType,
 	GroupType,
-  GetGroupsResponseType,
-  GetPermissionsResponseType,
-  CreateGroupResponseType,
-  BaseResponseType
+	GetGroupsResponseType,
+	GetPermissionsResponseType,
+	CreateGroupResponseType,
+	BaseResponseType,
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors } from '../../validators';
@@ -41,7 +46,9 @@ export function useGetPermissionsQuery(
 	const query = useQuery(
 		[tags.PERMISSIONS, { limit, offset, search, date }],
 		async () => {
-			let url = `${PERMISSIONS_URL}?limit=${limit || ''}&offset=${offset || ''}&search=${search}`;
+			let url = `${PERMISSIONS_URL}?limit=${limit || ''}&offset=${
+				offset || ''
+			}&search=${search}`;
 
 			if (date) {
 				url += `&from=${date.start}&to=${date.end}`;
@@ -50,7 +57,8 @@ export function useGetPermissionsQuery(
 			return axiosInstance
 				.get(url)
 				.then(
-					(response: AxiosResponse<GetPermissionsResponseType>) => response.data.data
+					(response: AxiosResponse<GetPermissionsResponseType>) =>
+						response.data.data
 				);
 		},
 		{
@@ -286,4 +294,3 @@ export function useEditGroupMutation(
 
 	return mutation;
 }
-
