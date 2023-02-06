@@ -1,7 +1,9 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
+import Link from 'next/link';
 import React from 'react';
 import { FaCheckCircle, FaEye, FaTimesCircle } from 'react-icons/fa';
 
+import { GROUP_PAGE_URL } from '../../config';
 import { GroupType } from '../../types';
 import { toCapitalize } from '../../utils';
 
@@ -16,7 +18,10 @@ const getRows = (data: GroupType[]): TableRowType[] =>
 	data.map((group) => ({
 		id: group.id,
 		rows: [
-			{ value: toCapitalize(group.name) || '---' },
+			{
+				link: GROUP_PAGE_URL(group.id),
+				value: toCapitalize(group.name),
+			},
 			{ value: group.description || '---' },
 			{
 				options: {
@@ -33,6 +38,7 @@ const getRows = (data: GroupType[]): TableRowType[] =>
 					{
 						color: 'primary',
 						icon: FaEye,
+						link: GROUP_PAGE_URL(group.id),
 					},
 				],
 			},
@@ -52,7 +58,22 @@ const GroupTable = ({ groups = [] }: TableType) => {
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table heads={heads} rows={rows} />
+			<Table
+				heads={heads}
+				rows={rows}
+				renderActionLinkAs={({ link, props, children }) => (
+					<Link href={link}>
+						<a className={props.className} style={props.style}>
+							{children}
+						</a>
+					</Link>
+				)}
+				renderContainerLinkAs={(props) => (
+					<Link href={props.link}>
+						<a className={props.className}>{props.children}</a>
+					</Link>
+				)}
+			/>
 		</div>
 	);
 };
