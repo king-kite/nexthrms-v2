@@ -1,4 +1,4 @@
-import { InfoComp } from 'kite-react-tailwind';
+import { InfoComp, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -43,11 +43,40 @@ function GroupDetail({ group }: { group: GroupType }) {
 						<InfoComp
 							infos={[
 								{
-									title: 'First Name',
-									value: '',
+									title: 'Name',
+									value: data.name,
+								},
+								{
+									title: 'Description',
+									value: data.description,
+								},
+								{
+									options: {
+										bg: data.active ? 'green' : 'danger',
+									},
+									type: 'badge',
+									title: 'Active',
+									value: data.active ? 'ACTIVE' : 'INACTIVE',
 								},
 							]}
-							title="personal information"
+							description="Details and Information about this group"
+							title={toCapitalize(data.name)}
+						/>
+					</div>
+					<div className="my-4">
+						<TabNavigator
+							screens={[
+								{
+									title: 'Permissions',
+									description: 'View all permissions in this group!',
+									component: <>This is the permissions screen</>,
+								},
+								{
+									title: 'Users',
+									description: 'View all users in this group!',
+									component: <>This is the users screen</>,
+								},
+							]}
 						/>
 					</div>
 					<Modal
