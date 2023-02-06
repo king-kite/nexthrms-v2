@@ -19,6 +19,10 @@ export type GroupType = {
 	active: boolean;
 	permissions: PermissionType[];
 	users: GroupUserType[];
+	// _count object will only be available if the group users parameters are used
+	_count?: {
+		users: number;
+	};
 };
 
 export type CreateGroupQueryType = {
