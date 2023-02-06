@@ -147,6 +147,8 @@ export const authSelectQuery = {
 			permissions: {
 				select: permissionSelect,
 			},
+			description: true,
+			active: true,
 		},
 	},
 	permissions: {
