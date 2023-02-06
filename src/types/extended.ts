@@ -25,7 +25,7 @@ export type RequestUserType = {
 			name: string;
 		} | null;
 	} | null;
-	groups: GroupType[];
+	groups: Omit<GroupType, 'users'>[];
 	permissions: PermissionType[];
 	checkPassword: (password: string) => Promise<boolean>;
 };
