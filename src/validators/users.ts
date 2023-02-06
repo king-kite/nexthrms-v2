@@ -26,10 +26,7 @@ export const createGroupSchema = Joi.object({
 	name: Joi.string().required().label('Name'),
 	description: Joi.string().optional().allow('').label('Description'),
 	active: Joi.boolean().optional().label('Active'),
-	permissions: Joi.array()
-		.items(Joi.string().uuid())
-		.optional()
-		.label('Permissions'),
+	permissions: Joi.array().items(Joi.string()).optional().label('Permissions'),
 	users: Joi.array().items(Joi.string().uuid()).optional().label('Permissions'),
 });
 

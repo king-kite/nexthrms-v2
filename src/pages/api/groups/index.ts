@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 import { getGroups, groupSelectQuery, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
 import { CreateGroupQueryType } from '../../../types';
@@ -16,16 +18,25 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
-		const data: CreateGroupQueryType =
-			await createGroupSchema.validateAsync(
-				{ ...req.body },
-				{
-					abortEarly: false,
-				}
-			);
+		const data: CreateGroupQueryType = await createGroupSchema.validateAsync(
+			{ ...req.body },
+			{
+				abortEarly: false,
+			}
+		);
 
-		const group = await prisma.group.create({
-			data,
+		const group: Prisma.GroupCreateInput = await prisma.group.create({
+			data: {
+				name: data.name,
+				description: data.description,
+				active: data.active,
+				permissions: {
+					connect: data.permissions.map((codename) => ({ codename })),
+				},
+				users: {
+					connect: data.users.map((id) => ({ id })),
+				},
+			},
 			select: groupSelectQuery,
 		});
 

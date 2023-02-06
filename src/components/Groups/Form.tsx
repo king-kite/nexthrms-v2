@@ -6,15 +6,7 @@ import {
 	Select,
 	Textarea,
 } from 'kite-react-tailwind';
-import {
-	FC,
-	Fragment,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetPermissionsQuery, useGetUsersQuery } from '../../store/queries';
@@ -285,6 +277,40 @@ const Form: FC<FormProps> = ({
 				<h4 className="uppercase font-semibold text-primary-500 text-sm w-full md:col-span-2 md:text-base lg:text-lg">
 					Permissions
 				</h4>
+				{errors?.permissions && (
+					<p className="mt-1 text-red-500 text-xs md:text-sm">
+						{errors.permissions}
+					</p>
+				)}
+
+				{!permissionsLoading && permissions.result.length > 0 && (
+					<div className="w-full md:col-span-2">
+						<div className="w-full max-w-[12rem]">
+							<Checkbox
+								checked={form.permissions.length === permissions.result.length}
+								label="Select All"
+								labelColor="text-gray-500"
+								labelSize="text-sm tracking-wider md:text-base"
+								onChange={({ target: { checked } }) => {
+									if (checked) {
+										handleFormChange(
+											'permissions',
+											permissions.result.map(
+												(permission) => permission.codename
+											)
+										);
+									} else {
+										handleFormChange('permissions', []);
+									}
+								}}
+								between
+								reverse
+								required={false}
+								textSize="text-sm md:text-base"
+							/>
+						</div>
+					</div>
+				)}
 
 				{permissionsLoading ? (
 					<p className="mt-1 text-primary-500 text-xs md:text-sm">
@@ -304,7 +330,7 @@ const Form: FC<FormProps> = ({
 									labelColor="text-gray-500"
 									labelSize="text-sm tracking-wider md:text-base"
 									name={permission.codename}
-									onChange={({ target: { name, checked } }) => {
+									onChange={({ target: { checked } }) => {
 										if (checked) {
 											const exists = form.permissions.find(
 												(codename) => codename === permission.codename

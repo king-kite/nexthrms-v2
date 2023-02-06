@@ -93,7 +93,7 @@ const path = {
 								type: 'array',
 								items: {
 									type: 'string',
-									format: 'uuid',
+									description: 'The permission code e.g. can_view_user',
 								},
 							},
 							users: {
