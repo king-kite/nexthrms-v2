@@ -31,6 +31,49 @@ const path = {
 					type: 'string',
 				},
 			},
+			// ///////
+			{
+				in: 'query',
+				name: 'userLimit',
+				schema: {
+					type: 'number',
+					default: 10,
+				},
+			},
+			{
+				in: 'query',
+				name: 'userOffset',
+				schema: {
+					type: 'number',
+					default: 0,
+				},
+			},
+			{
+				in: 'query',
+				name: 'userFrom',
+				schema: {
+					type: 'string',
+					format: 'date-time',
+				},
+			},
+			{
+				in: 'query',
+				name: 'userTo',
+				schema: {
+					type: 'string',
+					format: 'date-time',
+					default: new Date().toLocaleDateString('en-Ca'),
+				},
+			},
+			{
+				in: 'query',
+				name: 'userSearch',
+				required: false,
+				schema: {
+					type: 'string',
+				},
+			},
+			// //////
 		],
 		responses: {
 			...responses,

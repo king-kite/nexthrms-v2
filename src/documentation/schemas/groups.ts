@@ -58,5 +58,15 @@ export const GroupModel = {
 				},
 			},
 		},
+		_count: {
+			type: 'object',
+			required: false,
+			nullable: true,
+			properties: {
+				users: {
+					type: 'number',
+				},
+			},
+		},
 	},
 };
