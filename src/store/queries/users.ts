@@ -250,8 +250,7 @@ export function useGetUserQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get users.',
+						message: error?.message || 'An error occurred. Unable to get user.',
 					});
 			},
 			enabled: !!id,

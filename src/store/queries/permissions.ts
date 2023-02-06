@@ -17,6 +17,7 @@ import {
 	GetGroupsResponseType,
 	GetPermissionsResponseType,
 	CreateGroupResponseType,
+	SuccessResponseType,
 	BaseResponseType,
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
@@ -123,6 +124,54 @@ export function useGetGroupsQuery(
 							error?.message || 'An error occurred. Unable to get groups.',
 					});
 			},
+			...options,
+		}
+	);
+	return query;
+}
+
+// get group
+export function useGetGroupQuery(
+	{
+		id,
+		onError,
+	}: {
+		id?: string;
+		onError?: ({
+			status,
+			message,
+		}: {
+			status: number;
+			message: string;
+		}) => void;
+	},
+	options?: {
+		enabled?: boolean;
+		onSuccess?: (data: GroupType) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => GroupType;
+	}
+) {
+	const query = useQuery(
+		[tags.USERS, { id }],
+		() =>
+			axiosInstance
+				.get(GROUP_URL(id || ''))
+				.then(
+					(response: AxiosResponse<SuccessResponseType<GroupType>>) =>
+						response.data.data
+				),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message || 'An error occurred. Unable to get group.',
+					});
+			},
+			enabled: !!id,
 			...options,
 		}
 	);
