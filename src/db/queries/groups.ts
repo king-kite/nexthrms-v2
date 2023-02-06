@@ -143,7 +143,7 @@ export const getGroup = async (
 	return group;
 };
 
-type GetGroupsParamsType = ParamsType & {
+export type GetGroupsParamsType = ParamsType & {
 	users?: ParamsType;
 };
 

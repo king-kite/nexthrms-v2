@@ -1,11 +1,37 @@
-import { getGroups, groupSelectQuery, prisma } from '../../../db';
+import type { NextApiRequest } from 'next';
+
+import {
+	getGroups,
+	groupSelectQuery,
+	prisma,
+	GetGroupsParamsType,
+} from '../../../db';
 import { auth } from '../../../middlewares';
 import { CreateGroupQueryType } from '../../../types';
 import { createGroupSchema, validateParams } from '../../../validators';
 
+function getGroupUserParamsQuery(query: NextApiRequest['query']) {
+	const userQuery: NextApiRequest['query'] = {};
+	if (query.userLimit) userQuery.limit = query.userLimit;
+	if (query.userOffset) userQuery.offset = query.userOffset;
+	if (query.userSearch) userQuery.search = query.userSearch;
+	if (query.userFrom) userQuery.from = query.userFrom;
+	if (query.userTo) userQuery.to = query.userTo;
+	return userQuery;
+}
+
 export default auth()
 	.get(async (req, res) => {
-		const params = validateParams(req.query);
+		const params: GetGroupsParamsType = validateParams(req.query);
+		const usersParams = validateParams(getGroupUserParamsQuery(req.query));
+
+		const isEmpty = Object.values(usersParams).every(
+			(item) => item === undefined
+		);
+
+		if (!isEmpty) {
+			params.users = usersParams;
+		}
 
 		const data = await getGroups(params);
 

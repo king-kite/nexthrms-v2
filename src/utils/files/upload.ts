@@ -23,7 +23,7 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 	  }
 > {
 	return new Promise((resolve, reject) => {
-		if (process.env.NODE_ENV === 'development' && USE_LOCAL_MEDIA_STORAGE) {
+		if (USE_LOCAL_MEDIA_STORAGE) {
 			fs.readFile(file.filepath, (err, data) => {
 				if (err) reject(err);
 				else {
