@@ -4,20 +4,26 @@ import { PaginatedResponseType, SuccessResponseType } from './base';
 export type GroupType = {
 	id: string;
 	name: string;
+	description?: string | null;
+	active: boolean;
 	permissions: PermissionType[];
 };
 
 export type CreateGroupQueryType = {
 	name: string;
+	active?: boolean;
+	description?: string;
 	permissions: string[];
 };
 
 export type CreateGroupErrorResponseType = {
 	name?: string;
+	active?: string;
+	description?: string;
 	permissions?: string;
 };
 
-export type CreateGroupResponseType = SuccessResponseType<GroupType>
+export type CreateGroupResponseType = SuccessResponseType<GroupType>;
 
 export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Groups Types Stop

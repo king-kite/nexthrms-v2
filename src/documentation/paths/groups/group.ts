@@ -72,6 +72,15 @@ const path = {
 								required: true,
 								type: 'string',
 							},
+							active: {
+								required: false,
+								type: 'boolean',
+							},
+							description: {
+								nullable: true,
+								type: 'string',
+								required: false,
+							},
 							permissions: {
 								required: true,
 								type: 'array',
@@ -120,6 +129,14 @@ const path = {
 											nullable: true,
 											properties: {
 												name: {
+													nullable: true,
+													type: 'string',
+												},
+												active: {
+													nullable: true,
+													type: 'string',
+												},
+												description: {
 													nullable: true,
 													type: 'string',
 												},

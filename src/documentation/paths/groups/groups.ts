@@ -80,14 +80,23 @@ const path = {
 								required: true,
 								type: 'string',
 							},
+							active: {
+								required: false,
+								type: 'boolean',
+							},
+							description: {
+								nullable: true,
+								type: 'string',
+								required: false,
+							},
 							permissions: {
 								required: true,
 								type: 'array',
 								items: {
 									type: 'string',
-									format: 'uuid'
-								}
-							}
+									format: 'uuid',
+								},
+							},
 						},
 					},
 				},
@@ -131,10 +140,18 @@ const path = {
 													nullable: true,
 													type: 'string',
 												},
+												active: {
+													nullable: true,
+													type: 'string',
+												},
+												description: {
+													nullable: true,
+													type: 'string',
+												},
 												permissions: {
 													nullable: true,
 													type: 'string',
-												}
+												},
 											},
 										},
 									},

@@ -1,14 +1,17 @@
 import { Prisma, Group } from '@prisma/client';
 
+import { permissionSelectQuery } from './permissions';
 import prisma from '../client';
-import {
-	ParamsType,
-	GroupType,
-} from '../../types';
+import { ParamsType, GroupType } from '../../types';
 
 export const groupSelectQuery: Prisma.GroupSelect = {
 	id: true,
 	name: true,
+	description: true,
+	active: true,
+	permissions: {
+		select: permissionSelectQuery,
+	},
 };
 
 export const getGroupsQuery = ({
@@ -19,7 +22,7 @@ export const getGroupsQuery = ({
 	const query: Prisma.GroupFindManyArgs = {
 		select: groupSelectQuery,
 		orderBy: {
-      name: 'asc' as const			
+			name: 'asc' as const,
 		},
 		where: search
 			? {
