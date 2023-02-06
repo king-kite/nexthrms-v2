@@ -22,6 +22,7 @@ import {
 	FaUsersCog,
 	FaUserClock,
 	FaUserFriends,
+	FaUserShield,
 	FaUserTie,
 	FaWarehouse,
 } from 'react-icons/fa';
@@ -201,6 +202,11 @@ const Sidebar = forwardRef<HTMLDivElement, PropsType>(
 								icon: FaPeopleArrows,
 								title: 'all users',
 								href: routes.USERS_PAGE_URL,
+							},
+							{
+								icon: FaUserShield,
+								title: 'groups',
+								href: routes.GROUPS_PAGE_URL,
 							},
 							{
 								icon: FaLock,
