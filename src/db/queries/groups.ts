@@ -4,6 +4,19 @@ import { permissionSelectQuery } from './permissions';
 import prisma from '../client';
 import { ParamsType, GroupType } from '../../types';
 
+export const groupUserSelectQuery: Prisma.UserSelect = {
+	id: true,
+	firstName: true,
+	lastName: true,
+	email: true,
+	isActive: true,
+	profile: {
+		select: {
+			image: true,
+		},
+	},
+};
+
 export const groupSelectQuery: Prisma.GroupSelect = {
 	id: true,
 	name: true,
@@ -11,6 +24,9 @@ export const groupSelectQuery: Prisma.GroupSelect = {
 	active: true,
 	permissions: {
 		select: permissionSelectQuery,
+	},
+	users: {
+		select: groupUserSelectQuery,
 	},
 };
 

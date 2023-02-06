@@ -24,5 +24,39 @@ export const GroupModel = {
 				$ref: refs.PERMISSION,
 			},
 		},
+		users: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: {
+					id: {
+						type: 'string',
+						format: 'uuid',
+					},
+					firstName: {
+						type: 'string',
+					},
+					lastName: {
+						type: 'string',
+					},
+					email: {
+						type: 'string',
+						format: 'email',
+					},
+					isActive: {
+						type: 'boolean',
+					},
+					profile: {
+						type: 'object',
+						nullable: true,
+						properties: {
+							image: {
+								type: 'string',
+							},
+						},
+					},
+				},
+			},
+		},
 	},
 };

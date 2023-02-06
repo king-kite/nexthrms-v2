@@ -90,7 +90,13 @@ const path = {
 								required: false,
 							},
 							permissions: {
-								required: true,
+								type: 'array',
+								items: {
+									type: 'string',
+									format: 'uuid',
+								},
+							},
+							users: {
 								type: 'array',
 								items: {
 									type: 'string',
@@ -149,6 +155,10 @@ const path = {
 													type: 'string',
 												},
 												permissions: {
+													nullable: true,
+													type: 'string',
+												},
+												users: {
 													nullable: true,
 													type: 'string',
 												},

@@ -1,12 +1,24 @@
 import { PaginatedResponseType, SuccessResponseType } from './base';
 
 // Groups Types Start
+export type GroupUserType = {
+	id: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	isActive: boolean;
+	profile?: {
+		image: string;
+	} | null;
+};
+
 export type GroupType = {
 	id: string;
 	name: string;
 	description?: string | null;
 	active: boolean;
 	permissions: PermissionType[];
+	users: GroupUserType[];
 };
 
 export type CreateGroupQueryType = {
@@ -14,6 +26,7 @@ export type CreateGroupQueryType = {
 	active?: boolean;
 	description?: string;
 	permissions: string[];
+	users: string[];
 };
 
 export type CreateGroupErrorResponseType = {
@@ -21,6 +34,7 @@ export type CreateGroupErrorResponseType = {
 	active?: string;
 	description?: string;
 	permissions?: string;
+	users?: string;
 };
 
 export type CreateGroupResponseType = SuccessResponseType<GroupType>;
