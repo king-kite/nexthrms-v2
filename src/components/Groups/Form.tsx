@@ -81,6 +81,35 @@ const Form: FC<FormProps> = ({
 		search: '',
 	});
 
+	const sortedPermissions = useMemo(() => {
+		if (permissions.result.length <= 0) return [];
+		// Get the names of all permission categories and sort it;
+		let categoryNames: string[] = [];
+		permissions.result.forEach((permission) => {
+			const categoryName = permission.category
+				? permission.category.name.toLowerCase()
+				: 'anonymous';
+			if (!categoryNames.includes(categoryName.toLowerCase())) {
+				categoryNames.push(categoryName.toLowerCase());
+			}
+		});
+		categoryNames = categoryNames.sort();
+
+		// Sort permissions according to their category if they have one!
+		const sortedPermissions = categoryNames.map((category) => {
+			const categoryPermissions = permissions.result.filter((permission) => {
+				if (!permission.category && category === 'anonymous') return permission;
+				return (
+					permission.category &&
+					permission.category.name.toLowerCase() === category
+				);
+			});
+			return { category, permissions: categoryPermissions };
+		}, []);
+
+		return sortedPermissions;
+	}, [permissions]);
+
 	const usersError = handleDataError(users.error);
 
 	const handleSubmit = useCallback(
@@ -316,47 +345,96 @@ const Form: FC<FormProps> = ({
 					<p className="mt-1 text-primary-500 text-xs md:text-sm">
 						Loading permissions...
 					</p>
-				) : permissions.result.length > 0 ? (
-					permissions.result.map((permission, index) => (
-						<div key={index} className="w-full">
-							<div className="w-full">
-								<Checkbox
-									checked={
-										!!form.permissions.find(
-											(codename) => codename === permission.codename
-										)
-									}
-									label={permission.name}
-									labelColor="text-gray-500"
-									labelSize="text-sm tracking-wider md:text-base"
-									name={permission.codename}
-									onChange={({ target: { checked } }) => {
-										if (checked) {
-											const exists = form.permissions.find(
-												(codename) => codename === permission.codename
-											);
-											if (!exists) {
-												handleFormChange('permissions', [
-													...form.permissions,
-													permission.codename,
-												]);
+				) : sortedPermissions.length > 0 ? (
+					sortedPermissions.map(({ category, permissions }, index) => (
+						<div key={index} className="w-full md:col-span-2">
+							<h4 className="capitalize font-bold mb-3 text-base text-primary-600 w-full md:text-lg">
+								{category}
+							</h4>
+							<div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+								{permissions.map((permission, index) => (
+									<div key={index} className="w-full">
+										<Checkbox
+											checked={
+												!!form.permissions.find(
+													(codename) => codename === permission.codename
+												)
 											}
-										} else {
-											const newPermissions = form.permissions.filter(
-												(codename) => codename !== permission.codename
-											);
-											handleFormChange('permissions', newPermissions);
-										}
-									}}
-									between
-									reverse
-									required={false}
-									textSize="text-sm md:text-base"
-								/>
+											label={permission.name}
+											labelColor="text-gray-500"
+											labelSize="text-sm tracking-wider md:text-base"
+											name={permission.codename}
+											onChange={({ target: { checked } }) => {
+												if (checked) {
+													const exists = form.permissions.find(
+														(codename) => codename === permission.codename
+													);
+													if (!exists) {
+														handleFormChange('permissions', [
+															...form.permissions,
+															permission.codename,
+														]);
+													}
+												} else {
+													const newPermissions = form.permissions.filter(
+														(codename) => codename !== permission.codename
+													);
+													handleFormChange('permissions', newPermissions);
+												}
+											}}
+											between
+											reverse
+											required={false}
+											textSize="text-sm md:text-base"
+										/>
+									</div>
+								))}
 							</div>
+							{index + 1 !== sortedPermissions.length && (
+								<hr className="mt-5" />
+							)}
 						</div>
 					))
 				) : (
+					// permissions.result.map((permission, index) => (
+					// 	<div key={index} className="w-full">
+					// 		<div className="w-full">
+					// 			<Checkbox
+					// 				checked={
+					// 					!!form.permissions.find(
+					// 						(codename) => codename === permission.codename
+					// 					)
+					// 				}
+					// 				label={permission.name}
+					// 				labelColor="text-gray-500"
+					// 				labelSize="text-sm tracking-wider md:text-base"
+					// 				name={permission.codename}
+					// 				onChange={({ target: { checked } }) => {
+					// 					if (checked) {
+					// 						const exists = form.permissions.find(
+					// 							(codename) => codename === permission.codename
+					// 						);
+					// 						if (!exists) {
+					// 							handleFormChange('permissions', [
+					// 								...form.permissions,
+					// 								permission.codename,
+					// 							]);
+					// 						}
+					// 					} else {
+					// 						const newPermissions = form.permissions.filter(
+					// 							(codename) => codename !== permission.codename
+					// 						);
+					// 						handleFormChange('permissions', newPermissions);
+					// 					}
+					// 				}}
+					// 				between
+					// 				reverse
+					// 				required={false}
+					// 				textSize="text-sm md:text-base"
+					// 			/>
+					// 		</div>
+					// 	</div>
+					// ))
 					<p className="mt-1 text-primary-500 text-xs md:text-sm">
 						There are no permissions.
 					</p>
