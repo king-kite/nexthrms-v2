@@ -1,11 +1,15 @@
-import { InfoComp, TabNavigator } from 'kite-react-tailwind';
+import { Button, InfoComp, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
 import { GroupForm } from '../../../components/Groups/Detail';
 import { useAlertContext } from '../../../store/contexts';
-import { useGetGroupQuery } from '../../../store/queries';
+import {
+	useDeleteGroupMutation,
+	useGetGroupQuery,
+} from '../../../store/queries';
 import { GroupType } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
@@ -26,6 +30,22 @@ function GroupDetail({ group }: { group: GroupType }) {
 	);
 	const { open: showAlert } = useAlertContext();
 
+	const { deleteGroup, isLoading: delLoading } = useDeleteGroupMutation({
+		onSuccess() {
+			showAlert({
+				type: 'success',
+				message: 'Group was deleted successfully!',
+			});
+			router.back();
+		},
+		onError({ message }) {
+			showAlert({
+				type: 'danger',
+				message,
+			});
+		},
+	});
+
 	return (
 		<Container
 			heading="Group Information"
@@ -39,6 +59,27 @@ function GroupDetail({ group }: { group: GroupType }) {
 		>
 			{data && (
 				<>
+					<div className="flex flex-wrap items-center w-full lg:justify-end">
+						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+							<Button
+								iconLeft={FaPen}
+								onClick={() => setModalVisible(true)}
+								rounded="rounded-xl"
+								title="Edit Group"
+							/>
+						</div>
+						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+							<Button
+								bg="bg-red-600 hover:bg-red-500"
+								focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+								iconLeft={FaTrash}
+								rounded="rounded-xl"
+								title={delLoading ? 'Deleting Group...' : 'Delete Group'}
+								disabled={delLoading}
+								onClick={() => deleteGroup(id)}
+							/>
+						</div>
+					</div>
 					<div className="mt-4">
 						<InfoComp
 							infos={[
