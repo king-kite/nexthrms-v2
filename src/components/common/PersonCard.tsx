@@ -15,6 +15,8 @@ export type PersonCardType = {
 	name: string;
 	label?: string;
 	title?: string;
+	bg?: string;
+	border?: string;
 	actions?: ButtonType[];
 	options?: ButtonType[];
 };
@@ -26,6 +28,8 @@ const PersonCard: FC<PersonCardType> = ({
 	image,
 	name,
 	options,
+	bg = 'bg-white',
+	border = 'border border-gray-100',
 }) => {
 	const { buttonRef, ref, setVisible, visible } = useOutClick<
 		HTMLDivElement,
@@ -33,7 +37,7 @@ const PersonCard: FC<PersonCardType> = ({
 	>();
 
 	return (
-		<div className="bg-white border border-gray-100 p-4 relative rounded-lg shadow-lg">
+		<div className={`${bg} ${border} p-4 relative rounded-lg shadow-lg`}>
 			{options && (
 				<div className="flex items-center justify-end mb-1">
 					<span
@@ -47,11 +51,11 @@ const PersonCard: FC<PersonCardType> = ({
 			)}
 			<div className="my-1">
 				<div className="flex justify-center items-center">
-					<div className="h-[50px] my-1 relative rounded-full w-[50px] lg:h-[55px] lg:w-[55px]">
+					<div className="bg-white border border-gray-200 h-[50px] my-1 relative rounded-full w-[50px] lg:h-[55px] lg:w-[55px]">
 						<Image
 							layout="fill"
 							src={image && image.src ? image.src : DEFAULT_IMAGE}
-							className="w-full h-full rounded-full"
+							className="bg-white border border-gray-200 w-full h-full rounded-full"
 							alt={image && image.alt ? image.alt : ''}
 						/>
 					</div>

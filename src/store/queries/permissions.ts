@@ -113,7 +113,9 @@ export function useGetGroupsQuery(
 	const query = useQuery(
 		[tags.GROUPS, { limit, offset, search, date, users }],
 		async () => {
-			let url = `${GROUPS_URL}?limit=${limit}&offset=${offset}&search=${search}`;
+			let url = `${GROUPS_URL}?limit=${limit}&offset=${offset}&search=${
+				search || ''
+			}`;
 
 			if (date) {
 				url += `&from=${date.start}&to=${date.end}`;
@@ -184,7 +186,9 @@ export function useGetGroupQuery(
 			let url = GROUP_URL(id || '');
 
 			if (users) {
-				url += `?userLimit=${users?.limit}&userOffset=${users?.offset}&userSearch=${users?.search}`;
+				url += `?userLimit=${users?.limit}&userOffset=${
+					users?.offset
+				}&userSearch=${users?.search || ''}`;
 
 				if (users.date) {
 					url += `&userFom=${users.date.start}&userTo=${users.date.end}`;

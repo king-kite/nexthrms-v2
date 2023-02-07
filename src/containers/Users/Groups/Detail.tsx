@@ -5,6 +5,7 @@ import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
 import { GroupForm, UsersGrid } from '../../../components/Groups/Detail';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import {
 	useDeleteGroupMutation,
@@ -15,12 +16,18 @@ import { toCapitalize } from '../../../utils';
 
 function GroupDetail({ group }: { group: GroupType }) {
 	const [modalVisible, setModalVisible] = useState(false);
+	const [offset, setOffset] = useState(0);
 
 	const router = useRouter();
 	const id = router.query.id as string;
 	const { data, isLoading, isFetching, refetch } = useGetGroupQuery(
 		{
 			id,
+			users: {
+				limit: DEFAULT_PAGINATION_SIZE,
+				offset,
+				search: '',
+			},
 		},
 		{
 			initialData() {
@@ -117,7 +124,19 @@ function GroupDetail({ group }: { group: GroupType }) {
 									description: 'View all users in this group!',
 									component:
 										data.users.length > 0 ? (
-											<UsersGrid users={data.users} />
+											<UsersGrid
+												users={data.users}
+												paginate={
+													data._count?.users
+														? {
+																totalItems: data._count.users,
+																offset,
+																setOffset,
+																loading: isFetching,
+														  }
+														: undefined
+												}
+											/>
 										) : (
 											<p className="text-primary-500 text-xs md:text-sm">
 												There are currently no users in this group.

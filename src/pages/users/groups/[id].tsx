@@ -1,7 +1,7 @@
 import React from 'react';
 import { ParsedUrlQuery } from 'querystring';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Group from '../../../containers/Users/Groups/Detail';
 import { getGroup } from '../../../db';
 import { authPage } from '../../../middlewares';
@@ -42,7 +42,13 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = serializeUserData(req.user);
-	const data = await getGroup(params?.id as IParams['id']);
+	const data = await getGroup(params?.id as IParams['id'], {
+		user: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+	});
 
 	if (!data) {
 		return {
