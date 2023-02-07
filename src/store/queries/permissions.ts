@@ -86,12 +86,23 @@ export function useGetGroupsQuery(
 		search = '',
 		date,
 		onError,
+		users = {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
 	}: {
 		limit?: number;
 		offset?: number;
 		search?: string;
 		date?: { start: Date; end: Date };
 		onError?: (error: { status: number; message: string }) => void;
+		users?: {
+			limit?: number;
+			offset?: number;
+			search?: string;
+			date?: { start: Date; end: Date };
+		};
 	},
 	options?: {
 		onSuccess?: (data: GetGroupsResponseType['data']) => void;
@@ -100,12 +111,20 @@ export function useGetGroupsQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.GROUPS, { limit, offset, search, date }],
+		[tags.GROUPS, { limit, offset, search, date, users }],
 		async () => {
 			let url = `${GROUPS_URL}?limit=${limit}&offset=${offset}&search=${search}`;
 
 			if (date) {
 				url += `&from=${date.start}&to=${date.end}`;
+			}
+
+			if (users) {
+				url += `&userLimit=${users?.limit}&userOffset=${users?.offset}&userSearch=${users?.search}`;
+
+				if (users.date) {
+					url += `&userFom=${users.date.start}&userTo=${users.date.end}`;
+				}
 			}
 
 			return axiosInstance
@@ -135,8 +154,15 @@ export function useGetGroupQuery(
 	{
 		id,
 		onError,
+		users,
 	}: {
 		id?: string;
+		users?: {
+			limit?: number;
+			offset?: number;
+			search?: string;
+			date?: { start: Date; end: Date };
+		};
 		onError?: ({
 			status,
 			message,
@@ -153,14 +179,25 @@ export function useGetGroupQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.USERS, { id }],
-		() =>
-			axiosInstance
-				.get(GROUP_URL(id || ''))
+		[tags.USERS, { id, users }],
+		async () => {
+			let url = GROUP_URL(id || '');
+
+			if (users) {
+				url += `?userLimit=${users?.limit}&userOffset=${users?.offset}&userSearch=${users?.search}`;
+
+				if (users.date) {
+					url += `&userFom=${users.date.start}&userTo=${users.date.end}`;
+				}
+			}
+
+			return axiosInstance
+				.get(url)
 				.then(
 					(response: AxiosResponse<SuccessResponseType<GroupType>>) =>
 						response.data.data
-				),
+				);
+		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Groups from '../../../containers/Users/Groups';
 import { getGroups } from '../../../db';
 import { authPage } from '../../../middlewares';
@@ -39,7 +39,16 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = serializeUserData(req.user);
-	const data = await getGroups();
+	const data = await getGroups({
+		limit: DEFAULT_PAGINATION_SIZE,
+		offset: 0,
+		search: '',
+		users: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+	});
 
 	return {
 		props: {

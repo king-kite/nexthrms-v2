@@ -36,6 +36,11 @@ const Groups = ({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			users: {
+				limit: DEFAULT_PAGINATION_SIZE,
+				offset: 0,
+				search: '',
+			},
 		},
 		{
 			initialData() {
