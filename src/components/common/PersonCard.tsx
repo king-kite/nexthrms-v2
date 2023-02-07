@@ -1,5 +1,6 @@
 import { Button, ButtonType } from 'kite-react-tailwind';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
@@ -79,6 +80,17 @@ const PersonCard: FC<PersonCardType> = ({
 									focus=""
 									padding="p-1"
 									titleSize="text-sm"
+									renderLinkAs={
+										action.link
+											? (props) => {
+													return (
+														<Link href={props.link || '#'}>
+															<a {...props}>{props.children}</a>
+														</Link>
+													);
+											  }
+											: undefined
+									}
 									{...action}
 								/>
 							</div>
@@ -109,6 +121,17 @@ const PersonCard: FC<PersonCardType> = ({
 									caps
 									focus=""
 									titleSize="text-sm md:text-base lg:text-sm"
+									renderLinkAs={
+										option.link
+											? (props) => {
+													return (
+														<Link href={props.link || '#'}>
+															<a {...props}>{props.children}</a>
+														</Link>
+													);
+											  }
+											: undefined
+									}
 									{...option}
 								/>
 							</li>

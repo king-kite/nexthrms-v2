@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
-import { GroupForm } from '../../../components/Groups/Detail';
+import { GroupForm, UsersGrid } from '../../../components/Groups/Detail';
 import { useAlertContext } from '../../../store/contexts';
 import {
 	useDeleteGroupMutation,
@@ -115,7 +115,14 @@ function GroupDetail({ group }: { group: GroupType }) {
 								{
 									title: 'Users',
 									description: 'View all users in this group!',
-									component: <>This is the users screen</>,
+									component:
+										data.users.length > 0 ? (
+											<UsersGrid users={data.users} />
+										) : (
+											<p className="text-primary-500 text-xs md:text-sm">
+												There are currently no users in this group.
+											</p>
+										),
 								},
 							]}
 						/>
