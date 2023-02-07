@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
-import { GroupForm, UsersGrid } from '../../../components/Groups/Detail';
+import {
+	GroupForm,
+	Permissions,
+	UsersGrid,
+} from '../../../components/Groups/Detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
@@ -16,6 +20,7 @@ import { GroupType, CreateGroupQueryType } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
 function GroupDetail({ group }: { group: GroupType }) {
+	const [editMessage, setEditMessage] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
 	const [offset, setOffset] = useState(0);
 
@@ -44,7 +49,7 @@ function GroupDetail({ group }: { group: GroupType }) {
 			closeAlertModal();
 			showAlert({
 				type: 'success',
-				message: 'User was removed from this group successfully!',
+				message: editMessage || 'Group information was updated successfully!',
 			});
 		},
 		onError(err) {
@@ -137,7 +142,33 @@ function GroupDetail({ group }: { group: GroupType }) {
 								{
 									title: 'Permissions',
 									description: 'View all permissions in this group!',
-									component: <>This is the permissions screen</>,
+									component:
+										data.permissions.length > 0 ? (
+											<Permissions
+												permissions={data.permissions}
+												removePermission={(codename: string) => {
+													setEditMessage(
+														'Permission was removed from this group successfully!'
+													);
+													const form: CreateGroupQueryType = {
+														name: data.name,
+														active: data.active,
+														description: data.description || '',
+														permissions: data.permissions
+															.filter(
+																(permission) => permission.codename !== codename
+															)
+															.map((permission) => permission.codename),
+														users: data.users.map((user) => user.id),
+													};
+													editGroup({ id, form });
+												}}
+											/>
+										) : (
+											<p className="text-primary-500 text-xs md:text-sm">
+												There are currently no permissions in this group.
+											</p>
+										),
 								},
 								{
 									title: 'Users',
@@ -157,6 +188,9 @@ function GroupDetail({ group }: { group: GroupType }) {
 														: undefined
 												}
 												removeUser={(userId: string) => {
+													setEditMessage(
+														'User was removed from this group successfully!'
+													);
 													const form: CreateGroupQueryType = {
 														name: data.name,
 														active: data.active,
