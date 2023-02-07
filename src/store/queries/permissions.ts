@@ -181,7 +181,7 @@ export function useGetGroupQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.USERS, { id, users }],
+		[tags.GROUPS, { id, users }],
 		async () => {
 			let url = GROUP_URL(id || '');
 

@@ -6,12 +6,13 @@ import { FaPen, FaTrash } from 'react-icons/fa';
 import { Container, Modal } from '../../../components/common';
 import { GroupForm, UsersGrid } from '../../../components/Groups/Detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useAlertContext } from '../../../store/contexts';
+import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
 	useDeleteGroupMutation,
+	useEditGroupMutation,
 	useGetGroupQuery,
 } from '../../../store/queries';
-import { GroupType } from '../../../types';
+import { GroupType, CreateGroupQueryType } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
 function GroupDetail({ group }: { group: GroupType }) {
@@ -36,6 +37,24 @@ function GroupDetail({ group }: { group: GroupType }) {
 		}
 	);
 	const { open: showAlert } = useAlertContext();
+	const { close: closeAlertModal } = useAlertModalContext();
+
+	const { mutate: editGroup, isLoading: editLoading } = useEditGroupMutation({
+		onSuccess() {
+			closeAlertModal();
+			showAlert({
+				type: 'success',
+				message: 'User was removed from this group successfully!',
+			});
+		},
+		onError(err) {
+			closeAlertModal();
+			showAlert({
+				type: 'danger',
+				message: err.message,
+			});
+		},
+	});
 
 	const { deleteGroup, isLoading: delLoading } = useDeleteGroupMutation({
 		onSuccess() {
@@ -73,6 +92,7 @@ function GroupDetail({ group }: { group: GroupType }) {
 								onClick={() => setModalVisible(true)}
 								rounded="rounded-xl"
 								title="Edit Group"
+								disabled={editLoading}
 							/>
 						</div>
 						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
@@ -132,10 +152,24 @@ function GroupDetail({ group }: { group: GroupType }) {
 																totalItems: data._count.users,
 																offset,
 																setOffset,
-																loading: isFetching,
+																loading: isFetching || editLoading,
 														  }
 														: undefined
 												}
+												removeUser={(userId: string) => {
+													const form: CreateGroupQueryType = {
+														name: data.name,
+														active: data.active,
+														description: data.description || '',
+														permissions: data.permissions.map(
+															(permission) => permission.codename
+														),
+														users: data.users
+															.filter((user) => user.id !== userId)
+															.map((user) => user.id),
+													};
+													editGroup({ id, form });
+												}}
 											/>
 										) : (
 											<p className="text-primary-500 text-xs md:text-sm">
