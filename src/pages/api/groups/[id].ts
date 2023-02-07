@@ -58,7 +58,21 @@ export default auth()
 			where: {
 				id: req.query.id as string,
 			},
-			data,
+			data: {
+				name: data.name,
+				description: data.description,
+				active: data.active,
+				permissions: data.permissions
+					? {
+							set: data.permissions.map((codename) => ({ codename })),
+					  }
+					: undefined,
+				users: data.users
+					? {
+							set: data.users.map((id) => ({ id })),
+					  }
+					: undefined,
+			},
 			select: groupSelectQuery,
 		});
 
