@@ -183,13 +183,18 @@ const User = ({
 							},
 							{
 								title: 'Permissions',
-								description: 'View all permissions for this user!',
+								description: 'View all permissions for this user.',
 								component: (
 									<Permissions
 										permissions={permissions}
 										hideOtherModals={() => setModalVisible(false)}
 									/>
 								),
+							},
+							{
+								title: 'Groups',
+								description: 'View all groups associated with this user.',
+								component: <>View all groups associated with this user.</>,
 							},
 						]}
 					/>
