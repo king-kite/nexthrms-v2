@@ -1,11 +1,15 @@
 import { Prisma } from '@prisma/client';
 
-import { userSelectQuery as selectQuery, getUser, prisma } from '../../../db';
-import { auth } from '../../../middlewares';
-import { CreateUserQueryType, UserType } from '../../../types';
-import { upload as uploadFile } from '../../../utils/files';
-import parseForm from '../../../utils/parseForm';
-import { createUserSchema } from '../../../validators';
+import {
+	userSelectQuery as selectQuery,
+	getUser,
+	prisma,
+} from '../../../../db';
+import { auth } from '../../../../middlewares';
+import { CreateUserQueryType, UserType } from '../../../../types';
+import { upload as uploadFile } from '../../../../utils/files';
+import parseForm from '../../../../utils/parseForm';
+import { createUserSchema } from '../../../../validators';
 
 export const config = {
 	api: {

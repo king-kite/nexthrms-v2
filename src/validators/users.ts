@@ -81,3 +81,7 @@ export const createUserSchema = Joi.object({
 		.allow('', null)
 		.label('Client'),
 });
+
+export const updateUserPermissionsSchema = Joi.object({
+	permissions: Joi.array().items(Joi.string()).required().label('Permissions'),
+});
