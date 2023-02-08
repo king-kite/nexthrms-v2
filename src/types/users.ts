@@ -29,8 +29,8 @@ export type CreateGroupQueryType = {
 	name: string;
 	active?: boolean;
 	description?: string;
-	permissions: string[];
-	users: string[];
+	permissions?: string[];
+	users?: string[];
 };
 
 export type CreateGroupErrorResponseType = {
@@ -130,6 +130,7 @@ export type CreateUserQueryType = {
 	isEmailVerified: boolean;
 	isSuperUser: boolean;
 	createdAt: string;
+	permissions?: string[];
 
 	// Employee Data If Needed
 	employee?: {
@@ -162,6 +163,7 @@ export type CreateUserErrorResponseType = {
 	isEmailVerified?: string;
 	isSuperUser?: string;
 	createdAt?: string;
+	permissions?: string;
 
 	dateEmployed?: string;
 	department?: string;

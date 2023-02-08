@@ -27,7 +27,7 @@ export const createGroupSchema = Joi.object({
 	description: Joi.string().optional().allow('').label('Description'),
 	active: Joi.boolean().optional().label('Active'),
 	permissions: Joi.array().items(Joi.string()).optional().label('Permissions'),
-	users: Joi.array().items(Joi.string().uuid()).optional().label('Permissions'),
+	users: Joi.array().items(Joi.string().uuid()).optional().label('Users'),
 });
 
 export const createPermissionSchema = Joi.object({
@@ -80,4 +80,5 @@ export const createUserSchema = Joi.object({
 		.optional()
 		.allow('', null)
 		.label('Client'),
+	permissions: Joi.array().items(Joi.string()).optional().label('Permissions'),
 });
