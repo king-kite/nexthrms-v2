@@ -130,7 +130,6 @@ export type CreateUserQueryType = {
 	isEmailVerified: boolean;
 	isSuperUser: boolean;
 	createdAt: string;
-	permissions?: string[];
 
 	// Employee Data If Needed
 	employee?: {
@@ -163,7 +162,6 @@ export type CreateUserErrorResponseType = {
 	isEmailVerified?: string;
 	isSuperUser?: string;
 	createdAt?: string;
-	permissions?: string;
 
 	dateEmployed?: string;
 	department?: string;

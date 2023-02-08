@@ -112,13 +112,6 @@ const path = {
 										type: 'string',
 										format: 'date-time',
 									},
-									permissions: {
-										type: 'array',
-										items: {
-											type: 'string',
-											description: 'The permission code e.g. can_view_user',
-										},
-									},
 									profile: {
 										type: 'object',
 										required: ['image'],
@@ -193,7 +186,6 @@ const path = {
 									isEmailVerified: true,
 									isSuperUser: false,
 									createdAt: '2022-10-29T00:00:00.000Z',
-									permissions: ['can_view_user', 'can_create_user'],
 									profile: {
 										phone: '08123456789',
 										gender: 'MALE',
@@ -314,10 +306,6 @@ const path = {
 													nullable: true,
 												},
 												isSuperUser: {
-													type: 'string',
-													nullable: true,
-												},
-												permissions: {
 													type: 'string',
 													nullable: true,
 												},

@@ -82,11 +82,6 @@ export default auth()
 					...valid.profile,
 				},
 			},
-			permissions: valid.permissions
-				? {
-						connect: valid.permissions.map((codename) => ({ codename })),
-				  }
-				: undefined,
 			employee: valid.employee
 				? {
 						create: {

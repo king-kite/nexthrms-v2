@@ -108,11 +108,6 @@ export default auth()
 					...valid.profile,
 				},
 			},
-			permissions: valid.permissions
-				? {
-						set: valid.permissions.map((codename) => ({ codename })),
-				  }
-				: undefined,
 			employee: valid.employee
 				? {
 						upsert: {
