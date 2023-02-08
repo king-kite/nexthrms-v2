@@ -41,6 +41,5 @@ export default auth()
 		return res.status(200).json({
 			status: 'success',
 			message: "User's permissions were updated successfully!",
-			data,
 		});
 	});
