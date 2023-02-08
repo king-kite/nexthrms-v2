@@ -4,7 +4,11 @@ import React from 'react';
 import { Pagination } from '../../common';
 import { Permissions } from '../../Groups/Detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useGetUserPermissionsQuery } from '../../../store/queries';
+import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
+import {
+	useEditUserPermissionsMutation,
+	useGetUserPermissionsQuery,
+} from '../../../store/queries';
 import { PermissionType } from '../../../types';
 
 function UserPermissions({
@@ -20,6 +24,9 @@ function UserPermissions({
 	const router = useRouter();
 	const id = router.query.id as string;
 
+	const { open: showAlert } = useAlertContext();
+	const { close: closeAlertModal } = useAlertModalContext();
+
 	const { data, isLoading, isFetching } = useGetUserPermissionsQuery(
 		{
 			id,
@@ -34,30 +41,37 @@ function UserPermissions({
 		}
 	);
 
+	const { mutate: editPermissions } = useEditUserPermissionsMutation({
+		onSuccess() {
+			closeAlertModal();
+			showAlert({
+				type: 'success',
+				message: 'Permission was removed successfully!',
+			});
+		},
+		onError(err) {
+			closeAlertModal();
+			showAlert({
+				type: 'danger',
+				message: err?.data?.permissions || err.message,
+			});
+		},
+	});
+
 	return isLoading ? (
 		<p className="text-primary-500 text-xs md:text-sm">Loading...</p>
 	) : data && data.result.length > 0 ? (
 		<div>
 			<Permissions
 				permissions={data.result}
-				// removePermission={(codename: string) => {
-				// 	setEditMessage(
-				// 		'Permission was removed from this group successfully!'
-				// 	);
-				// 	const form: CreateGroupQueryType = {
-				// 		name: data.name,
-				// 		active: data.active,
-				// 		description: data.description || '',
-				// 		permissions: data.permissions
-				// 			.filter(
-				// 				(permission) => permission.codename !== codename
-				// 			)
-				// 			.map((permission) => permission.codename),
-				// 		users: data.users.map((user) => user.id),
-				// 	};
-				// 	editGroup({ id, form });
-				// }}
-				removePermission={(codename: string) => {}}
+				removePermission={(codename: string) => {
+					const form = {
+						permissions: data.result
+							.filter((permission) => permission.codename !== codename)
+							.map((permission) => permission.codename),
+					};
+					editPermissions({ id, form });
+				}}
 			/>
 			{data.total > 0 && (
 				<div className="pt-2 pb-5">

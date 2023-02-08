@@ -69,7 +69,7 @@ function Permissions({
 				],
 			});
 		},
-		[openModal, close, removePermission, showLoader]
+		[openModal, close, removePermission, name, showLoader]
 	);
 
 	return (
