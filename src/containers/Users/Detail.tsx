@@ -1,4 +1,4 @@
-import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import { ButtonType, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import {
@@ -12,7 +12,7 @@ import {
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { ChangePasswordForm } from '../../components/Employees';
-import { UserForm } from '../../components/Users';
+import { UserForm, UserInfo } from '../../components/Users';
 import {
 	CLIENT_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -25,7 +25,7 @@ import {
 	useDeleteUserMutation,
 } from '../../store/queries';
 import { UserType } from '../../types';
-import { getDate, toCapitalize } from '../../utils';
+import { toCapitalize } from '../../utils';
 
 const User = ({ user }: { user: UserType }) => {
 	const router = useRouter();
@@ -165,135 +165,15 @@ const User = ({ user }: { user: UserType }) => {
 						actions={actions}
 					/>
 
-					<div className="mt-4">
-						<InfoComp
-							infos={[
-								{
-									title: 'First Name',
-									value: toCapitalize(data.firstName || ''),
-								},
-								{
-									title: 'Last Name',
-									value: toCapitalize(data.lastName || ''),
-								},
-								{ title: 'E-mail', value: data.email || '' },
-								{
-									title: 'Birthday',
-									value: data.profile?.dob
-										? (getDate(data.profile?.dob, true) as string)
-										: '---',
-								},
-								{
-									title: 'Gender',
-									value: toCapitalize(data.profile?.gender || ''),
-								},
-								{
-									title: 'Status',
-									value:
-										data.employee?.leaves.length &&
-										data.employee?.leaves.length > 0
-											? 'ON LEAVE'
-											: data.isActive
-											? 'ACTIVE'
-											: 'INACTIVE',
-									type: 'badge',
-									options: {
-										bg:
-											data.employee?.leaves.length &&
-											data.employee?.leaves.length > 0
-												? 'warning'
-												: data.isActive
-												? 'green'
-												: 'danger',
-									},
-								},
-							]}
-							title="personal information"
-						/>
-
-						<InfoComp
-							infos={[
-								{ title: 'E-mail', value: data.email || '' },
-								{ title: 'Mobile', value: data.profile?.phone || '' },
-								{ title: 'Address', value: data.profile?.address || '' },
-								{
-									title: 'State',
-									value: toCapitalize(data.profile?.state || ''),
-								},
-								{
-									title: 'City',
-									value: toCapitalize(data.profile?.city || ''),
-								},
-							]}
-							title="contact information"
-						/>
-
-						<InfoComp
-							infos={[
-								{
-									title: 'Is Email Verified?',
-									value: data.isEmailVerified ? 'YES' : 'NO',
-									type: 'badge',
-									options: {
-										bg: data.isEmailVerified ? 'green' : 'danger',
-									},
-								},
-								{
-									title: 'Is Admin User?',
-									value: data.isAdmin ? 'YES' : 'NO',
-									type: 'badge',
-									options: {
-										bg: data.isAdmin ? 'green' : 'danger',
-									},
-								},
-								{
-									title: 'Is Super User?',
-									value: data.isSuperUser ? 'YES' : 'NO',
-									type: 'badge',
-									options: {
-										bg: data.isSuperUser ? 'green' : 'danger',
-									},
-								},
-								{
-									options: {
-										bg:
-											user.employee && user.client
-												? 'secondary'
-												: user.client
-												? 'pacify'
-												: 'danger',
-										color:
-											user.employee && !user.client
-												? 'bg-purple-600'
-												: undefined,
-									},
-									title: 'Role',
-									type: 'badge',
-									value:
-										user.employee && user.client
-											? 'CLIENT & EMPLOYEE'
-											: user.client
-											? 'CLIENT'
-											: user.employee
-											? 'EMPLOYEE'
-											: 'USER',
-								},
-								{
-									title: 'Last Update',
-									value: data.updatedAt
-										? (getDate(data.updatedAt, true) as string)
-										: '---',
-								},
-								{
-									title: 'Date Joined',
-									value: data.createdAt
-										? (getDate(data.createdAt, true) as string)
-										: '---',
-								},
-							]}
-							title="Additional information"
-						/>
-					</div>
+					<TabNavigator
+						screens={[
+							{
+								component: <UserInfo user={data} />,
+								description: "View all user's details and information",
+								title: 'User Information',
+							},
+						]}
+					/>
 
 					<Modal
 						close={() => setModalVisible(false)}
