@@ -1,6 +1,6 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
@@ -11,15 +11,15 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -28,26 +28,26 @@ const path = {
 									properties: {
 										data: {
 											$ref: refs.USER,
-										}
-									}
-								}
+										},
+									},
+								},
 							],
 						},
 					},
 				},
-				description: "Get Single User Information",
+				description: 'Get Single User Information',
 			},
-			"404": {
+			'404': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
-						}
-					}
-				}
-			}
+							$ref: refs.BASE,
+						},
+					},
+				},
+			},
 		},
-		summary: "Get Single User",
+		summary: 'Get Single User',
 		tags: [tags.Users],
 	},
 	put: {
@@ -58,154 +58,162 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		requestBody: {
 			required: true,
 			content: {
-				"multipart/form-data": {
+				'multipart/form-data': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							image: {
-								type: "string",
-								format: "base64",
+								type: 'string',
+								format: 'base64',
 							},
 							form: {
-								type: "object",
+								type: 'object',
 								required: [
-									"firstName",
-									"lastName",
-									"email",
-									"profile",
-									"isActive",
-									"isEmailVerified",
-									"isAdmin",
-									"isSuperUser",
+									'firstName',
+									'lastName',
+									'email',
+									'profile',
+									'isActive',
+									'isEmailVerified',
+									'isAdmin',
+									'isSuperUser',
 								],
 								properties: {
 									firstName: {
-										type: "string",
+										type: 'string',
 									},
 									lastName: {
-										type: "string",
-										format: "email",
+										type: 'string',
+										format: 'email',
 									},
 									email: {
-										type: "string",
+										type: 'string',
 									},
 									isActive: {
-										type: "boolean",
+										type: 'boolean',
 									},
 									isEmailVerified: {
-										type: "boolean",
+										type: 'boolean',
 									},
 									isAdmin: {
-										type: "boolean",
+										type: 'boolean',
 									},
 									isSuperUser: {
-										type: "boolean",
+										type: 'boolean',
 									},
 									createdAt: {
-										type: "string",
-										format: "date-time",
+										type: 'string',
+										format: 'date-time',
+									},
+									permissions: {
+										type: 'array',
+										items: {
+											type: 'string',
+											description: 'The permission code e.g. can_view_user',
+										},
 									},
 									profile: {
-										type: "object",
-										required: ["image"],
+										type: 'object',
+										required: ['image'],
 										properties: {
 											phone: {
-												type: "string",
+												type: 'string',
 											},
 											gender: {
-												type: "string",
-												format: "MALE | FEMALE",
+												type: 'string',
+												format: 'MALE | FEMALE',
 											},
 											image: {
-												type: "string",
+												type: 'string',
 											},
 											dob: {
-												type: "string",
-												format: "date-time",
+												type: 'string',
+												format: 'date-time',
 											},
 											address: {
-												type: "string",
+												type: 'string',
 											},
 											state: {
-												type: "string",
+												type: 'string',
 											},
 											city: {
-												type: "string",
+												type: 'string',
 											},
 										},
 									},
 									employee: {
-										type: "object",
+										type: 'object',
 										nullable: true,
 										properties: {
 											dateEmployed: {
-												type: "string",
-												format: "date-time",
+												type: 'string',
+												format: 'date-time',
 											},
 											department: {
-												type: "string",
-												format: "uuid",
+												type: 'string',
+												format: 'uuid',
 											},
 											job: {
-												type: "string",
-												format: "uuid",
+												type: 'string',
+												format: 'uuid',
 											},
 											supervisor: {
-												type: "string",
+												type: 'string',
 												nullable: true,
-												format: "uuid",
+												format: 'uuid',
 											},
 										},
 									},
 									client: {
-										type: "object",
+										type: 'object',
 										nullable: true,
 										properties: {
 											company: {
-												type: "string",
+												type: 'string',
 											},
 											position: {
-												type: "string",
+												type: 'string',
 											},
 										},
 									},
 								},
 								example: {
-									firstName: "Jan",
-									lastName: "Doe",
-									email: "jandoe@gmail.com",
+									firstName: 'Jan',
+									lastName: 'Doe',
+									email: 'jandoe@gmail.com',
 									isActive: true,
 									isAdmin: false,
 									isEmailVerified: true,
 									isSuperUser: false,
-									createdAt: "2022-10-29T00:00:00.000Z",
+									createdAt: '2022-10-29T00:00:00.000Z',
+									permissions: ['can_view_user', 'can_create_user'],
 									profile: {
-										phone: "08123456789",
-										gender: "MALE",
+										phone: '08123456789',
+										gender: 'MALE',
 										image:
-											"/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg",
+											'/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg',
 										address:
 											"This is Jan Doe's Home Address. Leave any message or letter at this address",
-										state: "New State",
-										city: "New City",
-										dob: "2000-02-12",
+										state: 'New State',
+										city: 'New City',
+										dob: '2000-02-12',
 									},
 									client: {
-										company: "Kite Holdings",
-										position: "CEO",
+										company: 'Kite Holdings',
+										position: 'CEO',
 									},
 									employee: {
-										dateEmployed: "2022-10-29T00:00:00.000Z",
-										department: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-										supervisor: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-										job: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+										dateEmployed: '2022-10-29T00:00:00.000Z',
+										department: '9c48f93c-35d8-47b3-ad2a-938689b63262',
+										supervisor: '9c48f93c-35d8-47b3-ad2a-938689b63262',
+										job: '9c48f93c-35d8-47b3-ad2a-938689b63262',
 									},
 								},
 							},
@@ -213,7 +221,7 @@ const path = {
 					},
 					encoding: {
 						image: {
-							contentType: "image/*",
+							contentType: 'image/*',
 						},
 					},
 				},
@@ -221,14 +229,14 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										data: {
 											$ref: refs.USER,
@@ -240,101 +248,105 @@ const path = {
 					},
 				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												firstName: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												lastName: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												email: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												phone: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												image: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												gender: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												address: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												state: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												city: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												dob: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												isActive: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												isAdmin: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												isEmailVerified: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												isSuperUser: {
-													type: "string",
+													type: 'string',
+													nullable: true,
+												},
+												permissions: {
+													type: 'string',
 													nullable: true,
 												},
 												createdAt: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												dateEmployed: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												department: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												job: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												supervisor: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												company: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												position: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 											},
@@ -347,7 +359,7 @@ const path = {
 				},
 			},
 		},
-		summary: "Updated Single User",
+		summary: 'Updated Single User',
 		tags: [tags.Users],
 	},
 	delete: {
@@ -358,26 +370,26 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
-						}
-					}
+							$ref: refs.BASE,
+						},
+					},
 				},
-				description: "User Deleted Successfully",
-			}
+				description: 'User Deleted Successfully',
+			},
 		},
-		summary: "Delete Single User",
-		tags: [tags.Users]
-	}
+		summary: 'Delete Single User',
+		tags: [tags.Users],
+	},
 };
 
 export default path;
