@@ -1,7 +1,8 @@
 import { Prisma, User } from '@prisma/client';
 
+import { getPermissionsQuery } from './permissions';
 import prisma from '../client';
-import { UserType, ParamsType } from '../../types';
+import { ParamsType, PermissionType, UserType } from '../../types';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
@@ -229,5 +230,42 @@ export const getUsers = async (
 		inactive,
 		on_leave,
 		result,
+	};
+};
+
+export const getUserPermissions = async (
+	id: string,
+	params: ParamsType = {
+		search: undefined,
+	}
+): Promise<{
+	total: number;
+	result: PermissionType[];
+}> => {
+	const query = getPermissionsQuery({ ...params });
+
+	// Select all user's permission
+	const [total, userPermissions] = await prisma.$transaction([
+		prisma.user.findUniqueOrThrow({
+			where: { id },
+			select: {
+				_count: {
+					select: {
+						permissions: true,
+					},
+				},
+			},
+		}),
+		prisma.user.findUniqueOrThrow({
+			where: { id },
+			select: {
+				permissions: query,
+			},
+		}),
+	]);
+
+	return {
+		total: total._count.permissions,
+		result: userPermissions as unknown as PermissionType[],
 	};
 };
