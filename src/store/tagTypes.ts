@@ -21,3 +21,4 @@ export const PROJECT_TASKS_FOLLOWERS = 'project_tasks_followers';
 export const PROJECT_TEAM = 'project_team';
 export const PROJECTS = 'projects';
 export const USERS = 'users';
+export const USER_PERMISSIONS = 'user_permissions';
