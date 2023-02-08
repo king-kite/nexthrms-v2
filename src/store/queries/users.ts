@@ -492,3 +492,54 @@ export function useGetUserPermissionsQuery(
 	);
 	return query;
 }
+
+// edit user permissions mutation
+export function useEditUserPermissionsMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: {
+			status: number;
+			data?: {
+				permissions?: string;
+			};
+			message: string;
+		}) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(data: {
+			id: string;
+			form: {
+				permissions: string[];
+			};
+		}) =>
+			axiosInstance
+				.put(USER_PERMISSIONS_URL(data.id), data.form)
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			onSuccess() {
+				queryClient.invalidateQueries([tags.USER_PERMISSIONS]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors<{
+						permissions?: string;
+					}>(err);
+					if (error) options.onError(error);
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}
