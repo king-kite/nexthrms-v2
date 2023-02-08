@@ -101,6 +101,14 @@ const path = {
 								},
 							},
 						},
+						example: {
+							permissions: [
+								'can_view_asset',
+								'can_create_asset',
+								'can_edit_asset',
+								'can_delete_asset',
+							],
+						},
 					},
 				},
 			},
