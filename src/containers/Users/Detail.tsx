@@ -12,7 +12,7 @@ import {
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { ChangePasswordForm } from '../../components/Employees';
-import { UserForm, UserInfo } from '../../components/Users';
+import { Permissions, UserForm, UserInfo } from '../../components/Users';
 import {
 	CLIENT_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -24,10 +24,19 @@ import {
 	useActivateUserMutation,
 	useDeleteUserMutation,
 } from '../../store/queries';
-import { UserType } from '../../types';
+import { PermissionType, UserType } from '../../types';
 import { toCapitalize } from '../../utils';
 
-const User = ({ user }: { user: UserType }) => {
+const User = ({
+	permissions,
+	user,
+}: {
+	permissions: {
+		total: number;
+		result: PermissionType[];
+	};
+	user: UserType;
+}) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 	const { data, isLoading, isFetching, refetch } = useGetUserQuery(
@@ -171,6 +180,11 @@ const User = ({ user }: { user: UserType }) => {
 								component: <UserInfo user={data} />,
 								description: "View all user's details and information",
 								title: 'User Information',
+							},
+							{
+								title: 'Permissions',
+								description: 'View all permissions for this user!',
+								component: <Permissions permissions={permissions} />,
 							},
 						]}
 					/>

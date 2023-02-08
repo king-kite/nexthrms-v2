@@ -5,9 +5,11 @@ import { useAlertModalContext } from '../../../store/contexts';
 import { PermissionType } from '../../../types';
 
 function Permissions({
+	name = 'group',
 	permissions,
 	removePermission,
 }: {
+	name?: string;
 	permissions: PermissionType[];
 	removePermission: (codename: string) => void;
 }) {
@@ -47,7 +49,7 @@ function Permissions({
 				closeOnButtonClick: false,
 				header: 'Remove Permission?',
 				color: 'warning',
-				message: 'Do you want to remove this permission from the group?',
+				message: `Do you want to remove this permission from this ${name}?`,
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',

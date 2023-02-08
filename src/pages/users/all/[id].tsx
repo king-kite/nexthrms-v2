@@ -1,18 +1,22 @@
+import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 import { ParsedUrlQuery } from 'querystring';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import User from '../../../containers/Users/Detail';
-import { getUser } from '../../../db';
+import { getUser, getUserPermissions } from '../../../db';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, UserType } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
-const Page = ({ data }: { data: UserType }) => (
+const Page = ({
+	data,
+	permissions,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="User Information" />
-		<User user={data} />
+		<User permissions={permissions} user={data} />
 	</React.Fragment>
 );
 
@@ -43,6 +47,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const auth = serializeUserData(req.user);
 	const data = await getUser(params?.id as IParams['id']);
+	const permissions = await getUserPermissions(params?.id as IParams['id'], {
+		limit: DEFAULT_PAGINATION_SIZE,
+		offset: 0,
+		search: '',
+	});
 
 	if (!data) {
 		return {
@@ -54,6 +63,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		props: {
 			auth,
 			data: JSON.parse(JSON.stringify(data)),
+			permissions: JSON.parse(JSON.stringify(permissions)),
 		},
 	};
 };

@@ -451,7 +451,7 @@ export function useGetUserPermissionsQuery(
 			data: SuccessResponseType<{
 				total: number;
 				result: PermissionType[];
-			}>
+			}>['data']
 		) => void;
 		onError?: (err: unknown) => void;
 		initialData?: () => SuccessResponseType<{
