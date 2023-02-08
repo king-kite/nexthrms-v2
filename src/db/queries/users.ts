@@ -266,6 +266,6 @@ export const getUserPermissions = async (
 
 	return {
 		total: total._count.permissions,
-		result: userPermissions as unknown as PermissionType[],
+		result: userPermissions.permissions as unknown as PermissionType[],
 	};
 };
