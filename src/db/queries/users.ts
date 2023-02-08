@@ -82,7 +82,7 @@ export const getUsersQuery = ({
 	limit,
 	search = undefined,
 	from,
-	to
+	to,
 }: ParamsType): Prisma.UserFindManyArgs => {
 	const query: Prisma.UserFindManyArgs = {
 		select: userSelectQuery,
@@ -152,20 +152,20 @@ export const getUsers = async (
 }> => {
 	const query = getUsersQuery({ ...params });
 
-	const [total, result, active, on_leave, employees, clients] =
+	const [total, result, inactive, on_leave, employees, clients] =
 		await prisma.$transaction([
 			prisma.user.count({ where: query.where }),
 			prisma.user.findMany(query),
 			prisma.user.count({
 				where: {
-					AND: [
+					OR: [
 						{
-							isActive: true,
+							isActive: false,
 						},
 						{
 							employee: {
 								leaves: {
-									none: {
+									some: {
 										status: {
 											equals: 'APPROVED',
 										},
@@ -221,8 +221,12 @@ export const getUsers = async (
 		clients,
 		employees,
 		total,
-		active,
-		inactive: total - active,
+		active: total - inactive,
+		// active: active + clients,
+		// subtract the active from the total and add clients
+		// remember active also checks employees leave and clients don't take leave
+		// inactive: total - (active + clients),
+		inactive,
 		on_leave,
 		result,
 	};
