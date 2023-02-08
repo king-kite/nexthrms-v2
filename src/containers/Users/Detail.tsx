@@ -184,7 +184,12 @@ const User = ({
 							{
 								title: 'Permissions',
 								description: 'View all permissions for this user!',
-								component: <Permissions permissions={permissions} />,
+								component: (
+									<Permissions
+										permissions={permissions}
+										hideOtherModals={() => setModalVisible(false)}
+									/>
+								),
 							},
 						]}
 					/>
