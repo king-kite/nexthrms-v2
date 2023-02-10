@@ -82,6 +82,10 @@ export const createUserSchema = Joi.object({
 		.label('Client'),
 });
 
+export const updateUserGroupsSchema = Joi.object({
+	groups: Joi.array().items(Joi.string().uuid()).required().label('Groups'),
+});
+
 export const updateUserPermissionsSchema = Joi.object({
 	permissions: Joi.array().items(Joi.string()).required().label('Permissions'),
 });
