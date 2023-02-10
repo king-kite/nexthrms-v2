@@ -16,6 +16,7 @@ function makePermissions(name: string): {
 
 export const asset = makePermissions('asset');
 export const attendance = makePermissions('attendance');
+export const attendanceAdmin = makePermissions('attendanceAdmin');
 export const client = makePermissions('client');
 export const department = makePermissions('department');
 export const employee = makePermissions('employee');
@@ -23,11 +24,13 @@ export const group = makePermissions('group');
 export const holiday = makePermissions('holiday');
 export const job = makePermissions('job');
 export const leave = makePermissions('leave');
-export const notification = makePermissions('notification');
+export const leaveAdmin = makePermissions('admin_leave');
+// export const notification = makePermissions('notification');
 export const overtime = makePermissions('overtime');
+export const overtimeAdmin = makePermissions('admin_overtime');
 export const permission = makePermissions('permission');
 export const permissioncategory = makePermissions('permissioncategory');
-export const profile = makePermissions('profile');
+// export const profile = makePermissions('profile');
 export const project = makePermissions('project');
 export const projectfile = makePermissions('projectfile');
 export const projectteam = makePermissions('projectteam');
