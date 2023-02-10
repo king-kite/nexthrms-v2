@@ -44,6 +44,7 @@ const { logger } = require('./utils/index.js');
 		'can_view_projectfile',
 		'can_create_projectfile',
 		'can_delete_projectfile',
+		'can_edit_projectfile',
 
 		'can_view_projectteam',
 
@@ -57,6 +58,31 @@ const { logger } = require('./utils/index.js');
 		...employeePermissions,
 		'can_delete_attendance',
 		'can_edit_attendance',
+	];
+
+	const leadPermissions = [
+		'can_view_project',
+		'can_edit_project',
+
+		'can_view_projectfile',
+		'can_create_projectfile',
+		'can_delete_projectfile',
+		'can_edit_projectfile',
+
+		'can_view_projectteam',
+		'can_create_projectteam',
+		'can_edit_projectteam',
+		'can_delete_projectteam',
+
+		'can_view_projecttask',
+		'can_edit_projecttask',
+		'can_delete_projecttask',
+		'can_create_projecttask',
+
+		'can_view_projecttaskfollower',
+		'can_edit_projecttaskfollower',
+		'can_delete_projecttaskfollower',
+		'can_create_projecttaskfollower',
 	];
 
 	const clientGroup = await prisma.group.create({
@@ -81,7 +107,16 @@ const { logger } = require('./utils/index.js');
 		data: {
 			name: 'admin employee',
 			description:
-				'This group grants access to admin employee. Please note that employees in this group was must be an admin user to use the permissions in this group',
+				'This group grants access to an admin employee. Please note that employees in this group was must be admin users.',
+			active: true,
+		},
+		select: { id: true },
+	});
+
+	const leadGroup = await prisma.group.create({
+		data: {
+			name: 'lead',
+			description: 'This group grants permissions to project leaders',
 			active: true,
 		},
 		select: { id: true },
@@ -122,11 +157,23 @@ const { logger } = require('./utils/index.js');
 		}
 	);
 
+	const leadGroupPromises = leadPermissions.map((codename) => {
+		return prisma.group.update({
+			where: { id: leadGroup.id },
+			data: {
+				permissions: {
+					connect: { codename },
+				},
+			},
+		});
+	});
+
 	// await the promises
 	await Promise.all([
 		...clientGroupPromises,
 		...employeeGroupPromises,
 		...employeeAdminGroupPromises,
+		...leadGroupPromises,
 	]);
 
 	logger.success('Added Groups Successfully!');
