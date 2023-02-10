@@ -1,8 +1,14 @@
 import { Prisma, User } from '@prisma/client';
 
+import { getGroupsQuery } from './groups';
 import { getPermissionsQuery } from './permissions';
 import prisma from '../client';
-import { ParamsType, PermissionType, UserType } from '../../types';
+import {
+	ParamsType,
+	PermissionType,
+	UserType,
+	UserGroupType,
+} from '../../types';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
@@ -230,6 +236,50 @@ export const getUsers = async (
 		inactive,
 		on_leave,
 		result,
+	};
+};
+
+export const getUserGroups = async (
+	id: string,
+	params: ParamsType = {
+		search: undefined,
+	}
+): Promise<{
+	total: number;
+	result: UserGroupType[];
+}> => {
+	const query = getGroupsQuery({ ...params });
+
+	// Select all user's groups
+	const [total, userGroups] = await prisma.$transaction([
+		prisma.user.findUniqueOrThrow({
+			where: { id },
+			select: {
+				_count: {
+					select: {
+						groups: true,
+					},
+				},
+			},
+		}),
+		prisma.user.findUniqueOrThrow({
+			where: { id },
+			select: {
+				groups: {
+					...query,
+					select: {
+						id: true,
+						name: true,
+						description: true,
+					},
+				},
+			},
+		}),
+	]);
+
+	return {
+		total: total._count.groups,
+		result: userGroups.groups as UserGroupType[],
 	};
 };
 

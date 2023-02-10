@@ -112,6 +112,12 @@ export type UserType = {
 	updatedAt: string;
 };
 
+export type UserGroupType = {
+	id: string;
+	name: string;
+	description?: string;
+}
+
 export type CreateUserQueryType = {
 	email: string;
 	firstName: string;
