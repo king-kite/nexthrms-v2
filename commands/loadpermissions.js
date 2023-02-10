@@ -62,7 +62,7 @@ const { logger } = require('./utils/index.js');
 					categoryName: 'notification',
 				},
 			];
-			return [...acc, notificationPermissions];
+			return [...acc, ...notificationPermissions];
 		}
 
 		if (
