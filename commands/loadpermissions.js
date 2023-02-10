@@ -158,7 +158,7 @@ const { logger } = require('./utils/index.js');
 	}, []);
 
 	// Create a array of promises to add new permissions
-	const permissionPromises = [...permissions, ...customPermissions].map(
+	const permissionPromises = permissions.map(
 		({ categoryName, ...permission }) => {
 			const category = permissionCategories.find(
 				(item) => item.name === categoryName
