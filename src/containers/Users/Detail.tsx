@@ -12,7 +12,7 @@ import {
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { ChangePasswordForm } from '../../components/Employees';
-import { Permissions, UserForm, UserInfo } from '../../components/Users';
+import { Groups, Permissions, UserForm, UserInfo } from '../../components/Users';
 import {
 	CLIENT_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -24,13 +24,18 @@ import {
 	useActivateUserMutation,
 	useDeleteUserMutation,
 } from '../../store/queries';
-import { PermissionType, UserType } from '../../types';
+import { PermissionType, UserType, UserGroupType } from '../../types';
 import { toCapitalize } from '../../utils';
 
 const User = ({
+	groups,
 	permissions,
 	user,
 }: {
+	groups: {
+		total: number;
+		result: UserGroupType[];
+	};
 	permissions: {
 		total: number;
 		result: PermissionType[];
@@ -194,7 +199,12 @@ const User = ({
 							{
 								title: 'Groups',
 								description: 'View all groups associated with this user.',
-								component: <>View all groups associated with this user.</>,
+								component: (
+									<Groups
+										groups={groups}
+										hideOtherModals={() => setModalVisible(false)}
+									/>
+								),
 							},
 						]}
 					/>
