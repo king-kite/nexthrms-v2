@@ -73,117 +73,117 @@ const { logger } = require('./utils/index.js');
 			return [...acc, ...notificationPermissions];
 		}
 
-		if (model.name.toLowerCase() === 'attendance') {
-			const attendancePermissions = [
-				{
-					name: `can create ${model.title}`.toUpperCase(),
-					codename: `can_create_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can clock in and clock out on the attendance table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can view ${model.title}`.toUpperCase(),
-					codename: `can_view_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can view his/her attendance records`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can create admin ${model.title}`.toUpperCase(),
-					codename: `can_create_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can delete admin ${model.title}`.toUpperCase(),
-					codename: `can_delete_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can edit admin ${model.title}`.toUpperCase(),
-					codename: `can_edit_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can view admin ${model.title}`.toUpperCase(),
-					codename: `can_view_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can export admin ${model.title}`.toUpperCase(),
-					codename: `can_export_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-			];
-			return [...acc, ...attendancePermissions];
-		}
+		// if (model.name.toLowerCase() === 'attendance') {
+		// 	const attendancePermissions = [
+		// 		{
+		// 			name: `can create ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can clock in and clock out on the attendance table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view his/her attendance records`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can create admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can export admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_export_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 	];
+		// 	return [...acc, ...attendancePermissions];
+		// }
 
-		if (
-			model.name.toLowerCase() === 'leave' ||
-			model.name.toLowerCase() === 'overtime'
-		) {
-			const modelName = model.name.toLowerCase();
-			const modelPermissions = [
-				{
-					name: `can create ${model.title}`.toUpperCase(),
-					codename: `can_create_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can add new ${modelName} request`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can delete ${model.title}`.toUpperCase(),
-					codename: `can_delete_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can remove his/her ${modelName} record`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can edit ${model.title}`.toUpperCase(),
-					codename: `can_edit_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can edit his/her ${modelName} record`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can view ${model.title}`.toUpperCase(),
-					codename: `can_view_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can view his/her ${modelName} records`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can create admin ${model.title}`.toUpperCase(),
-					codename: `can_create_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can delete admin ${model.title}`.toUpperCase(),
-					codename: `can_delete_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can edit admin ${model.title}`.toUpperCase(),
-					codename: `can_edit_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can view admin ${model.title}`.toUpperCase(),
-					codename: `can_view_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-				{
-					name: `can export admin ${model.title}`.toUpperCase(),
-					codename: `can_export_admin_${model.name}`.toLowerCase(),
-					description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
-					categoryName: model.name.toLowerCase(),
-				},
-			];
-			return [...acc, ...modelPermissions];
-		}
+		// if (
+		// 	model.name.toLowerCase() === 'leave' ||
+		// 	model.name.toLowerCase() === 'overtime'
+		// ) {
+		// 	const modelName = model.name.toLowerCase();
+		// 	const modelPermissions = [
+		// 		{
+		// 			name: `can create ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add new ${modelName} request`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can remove his/her ${modelName} record`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit his/her ${modelName} record`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view his/her ${modelName} records`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can create admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can export admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_export_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 	];
+		// 	return [...acc, ...modelPermissions];
+		// }
 
 		if (
 			model.name.toLowerCase() === 'permission' ||
