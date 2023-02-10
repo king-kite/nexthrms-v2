@@ -53,6 +53,12 @@ const { logger } = require('./utils/index.js');
 		'can_view_projecttaskfollower',
 	];
 
+	const employeeAdminPermissions = [
+		...employeePermissions,
+		'can_delete_attendance',
+		'can_edit_attendance',
+	];
+
 	const clientGroup = await prisma.group.create({
 		data: {
 			name: 'client',
@@ -66,6 +72,16 @@ const { logger } = require('./utils/index.js');
 		data: {
 			name: 'employee',
 			description: 'This group grants permissions to employees',
+			active: true,
+		},
+		select: { id: true },
+	});
+
+	const employeeAdminGroup = await prisma.group.create({
+		data: {
+			name: 'admin employee',
+			description:
+				'This group grants access to admin employee. Please note that employees in this group was must be an admin user to use the permissions in this group',
 			active: true,
 		},
 		select: { id: true },
@@ -93,8 +109,25 @@ const { logger } = require('./utils/index.js');
 		});
 	});
 
+	const employeeAdminGroupPromises = employeeAdminPermissions.map(
+		(codename) => {
+			return prisma.group.update({
+				where: { id: employeeAdminGroup.id },
+				data: {
+					permissions: {
+						connect: { codename },
+					},
+				},
+			});
+		}
+	);
+
 	// await the promises
-	await Promise.all([...clientGroupPromises, ...employeeGroupPromises]);
+	await Promise.all([
+		...clientGroupPromises,
+		...employeeGroupPromises,
+		...employeeAdminGroupPromises,
+	]);
 
 	logger.success('Added Groups Successfully!');
 })()
