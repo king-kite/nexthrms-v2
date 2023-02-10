@@ -8,11 +8,11 @@ const models = [
 	{ name: 'Holiday', title: 'Holiday' },
 	{ name: 'Job', title: 'Job' },
 	{ name: 'Leave', title: 'Leave' },
-	{ name: 'Notification', title: 'Notification' },
+	// { name: 'Notification', title: 'Notification' },
 	{ name: 'Overtime', title: 'Overtime' },
 	{ name: 'Permission', title: 'Permission' },
 	{ name: 'PermissionCategory', title: 'Permission Category' },
-	{ name: 'Profile', title: 'Profile' },
+	// { name: 'Profile', title: 'Profile' },
 	{ name: 'Project', title: 'Project' },
 	{ name: 'ProjectFile', title: 'Project File' },
 	{ name: 'ProjectTeam', title: 'Project Team' },
@@ -28,19 +28,27 @@ const { logger } = require('./utils/index.js');
 
 (async function main() {
 	// Delete the previous permission categories and permissions
+	logger.info('Removing Old Permissions Data...');
 	await prisma.permissionCategory.deleteMany();
 	await prisma.permission.deleteMany();
+
+	logger.success('Removed Old Permissions Successfully!');
 
 	// Get the new permission categories
 	const categories = models.map((model) => ({
 		name: model.name.toLowerCase(),
 	}));
 
+	logger.info('Adding Permission Categories...');
+
 	// Add the new permission categories
 	await prisma.permissionCategory.createMany({
 		data: categories,
 		skipDuplicates: true,
 	});
+
+	logger.success('Added Permission Categories!');
+	logger.info('Adding Permissions...');
 
 	// Get the created permissions from the database
 	const permissionCategories = await prisma.permissionCategory.findMany();
@@ -65,23 +73,117 @@ const { logger } = require('./utils/index.js');
 			return [...acc, ...notificationPermissions];
 		}
 
-		if (model.name.toLowerCase() === 'profile') {
-			const profilePermissions = [
-				{
-					name: 'CAN VIEW PROFILE',
-					codename: 'can_view_profile',
-					description: 'Can view profile information associated to user',
-					categoryName: 'profile',
-				},
-				{
-					name: 'CAN EDIT PROFILE',
-					codename: 'can_edit_profile',
-					description: 'Can edit profile information associated to user',
-					categoryName: 'profile',
-				},
-			];
-			return [...acc, ...profilePermissions];
-		}
+		// if (model.name.toLowerCase() === 'attendance') {
+		// 	const attendancePermissions = [
+		// 		{
+		// 			name: `can create ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can clock in and clock out on the attendance table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view his/her attendance records`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can create admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can export admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_export_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 	];
+		// 	return [...acc, ...attendancePermissions];
+		// }
+
+		// if (
+		// 	model.name.toLowerCase() === 'leave' ||
+		// 	model.name.toLowerCase() === 'overtime'
+		// ) {
+		// 	const modelName = model.name.toLowerCase();
+		// 	const modelPermissions = [
+		// 		{
+		// 			name: `can create ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add new ${modelName} request`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can remove his/her ${modelName} record`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit his/her ${modelName} record`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view his/her ${modelName} records`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can create admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_create_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can add a new record in the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can delete admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_delete_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can delete a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can edit admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_edit_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can edit a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can view admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_view_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 		{
+		// 			name: `can export admin ${model.title}`.toUpperCase(),
+		// 			codename: `can_export_admin_${model.name}`.toLowerCase(),
+		// 			description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+		// 			categoryName: model.name.toLowerCase(),
+		// 		},
+		// 	];
+		// 	return [...acc, ...modelPermissions];
+		// }
 
 		if (
 			model.name.toLowerCase() === 'permission' ||
@@ -193,6 +295,8 @@ const { logger } = require('./utils/index.js');
 
 	// await the promises
 	await Promise.all(permissionPromises);
+
+	logger.success('Added Permissions Successfully!');
 })()
 	.catch((error) => {
 		logger.error(error.message);

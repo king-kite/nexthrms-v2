@@ -8,8 +8,10 @@
 		"start": "next start",
 		"lint": "next lint",
 		"createsuperuser": "node commands/createsuperuser",
+		"loadgroups": "node commands/loadgroups",
 		"loadpermissions": "node commands/loadpermissions",
-		"merge-schema": "cat *.prisma > schema.prisma"
+		"merge-schema": "cat *.prisma > schema.prisma",
+		"seed": "node commands/loadpermissions && node commands/loadgroups"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"
