@@ -33,7 +33,7 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 		return { ...user, fullName: user.firstName + ' ' + user.lastName };
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
-			console.log('AUTH MIDDLEWARE :>> ', error);
+			console.log('AUTH PAGE MIDDLEWARE :>> ', error);
 		}
 		return null;
 	}

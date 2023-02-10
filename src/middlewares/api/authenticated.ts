@@ -41,7 +41,7 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 		};
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
-			console.log('AUTH MIDDLEWARE :>> ', error);
+			console.log('AUTH API MIDDLEWARE :>> ', error);
 		}
 		return null;
 	}
