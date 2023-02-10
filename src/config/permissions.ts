@@ -3,12 +3,14 @@ function makePermissions(name: string): {
 	DELETE: string;
 	EDIT: string;
 	VIEW: string;
+	EXPORT: string;
 } {
 	return {
 		CREATE: `can_create_${name}`.toLowerCase(),
 		DELETE: `can_delete_${name}`.toLowerCase(),
 		EDIT: `can_edit_${name}`.toLowerCase(),
 		VIEW: `can_view_${name}`.toLowerCase(),
+		EXPORT: `can_export_${name}`.toLowerCase(),
 	};
 }
 

@@ -47,7 +47,47 @@ const { logger } = require('./utils/index.js');
 
 	// Get the new permissions
 	const permissions = models.reduce((acc, model) => {
-		const modelPermissions = [
+		if (model.name.toLowerCase() === 'notification') {
+			const notificationPermissions = [
+				{
+					name: 'CAN VIEW NOTIFICATION',
+					codename: 'can_view_notification',
+					description: 'Can view notification associated to user',
+					categoryName: 'notification',
+				},
+				{
+					name: 'CAN DELETE NOTIFICATION',
+					codename: 'can_delete_notification',
+					description: 'Can delete notification associated to user',
+					categoryName: 'notification',
+				},
+			];
+			return [...acc, notificationPermissions];
+		}
+
+		if (
+			model.name.toLowerCase() === 'permission' ||
+			model.name.toLowerCase() === 'permissioncategory'
+		) {
+			let modelPermissions = [
+				{
+					name: `can view ${model.title}`.toUpperCase(),
+					codename: `can_view_${model.name}`.toLowerCase(),
+					description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
+					categoryName: model.name.toLowerCase(),
+				},
+				{
+					name: `can export ${model.title}`.toUpperCase(),
+					codename: `can_export_${model.name}`.toLowerCase(),
+					description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+					categoryName: model.name.toLowerCase(),
+				},
+			];
+
+			return [...acc, ...modelPermissions];
+		}
+
+		let modelPermissions = [
 			{
 				name: `can create ${model.title}`.toUpperCase(),
 				codename: `can_create_${model.name}`.toLowerCase(),
@@ -72,13 +112,53 @@ const { logger } = require('./utils/index.js');
 				description: `Specifies whether a user can view a record from the ${model.name.toLowerCase()} table`,
 				categoryName: model.name.toLowerCase(),
 			},
+			{
+				name: `can export ${model.title}`.toUpperCase(),
+				codename: `can_export_${model.name}`.toLowerCase(),
+				description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+				categoryName: model.name.toLowerCase(),
+			},
 		];
+
+		if (model.name.toLowerCase() === 'user') {
+			modelPermissions = [
+				...modelPermissions,
+				{
+					name: 'CAN CHANGE USER PASSWORD',
+					codename: 'can_change_user_password',
+					description:
+						'Specifies whether a user can change another user password.',
+					categoryName: 'user',
+				},
+				{
+					name: 'CAN ACTIVATE AND DEACTIVATE USER',
+					codename: 'can_activate_and_deactivate_user',
+					description:
+						'Specifies whether a user can activate and deactivate another user.',
+					categoryName: 'user',
+				},
+				{
+					name: 'CAN VIEW USER GROUP',
+					codename: 'can_view_user_group',
+					description:
+						'Specifies whether a user can view the groups associated with a user.',
+					categoryName: 'user',
+				},
+				{
+					name: 'CAN EDIT USER GROUP',
+					codename: 'can_edit_user_group',
+					description:
+						'Specifies whether a user can edit the groups associated with a user.',
+					categoryName: 'user',
+				},
+			];
+		}
 
 		return [...acc, ...modelPermissions];
 	}, []);
 
 	// Create a array of promises to add new permissions
-	const permissionPromises = permissions.map(
+	const permissionPromises = [...permissions, ...customPermissions].map(
 		({ categoryName, ...permission }) => {
 			const category = permissionCategories.find(
 				(item) => item.name === categoryName
