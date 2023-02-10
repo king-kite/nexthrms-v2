@@ -8,6 +8,7 @@ import {
 	CHANGE_USER_PASSWORD_URL,
 	DEFAULT_PAGINATION_SIZE,
 	USER_URL,
+	USER_GROUPS_URL,
 	USER_PERMISSIONS_URL,
 	USERS_URL,
 } from '../../config';
@@ -20,6 +21,7 @@ import {
 	SuccessResponseType,
 	PermissionType,
 	UserType,
+	UserGroupType,
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors } from '../../validators';
@@ -533,6 +535,119 @@ export function useEditUserPermissionsMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors<{
 						permissions?: string;
+					}>(err);
+					if (error) options.onError(error);
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}
+
+// get user groups query
+export function useGetUserGroupsQuery(
+	{
+		id,
+		limit = DEFAULT_PAGINATION_SIZE,
+		offset = 0,
+		search = '',
+		onError,
+	}: {
+		id: string;
+		limit?: number;
+		offset?: number;
+		search?: string;
+		onError?: (error: { status: number; message: string }) => void;
+	},
+	options?: {
+		enabled?: boolean;
+		onSuccess?: (
+			data: SuccessResponseType<{
+				total: number;
+				result: UserGroupType[];
+			}>['data']
+		) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => SuccessResponseType<{
+			total: number;
+			result: UserGroupType[];
+		}>['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.USER_GROUPS, { id, limit, offset, search }],
+		() =>
+			axiosInstance(
+				USER_GROUPS_URL(id) +
+					`?limit=${limit}&offset=${offset}&search=${search}`
+			).then(
+				(
+					response: AxiosResponse<
+						SuccessResponseType<{
+							total: number;
+							result: UserGroupType[];
+						}>
+					>
+				) => response.data.data
+			),
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message || 'An error occurred. Unable to get user groups.',
+					});
+			},
+			...options,
+		}
+	);
+	return query;
+}
+
+// edit user groups mutation
+export function useEditUserGroupsMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: {
+			status: number;
+			data?: {
+				groups?: string;
+			};
+			message: string;
+		}) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(data: {
+			id: string;
+			form: {
+				groups: string[];
+			};
+		}) =>
+			axiosInstance
+				.put(USER_GROUPS_URL(data.id), data.form)
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			onSuccess() {
+				queryClient.invalidateQueries([tags.USER_GROUPS]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors<{
+						groups?: string;
 					}>(err);
 					if (error) options.onError(error);
 				}
