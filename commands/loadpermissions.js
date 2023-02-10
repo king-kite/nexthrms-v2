@@ -65,6 +65,24 @@ const { logger } = require('./utils/index.js');
 			return [...acc, ...notificationPermissions];
 		}
 
+		if (model.name.toLowerCase() === 'profile') {
+			const profilePermissions = [
+				{
+					name: 'CAN VIEW PROFILE',
+					codename: 'can_view_profile',
+					description: 'Can view profile information associated to user',
+					categoryName: 'profile',
+				},
+				{
+					name: 'CAN EDIT PROFILE',
+					codename: 'can_edit_profile',
+					description: 'Can edit profile information associated to user',
+					categoryName: 'profile',
+				},
+			];
+			return [...acc, ...profilePermissions];
+		}
+
 		if (
 			model.name.toLowerCase() === 'permission' ||
 			model.name.toLowerCase() === 'permissioncategory'
