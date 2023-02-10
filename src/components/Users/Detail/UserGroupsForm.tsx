@@ -115,9 +115,9 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 			)}
-			<div className="gap-2 grid grid-cols-1 md:gap-4 md:grid-cols-2 lg:gap-6">
+			<div className="w-full">
 				{errors?.groups && (
-					<p className="mt-1 text-red-500 text-xs md:text-sm">
+					<p className="my-1 text-red-500 text-xs md:text-sm">
 						{errors.groups}
 					</p>
 				)}
