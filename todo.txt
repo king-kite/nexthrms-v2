@@ -1,7 +1,5 @@
-
-0. Handle Prisma Errors Better. Especially the unique key errors.
-1. Attendance Statistics is not calculating properly. Fix it.
-2. Check the [slug] pages to see if the item being fetched is null and redirect to 404 page.
+1. Handle Prisma Errors Better. Especially the unique key errors.
+2. Attendance Statistics is not calculating properly. Fix it.
 3. Have the alert faded in and out
 4. In Sidebar, Have the links array objects have active keys checking the pathname for their
 -- values
