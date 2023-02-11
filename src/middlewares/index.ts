@@ -1,8 +1,8 @@
 import type { NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 
-import { authMiddleware } from './api';
-import { authPagesMiddleware } from './pages';
+import { adminMiddleware, authMiddleware } from './api';
+import { adminPageMiddleware, authPagesMiddleware } from './pages';
 import { NextApiRequestExtendUser } from '../types';
 import { handleJoiErrors, handlePrismaErrors } from '../validators';
 
@@ -28,8 +28,16 @@ export function auth() {
 	}).use(authMiddleware);
 }
 
+export function admin() {
+	return auth().use(adminMiddleware);
+}
+
 export function authPage() {
 	return nextConnect().use(authPagesMiddleware);
+}
+
+export function adminPage() {
+	return authPage().use(adminPageMiddleware);
 }
 
 // use base().run(req, res) in GetServerSideProps

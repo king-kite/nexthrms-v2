@@ -15,6 +15,8 @@ export type RequestUserType = {
 	lastName: string;
 	fullName: string;
 	isActive: boolean;
+	isSuperUser: boolean;
+	isAdmin: boolean;
 	isEmailVerified: boolean;
 	profile: {
 		image: string;
