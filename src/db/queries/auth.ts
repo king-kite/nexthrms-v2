@@ -154,4 +154,6 @@ export const authSelectQuery = {
 	permissions: {
 		select: permissionSelect,
 	},
+	isAdmin: true,
+	isSuperUser: true,
 };
