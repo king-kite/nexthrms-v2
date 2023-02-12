@@ -1,14 +1,27 @@
 import type { NextApiResponse } from 'next';
-import nextConnect from 'next-connect';
+import nextConnect, { NextConnect } from 'next-connect';
 
-import { adminMiddleware, authMiddleware } from './api';
+import { adminMiddleware, authMiddleware, employeeMiddleware } from './api';
 import { authPagesMiddleware } from './pages';
-import { NextApiRequestExtendUser } from '../types';
+import {
+	NextApiRequestExtendUser,
+	NextApiRequestExtendEmployee,
+} from '../types';
+import { NextApiErrorMessage } from '../utils/classes';
 import { handleJoiErrors, handlePrismaErrors } from '../validators';
 
 export function auth() {
 	return nextConnect<NextApiRequestExtendUser, NextApiResponse>({
 		onError(err, req, res) {
+			if (err instanceof NextApiErrorMessage) {
+				return res.status(err.status).json({
+					status: 'error',
+					message:
+						err.status === 403
+							? err.message || 'You are not authorized to make this request!'
+							: err.message,
+				});
+			}
 			const joiError = handleJoiErrors(err);
 			if (joiError)
 				return res.status(400).json({
@@ -30,6 +43,13 @@ export function auth() {
 
 export function admin() {
 	return auth().use(adminMiddleware);
+}
+
+export function employee(): NextConnect<
+	NextApiRequestExtendEmployee,
+	NextApiResponse<any>
+> {
+	return auth().use(employeeMiddleware);
 }
 
 export function authPage() {

@@ -1,20 +1,22 @@
+import { permissions } from '../../../../config';
 import {
 	getLeaves,
 	prisma,
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { leaveCreateSchema, validateParams } from '../../../../validators';
+import { employee } from '../../../../middlewares';
 import { CreateLeaveQueryType } from '../../../../types';
+import { hasPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
+import { leaveCreateSchema, validateParams } from '../../../../validators';
 
-export default auth()
+export default employee()
 	.get(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can request leaves',
-			});
-		}
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasPermission(req.user.allPermissions, [permissions.leave.VIEW]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const params = validateParams(req.query);
 		const leaves = await getLeaves({ ...params, id: req.user.employee.id });
@@ -26,12 +28,11 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can request leaves',
-			});
-		}
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasPermission(req.user.allPermissions, [permissions.leave.CREATE]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const data: CreateLeaveQueryType = await leaveCreateSchema.validateAsync({
 			...req.body,
@@ -62,6 +63,6 @@ export default auth()
 		return res.status(201).json({
 			status: 'success',
 			mesage: 'Request for a leave was successful!',
-			data: leave
+			data: leave,
 		});
 	});

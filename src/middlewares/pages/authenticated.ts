@@ -12,7 +12,11 @@ import {
 } from '../../config';
 import { SECRET_KEY } from '../../config/settings';
 import { prisma, authSelectQuery } from '../../db';
-import { RequestUserType as BaseRequestUserType } from '../../types';
+import {
+	PermissionType,
+	RequestUserType as BaseRequestUserType,
+} from '../../types';
+import { getDistinctPermissions } from '../../utils/serializers';
 import { createJWT, setTokens } from '../../utils/tokens';
 
 type RequestUserType = Omit<BaseRequestUserType, 'checkPassword'>;
@@ -30,7 +34,16 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 			select: authSelectQuery,
 		});
 
-		return { ...user, fullName: user.firstName + ' ' + user.lastName };
+		return {
+			...user,
+			fullName: user.firstName + ' ' + user.lastName,
+			allPermissions: getDistinctPermissions([
+				...user.permissions,
+				...user.groups.reduce((acc: PermissionType[], group) => {
+					return [...acc, ...group.permissions];
+				}, []),
+			]),
+		};
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
 			console.log('AUTH PAGE MIDDLEWARE :>> ', error);

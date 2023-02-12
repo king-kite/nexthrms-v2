@@ -101,6 +101,7 @@ async function handler(
 				const data = serializeUserData({
 					...user,
 					fullName: user.firstName + ' ' + user.lastName,
+					allPermissions: [], // not going to be returned or used anyway so it's okay to leave empty
 				});
 
 				return res.status(200).json({
