@@ -16,7 +16,10 @@ export function auth() {
 			if (err instanceof NextApiErrorMessage) {
 				return res.status(err.status).json({
 					status: 'error',
-					message: err.message,
+					message:
+						err.status === 403
+							? err.message || 'You are not authorized to make this request!'
+							: err.message,
 				});
 			}
 			const joiError = handleJoiErrors(err);
