@@ -1,7 +1,7 @@
 import { AuthDataType, PermissionType, RequestUserType } from '../../types';
 
 // return distinct permissions from the groups permission and user permissions;
-function getDistinctPermissions(
+export function getDistinctPermissions(
 	permissions: PermissionType[]
 ): PermissionType[] {
 	// A variable to store the IDs of permissions that have been found

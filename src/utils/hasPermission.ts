@@ -6,13 +6,15 @@ type OptionsType = {
 
 function hasPermission(
 	userPermissions: PermissionType[],
-	requiredPermissions: string[],
+	requiredPermissions: string[], // code names
 	options?: OptionsType
 ): boolean {
+	let hasPerm = false;
 	// if not all requiredPermissions need to be met
 	if (!options?.every) {
 		userPermissions.forEach((permission) => {
-			if (requiredPermissions.includes(permission.codename)) return true;
+			if (requiredPermissions.includes(permission.codename))
+				return (hasPerm = true);
 		});
 	} else {
 		// keep track of the required permissions using a checked value
@@ -27,12 +29,12 @@ function hasPermission(
 			};
 		});
 
-		return trackedRequiredPermissions.every(
+		hasPerm = trackedRequiredPermissions.every(
 			(permission) => permission.checked === true
 		);
 	}
 
-	return false;
+	return hasPerm;
 }
 
 export default hasPermission;
