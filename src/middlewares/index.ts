@@ -7,11 +7,18 @@ import {
 	NextApiRequestExtendUser,
 	NextApiRequestExtendEmployee,
 } from '../types';
+import { NextApiErrorMessage } from '../utils/classes';
 import { handleJoiErrors, handlePrismaErrors } from '../validators';
 
 export function auth() {
 	return nextConnect<NextApiRequestExtendUser, NextApiResponse>({
 		onError(err, req, res) {
+			if (err instanceof NextApiErrorMessage) {
+				return res.status(err.status).json({
+					status: 'error',
+					message: err.message,
+				});
+			}
 			const joiError = handleJoiErrors(err);
 			if (joiError)
 				return res.status(400).json({
