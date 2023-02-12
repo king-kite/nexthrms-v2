@@ -1,16 +1,33 @@
+import { permissions } from '../../../../config';
 import {
 	getLeave,
 	prisma,
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { leaveApprovalSchema, leaveCreateSchema } from '../../../../validators';
+import { employee } from '../../../../middlewares';
+import { leaveCreateSchema } from '../../../../validators';
 import { CreateLeaveQueryType } from '../../../../types';
+import { hasPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 
-export default auth()
+export default employee()
 	.get(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasPermission(req.user.allPermissions, [permissions.leave.VIEW]);
+
 		const leave = await getLeave(req.query.id as string);
-		// TODO: Check Permissions
+
+		if (!leave) {
+			return res.status(404).json({
+				status: 'error',
+				message: 'Leave with specified ID was not found!',
+			});
+		}
+
+		if (!hasPerm || leave.employee?.id !== req.user.employee.id) {
+			throw new NextApiErrorMessage(403);
+		}
 
 		return res.status(200).json({
 			status: 'success',
@@ -18,37 +35,20 @@ export default auth()
 			data: leave,
 		});
 	})
-	// .post(async (req, res) => {
-	// 	const {
-	// 		approval,
-	// 	}: {
-	// 		approval: 'APPROVED' | 'DENIED';
-	// 	} = await leaveApprovalSchema.validateAsync({ ...req.body });
-	// 	const leave = await prisma.leave.update({
-	// 		where: {
-	// 			id: req.query.id as string,
-	// 		},
-	// 		data: {
-	// 			status: approval,
-	// 		},
-	// 		select: selectQuery,
-	// 	});
-
-	// 	return res.status(200).json({
-	// 		status: 'success',
-	// 		mesage:
-	// 			'Leave request was ' +
-	// 			(approval === 'DENIED' ? 'denied!' : 'approved!'),
-	// 		data: leave,
-	// 	});
-	// })
 	.put(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can request leaves',
-			});
-		}
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasPermission(req.user.allPermissions, [permissions.leave.EDIT]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		const exLeave = await prisma.leave.findUniqueOrThrow({
+			where: { id: req.query.id as string },
+			select: { employee: { select: { id: true } } },
+		});
+
+		if (exLeave.employee.id !== req.user.employee.id)
+			throw new NextApiErrorMessage(403);
 
 		const { employee, ...data }: CreateLeaveQueryType =
 			await leaveCreateSchema.validateAsync({
@@ -82,7 +82,27 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
-		// TODO: Check leave status is still pending
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasPermission(req.user.allPermissions, [permissions.leave.DELETE]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		const exLeave = await prisma.leave.findUniqueOrThrow({
+			where: { id: req.query.id as string },
+			select: { status: true, employee: { select: { id: true } } },
+		});
+
+		if (exLeave.employee.id !== req.user.employee.id)
+			throw new NextApiErrorMessage(403);
+
+		if (exLeave.status === 'APPROVED') {
+			return res.status(400).json({
+				status: 'error',
+				message:
+					'This leave has already been approved and can no longer be deleted!',
+			});
+		}
 
 		await prisma.leave.delete({ where: { id: req.query.id as string } });
 
