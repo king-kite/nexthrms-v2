@@ -12,8 +12,13 @@ import {
 } from '../../config';
 import { EMAIL_VERIFICATION_REQUIRED, SECRET_KEY } from '../../config/settings';
 import { prisma, authSelectQuery } from '../../db';
-import { NextApiRequestExtendUser, RequestUserType } from '../../types';
+import {
+	NextApiRequestExtendUser,
+	PermissionType,
+	RequestUserType,
+} from '../../types';
 import { comparePassword } from '../../utils/bcrypt';
+import { getDistinctPermissions } from '../../utils/serializers';
 import { createJWT, setTokens } from '../../utils/tokens';
 
 // Authentication Required Middleware
@@ -38,6 +43,12 @@ async function getUser(id: string): Promise<RequestUserType | null> {
 			...user,
 			fullName: user.firstName + ' ' + user.lastName,
 			checkPassword,
+			allPermissions: getDistinctPermissions([
+				...user.permissions,
+				...user.groups.reduce((acc: PermissionType[], group) => {
+					return [...acc, ...group.permissions];
+				}, []),
+			]),
 		};
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {

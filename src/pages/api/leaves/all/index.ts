@@ -5,24 +5,16 @@ import {
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
 import { employee } from '../../../../middlewares';
-import { CreateLeaveQueryType, PermissionType } from '../../../../types';
+import { CreateLeaveQueryType } from '../../../../types';
 import { hasPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { getDistinctPermissions } from '../../../../utils/serializers';
 import { leaveCreateSchema, validateParams } from '../../../../validators';
 
 export default employee()
 	.get(async (req, res) => {
-		const userPermissions = getDistinctPermissions([
-			...req.user.permissions,
-			...req.user.groups.reduce((acc: PermissionType[], group) => {
-				return [...acc, ...group.permissions];
-			}, []),
-		]);
-
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(userPermissions, [permissions.leave.VIEW]);
+			hasPermission(req.user.allPermissions, [permissions.leave.VIEW]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -36,16 +28,9 @@ export default employee()
 		});
 	})
 	.post(async (req, res) => {
-		const userPermissions = getDistinctPermissions([
-			...req.user.permissions,
-			...req.user.groups.reduce((acc: PermissionType[], group) => {
-				return [...acc, ...group.permissions];
-			}, []),
-		]);
-
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(userPermissions, [permissions.leave.CREATE]);
+			hasPermission(req.user.allPermissions, [permissions.leave.CREATE]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

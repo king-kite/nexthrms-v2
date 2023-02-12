@@ -31,6 +31,7 @@ export type RequestUserType = {
 	employee: RequestUserEmployeeType | null;
 	groups: Omit<GroupType, 'users'>[];
 	permissions: PermissionType[];
+	allPermissions: PermissionType[]; // contains all the permissions from the user and the groups as well.
 	checkPassword: (password: string) => Promise<boolean>;
 };
 
