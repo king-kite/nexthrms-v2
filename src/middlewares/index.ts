@@ -1,9 +1,12 @@
 import type { NextApiResponse } from 'next';
-import nextConnect from 'next-connect';
+import nextConnect, { NextConnect } from 'next-connect';
 
-import { adminMiddleware, authMiddleware } from './api';
+import { adminMiddleware, authMiddleware, employeeMiddleware } from './api';
 import { authPagesMiddleware } from './pages';
-import { NextApiRequestExtendUser } from '../types';
+import {
+	NextApiRequestExtendUser,
+	NextApiRequestExtendEmployee,
+} from '../types';
 import { handleJoiErrors, handlePrismaErrors } from '../validators';
 
 export function auth() {
@@ -30,6 +33,13 @@ export function auth() {
 
 export function admin() {
 	return auth().use(adminMiddleware);
+}
+
+export function employee(): NextConnect<
+	NextApiRequestExtendEmployee,
+	NextApiResponse<any>
+> {
+	return auth().use(employeeMiddleware);
 }
 
 export function authPage() {

@@ -8,6 +8,13 @@ import { ParsedUrlQuery } from 'querystring';
 
 import { GroupType, PermissionType } from './users';
 
+export type RequestUserEmployeeType = {
+	id: string;
+	job: {
+		name: string;
+	} | null;
+};
+
 export type RequestUserType = {
 	id: string;
 	email: string;
@@ -21,12 +28,7 @@ export type RequestUserType = {
 	profile: {
 		image: string;
 	} | null;
-	employee: {
-		id: string;
-		job: {
-			name: string;
-		} | null;
-	} | null;
+	employee: RequestUserEmployeeType | null;
 	groups: Omit<GroupType, 'users'>[];
 	permissions: PermissionType[];
 	checkPassword: (password: string) => Promise<boolean>;
@@ -36,6 +38,14 @@ export type RequestUserType = {
 // To be used for /api/ routes and with the auth() next-connect middleware
 export interface NextApiRequestExtendUser extends NextApiRequest {
 	user: RequestUserType;
+}
+
+// Prevents the employee object in the request user from been typed as null
+// To be used for /api/ routes and with the employee() next-connect middleware
+export interface NextApiRequestExtendEmployee extends NextApiRequestExtendUser {
+	user: Omit<RequestUserType, 'employee'> & {
+		employee: RequestUserEmployeeType;
+	};
 }
 
 // Add the user object to the getServerSideProps pages function.
