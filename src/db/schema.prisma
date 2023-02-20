@@ -141,8 +141,9 @@ model Group {
   description String? @db.VarChar(300)
   active      Boolean @default(true)
 
-  permissions Permission[] @relation("group_permissions")
-  users       User[]       @relation("group_users")
+  objectPermissions PermissionObject[] @relation("permission_object_groups")
+  permissions       Permission[]       @relation("group_permissions")
+  users             User[]             @relation("group_users")
 
   @@index([id], map: "group_id")
   @@map("groups")
@@ -252,6 +253,7 @@ model Overtime {
   @@map("overtime")
 }
 
+// Model/Table Level Permissions
 model Permission {
   id          String  @id @default(uuid()) @db.Uuid
   name        String  @unique @db.VarChar(200)
@@ -276,6 +278,22 @@ model PermissionCategory {
 
   @@index([id], map: "permission_category_id")
   @@map("permission_categories")
+}
+
+// Object Level Permissions
+model PermissionObject {
+  id String @id @default(uuid()) @db.Uuid
+
+  modelName String @map("model_name") @db.VarChar(100)
+  objectId  String @map("object_id") @db.Uuid
+
+  permission PermissionChoices
+
+  groups Group[] @relation("permission_object_groups")
+  users  User[]  @relation("permission_object_users")
+
+  @@index([id], map: "permission_object_id")
+  @@map("permissions_objects")
 }
 
 model Profile {
@@ -437,14 +455,15 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  assets      Asset[]
-  client      Client?
-  employee    Employee?
-  groups      Group[]        @relation("group_users")
-  permissions Permission[]   @relation("permission_users")
-  profile     Profile?
-  sender      Notification[] @relation("notificationSender")
-  recipient   Notification[] @relation("notificationRecipient")
+  assets            Asset[]
+  client            Client?
+  employee          Employee?
+  groups            Group[]            @relation("group_users")
+  objectPermissions PermissionObject[] @relation("permission_object_users")
+  permissions       Permission[]       @relation("permission_users")
+  profile           Profile?
+  sender            Notification[]     @relation("notificationSender")
+  recipient         Notification[]     @relation("notificationRecipient")
 
   @@index([id], map: "user_id")
   @@index([email], map: "user_email")
@@ -495,6 +514,13 @@ enum OvertimeChoices {
   COMPULSORY
   HOLIDAY
   VOLUNTARY
+}
+
+enum PermissionChoices {
+  CREATE
+  DELETE
+  EDIT
+  VIEW
 }
 
 enum ProjectPriority {
