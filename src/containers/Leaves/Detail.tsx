@@ -11,7 +11,11 @@ import {
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { Form } from '../../components/Leaves';
-import { DEFAULT_IMAGE, permissions } from '../../config';
+import {
+	ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL,
+	DEFAULT_IMAGE,
+	permissions,
+} from '../../config';
 import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetLeaveQuery,
@@ -143,7 +147,7 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 				{
 					bg: 'bg-gray-600 hover:bg-gray-500',
 					iconLeft: FaUserShield,
-					link: '#',
+					link: ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL(id),
 					title: 'View Record Permissions',
 				},
 			];

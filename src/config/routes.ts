@@ -34,6 +34,8 @@ export const HOLIDAYS_PAGE_URL = `/employees/holidays/`;
 export const ADMIN_LEAVES_PAGE_URL = '/employees/leaves/admin/';
 export const ADMIN_LEAVE_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/leaves/admin/${slug}/`;
+export const ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL = (id: string) =>
+	`/employees/leaves/admin/${id}/leaves/${id}/object-permissions/`;
 export const LEAVES_PAGE_URL = '/employees/leaves/';
 export const LEAVE_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/leaves/${slug}/`;
@@ -59,6 +61,8 @@ export const PROJECT_TEAM_PAGE_URL = (slug: string) =>
 // Users Section
 export const GROUPS_PAGE_URL = '/users/groups/';
 export const GROUP_PAGE_URL = (slug: string) => `/users/groups/${slug}/`;
+export const OBJECT_PERMISSIONS_PAGE_URL = (model: string, objectId: string) => 
+	`/users/permissions/objects/${model}/${objectId}/`;
 export const PERMISSIONS_PAGE_URL = '/users/permissions/';
 export const USERS_PAGE_URL = '/users/all/';
 export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;
