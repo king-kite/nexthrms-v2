@@ -1,11 +1,11 @@
 import { models, permissions } from '../../../../../config';
 import { getObjectPermissions } from '../../../../../db';
-import { auth } from '../../../../../middlewares';
+import { admin } from '../../../../../middlewares';
 import { PermissionModelNameType } from '../../../../../types';
 import { hasPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 
-export default auth().get(async (req, res) => {
+export default admin().get(async (req, res) => {
 	const hasPerm =
 		req.user.isSuperUser ||
 		hasPermission(req.user.allPermissions, [permissions.permissionobject.VIEW]);
