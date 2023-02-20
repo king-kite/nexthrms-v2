@@ -1,28 +1,9 @@
-import { permissions } from '../../../../../config';
+import { models, permissions } from '../../../../../config';
 import { getObjectPermissions } from '../../../../../db';
 import { auth } from '../../../../../middlewares';
 import { PermissionModelNameType } from '../../../../../types';
 import { hasPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-
-const models = [
-	'assets',
-	'attendance',
-	'clients',
-	'deparments',
-	'employees',
-	'groups',
-	'holiday',
-	'jobs',
-	'leaves',
-	'overtime',
-	'projects',
-	'projects_files',
-	'projects_tasks',
-	'projects_tasks_followers',
-	'projects_team',
-	'users',
-];
 
 export default auth().get(async (req, res) => {
 	const hasPerm =

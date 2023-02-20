@@ -1,3 +1,5 @@
+import { PermissionModelNameType } from '../types';
+
 const ROOT_URL = '/api';
 
 // Authentication and User Personal Information URLs
@@ -98,6 +100,11 @@ export const GROUPS_EXPORT_URL = `${ROOT_URL}/groups/export`;
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
+
+export const OBJECT_PERMISSIONS_URL = (
+	model: PermissionModelNameType,
+	objectId: string
+) => `${ROOT_URL}/permissions/objects/${model}/${objectId}/`;
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
 export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;

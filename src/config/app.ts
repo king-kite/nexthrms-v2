@@ -11,3 +11,22 @@ export const isServer = () => (typeof window === undefined ? true : false);
 export const NODE_ENV = process.env.NODE_ENV || 'production';
 
 export const TITLE = 'Kite Human Resource Management System';
+
+export const models = [
+	'assets',
+	'attendance',
+	'clients',
+	'deparments',
+	'employees',
+	'groups',
+	'holiday',
+	'jobs',
+	'leaves',
+	'overtime',
+	'projects',
+	'projects_files',
+	'projects_tasks',
+	'projects_tasks_followers',
+	'projects_team',
+	'users',
+];
