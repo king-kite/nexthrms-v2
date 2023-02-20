@@ -1,12 +1,18 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
-import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash } from 'react-icons/fa';
+import {
+	FaCheckCircle,
+	FaEdit,
+	FaTimesCircle,
+	FaTrash,
+	FaUserShield,
+} from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { Form } from '../../components/Leaves';
-import { DEFAULT_IMAGE } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import { DEFAULT_IMAGE, permissions } from '../../config';
+import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetLeaveQuery,
 	useApproveLeaveMutation,
@@ -18,7 +24,7 @@ import {
 	CreateLeaveQueryType,
 	LeaveType,
 } from '../../types';
-import { getDate, getNextDate, getNoOfDays } from '../../utils';
+import { getDate, getNextDate, getNoOfDays, hasPermission } from '../../utils';
 
 type ErrorType = CreateLeaveErrorResponseType & {
 	message?: string;
@@ -30,6 +36,17 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 
 	const [modalVisible, setModalVisible] = useState(false);
 	const [errors, setErrors] = useState<ErrorType>();
+
+	const { data: authData } = useAuthContext();
+
+	const canViewPermissions =
+		admin && authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]))
+			: false;
 
 	const { open } = useAlertContext();
 
@@ -119,6 +136,18 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 				title: 'Deny Leave',
 			},
 		];
+
+		if (canViewPermissions) {
+			actions = [
+				...actions,
+				{
+					bg: 'bg-gray-600 hover:bg-gray-500',
+					iconLeft: FaUserShield,
+					link: '#',
+					title: 'View Record Permissions',
+				},
+			];
+		}
 	}
 
 	return (
