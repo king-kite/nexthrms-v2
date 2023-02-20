@@ -284,14 +284,15 @@ model PermissionCategory {
 model PermissionObject {
   id String @id @default(uuid()) @db.Uuid
 
-  modelName String @map("model_name") @db.VarChar(100)
-  objectId  String @map("object_id") @db.Uuid
+  modelName PermissionModelChoices @map("model_name")
+  objectId  String                 @map("object_id") @db.Uuid
 
   permission PermissionChoices
 
   groups Group[] @relation("permission_object_groups")
   users  User[]  @relation("permission_object_users")
 
+  @@unique([modelName, objectId, permission])
   @@index([id], map: "permission_object_id")
   @@map("permissions_objects")
 }
@@ -521,6 +522,25 @@ enum PermissionChoices {
   DELETE
   EDIT
   VIEW
+}
+
+enum PermissionModelChoices {
+  assets
+  attendance
+  clients
+  deparments
+  employees
+  groups
+  holiday
+  jobs
+  leaves
+  overtime
+  projects
+  projects_files
+  projects_tasks
+  projects_tasks_followers
+  projects_team
+  users
 }
 
 enum ProjectPriority {
