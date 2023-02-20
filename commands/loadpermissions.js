@@ -12,6 +12,7 @@ const models = [
 	{ name: 'Overtime', title: 'Overtime' },
 	{ name: 'Permission', title: 'Permission' },
 	{ name: 'PermissionCategory', title: 'Permission Category' },
+	{ name: 'PermissionObject', title: 'Permission Object' },
 	// { name: 'Profile', title: 'Profile' },
 	{ name: 'Project', title: 'Project' },
 	{ name: 'ProjectFile', title: 'Project File' },
@@ -200,6 +201,25 @@ const { logger } = require('./utils/index.js');
 					name: `can export ${model.title}`.toUpperCase(),
 					codename: `can_export_${model.name}`.toLowerCase(),
 					description: `Specifies whether a user can export records from the ${model.name.toLowerCase()} table`,
+					categoryName: model.name.toLowerCase(),
+				},
+			];
+
+			return [...acc, ...modelPermissions];
+		}
+
+		if (model.name.toLowerCase() === 'permissionobject') {
+			let modelPermissions = [
+				{
+					name: `can view ${model.title}`.toUpperCase(),
+					codename: `can_view_${model.name}`.toLowerCase(),
+					description: `Specifies whether a user can view records from the object permissions table`,
+					categoryName: model.name.toLowerCase(),
+				},
+				{
+					name: `can edit ${model.title}`.toUpperCase(),
+					codename: `can_edit_${model.name}`.toLowerCase(),
+					description: `Specifies whether a user can edit records from the object permissions table`,
 					categoryName: model.name.toLowerCase(),
 				},
 			];

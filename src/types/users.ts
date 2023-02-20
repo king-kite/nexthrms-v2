@@ -46,6 +46,17 @@ export type CreateGroupResponseType = SuccessResponseType<GroupType>;
 export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Groups Types Stop
 
+// Object Permission Types Start
+export type ObjectPermissionType = {
+	users: Omit<GroupUserType, 'isActive'>[];
+	permission: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW';
+	groups: {
+		id: string;
+		name: string;
+	}[];
+};
+// Object Permission Types Stop
+
 // Permissions Types Start
 export type PermissionType = {
 	id: string;
@@ -59,6 +70,24 @@ export type PermissionCategoryType = {
 	id: string;
 	name: string;
 };
+
+export type PermissionModelNameType =
+	| 'assets'
+	| 'attendance'
+	| 'clients'
+	| 'deparments'
+	| 'employees'
+	| 'groups'
+	| 'holiday'
+	| 'jobs'
+	| 'leaves'
+	| 'overtime'
+	| 'projects'
+	| 'projects_files'
+	| 'projects_tasks'
+	| 'projects_tasks_followers'
+	| 'projects_team'
+	| 'users';
 
 export type GetPermissionsResponseType = PaginatedResponseType<
 	PermissionType[]
@@ -116,7 +145,7 @@ export type UserGroupType = {
 	id: string;
 	name: string;
 	description?: string;
-}
+};
 
 export type CreateUserQueryType = {
 	email: string;
