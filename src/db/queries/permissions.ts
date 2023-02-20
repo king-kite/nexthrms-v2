@@ -127,7 +127,7 @@ export const getObjectPermissions = async (
 	objectId: string,
 	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'
 ) => {
-	return await prisma.permissionObject.findMany({
+	const result = await prisma.permissionObject.findMany({
 		where: {
 			modelName,
 			objectId,
@@ -135,6 +135,8 @@ export const getObjectPermissions = async (
 		},
 		select: objectPermissionSelectQuery,
 	});
+
+	return { result };
 };
 
 export const getPermission = async (id: string) => {
