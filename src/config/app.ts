@@ -1,7 +1,13 @@
 export const ACCESS_TOKEN = 'access';
-export const ACCESS_TOKEN_LIFETIME = 60 * 5; // time in seconds (result: 5 mins)
+export const ACCESS_TOKEN_LIFETIME = process.env
+	.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
+	? +process.env.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
+	: 60 * 5; // time in seconds (result: 5 mins)
 export const REFRESH_TOKEN = 'refresh';
-export const REFRESH_TOKEN_LIFETIME = 60 * 60 * 1; // time in seconds (result: 1 hour)
+export const REFRESH_TOKEN_LIFETIME = process.env
+	.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
+	? +process.env.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
+	: 60 * 60 * 1; // time in seconds (result: 1 hour)
 
 export const DATA_LIFETIME = process.env.NEXT_PUBLIC_DATA_LIFETIME
 	? +process.env.NEXT_PUBLIC_DATA_LIFETIME

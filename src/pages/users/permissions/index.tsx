@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { LOGIN_PAGE_URL } from '../../config';
-import Permissions from '../../containers/Users/Permissions';
-import { getPermissions } from '../../db';
-import { authPage } from '../../middlewares';
+import { LOGIN_PAGE_URL } from '../../../config';
+import Permissions from '../../../containers/Users/Permissions';
+import { getPermissions } from '../../../db';
+import { authPage } from '../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
 	GetPermissionsResponseType,
-} from '../../types';
-import { Title } from '../../utils';
-import { serializeUserData } from '../../utils/serializers';
+} from '../../../types';
+import { Title } from '../../../utils';
+import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({ data }: { data: GetPermissionsResponseType['data'] }) => (
 	<React.Fragment>
