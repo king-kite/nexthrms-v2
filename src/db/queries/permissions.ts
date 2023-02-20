@@ -5,7 +5,31 @@ import {
 	ParamsType,
 	PermissionType,
 	PermissionCategoryType,
+	PermissionModelNameType,
 } from '../../types';
+
+export const objectPermissionSelectQuery = {
+	users: {
+		select: {
+			id: true,
+			firstName: true,
+			lastName: true,
+			email: true,
+			profile: {
+				select: {
+					image: true,
+				},
+			},
+		},
+	},
+	permission: true,
+	groups: {
+		select: {
+			id: true,
+			name: true,
+		},
+	},
+};
 
 export const permissionCategorySelectQuery: Prisma.PermissionCategorySelect = {
 	id: true,
@@ -25,14 +49,14 @@ export const permissionSelectQuery: Prisma.PermissionSelect = {
 export const getPermissionsQuery = ({
 	offset,
 	limit,
-	search = undefined
+	search = undefined,
 }: ParamsType): Prisma.PermissionFindManyArgs => {
 	const query: Prisma.PermissionFindManyArgs = {
 		select: permissionSelectQuery,
 		orderBy: {
 			category: {
 				name: 'asc' as const,
-			}
+			},
 		},
 		where: search
 			? {
@@ -71,7 +95,7 @@ export const getPermissionsQuery = ({
 export const getPermissionCategoriesQuery = ({
 	offset,
 	limit,
-	search = undefined
+	search = undefined,
 }: ParamsType): Prisma.PermissionCategoryFindManyArgs => {
 	const query: Prisma.PermissionCategoryFindManyArgs = {
 		select: permissionCategorySelectQuery,
@@ -98,6 +122,19 @@ export const getPermissionCategoriesQuery = ({
 	return query;
 };
 
+export const getObjectPermissions = async (
+	modelName: PermissionModelNameType,
+	objectId: string
+) => {
+	return await prisma.permissionObject.findMany({
+		where: {
+			modelName,
+			objectId,
+		},
+		select: objectPermissionSelectQuery,
+	});
+};
+
 export const getPermission = async (id: string) => {
 	const permission = await prisma.permission.findUnique({
 		where: { id },
@@ -118,7 +155,7 @@ export const getPermissionCategory = async (id: string) => {
 
 export const getPermissions = async (
 	params: ParamsType = {
-		search: undefined
+		search: undefined,
 	}
 ): Promise<{
 	total: number;
@@ -139,7 +176,7 @@ export const getPermissions = async (
 
 export const getPermissionCategories = async (
 	params: ParamsType = {
-		search: undefined
+		search: undefined,
 	}
 ): Promise<{
 	total: number;
