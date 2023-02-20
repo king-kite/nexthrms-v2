@@ -12,7 +12,9 @@ export interface AuthDataType extends UserDataType {
 			name: string;
 		} | null;
 	} | null;
-	permissions: PermissionType[]
+	permissions: PermissionType[];
+	isSuperUser?: boolean;
+	isAdmin?: boolean;
 }
 
 export type ProfileType = {

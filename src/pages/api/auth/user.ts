@@ -26,6 +26,10 @@ export default auth().get((req, res) => {
 		}
 	}
 
+	if (req.user.isAdmin) data.isAdmin = true;
+
+	if (req.user.isSuperUser) data.isSuperUser = true;
+
 	return res.status(200).json({
 		message: 'Verified successfully',
 		status: 'success',
