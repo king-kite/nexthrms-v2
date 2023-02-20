@@ -16,7 +16,7 @@ export default auth().get(async (req, res) => {
 	if (!models.includes(modelName))
 		return res.status(404).json({
 			status: 'error',
-			message: 'Permissions for this record does not exist!',
+			message: 'Permissions for this record do not exist!',
 		});
 
 	const objectId = req.query.objectId as string;
