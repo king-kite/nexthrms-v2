@@ -30,6 +30,7 @@ export const overtime = makePermissions('overtime');
 // export const overtimeAdmin = makePermissions('admin_overtime');
 export const permission = makePermissions('permission');
 export const permissioncategory = makePermissions('permissioncategory');
+export const permissionobject = makePermissions('permissionobject');
 // export const profile = makePermissions('profile');
 export const project = makePermissions('project');
 export const projectfile = makePermissions('projectfile');
