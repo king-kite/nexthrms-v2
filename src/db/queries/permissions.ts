@@ -125,15 +125,85 @@ export const getPermissionCategoriesQuery = ({
 export const getObjectPermissions = async (
 	modelName: PermissionModelNameType,
 	objectId: string,
-	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'
+	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW',
+	options?: {
+		groups?: {
+			limit?: number;
+			offset?: number;
+			search?: string;
+		};
+		users?: {
+			limit?: number;
+			offset?: number;
+			search?: string;
+		};
+	}
 ) => {
+	let selectQuery: Prisma.PermissionObjectSelect = objectPermissionSelectQuery;
+	if (options) {
+		// Paginate Groups If Neccessary
+		if (
+			options.groups &&
+			selectQuery.groups &&
+			typeof selectQuery.groups !== 'boolean'
+		) {
+			selectQuery.groups.take = options.groups.limit || undefined;
+			selectQuery.groups.skip = options.groups.offset || undefined;
+			if (options.groups.search) {
+				selectQuery.groups.where = {
+					OR: [
+						{
+							name: {
+								contains: options.groups.search,
+								mode: 'insensitive',
+							},
+						},
+					],
+				};
+			}
+		}
+
+		// Paginate Users If Neccessary
+		if (
+			options.users &&
+			selectQuery.users &&
+			typeof selectQuery.users !== 'boolean'
+		) {
+			selectQuery.users.take = options.users.limit || undefined;
+			selectQuery.users.skip = options.users.offset || undefined;
+			if (options.users.search) {
+				selectQuery.users.where = {
+					OR: [
+						{
+							firstName: {
+								contains: options.users.search,
+								mode: 'insensitive',
+							},
+						},
+						{
+							lastName: {
+								contains: options.users.search,
+								mode: 'insensitive',
+							},
+						},
+						{
+							email: {
+								contains: options.users.search,
+								mode: 'insensitive',
+							},
+						},
+					],
+				};
+			}
+		}
+	}
 	const result = await prisma.permissionObject.findMany({
 		where: {
 			modelName,
 			objectId,
 			permission,
 		},
-		select: objectPermissionSelectQuery,
+		select: selectQuery,
 	});
 
 	return { result };
