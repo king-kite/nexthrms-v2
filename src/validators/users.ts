@@ -89,3 +89,16 @@ export const updateUserGroupsSchema = Joi.object({
 export const updateUserPermissionsSchema = Joi.object({
 	permissions: Joi.array().items(Joi.string()).required().label('Permissions'),
 });
+
+export const objectPermissionSchema = Joi.object({
+	groups: Joi.array()
+		.items(Joi.string().uuid())
+		.optional()
+		.allow('')
+		.label('Groups'),
+	users: Joi.array()
+		.items(Joi.string().uuid())
+		.optional()
+		.allow('')
+		.label('Users'),
+});
