@@ -125,7 +125,7 @@ export const getPermissionCategoriesQuery = ({
 export const getObjectPermissions = async (
 	modelName: PermissionModelNameType,
 	objectId: string,
-	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW',
+	permission?: 'DELETE' | 'EDIT' | 'VIEW',
 	options?: {
 		groups?: {
 			limit?: number;

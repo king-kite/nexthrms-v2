@@ -23,8 +23,8 @@ export default admin()
 
 		if (!editPerm && !viewPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = req.query.model as PermissionModelNameType;
-		const objectId = req.query.objectId as string;
+		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 
 		// Check if modelName is in the valid models array
 		if (!models.includes(modelName))
@@ -69,10 +69,10 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = req.query.model as PermissionModelNameType;
-		const objectId = req.query.objectId as string;
+		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = req.query.permission as
-			| ('CREATE' | 'DELETE' | 'EDIT' | 'VIEW')
+			| ('DELETE' | 'EDIT' | 'VIEW')
 			| undefined;
 		const {
 			groupLimit,
@@ -158,10 +158,9 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = req.query.model as PermissionModelNameType;
-		const objectId = req.query.objectId as string;
-		const permission = req.query.permission as
-			| 'CREATE'
+		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
+		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';
@@ -174,7 +173,22 @@ export default admin()
 			{ abortEarly: false }
 		);
 
-		await prisma.permissionObject.update({
+		await prisma.permissionObject.upsert({
+			create: {
+				permission,
+				modelName,
+				objectId,
+				users: data.users
+					? {
+							connect: data.users.map((id) => ({ id })),
+					  }
+					: undefined,
+				groups: data.groups
+					? {
+							connect: data.groups.map((id) => ({ id })),
+					  }
+					: undefined,
+			},
 			where: {
 				modelName_objectId_permission: {
 					modelName,
@@ -182,7 +196,7 @@ export default admin()
 					permission,
 				},
 			},
-			data: {
+			update: {
 				users: data.users
 					? {
 							set: data.users.map((id) => ({ id })),
@@ -218,10 +232,9 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = req.query.model as PermissionModelNameType;
-		const objectId = req.query.objectId as string;
-		const permission = req.query.permission as
-			| 'CREATE'
+		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
+		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';
@@ -234,7 +247,22 @@ export default admin()
 			{ abortEarly: false }
 		);
 
-		await prisma.permissionObject.update({
+		await prisma.permissionObject.upsert({
+			create: {
+				permission,
+				modelName,
+				objectId,
+				users: data.users
+					? {
+							connect: data.users.map((id) => ({ id })),
+					  }
+					: undefined,
+				groups: data.groups
+					? {
+							connect: data.groups.map((id) => ({ id })),
+					  }
+					: undefined,
+			},
 			where: {
 				modelName_objectId_permission: {
 					modelName,
@@ -242,7 +270,7 @@ export default admin()
 					permission,
 				},
 			},
-			data: {
+			update: {
 				users: data.users
 					? {
 							connect: data.users.map((id) => ({ id })),
@@ -278,10 +306,9 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = req.query.model as PermissionModelNameType;
-		const objectId = req.query.objectId as string;
-		const permission = req.query.permission as
-			| 'CREATE'
+		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
+		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';

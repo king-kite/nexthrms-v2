@@ -38,7 +38,7 @@ export function useGetObjectPermissionsQuery(
 	}: {
 		modelName: PermissionModelNameType;
 		objectId: string;
-		permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | '';
+		permission?: 'DELETE' | 'EDIT' | 'VIEW' | '';
 		onError?: (error: { status: number; message: string }) => void;
 		groups?: {
 			limit: number;

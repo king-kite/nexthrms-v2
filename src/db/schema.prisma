@@ -287,7 +287,7 @@ model PermissionObject {
   modelName PermissionModelChoices @map("model_name")
   objectId  String                 @map("object_id") @db.Uuid
 
-  permission PermissionChoices
+  permission PermissionObjectChoices
 
   groups Group[] @relation("permission_object_groups")
   users  User[]  @relation("permission_object_users")
@@ -517,8 +517,7 @@ enum OvertimeChoices {
   VOLUNTARY
 }
 
-enum PermissionChoices {
-  CREATE
+enum PermissionObjectChoices {
   DELETE
   EDIT
   VIEW

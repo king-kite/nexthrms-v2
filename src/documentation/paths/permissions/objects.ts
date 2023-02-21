@@ -33,7 +33,7 @@ const commonInfo = {
 			required: true,
 			schema: {
 				type: 'string',
-				format: "'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'",
+				format: "'DELETE' | 'EDIT' | 'VIEW'",
 			},
 		},
 	],
@@ -68,18 +68,8 @@ const commonInfo = {
 		'200': {
 			content: {
 				'application/json': {
-					schema: {
-						allOf: [
-							{ $ref: refs.BASE },
-							{
-								type: 'object',
-								properties: {
-									data: {
-										$ref: refs.PERMISSION_OBJECT,
-									},
-								},
-							},
-						],
+					schema: { 
+						$ref: refs.BASE,
 					},
 				},
 			},
@@ -157,7 +147,7 @@ const path = {
 				required: false,
 				schema: {
 					type: 'string',
-					format: "'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'",
+					format: "'DELETE' | 'EDIT' | 'VIEW'",
 				},
 			},
 			{
