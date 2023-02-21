@@ -52,7 +52,12 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	// User doesn't have permission, redirect to 403 page
 	if (!hasPerm) {
 		return {
-			notFound: true,
+			props: {
+				errorPage: {
+					statusCode: 403,
+					title: 'You are not authorized to view this page!',
+				},
+			},
 		};
 	}
 

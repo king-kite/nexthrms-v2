@@ -16,10 +16,6 @@ import '../styles/globals.css';
 type ComponentWithAuthRequiredProp = AppProps & {
 	Component: AppProps['Component'] & {
 		authRequired?: boolean;
-		errorPage?: {
-			statusCode: number;
-			title: string;
-		};
 		noWrapper?: boolean; // do not add check auth wrapper. Mainly for documentation and error pages.
 	};
 };
@@ -35,12 +31,12 @@ const queryClient = new QueryClient({
 
 function App({
 	Component,
-	pageProps: { auth, ...pageProps },
+	pageProps: { auth, errorPage, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
-	return Component.errorPage ? (
+	return errorPage ? (
 		<Error
-			statusCode={Component.errorPage.statusCode}
-			title={Component.errorPage.title}
+			statusCode={errorPage?.statusCode || 500}
+			title={errorPage?.title || 'A server error occurred'}
 		/>
 	) : Component.noWrapper ? (
 		<Component {...pageProps} />
