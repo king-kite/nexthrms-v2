@@ -7,6 +7,7 @@ import {
 	OBJECT_PERMISSIONS_PAGE_URL,
 	USE_LOCAL_MEDIA_STORAGE,
 } from './config';
+import { PermissionModelNameType } from './types';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -24,10 +25,15 @@ export function middleware(request: NextRequest) {
 
 		const splitKeys = requestUrl.split('/');
 
-		const modelName = splitKeys[splitKeys.length - 3];
+		let modelName: PermissionModelNameType | undefined = splitKeys[
+			splitKeys.length - 3
+		] as PermissionModelNameType | undefined;
+		modelName = modelName
+			? (modelName.toLowerCase() as PermissionModelNameType)
+			: undefined;
 		const objectId = splitKeys[splitKeys.length - 2];
 
-		if (modelName && objectId && models.includes(modelName.toLowerCase())) {
+		if (modelName && objectId && models.includes(modelName)) {
 			const url = request.nextUrl.clone();
 			const newPath = OBJECT_PERMISSIONS_PAGE_URL(
 				modelName.toLowerCase(),
