@@ -37,6 +37,54 @@ const path = {
 					format: "'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'",
 				},
 			},
+			{
+				in: 'query',
+				name: 'groupLimit',
+				schema: {
+					type: 'number',
+					default: 10,
+				},
+			},
+			{
+				in: 'query',
+				name: 'groupOffset',
+				schema: {
+					type: 'number',
+					default: 0,
+				},
+			},
+			{
+				in: 'query',
+				name: 'groupSearch',
+				required: false,
+				schema: {
+					type: 'string',
+				},
+			},
+			{
+				in: 'query',
+				name: 'userLimit',
+				schema: {
+					type: 'number',
+					default: 10,
+				},
+			},
+			{
+				in: 'query',
+				name: 'userOffset',
+				schema: {
+					type: 'number',
+					default: 0,
+				},
+			},
+			{
+				in: 'query',
+				name: 'userSearch',
+				required: false,
+				schema: {
+					type: 'string',
+				},
+			},
 		],
 		responses: {
 			...responses,
