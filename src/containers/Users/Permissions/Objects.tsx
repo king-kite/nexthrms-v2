@@ -1,3 +1,4 @@
+import { TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
 
@@ -47,12 +48,28 @@ function ObjectPermissions({
 	return (
 		<Container
 			heading="Object/Record Permissions"
+      icon
 			refresh={{
 				loading: isFetching,
 				onClick: refetch,
 			}}
 		>
-			<></>
+			<TabNavigator
+				screens={[
+					{
+						component: <></>,
+						description:
+							'This screen shows the users with access to this record',
+						title: 'Users',
+					},
+					{
+						component: <></>,
+						description:
+							'This screen shows the groups with access to this record',
+						title: 'Groups',
+					},
+				]}
+			/>
 		</Container>
 	);
 }
