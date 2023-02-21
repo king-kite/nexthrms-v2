@@ -1,3 +1,8 @@
+import {
+	PermissionModelNameType,
+	PermissionPrismaModelNameType,
+} from '../types';
+
 export const ACCESS_TOKEN = 'access';
 export const ACCESS_TOKEN_LIFETIME = process.env
 	.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
@@ -22,7 +27,7 @@ export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
 	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
 	: false;
 
-export const models = [
+export const models: PermissionModelNameType[] = [
 	'assets',
 	'attendance',
 	'clients',
@@ -40,3 +45,28 @@ export const models = [
 	'projects_team',
 	'users',
 ];
+
+export const prismaModels: PermissionPrismaModelNameType[] = [
+	'asset',
+	'attendance',
+	'client',
+	'department',
+	'employee',
+	'group',
+	'holiday',
+	'job',
+	'leave',
+	'overtime',
+	'project',
+	'projectFile',
+	'projectTask',
+	'projectTaskFollower',
+	'projectTeam',
+	'user',
+];
+
+export const getPrismaModels = (
+	model: PermissionModelNameType
+): PermissionPrismaModelNameType | undefined => {
+	return prismaModels.find((item) => item === model);
+};
