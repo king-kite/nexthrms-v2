@@ -2,7 +2,7 @@ import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
 import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
-
+import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
 import {
@@ -17,7 +17,7 @@ const Page = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Record Permissions" />
-		<>{JSON.stringify(data)}</>
+		<ObjectPermissions permissions={data} />
 	</React.Fragment>
 );
 
