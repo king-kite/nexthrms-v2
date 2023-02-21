@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { AppProps } from 'next/app';
+import Error from 'next/error';
 import { IconContext } from 'react-icons';
 
 import Layout from '../layout';
@@ -15,6 +16,10 @@ import '../styles/globals.css';
 type ComponentWithAuthRequiredProp = AppProps & {
 	Component: AppProps['Component'] & {
 		authRequired?: boolean;
+		errorPage?: {
+			statusCode: number;
+			title: string;
+		};
 		noWrapper?: boolean; // do not add check auth wrapper. Mainly for documentation and error pages.
 	};
 };
@@ -32,7 +37,12 @@ function App({
 	Component,
 	pageProps: { auth, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
-	return Component.noWrapper ? (
+	return Component.errorPage ? (
+		<Error
+			statusCode={Component.errorPage.statusCode}
+			title={Component.errorPage.title}
+		/>
+	) : Component.noWrapper ? (
 		<Component {...pageProps} />
 	) : (
 		<GlobalContextProvider>
