@@ -198,11 +198,13 @@ export const getObjectPermissions = async (
 		}
 	}
 	const result = await prisma.permissionObject.findMany({
-		where: {
-			modelName,
-			objectId,
-			permission,
-		},
+		where: permission
+			? {
+					modelName,
+					objectId,
+					permission,
+			  }
+			: { modelName, objectId },
 		select: selectQuery,
 	});
 
