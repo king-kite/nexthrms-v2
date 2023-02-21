@@ -103,8 +103,13 @@ export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 
 export const OBJECT_PERMISSIONS_URL = (
 	model: PermissionModelNameType,
-	objectId: string
-) => `${ROOT_URL}/permissions/objects/${model}/${objectId}/`;
+	objectId: string,
+	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | ''
+) => {
+	let url = `${ROOT_URL}/permissions/objects/${model}/${objectId}/`;
+	if (permission) url += `?permission=${permission}`;
+	return url;
+};
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
 export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;

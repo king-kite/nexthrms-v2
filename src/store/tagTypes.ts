@@ -14,6 +14,7 @@ export const NOTIFICATIONS = 'notifications';
 export const OVERTIME = 'overtime';
 export const OVERTIME_ADMIN = 'overtime_admin';
 export const PERMISSIONS = 'permissions';
+export const PERMISSIONS_OBJECT = 'object_permissions';
 export const PROFILE = 'profile';
 export const PROJECT_FILES = 'project_files';
 export const PROJECT_TASKS = 'project_tasks';

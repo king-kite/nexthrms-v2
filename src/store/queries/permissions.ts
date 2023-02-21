@@ -8,6 +8,7 @@ import {
 	PERMISSIONS_URL,
 	DEFAULT_PAGINATION_SIZE,
 	GROUP_URL,
+	OBJECT_PERMISSIONS_URL,
 } from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
 import {
@@ -16,12 +17,62 @@ import {
 	GroupType,
 	GetGroupsResponseType,
 	GetPermissionsResponseType,
+	GetObjectPermissionsResponseType,
 	CreateGroupResponseType,
 	SuccessResponseType,
 	BaseResponseType,
+	PermissionModelNameType,
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors } from '../../validators';
+
+// get object permissions
+export function useGetObjectPermissionsQuery(
+	{
+		modelName,
+		objectId,
+		permission = '',
+		onError,
+	}: {
+		modelName: PermissionModelNameType;
+		objectId: string;
+		permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | '';
+		onError?: (error: { status: number; message: string }) => void;
+	},
+	options?: {
+		onSuccess?: (data: GetObjectPermissionsResponseType['data']) => void;
+		onError?: (err: unknown) => void;
+		initialData?: () => GetObjectPermissionsResponseType['data'];
+	}
+) {
+	const query = useQuery(
+		[tags.PERMISSIONS_OBJECT, { modelName, objectId, permission }],
+		async () => {
+			const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
+
+			return axiosInstance
+				.get(url)
+				.then(
+					(response: AxiosResponse<GetObjectPermissionsResponseType>) =>
+						response.data.data
+				);
+		},
+		{
+			onError(err) {
+				const error = handleAxiosErrors(err);
+				if (onError)
+					onError({
+						status: error?.status || 500,
+						message:
+							error?.message ||
+							'An error occurred. Unable to getting this record permissions.',
+					});
+			},
+			...options,
+		}
+	);
+	return query;
+}
 
 // get permissions
 export function useGetPermissionsQuery(
