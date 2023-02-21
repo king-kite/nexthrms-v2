@@ -56,8 +56,9 @@ export type ObjectPermissionType = {
 	}[];
 };
 
-export type GetObjectPermissionsResponseType =
-	SuccessResponseType<ObjectPermissionType>;
+export type GetObjectPermissionsResponseType = SuccessResponseType<{
+	result: ObjectPermissionType[];
+}>;
 
 // Object Permission Types Stop
 
