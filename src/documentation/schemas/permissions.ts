@@ -37,7 +37,7 @@ export const PermissionObjectModel = {
 		},
 		permission: {
 			type: 'string',
-			format: '(CREATE | DELETE | EDIT | VIEW)',
+			format: '(DELETE | EDIT | VIEW)',
 		},
 		groups: {
 			type: 'array',

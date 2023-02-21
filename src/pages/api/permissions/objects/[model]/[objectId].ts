@@ -72,7 +72,7 @@ export default admin()
 		const modelName = req.query.model.toLowerCase() as PermissionModelNameType;
 		const objectId = req.query.objectId.toLowerCase() as string;
 		const permission = req.query.permission as
-			| ('CREATE' | 'DELETE' | 'EDIT' | 'VIEW')
+			| ('DELETE' | 'EDIT' | 'VIEW')
 			| undefined;
 		const {
 			groupLimit,
@@ -161,7 +161,6 @@ export default admin()
 		const modelName = req.query.model.toLowerCase() as PermissionModelNameType;
 		const objectId = req.query.objectId.toLowerCase() as string;
 		const permission = req.query.permission.toUpperCase() as
-			| 'CREATE'
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';
@@ -236,7 +235,6 @@ export default admin()
 		const modelName = req.query.model.toLowerCase() as PermissionModelNameType;
 		const objectId = req.query.objectId.toLowerCase() as string;
 		const permission = req.query.permission.toUpperCase() as
-			| 'CREATE'
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';
@@ -311,7 +309,6 @@ export default admin()
 		const modelName = req.query.model.toLowerCase() as PermissionModelNameType;
 		const objectId = req.query.objectId.toLowerCase() as string;
 		const permission = req.query.permission.toUpperCase() as
-			| 'CREATE'
 			| 'DELETE'
 			| 'EDIT'
 			| 'VIEW';

@@ -2,6 +2,12 @@
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 
 -- CreateEnum
+CREATE TYPE "AssetCondition" AS ENUM ('BAD', 'EXCELLENT', 'GOOD');
+
+-- CreateEnum
+CREATE TYPE "AssetStatus" AS ENUM ('APPROVED', 'DENIED', 'PENDING', 'RETURNED');
+
+-- CreateEnum
 CREATE TYPE "LeaveChoices" AS ENUM ('ANNUAL', 'CASUAL', 'HOSPITALIZATION', 'LOP', 'MATERNITY', 'PATERNITY', 'SICK');
 
 -- CreateEnum
@@ -14,10 +20,39 @@ CREATE TYPE "NotificationChoices" AS ENUM ('LEAVE', 'OVERTIME');
 CREATE TYPE "OvertimeChoices" AS ENUM ('COMPULSORY', 'HOLIDAY', 'VOLUNTARY');
 
 -- CreateEnum
+CREATE TYPE "PermissionObjectChoices" AS ENUM ('DELETE', 'EDIT', 'VIEW');
+
+-- CreateEnum
+CREATE TYPE "PermissionModelChoices" AS ENUM ('assets', 'attendance', 'clients', 'deparments', 'employees', 'groups', 'holiday', 'jobs', 'leaves', 'overtime', 'projects', 'projects_files', 'projects_tasks', 'projects_tasks_followers', 'projects_team', 'users');
+
+-- CreateEnum
 CREATE TYPE "ProjectPriority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
 
 -- CreateEnum
 CREATE TYPE "VerificationToken" AS ENUM ('EMAIL_VERIFICATION', 'PASSWORD_RESET');
+
+-- CreateTable
+CREATE TABLE "assets" (
+    "id" UUID NOT NULL,
+    "asset_id" VARCHAR(250) NOT NULL,
+    "condition" "AssetCondition" NOT NULL DEFAULT 'GOOD',
+    "description" TEXT,
+    "model" VARCHAR(150),
+    "manufacturer" VARCHAR(150) NOT NULL,
+    "name" VARCHAR(150) NOT NULL,
+    "purchase_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "purchase_from" VARCHAR(250) NOT NULL,
+    "serial_no" VARCHAR(150) NOT NULL,
+    "supplier" VARCHAR(250) NOT NULL,
+    "status" "AssetStatus" NOT NULL DEFAULT 'PENDING',
+    "warranty" INTEGER NOT NULL,
+    "value" INTEGER NOT NULL,
+    "user_id" UUID,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "assets_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "attendance" (
@@ -70,13 +105,13 @@ CREATE TABLE "employees" (
 );
 
 -- CreateTable
-CREATE TABLE "jobs" (
+CREATE TABLE "groups" (
     "id" UUID NOT NULL,
-    "name" VARCHAR(50) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(300),
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
-    CONSTRAINT "jobs_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "groups_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -88,6 +123,16 @@ CREATE TABLE "holiday" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "holiday_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "jobs" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "jobs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -115,8 +160,8 @@ CREATE TABLE "notifications" (
     "message_id" UUID,
     "read" BOOLEAN NOT NULL DEFAULT false,
     "type" "NotificationChoices" NOT NULL,
-    "sender_id" UUID NOT NULL,
-    "recipient_id" UUID NOT NULL,
+    "sender_id" UUID,
+    "recipient_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -138,6 +183,35 @@ CREATE TABLE "overtime" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "overtime_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "permissions" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(200) NOT NULL,
+    "codename" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(300),
+    "category_id" UUID,
+
+    CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "permission_categories" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+
+    CONSTRAINT "permission_categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "permissions_objects" (
+    "id" UUID NOT NULL,
+    "model_name" "PermissionModelChoices" NOT NULL,
+    "object_id" UUID NOT NULL,
+    "permission" "PermissionObjectChoices" NOT NULL,
+
+    CONSTRAINT "permissions_objects_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -182,8 +256,7 @@ CREATE TABLE "projects_files" (
     "name" VARCHAR(255) NOT NULL,
     "file" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
-    "storageName" TEXT,
-    "storageGeneration" TEXT,
+    "storageInfo" JSONB,
     "type" TEXT NOT NULL DEFAULT 'application',
     "project_id" UUID NOT NULL,
     "uploaded_by" UUID,
@@ -260,6 +333,42 @@ CREATE TABLE "users" (
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "_permission_object_groups" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_group_permissions" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_group_users" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_permission_users" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_permission_object_users" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateIndex
+CREATE INDEX "asset_item_id" ON "assets"("id");
+
+-- CreateIndex
+CREATE INDEX "asset_user_id" ON "assets"("user_id");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "attendance_overtime_id_key" ON "attendance"("overtime_id");
 
@@ -306,6 +415,18 @@ CREATE INDEX "employee_job_id" ON "employees"("job_id");
 CREATE INDEX "supervisor_id" ON "employees"("supervisor_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "groups_name_key" ON "groups"("name");
+
+-- CreateIndex
+CREATE INDEX "group_id" ON "groups"("id");
+
+-- CreateIndex
+CREATE INDEX "holiday_id" ON "holiday"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "holiday_name_date_key" ON "holiday"("name", "date");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "jobs_name_key" ON "jobs"("name");
 
 -- CreateIndex
@@ -313,12 +434,6 @@ CREATE INDEX "job_id" ON "jobs"("id");
 
 -- CreateIndex
 CREATE INDEX "job_name" ON "jobs"("name");
-
--- CreateIndex
-CREATE INDEX "holiday_id" ON "holiday"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "holiday_name_date_key" ON "holiday"("name", "date");
 
 -- CreateIndex
 CREATE INDEX "leave_id" ON "leaves"("id");
@@ -346,6 +461,27 @@ CREATE INDEX "overtime_employee_id" ON "overtime"("employee_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "overtime_date_employee_id_key" ON "overtime"("date", "employee_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_name_key" ON "permissions"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_codename_key" ON "permissions"("codename");
+
+-- CreateIndex
+CREATE INDEX "permission_id" ON "permissions"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permission_categories_name_key" ON "permission_categories"("name");
+
+-- CreateIndex
+CREATE INDEX "permission_category_id" ON "permission_categories"("id");
+
+-- CreateIndex
+CREATE INDEX "permission_object_id" ON "permissions_objects"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_objects_model_name_object_id_permission_key" ON "permissions_objects"("model_name", "object_id", "permission");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_profile_user_id_key" ON "users_profile"("user_id");
@@ -419,6 +555,39 @@ CREATE INDEX "user_id" ON "users"("id");
 -- CreateIndex
 CREATE INDEX "user_email" ON "users"("email");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "_permission_object_groups_AB_unique" ON "_permission_object_groups"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_permission_object_groups_B_index" ON "_permission_object_groups"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_group_permissions_AB_unique" ON "_group_permissions"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_group_permissions_B_index" ON "_group_permissions"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_group_users_AB_unique" ON "_group_users"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_group_users_B_index" ON "_group_users"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_permission_users_AB_unique" ON "_permission_users"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_permission_users_B_index" ON "_permission_users"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_permission_object_users_AB_unique" ON "_permission_object_users"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_permission_object_users_B_index" ON "_permission_object_users"("B");
+
+-- AddForeignKey
+ALTER TABLE "assets" ADD CONSTRAINT "assets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- AddForeignKey
 ALTER TABLE "attendance" ADD CONSTRAINT "attendance_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -468,6 +637,9 @@ ALTER TABLE "overtime" ADD CONSTRAINT "overtime_created_by_fkey" FOREIGN KEY ("c
 ALTER TABLE "overtime" ADD CONSTRAINT "overtime_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "employees"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "permissions" ADD CONSTRAINT "permissions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "permission_categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "users_profile" ADD CONSTRAINT "users_profile_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -493,3 +665,33 @@ ALTER TABLE "projects_tasks_followers" ADD CONSTRAINT "projects_tasks_followers_
 
 -- AddForeignKey
 ALTER TABLE "projects_tasks_followers" ADD CONSTRAINT "projects_tasks_followers_task_id_fkey" FOREIGN KEY ("task_id") REFERENCES "projects_tasks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_object_groups" ADD CONSTRAINT "_permission_object_groups_A_fkey" FOREIGN KEY ("A") REFERENCES "groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_object_groups" ADD CONSTRAINT "_permission_object_groups_B_fkey" FOREIGN KEY ("B") REFERENCES "permissions_objects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_group_permissions" ADD CONSTRAINT "_group_permissions_A_fkey" FOREIGN KEY ("A") REFERENCES "groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_group_permissions" ADD CONSTRAINT "_group_permissions_B_fkey" FOREIGN KEY ("B") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_group_users" ADD CONSTRAINT "_group_users_A_fkey" FOREIGN KEY ("A") REFERENCES "groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_group_users" ADD CONSTRAINT "_group_users_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_users" ADD CONSTRAINT "_permission_users_A_fkey" FOREIGN KEY ("A") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_users" ADD CONSTRAINT "_permission_users_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_object_users" ADD CONSTRAINT "_permission_object_users_A_fkey" FOREIGN KEY ("A") REFERENCES "permissions_objects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_permission_object_users" ADD CONSTRAINT "_permission_object_users_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

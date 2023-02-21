@@ -33,7 +33,7 @@ const commonInfo = {
 			required: true,
 			schema: {
 				type: 'string',
-				format: "'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'",
+				format: "'DELETE' | 'EDIT' | 'VIEW'",
 			},
 		},
 	],
@@ -147,7 +147,7 @@ const path = {
 				required: false,
 				schema: {
 					type: 'string',
-					format: "'CREATE' | 'DELETE' | 'EDIT' | 'VIEW'",
+					format: "'DELETE' | 'EDIT' | 'VIEW'",
 				},
 			},
 			{
