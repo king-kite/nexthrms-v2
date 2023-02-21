@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { AppProps } from 'next/app';
+import Error from 'next/error';
 import { IconContext } from 'react-icons';
 
 import Layout from '../layout';
@@ -30,9 +31,14 @@ const queryClient = new QueryClient({
 
 function App({
 	Component,
-	pageProps: { auth, ...pageProps },
+	pageProps: { auth, errorPage, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
-	return Component.noWrapper ? (
+	return errorPage ? (
+		<Error
+			statusCode={errorPage?.statusCode || 500}
+			title={errorPage?.title || 'A server error occurred'}
+		/>
+	) : Component.noWrapper ? (
 		<Component {...pageProps} />
 	) : (
 		<GlobalContextProvider>

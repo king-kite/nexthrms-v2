@@ -2,9 +2,7 @@ import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { File } from 'formidable';
 import fs from 'fs';
 
-const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
-	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
-	: false;
+import { USE_LOCAL_MEDIA_STORAGE } from '../../config';
 
 type UploadFileType = {
 	file: File;

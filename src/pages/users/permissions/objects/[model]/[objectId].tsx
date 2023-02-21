@@ -1,8 +1,13 @@
 import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
-
+import {
+	models,
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	LOGIN_PAGE_URL,
+} from '../../../../../config';
+import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
 import {
@@ -17,7 +22,7 @@ const Page = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Record Permissions" />
-		<>{JSON.stringify(data)}</>
+		<ObjectPermissions permissions={data} />
 	</React.Fragment>
 );
 
@@ -52,7 +57,12 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	// User doesn't have permission, redirect to 403 page
 	if (!hasPerm) {
 		return {
-			notFound: true,
+			props: {
+				errorPage: {
+					statusCode: 403,
+					title: 'You are not authorized to view this page!',
+				},
+			},
 		};
 	}
 
@@ -65,7 +75,18 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 
 	const auth = serializeUserData(req.user);
-	const data = await getObjectPermissions(modelName, objectId);
+	const data = await getObjectPermissions(modelName, objectId, undefined, {
+		groups: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		users: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+	});
 
 	return {
 		props: {
