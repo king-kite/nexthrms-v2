@@ -2,6 +2,8 @@ import fs from 'fs';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
 
+import { USE_LOCAL_MEDIA_STORAGE } from '../../../config';
+
 async function asyncReadFile(filePath: string): Promise<Buffer> {
 	return new Promise((resolve, reject) => {
 		try {
@@ -20,7 +22,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	if (process.env.NODE_ENV === 'development') {
+	if (USE_LOCAL_MEDIA_STORAGE) {
 		const { name, type } = req.query;
 
 		if (!name || name.length <= 0) {
