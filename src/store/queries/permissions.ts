@@ -43,12 +43,12 @@ export function useGetObjectPermissionsQuery(
 		groups?: {
 			limit: number;
 			offset: number;
-			search: '';
+			search: string;
 		};
 		users?: {
 			limit: number;
 			offset: number;
-			search: '';
+			search: string;
 		};
 	},
 	options?: {
