@@ -68,18 +68,8 @@ const commonInfo = {
 		'200': {
 			content: {
 				'application/json': {
-					schema: {
-						allOf: [
-							{ $ref: refs.BASE },
-							{
-								type: 'object',
-								properties: {
-									data: {
-										$ref: refs.PERMISSION_OBJECT,
-									},
-								},
-							},
-						],
+					schema: { 
+						$ref: refs.BASE,
 					},
 				},
 			},

@@ -68,5 +68,41 @@ export const prismaModels: PermissionPrismaModelNameType[] = [
 export const getPrismaModels = (
 	model: PermissionModelNameType
 ): PermissionPrismaModelNameType | undefined => {
-	return prismaModels.find((item) => item === model);
+	const modelName = model.toLowerCase();
+	switch(modelName) {
+		case 'assets':
+			return 'asset';
+		case 'attendance':
+			return 'attendance';
+		case 'clients':
+			return 'client';
+		case 'deparments':
+			return 'department';
+		case 'employees':
+			return 'employee';
+		case 'groups':
+			return 'group';
+		case 'holiday':
+			return 'holiday';
+		case 'jobs':
+			return 'job';
+		case 'leaves':
+			return 'leave';
+		case 'overtime':
+			return 'overtime';
+		case 'projects':
+			return 'project';
+		case 'projects_files':
+			return 'projectFile';
+		case 'projects_tasks':
+			return 'projectTask';
+		case 'projects_tasks_followers':
+			return 'projectTaskFollower';
+		case 'projects_team':
+			return 'projectTeam';
+		case 'users':
+			return 'user';
+		default:
+			return undefined;
+	}
 };
