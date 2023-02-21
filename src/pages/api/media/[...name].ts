@@ -38,7 +38,7 @@ export default async function handler(
 		} catch (error) {
 			try {
 				// Send a default file
-				const filePath = path.resolve('public/logo.png');
+				const filePath = path.resolve('public/images/logo.png');
 				const fileBuffer = await asyncReadFile(filePath);
 				res.setHeader('Content-Type', 'image/*');
 				return res.status(200).end(fileBuffer);
