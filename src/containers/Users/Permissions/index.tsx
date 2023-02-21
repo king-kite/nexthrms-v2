@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
-import { Container } from '../../components/common';
-import { PermissionTable, Topbar } from '../../components/Permissions';
-import { DEFAULT_PAGINATION_SIZE, PERMISSIONS_EXPORT_URL } from '../../config';
-import { useAlertContext } from '../../store/contexts';
-import { useGetPermissionsQuery } from '../../store/queries';
-import { GetPermissionsResponseType } from '../../types';
-import { downloadFile } from '../../utils';
+import { Container } from '../../../components/common';
+import { PermissionTable, Topbar } from '../../../components/Permissions';
+import { DEFAULT_PAGINATION_SIZE, PERMISSIONS_EXPORT_URL } from '../../../config';
+import { useAlertContext } from '../../../store/contexts';
+import { useGetPermissionsQuery } from '../../../store/queries';
+import { GetPermissionsResponseType } from '../../../types';
+import { downloadFile } from '../../../utils';
 
 const Permissions = ({
 	permissions: permissionData,
