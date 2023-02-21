@@ -2,7 +2,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { models, OBJECT_PERMISSIONS_PAGE_URL } from './config';
+import {
+	models,
+	OBJECT_PERMISSIONS_PAGE_URL,
+	USE_LOCAL_MEDIA_STORAGE,
+} from './config';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -39,10 +43,7 @@ export function middleware(request: NextRequest) {
 	}
 
 	// Check if the url is to the /media/* folder and rewrite to /api/media/*
-	if (
-		process.env.NODE_ENV === 'development' &&
-		request.url.includes(`${BASE_URL}/media/`)
-	) {
+	if (USE_LOCAL_MEDIA_STORAGE && request.url.includes(`${BASE_URL}/media/`)) {
 		const oldUrl = new URL(request.url);
 		const url = new URL(
 			'/api' + oldUrl.pathname,

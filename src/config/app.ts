@@ -18,6 +18,10 @@ export const NODE_ENV = process.env.NODE_ENV || 'production';
 
 export const TITLE = 'Kite Human Resource Management System';
 
+export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
+	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
+	: false;
+
 export const models = [
 	'assets',
 	'attendance',
