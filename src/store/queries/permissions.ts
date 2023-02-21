@@ -33,11 +33,23 @@ export function useGetObjectPermissionsQuery(
 		objectId,
 		permission = '',
 		onError,
+		groups,
+		users,
 	}: {
 		modelName: PermissionModelNameType;
 		objectId: string;
 		permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | '';
 		onError?: (error: { status: number; message: string }) => void;
+		groups?: {
+			limit: number;
+			offset: number;
+			search: '';
+		};
+		users?: {
+			limit: number;
+			offset: number;
+			search: '';
+		};
 	},
 	options?: {
 		onSuccess?: (data: GetObjectPermissionsResponseType['data']) => void;
@@ -46,9 +58,18 @@ export function useGetObjectPermissionsQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.PERMISSIONS_OBJECT, { modelName, objectId, permission }],
+		[
+			tags.PERMISSIONS_OBJECT,
+			{ modelName, objectId, permission, groups, users },
+		],
 		async () => {
-			const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
+			const url = OBJECT_PERMISSIONS_URL(
+				modelName,
+				objectId,
+				permission,
+				groups,
+				users
+			);
 
 			return axiosInstance
 				.get(url)

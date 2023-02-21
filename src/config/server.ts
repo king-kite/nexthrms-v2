@@ -101,13 +101,29 @@ export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 
+type ObjectPermissionType = {
+	limit: number;
+	offset: number;
+	search: string;
+};
+
 export const OBJECT_PERMISSIONS_URL = (
 	model: PermissionModelNameType,
 	objectId: string,
-	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | ''
+	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | '',
+	groups?: ObjectPermissionType,
+	users?: ObjectPermissionType
 ) => {
 	let url = `${ROOT_URL}/permissions/objects/${model}/${objectId}/`;
-	if (permission) url += `?permission=${permission}`;
+	url += `?permission=${permission || ''}`;
+	if (groups)
+		url += `&groupLimit=${groups.limit || ''}&groupOffset=${
+			groups.offset || ''
+		}&groupSearch=${groups.search || ''}`;
+	if (users)
+		url += `&userLimit=${users.limit || ''}&userOffset=${
+			users.offset || ''
+		}&userSearch=${users.search || ''}`;
 	return url;
 };
 

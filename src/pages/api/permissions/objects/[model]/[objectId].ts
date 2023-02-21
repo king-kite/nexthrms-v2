@@ -24,7 +24,48 @@ export default admin().get(async (req, res) => {
 		| ('CREATE' | 'DELETE' | 'EDIT' | 'VIEW')
 		| undefined;
 
-	const data = await getObjectPermissions(modelName, objectId, permission);
+	const {
+		groupLimit,
+		groupOffset,
+		groupSearch,
+		userLimit,
+		userOffset,
+		userSearch,
+	} = req.query;
+
+	const groupsPaginated = groupLimit || groupOffset || groupSearch;
+	const usersPaginated = userLimit || userOffset || userSearch;
+
+	const groups = groupsPaginated
+		? {
+				limit: groupLimit && !isNaN(+groupLimit) ? +groupLimit : undefined,
+				offset: groupOffset && !isNaN(+groupOffset) ? +groupOffset : undefined,
+				search: groupSearch as string,
+		  }
+		: undefined;
+
+	const users = usersPaginated
+		? {
+				limit: userLimit && !isNaN(+userLimit) ? +userLimit : undefined,
+				offset: userOffset && !isNaN(+userOffset) ? +userOffset : undefined,
+				search: userSearch as string,
+		  }
+		: undefined;
+
+	const options =
+		groupsPaginated || usersPaginated
+			? {
+					groups,
+					users,
+			  }
+			: undefined;
+
+	const data = await getObjectPermissions(
+		modelName,
+		objectId,
+		permission,
+		options
+	);
 
 	return res.status(200).json({
 		status: 'success',
