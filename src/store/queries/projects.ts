@@ -35,7 +35,7 @@ import {
 	ProjectTaskType,
 	CreateProjectTaskQueryType,
 } from '../../types';
-import { axiosInstance, axiosFileInstance } from '../../utils';
+import { axiosInstance, axiosFileInstance, getStringedDate } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 // ****** Project Queires ******
@@ -377,12 +377,8 @@ export function useMarkProjectMutation(
 								data: {
 									...project,
 									completed: !project.completed,
-									startDate: new Date(project.startDate).toLocaleDateString(
-										'en-CA'
-									),
-									endDate: new Date(project.endDate).toLocaleDateString(
-										'en-CA'
-									),
+									startDate: getStringedDate(project.startDate),
+									endDate: getStringedDate(project.endDate),
 									client: project.client?.id || '',
 								},
 							});
@@ -1214,7 +1210,7 @@ export function useMarkProjectTaskMutation(
 								data: {
 									...task,
 									completed: !task.completed,
-									dueDate: new Date(task.dueDate).toLocaleDateString('en-CA'),
+									dueDate: getStringedDate(task.dueDate),
 								},
 							});
 						},
