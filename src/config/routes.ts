@@ -21,6 +21,8 @@ export const RESET_PASSWORD_CONFIRM_PAGE_URL = (
 // Clients section
 export const CLIENTS_PAGE_URL = '/clients/';
 export const CLIENT_PAGE_URL = (slug: string) => `/clients/${slug}/`;
+export const CLIENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/clients/${slug}/clients/${slug}/object-permissions/`;
 
 // Employees Section
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
