@@ -1,1 +1,1 @@
-export const conifg = {};
+export { default as UserTable } from './UserTable';
