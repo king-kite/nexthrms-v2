@@ -1,33 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const { getProfile } = require('./common.js');
 const {
 	logger,
 	bcrypt: { hash },
 } = require('./utils/index.js');
-
-function getProfile({
-	dob = new Date(),
-	image = '/images/default.png',
-	nameAddress = 'my',
-	address,
-	city = 'New City',
-	phone = '08123456789',
-	state = 'New State',
-	gender = 'MALE',
-}) {
-	return {
-		dob,
-		image,
-		address:
-			address ||
-			`This is ${nameAddress} Home Address. Please leave all messages here.`,
-		city,
-		phone,
-		state,
-		gender,
-	};
-}
 
 async function getEmployee({
 	firstName,
@@ -87,11 +65,13 @@ async function getEmployee({
 
 (async function main() {
 	// Delete the previous users
-	logger.info('Removing Old Users Data...');
-	await prisma.user.deleteMany();
-	logger.success('Removed Old Users Successfully!');
+	logger.info('Removing Old Employees Data...');
+	await prisma.user.deleteMany({
+		where: { employee: { isNot: null } },
+	});
+	logger.success('Removed Old Employees Successfully!');
 
-	logger.info('Adding Users...');
+	logger.info('Adding Employees...');
 
 	// Loading Employees
 	const employees = [
@@ -336,7 +316,7 @@ async function getEmployee({
 
 	await Promise.all([...supervisorPromises]);
 
-	logger.success('Added Users Successfully!');
+	logger.success('Added Employees Successfully!');
 })()
 	.catch((error) => {
 		logger.error(error.message);
