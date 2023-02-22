@@ -17,7 +17,7 @@ import {
 	CreateAssetErrorResponseType,
 	GetAssetsResponseType,
 } from '../types';
-import { downloadFile } from '../utils';
+import { downloadFile, getStringedDate } from '../utils';
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
@@ -262,7 +262,7 @@ const formStaleData: AssetCreateQueryType = {
 	manufacturer: '',
 	model: '',
 	name: '',
-	purchaseDate: new Date().toLocaleDateString('en-Ca'),
+	purchaseDate: getStringedDate(),
 	purchaseFrom: '',
 	serialNo: '',
 	status: 'PENDING',

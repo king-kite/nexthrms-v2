@@ -119,7 +119,7 @@ const Form: FC<FormProps> = ({
 				const nod = parseInt(value) * 24 * 60 * 60 * 1000; // nod => no_of_days
 				const sd = new Date(form.startDate).getTime(); // sd => start_date
 
-				const ed = new Date(nod + sd).toLocaleDateString('en-CA'); // ed => end_date
+				const ed = getDate(new Date(nod + sd), true) as string; // ed => end_date
 
 				setForm((prevState) => ({
 					...prevState,
@@ -136,7 +136,7 @@ const Form: FC<FormProps> = ({
 				const nod = form.noOfDays * 24 * 60 * 60 * 1000; // nod => no_of_days
 				const sd = new Date(value).getTime(); // sd => start_date
 
-				const ed = new Date(nod + sd).toLocaleDateString('en-CA'); // ed => end_date
+				const ed = getDate(new Date(nod + sd), true) as string; // ed => end_date
 
 				setForm((prevState) => ({
 					...prevState,

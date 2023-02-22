@@ -17,7 +17,7 @@ import {
 	CreateProjectTaskQueryType,
 	ProjectTaskType,
 } from '../../../types';
-import { toCapitalize } from '../../../utils';
+import { getStringedDate, toCapitalize } from '../../../utils';
 import { handleJoiErrors, taskCreateSchema } from '../../../validators';
 
 type ErrorType = CreateProjectTaskErrorResponseType;
@@ -202,7 +202,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.dueDate
-								? new Date(initState.dueDate).toLocaleDateString('en-CA')
+								? getStringedDate(initState.dueDate)
 								: undefined
 						}
 						disabled={loading}

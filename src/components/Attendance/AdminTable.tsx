@@ -10,6 +10,7 @@ import {
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import { useDeleteAttendanceMutation } from '../../store/queries';
 import { AttendanceCreateType, AttendanceType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'employee name' },
@@ -39,7 +40,7 @@ const getRows = (
 					editId: string;
 				} = {
 					editId: attendance.id,
-					date: new Date(attendance.date).toLocaleDateString('en-CA'),
+					date: getStringedDate(attendance.date),
 					punchIn: `${punchIn.getHours().toString().padStart(2, '0')}:${punchIn
 						.getMinutes()
 						.toString()

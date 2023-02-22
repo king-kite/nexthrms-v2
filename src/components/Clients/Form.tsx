@@ -13,6 +13,7 @@ import {
 	ClientCreateQueryType,
 	CreateClientErrorResponseType,
 } from '../../types';
+import { getStringedDate } from '../../utils';
 import { createClientSchema, handleJoiErrors } from '../../validators';
 
 interface ErrorType extends CreateClientErrorResponseType {
@@ -277,9 +278,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.contact.profile?.dob
-								? new Date(initState.contact.profile.dob).toLocaleDateString(
-										'en-CA'
-								  )
+								? getStringedDate(initState.contact.profile.dob)
 								: undefined
 						}
 						disabled={loading}

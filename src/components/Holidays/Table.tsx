@@ -8,6 +8,7 @@ import {
 	useDeleteHolidaysMutation,
 } from '../../store/queries';
 import { HolidayType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -36,7 +37,7 @@ const getRows = (
 						onClick: () =>
 							onEdit(holiday.id, {
 								name: holiday.name,
-								date: new Date(holiday.date).toLocaleDateString('en-CA'),
+								date: getStringedDate(holiday.date),
 							}),
 					},
 					{

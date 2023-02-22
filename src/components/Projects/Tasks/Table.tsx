@@ -15,6 +15,7 @@ import {
 	useMarkProjectTaskMutation,
 } from '../../../store/queries';
 import { ProjectTaskType } from '../../../types';
+import { getStringedDate } from '../../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -51,9 +52,7 @@ const getRows = (
 				value: task.priority,
 			},
 			{
-				value: task.dueDate
-					? new Date(task.dueDate).toLocaleDateString('en-CA')
-					: '---',
+				value: task.dueDate ? getStringedDate(task.dueDate) : '---',
 			},
 			{
 				options: {

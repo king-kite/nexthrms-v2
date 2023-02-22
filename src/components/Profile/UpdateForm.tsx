@@ -6,13 +6,14 @@ import { useCallback, useRef, useState } from 'react';
 import { DEFAULT_IMAGE, PROFILE_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import * as tags from '../../store/tagTypes';
-import { axiosInstance } from '../../utils/axios';
 import {
 	ProfileType,
 	ProfileUpdateType,
 	ProfileUpdateErrorResponseType,
 	SuccessResponseType,
 } from '../../types';
+import { getStringedDate } from '../../utils';
+import { axiosInstance } from '../../utils/axios';
 import {
 	handleAxiosErrors,
 	handleJoiErrors,
@@ -55,7 +56,7 @@ const Form = ({
 					firstName: data.firstName,
 					lastName: data.lastName,
 					email: data.email,
-					fullName: data.firstName + " " + data.lastName,
+					fullName: data.firstName + ' ' + data.lastName,
 					profile: {
 						image: data.profile?.image || DEFAULT_IMAGE,
 					},
@@ -265,7 +266,7 @@ const Form = ({
 					<Input
 						defaultValue={
 							profile.profile?.dob
-								? new Date(profile.profile.dob).toLocaleDateString('en-CA')
+								? getStringedDate(profile.profile.dob)
 								: undefined
 						}
 						disabled={loading}

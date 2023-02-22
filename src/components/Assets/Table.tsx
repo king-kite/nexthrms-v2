@@ -7,6 +7,7 @@ import { USER_PAGE_URL } from '../../config';
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import { useDeleteAssetMutation } from '../../store/queries';
 import { AssetType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'asset name' },
@@ -63,9 +64,7 @@ const getRows = (
 			{ value: asset.value || '---' },
 			{ value: asset.warranty || '---' },
 			{
-				value: asset.purchaseDate
-					? new Date(asset.purchaseDate).toLocaleDateString('en-Ca')
-					: '---',
+				value: asset.purchaseDate ? getStringedDate(asset.purchaseDate) : '---',
 			},
 			{
 				options: {
@@ -83,9 +82,7 @@ const getRows = (
 			},
 			{ value: asset.serialNo || '---' },
 			{
-				value: asset.updatedAt
-					? new Date(asset.updatedAt).toLocaleDateString('en-Ca')
-					: '---',
+				value: asset.updatedAt ? getStringedDate(asset.updatedAt) : '---',
 			},
 			{
 				type: 'actions',
