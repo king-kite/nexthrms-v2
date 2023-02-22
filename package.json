@@ -10,8 +10,9 @@
 		"createsuperuser": "node commands/createsuperuser",
 		"loadgroups": "node commands/loadgroups",
 		"loadpermissions": "node commands/loadpermissions",
+		"loadusers": "node commands/loadusers",
 		"merge-schema": "cat *.prisma > schema.prisma",
-		"seed": "node commands/loadpermissions && node commands/loadgroups"
+		"seed": "npm run loadpermissions && npm run loadgroups && npm run loadusers"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"
