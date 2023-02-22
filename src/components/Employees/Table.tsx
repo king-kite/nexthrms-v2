@@ -5,6 +5,7 @@ import { FaEye } from 'react-icons/fa';
 
 import { EMPLOYEE_PAGE_URL } from '../../config/routes';
 import { EmployeeType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'first name' },
@@ -46,7 +47,7 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 			},
 			{
 				value: employee.dateEmployed
-					? new Date(employee.dateEmployed).toLocaleDateString('en-CA')
+					? getStringedDate(employee.dateEmployed)
 					: '---',
 			},
 			{
