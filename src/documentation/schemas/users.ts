@@ -117,7 +117,7 @@ export const UserModel = {
 	},
 	example: {
 		id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
-		email: 'johnsondavis@gmail.com',
+		email: 'johnsondavis@kitehrms.com',
 		firstName: 'Johnson',
 		lastName: 'Davis',
 		isActive: true,
@@ -154,7 +154,7 @@ export const UserModel = {
 		},
 		profile: {
 			image:
-				'/media/users/profile/johnson_davis_johnsondavis@gmail.com_1669584469551.jpg',
+				'/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
 			dob: '2001-03-10T00:00:00.000Z',
 			gender: 'MALE',
 			address:

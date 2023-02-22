@@ -180,7 +180,7 @@ const path = {
 								example: {
 									firstName: 'Jan',
 									lastName: 'Doe',
-									email: 'jandoe@gmail.com',
+									email: 'jandoe@kitehrms.com',
 									isActive: true,
 									isAdmin: false,
 									isEmailVerified: true,
@@ -190,7 +190,7 @@ const path = {
 										phone: '08123456789',
 										gender: 'MALE',
 										image:
-											'/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg',
+											'/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
 										address:
 											"This is Jan Doe's Home Address. Leave any message or letter at this address",
 										state: 'New State',

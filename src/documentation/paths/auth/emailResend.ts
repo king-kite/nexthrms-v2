@@ -1,24 +1,24 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
-const path ={
+const path = {
 	post: {
 		// description: 'Sign In User',
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							email: {
-								type: "string",
-								format: "email",
-							}
+								type: 'string',
+								format: 'email',
+							},
 						},
 						example: {
-							email: "jandoe@gmail.com",
+							email: 'jandoe@kitehrms.com',
 						},
 					},
 				},
@@ -26,79 +26,79 @@ const path ={
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							$ref: refs.BASE,
 						},
-					}
+					},
 				},
-				description: "Email Verification Link Sent",
+				description: 'Email Verification Link Sent',
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
-								{$ref: refs.BASE},
+								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												email: {
 													type: 'string',
-													nullable: true
-												}
-											}
-										}
+													nullable: true,
+												},
+											},
+										},
 									},
-									nullable: true
-								}
-							]
-						}
-					}
+									nullable: true,
+								},
+							],
+						},
+					},
 				},
-				description: "Bad Request"
+				description: 'Bad Request',
 			},
-			"404": {
+			'404': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
-								{$ref: refs.BASE},
+								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												email: {
 													type: 'string',
-													nullable: true
-												}
-											}
-										}
+													nullable: true,
+												},
+											},
+										},
 									},
-									nullable: true
-								}
-							]
-						}
-					}
+									nullable: true,
+								},
+							],
+						},
+					},
 				},
-				description: "Bad Request"
+				description: 'Bad Request',
 			},
-			"307": undefined,
-			"401": undefined,
-			"403": undefined
+			'307': undefined,
+			'401': undefined,
+			'403': undefined,
 		},
-		summary: "Send User Email Verification Link",
+		summary: 'Send User Email Verification Link',
 		tags: [tags.Authentication],
 	},
-}
+};
 
 export default path;

@@ -1,106 +1,106 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
-								{ 
+								{
 									type: 'object',
 									properties: {
 										data: {
 											$ref: refs.USER_PROFILE_DATA,
-										}
-									}
+										},
+									},
 								},
-							]
-						}
+							],
+						},
 					},
 				},
-				description: "User Profile Information",
+				description: 'User Profile Information',
 			},
-			"403": undefined
+			'403': undefined,
 		},
-		summary: "Get User Profile Data",
+		summary: 'Get User Profile Data',
 		tags: [tags.Authentication],
 	},
 	put: {
 		requestBody: {
 			required: true,
 			content: {
-				"multipart/form-data": {
+				'multipart/form-data': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							image: {
-								type: "string",
-								format: "base64",
+								type: 'string',
+								format: 'base64',
 							},
 							form: {
-								type: "object",
+								type: 'object',
 								required: ['firstName', 'lastName', 'email', 'profile'],
 								properties: {
 									firstName: {
-										type: "string",
+										type: 'string',
 									},
 									lastName: {
-										type: "string",
-										format: "email",
+										type: 'string',
+										format: 'email',
 									},
 									email: {
-										type: "string",
+										type: 'string',
 									},
 									profile: {
-										type: "object",
+										type: 'object',
 										required: ['image'],
 										properties: {
 											phone: {
-												type: "string",
+												type: 'string',
 											},
 											gender: {
-												type: "string",
-												format: "MALE | FEMALE",
+												type: 'string',
+												format: 'MALE | FEMALE',
 											},
 											image: {
-												type: "string",
+												type: 'string',
 											},
 											dob: {
-												type: "string",
-												format: "date-time",
+												type: 'string',
+												format: 'date-time',
 											},
 											address: {
-												type: "string",
+												type: 'string',
 											},
 											state: {
-												type: "string",
+												type: 'string',
 											},
 											city: {
-												type: "string",
+												type: 'string',
 											},
 										},
 									},
 								},
 								example: {
-									firstName: "Jan",
-									lastName: "Doe",
-									email: "jandoe@gmail.com",
+									firstName: 'Jan',
+									lastName: 'Doe',
+									email: 'jandoe@kitehrms.com',
 									profile: {
-										phone: "08123456789",
-										gender: "MALE",
+										phone: '08123456789',
+										gender: 'MALE',
 										image:
-											"/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg",
+											'/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
 										address:
 											"This is Jan Doe's Home Address. Leave any message or letter at this address",
-										state: "New State",
-										city: "New City",
-										dob: "2000-02-12",
+										state: 'New State',
+										city: 'New City',
+										dob: '2000-02-12',
 									},
 								},
 							},
@@ -108,7 +108,7 @@ const path = {
 					},
 					encoding: {
 						image: {
-							contentType: "image/*",
+							contentType: 'image/*',
 						},
 					},
 				},
@@ -116,36 +116,36 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
-						schema: {
-							allOf: [
-								{ $ref: refs.BASE },
-								{ 
-									type: 'object',
-									properties: {
-										data: {
-											$ref: refs.USER_PROFILE_DATA,
-										}
-									}
-								},
-							]
-						}
-					},
-				},
-			},
-			"400": {
-				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
+									properties: {
+										data: {
+											$ref: refs.USER_PROFILE_DATA,
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+			'400': {
+				content: {
+					'application/json': {
+						schema: {
+							allOf: [
+								{ $ref: refs.BASE },
+								{
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												firstName: {
@@ -197,9 +197,9 @@ const path = {
 					},
 				},
 			},
-			"403": undefined
+			'403': undefined,
 		},
-		summary: "Update User Profile Data",
+		summary: 'Update User Profile Data',
 		tags: [tags.Authentication],
 	},
 };

@@ -1,75 +1,75 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	post: {
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
-						required: ["email", 'password1', 'password2'],
+						type: 'object',
+						required: ['email', 'password1', 'password2'],
 						properties: {
 							email: {
 								type: 'string',
-								format: 'email'
+								format: 'email',
 							},
 							password1: {
 								type: 'string',
-								format: 'password'
+								format: 'password',
 							},
 							password2: {
 								type: 'string',
-								format: 'password'
+								format: 'password',
 							},
 						},
 						example: {
-							email: 'jandoe@gmail.com',
+							email: 'jandoe@kitehrms.com',
 							password1: 'Password?1234',
-							password2: 'Password?1234'
-						}
+							password2: 'Password?1234',
+						},
 					},
 				},
 			},
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
+							$ref: refs.BASE,
 						},
 					},
 				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												email: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												password1: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												password2: {
-													type: "string",
+													type: 'string',
 													nullable: true,
-												}
+												},
 											},
 										},
 									},
@@ -80,7 +80,7 @@ const path = {
 				},
 			},
 		},
-		summary: "Change User Password",
+		summary: 'Change User Password',
 		tags: [tags.Users],
 	},
 };
