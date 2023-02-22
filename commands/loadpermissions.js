@@ -263,20 +263,20 @@ const { logger } = require('./utils/index.js');
 		if (model.name.toLowerCase() === 'user') {
 			modelPermissions = [
 				...modelPermissions,
-				{
-					name: 'CAN CHANGE USER PASSWORD',
-					codename: 'can_change_user_password',
-					description:
-						'Specifies whether a user can change another user password.',
-					categoryName: 'user',
-				},
-				{
-					name: 'CAN ACTIVATE AND DEACTIVATE USER',
-					codename: 'can_activate_and_deactivate_user',
-					description:
-						'Specifies whether a user can activate and deactivate another user.',
-					categoryName: 'user',
-				},
+				// {
+				// 	name: 'CAN CHANGE USER PASSWORD',
+				// 	codename: 'can_change_user_password',
+				// 	description:
+				// 		'Specifies whether a user can change another user password.',
+				// 	categoryName: 'user',
+				// },
+				// {
+				// 	name: 'CAN ACTIVATE AND DEACTIVATE USER',
+				// 	codename: 'can_activate_and_deactivate_user',
+				// 	description:
+				// 		'Specifies whether a user can activate and deactivate another user.',
+				// 	categoryName: 'user',
+				// },
 				{
 					name: 'CAN VIEW USER GROUP',
 					codename: 'can_view_user_group',
