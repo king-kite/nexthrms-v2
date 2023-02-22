@@ -1,12 +1,14 @@
+import { getStringedDate } from '../utils';
+
 const parameters: {
-  in: string;
-  name: string;
-  required?: boolean;
-  schema: {
-    type: string;
-    default?: any;
-    format?: any;
-  }
+	in: string;
+	name: string;
+	required?: boolean;
+	schema: {
+		type: string;
+		default?: any;
+		format?: any;
+	};
 }[] = [
 	{
 		in: 'query',
@@ -38,7 +40,7 @@ const parameters: {
 		schema: {
 			type: 'string',
 			format: 'date-time',
-      default: new Date().toLocaleDateString('en-Ca')
+			default: getStringedDate(),
 		},
 	},
 ];
@@ -86,7 +88,5 @@ export const exportDataParametersWithSearch = [
 		},
 	},
 ];
-
-
 
 export default parameters;

@@ -2,6 +2,8 @@ import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
 
+import { getStringedDate } from '../../../utils';
+
 const path = {
 	get: {
 		parameters: [
@@ -62,7 +64,7 @@ const path = {
 				schema: {
 					type: 'string',
 					format: 'date-time',
-					default: new Date().toLocaleDateString('en-Ca'),
+					default: getStringedDate(),
 				},
 			},
 			{
