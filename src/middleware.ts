@@ -26,12 +26,12 @@ export function middleware(request: NextRequest) {
 		const splitKeys = requestUrl.split('/');
 
 		let modelName: PermissionModelNameType | undefined = splitKeys[
-			splitKeys.length - 3
+			splitKeys.length - 2
 		] as PermissionModelNameType | undefined;
 		modelName = modelName
 			? (modelName.toLowerCase() as PermissionModelNameType)
 			: undefined;
-		const objectId = splitKeys[splitKeys.length - 2];
+		const objectId = splitKeys[splitKeys.length - 3];
 
 		if (modelName && objectId && models.includes(modelName)) {
 			const url = request.nextUrl.clone();
