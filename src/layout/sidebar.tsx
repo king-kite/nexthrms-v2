@@ -31,42 +31,10 @@ import { LinkType, PropsType } from './types';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, LOGOUT_URL, permissions } from '../config';
 import { useAlertModalContext, useAuthContext } from '../store/contexts';
-import { PermissionType } from '../types';
 import { axiosInstance, hasPermission } from '../utils';
 
 const sidebarStyle =
 	'absolute bg-primary-500 duration-1000 h-full overflow-y-auto transform top-16 w-3/4 z-50 sm:top-14 md:px-2 md:w-1/3 lg:fixed lg:px-0 lg:py-6 lg:top-0 lg:translate-x-0 lg:w-1/6 xl:py-7';
-
-function getLink(
-	link: LinkType,
-	options: {
-		adminRequired?: boolean;
-		isAdmin?: boolean;
-		isSuperUser?: boolean;
-		requiredPermissions: string[];
-		userPermissions?: PermissionType[];
-	} = {
-		requiredPermissions: [],
-	}
-): LinkType | undefined {
-	// if there are no required permissions
-	// means the route is accessible to all
-	if (options.requiredPermissions.length <= 0) return link;
-
-	// Super users have it all
-	if (options.isSuperUser) return link;
-
-	// Must be an admin. Useful for leaves and overtime admin routes
-	if (options.adminRequired && !options.isAdmin) return undefined;
-
-	// Now use the hasPermission function
-	if (!options.userPermissions) return undefined;
-
-	if (hasPermission(options.userPermissions, options.requiredPermissions))
-		return link;
-
-	return undefined;
-}
 
 const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 	({ setVisible, visible }, ref) => {
@@ -101,12 +69,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 			}
 		);
 
-		const userPermissions: string[] = data
-			? data.permissions.map((perm) => perm.codename)
-			: [];
-
-		console.log({ userPermissions })
-
 		const links: LinkType[] = React.useMemo(
 			() => [
 				{
@@ -131,46 +93,58 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaUserFriends,
 									title: 'all employees',
 									href: routes.EMPLOYEES_PAGE_URL,
+									permissions: [permissions.employee.VIEW],
 								},
 								{
 									icon: FaSuitcaseRolling,
 									title: 'leaves',
 									href: routes.LEAVES_PAGE_URL,
+									permissions: [permissions.leave.VIEW],
 								},
 								{
+									admin: true,
 									icon: FaSuitcase,
 									title: 'leaves (admin)',
 									href: routes.ADMIN_LEAVES_PAGE_URL,
+									permissions: [permissions.leave.VIEW],
 								},
 								{
 									icon: FaClock,
 									title: 'attendance',
 									href: routes.ATTENDANCE_PAGE_URL,
+									permissions: [permissions.attendance.VIEW],
 								},
 								{
+									admin: true,
 									icon: FaClipboardList,
 									title: 'attendance (admin)',
 									href: routes.ATTENDANCE_ADMIN_PAGE_URL,
+									permissions: [permissions.attendance.VIEW],
 								},
 								{
 									icon: FaWarehouse,
 									title: 'departments',
 									href: routes.DEPARTMENTS_PAGE_URL,
+									permissions: [permissions.department.VIEW],
 								},
 								{
 									icon: FaCalendarAlt,
 									title: 'holidays',
 									href: routes.HOLIDAYS_PAGE_URL,
+									permissions: [permissions.holiday.VIEW],
 								},
 								{
 									icon: FaClock,
 									title: 'overtime',
 									href: routes.OVERTIME_PAGE_URL,
+									permissions: [permissions.overtime.VIEW],
 								},
 								{
+									admin: true,
 									icon: FaUserClock,
 									title: 'overtime (admin)',
 									href: routes.ADMIN_OVERTIME_PAGE_URL,
+									permissions: [permissions.overtime.VIEW],
 								},
 							],
 						},
@@ -178,11 +152,13 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaHandshake,
 							title: 'clients',
 							href: routes.CLIENTS_PAGE_URL,
+							permissions: [permissions.client.VIEW],
 						},
 						{
 							icon: FaProjectDiagram,
 							title: 'projects',
 							href: routes.PROJECTS_PAGE_URL,
+							permissions: [permissions.project.VIEW],
 						},
 					],
 					permissions: [
@@ -203,16 +179,20 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaArchive,
 							title: 'assets',
 							href: routes.ASSETS_PAGE_URL,
+							permissions: [permissions.asset.VIEW],
 						},
 						{
+							admin: true,
 							icon: FaFileArchive,
 							title: 'API documentation',
 							href: routes.DOCS_PAGE_URL,
+							permissions: [permissions.apidoc.VIEW],
 						},
 						{
 							icon: FaRProject,
 							title: 'jobs',
 							href: routes.JOBS_PAGE_URL,
+							permissions: [permissions.job.VIEW],
 						},
 						{
 							icon: FaUsersCog,
@@ -222,16 +202,19 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaPeopleArrows,
 									title: 'all users',
 									href: routes.USERS_PAGE_URL,
+									permissions: [permissions.user.VIEW],
 								},
 								{
 									icon: FaUserShield,
 									title: 'groups',
 									href: routes.GROUPS_PAGE_URL,
+									permissions: [permissions.group.VIEW],
 								},
 								{
 									icon: FaLock,
 									title: 'permissions',
 									href: routes.PERMISSIONS_PAGE_URL,
+									permissions: [permissions.permission.VIEW],
 								},
 							],
 						},
@@ -269,15 +252,17 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 			// if data is undefined return links that have empty permissions
 			if (!data) return links.filter((link) => link.permissions.length <= 0);
 
-			const protectedLinks = links.filter((link) => {
+			let protectedCategories = links.filter((link) => {
 				// Check for empty permissions
 				if (link.permissions.length <= 0) return link;
 				// isSuperUser
 				if (data.isSuperUser) return link;
+				// isAdmin. Check if the link requires admin access only
+				if (link.admin && !data.isAdmin) return false;
 				const hasPerm = hasPermission(data.permissions, link.permissions);
 				if (hasPerm) return link;
 			});
-			return protectedLinks;
+			return protectedCategories;
 		}, [data, links]);
 
 		return (
@@ -316,29 +301,78 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 								{title}
 							</h6>
 
-							{links.map(({ href, onClick, ...props }, index) => {
-								return 'links' in props ? (
-									<ListLink
-										onClick={() => {
-											if (onClick) onClick();
-											setVisible(false);
-										}}
-										links={links}
-										key={index}
-										{...props}
-									/>
-								) : (
-									<SimpleLink
-										href={href || '#'}
-										onClick={() => {
-											if (onClick) onClick();
-											setVisible(false);
-										}}
-										key={index}
-										{...props}
-									/>
-								);
-							})}
+							{links.map(
+								(
+									{ admin = false, href, onClick, permissions = [], ...props },
+									index
+								) => {
+									// if the auth data hasn't loaded yet
+									if (!data) return <></>;
+
+									if ('links' in props) {
+										const { links = [], ...linkProps } = props;
+										// Filter links to see which one the user's has permissions for
+										const filteredLinks = links.filter(
+											({ permissions = [], admin = false }) => {
+												// Check if the link has permissions
+												if (permissions.length > 0) {
+													// Check if the link needs admin rights
+													if (admin && !data.isAdmin && !data.isSuperUser)
+														return false;
+
+													// Check if the user doesn't have permission
+													// and is not a super user
+													const hasPerm = hasPermission(
+														data.permissions,
+														permissions
+													);
+													if (!hasPerm && !data.isSuperUser) return false;
+												}
+												return true;
+											}
+										);
+										return filteredLinks.length <= 0 ? (
+											<></>
+										) : (
+											<ListLink
+												onClick={() => {
+													if (onClick) onClick();
+													setVisible(false);
+												}}
+												links={filteredLinks}
+												key={index}
+												{...linkProps}
+											/>
+										);
+									} else {
+										// Check if the link has permissions
+										if (permissions.length > 0) {
+											// Check if the link needs admin rights
+											if (admin && !data.isAdmin && !data.isSuperUser)
+												return <></>;
+
+											// Check if the user doesn't have permission
+											// and is not a super user
+											const hasPerm = hasPermission(
+												data.permissions,
+												permissions
+											);
+											if (!hasPerm && !data.isSuperUser) return <></>;
+										}
+										return (
+											<SimpleLink
+												href={href || '#'}
+												onClick={() => {
+													if (onClick) onClick();
+													setVisible(false);
+												}}
+												key={index}
+												{...props}
+											/>
+										);
+									}
+								}
+							)}
 						</div>
 					))}
 				</div>

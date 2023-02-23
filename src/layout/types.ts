@@ -12,10 +12,12 @@ export type LinkItemType = {
 	icon: IconType;
 	links?: LinkItemType[];
 	onClick?: () => void;
+	permissions?: string[];
 	title: string;
 };
 
 export type LinkType = {
+	admin?: boolean;
 	links: LinkItemType[];
 	permissions: string[]; // permissions required to view link
 	title: string;
