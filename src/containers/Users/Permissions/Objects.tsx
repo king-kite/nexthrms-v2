@@ -124,7 +124,13 @@ function ObjectPermissions({
 			<TabNavigator
 				screens={[
 					{
-						component: <UserTable users={users} />,
+						component: (
+							<UserTable
+								modelName={modelName}
+								objectId={objectId}
+								users={users}
+							/>
+						),
 						description:
 							'This screen shows the users with access to this record',
 						title: 'Users',

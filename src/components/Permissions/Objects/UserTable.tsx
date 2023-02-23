@@ -13,7 +13,9 @@ import {
 	FaUserEdit,
 } from 'react-icons/fa';
 
-import { ObjPermUser } from '../../../types';
+import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
+import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { ObjPermUser, PermissionModelNameType } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
 const heads: TableHeadType = [
@@ -25,7 +27,10 @@ const heads: TableHeadType = [
 	{ type: 'actions', value: 'actions' },
 ];
 
-const getRows = (data: ObjPermUser[]): TableRowType[] =>
+const getRows = (
+	data: ObjPermUser[],
+	removeUser: (id: string) => void
+): TableRowType[] =>
 	data.map((user) => ({
 		id: user.id,
 		rows: [
@@ -68,6 +73,7 @@ const getRows = (data: ObjPermUser[]): TableRowType[] =>
 					{
 						color: 'danger',
 						icon: FaTrash,
+						onClick: () => removeUser(user.id),
 					},
 				],
 			},
@@ -75,15 +81,92 @@ const getRows = (data: ObjPermUser[]): TableRowType[] =>
 	}));
 
 type TableType = {
+	modelName: PermissionModelNameType;
+	objectId: string;
 	users: ObjPermUser[];
 };
 
-const UserPermissionsTable = ({ users = [] }: TableType) => {
+const UserPermissionsTable = ({
+	users = [],
+	modelName,
+	objectId,
+}: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
+	const { open: showAlert } = useAlertContext();
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const { mutate } = useEditObjectPermissionMutation(
+		{ model: modelName, id: objectId },
+		{
+			onError(err) {
+				showAlert({
+					message: err.data?.groups || err.data?.users || err.message,
+					type: 'danger',
+				});
+			},
+			onSuccess() {
+				showAlert({
+					message: 'Removed user successfully!',
+					type: 'success',
+				});
+			},
+		},
+		{
+			onSettled() {
+				close();
+			},
+		}
+	);
+
+	const removeUser = React.useCallback(
+		(id: string) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Remove User?',
+				color: 'danger',
+				message: 'Do you want to remove this user?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate([
+								{
+									method: 'DELETE',
+									permission: 'DELETE',
+									form: { users: [id] },
+								},
+								{
+									method: 'DELETE',
+									permission: 'EDIT',
+									form: { users: [id] },
+								},
+								{
+									method: 'DELETE',
+									permission: 'VIEW',
+									form: { users: [id] },
+								},
+							]);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
 	React.useEffect(() => {
-		setRows(getRows(users));
-	}, [users]);
+		setRows(getRows(users, removeUser));
+	}, [users, removeUser]);
 
 	return (
 		<div>
