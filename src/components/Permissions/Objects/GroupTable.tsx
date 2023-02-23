@@ -10,17 +10,15 @@ import {
 	FaPen,
 	FaTimesCircle,
 	FaTrash,
-	FaUserEdit,
+	FaUserFriends,
 } from 'react-icons/fa';
 
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermUser, PermissionModelNameType } from '../../../types';
-import { toCapitalize } from '../../../utils';
+import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
-	{ value: 'email' },
 	{ value: 'view' },
 	{ value: 'edit' },
 	{ value: 'delete' },
@@ -28,40 +26,39 @@ const heads: TableHeadType = [
 ];
 
 const getRows = (
-	data: ObjPermUser[],
-	removeUser: (id: string) => void
+	data: ObjPermGroupType[],
+	removeGroup: (id: string) => void
 ): TableRowType[] =>
-	data.map((user) => ({
-		id: user.id,
+	data.map((group) => ({
+		id: group.id,
 		rows: [
-			{ value: toCapitalize(user.firstName + ' ' + user.lastName) },
-			{ value: user.email },
+			{ value: group.name },
 			{
 				options: {
 					className: `${
-						user.view ? 'text-green-600' : 'text-red-600'
+						group.view ? 'text-green-600' : 'text-red-600'
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: user.view ? FaCheckCircle : FaTimesCircle,
+				icon: group.view ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
 					className: `${
-						user.edit ? 'text-green-600' : 'text-red-600'
+						group.edit ? 'text-green-600' : 'text-red-600'
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: user.edit ? FaCheckCircle : FaTimesCircle,
+				icon: group.edit ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
 					className: `${
-						user.delete ? 'text-green-600' : 'text-red-600'
+						group.delete ? 'text-green-600' : 'text-red-600'
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: user.delete ? FaCheckCircle : FaTimesCircle,
+				icon: group.delete ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				type: 'actions',
@@ -73,7 +70,7 @@ const getRows = (
 					{
 						color: 'danger',
 						icon: FaTrash,
-						onClick: () => removeUser(user.id),
+						onClick: () => removeGroup(group.id),
 					},
 				],
 			},
@@ -81,35 +78,33 @@ const getRows = (
 	}));
 
 type TableType = {
+	groups: ObjPermGroupType[];
 	modelName: PermissionModelNameType;
 	objectId: string;
-	openModal: () => void;
-	users: ObjPermUser[];
 };
 
-const UserPermissionsTable = ({
-	users = [],
+const GroupPermissionsTable = ({
+	groups = [],
 	modelName,
 	objectId,
-	openModal,
 }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
-	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
+	const { open: openModal, close, showLoader } = useAlertModalContext();
 
 	const { mutate } = useEditObjectPermissionMutation(
 		{ model: modelName, id: objectId },
 		{
 			onError(err) {
 				showAlert({
-					message: err.data?.users || err.message,
+					message: err.data?.groups || err.message,
 					type: 'danger',
 				});
 			},
 			onSuccess() {
 				showAlert({
-					message: 'Removed user successfully!',
+					message: 'Removed group successfully!',
 					type: 'success',
 				});
 			},
@@ -121,13 +116,13 @@ const UserPermissionsTable = ({
 		}
 	);
 
-	const removeUser = React.useCallback(
+	const removeGroup = React.useCallback(
 		(id: string) => {
-			openAlertModal({
+			openModal({
 				closeOnButtonClick: false,
-				header: 'Remove User?',
+				header: 'Remove Group?',
 				color: 'danger',
-				message: 'Do you want to remove this user?',
+				message: 'Do you want to remove this group?',
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -144,17 +139,17 @@ const UserPermissionsTable = ({
 								{
 									method: 'DELETE',
 									permission: 'DELETE',
-									form: { users: [id] },
+									form: { groups: [id] },
 								},
 								{
 									method: 'DELETE',
 									permission: 'EDIT',
-									form: { users: [id] },
+									form: { groups: [id] },
 								},
 								{
 									method: 'DELETE',
 									permission: 'VIEW',
-									form: { users: [id] },
+									form: { groups: [id] },
 								},
 							]);
 						},
@@ -163,22 +158,21 @@ const UserPermissionsTable = ({
 				],
 			});
 		},
-		[openAlertModal, close, mutate, showLoader]
+		[openModal, close, mutate, showLoader]
 	);
 
 	React.useEffect(() => {
-		setRows(getRows(users, removeUser));
-	}, [users, removeUser]);
+		setRows(getRows(groups, removeGroup));
+	}, [groups, removeGroup]);
 
 	return (
 		<div>
 			<div className="flex flex-wrap items-center w-full lg:justify-end">
 				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 					<Button
-						iconLeft={FaUserEdit}
-						onClick={openModal}
+						iconLeft={FaUserFriends}
 						rounded="rounded-xl"
-						title="Add Users"
+						title="Add Groups"
 					/>
 				</div>
 			</div>
@@ -189,4 +183,4 @@ const UserPermissionsTable = ({
 	);
 };
 
-export default UserPermissionsTable;
+export default GroupPermissionsTable;

@@ -95,6 +95,116 @@ export function useGetObjectPermissionsQuery(
 	return query;
 }
 
+// use mutate users/groups from object permission
+export function useEditObjectPermissionMutation(
+	object: {
+		model: PermissionModelNameType;
+		id: string;
+	},
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: {
+			status: number;
+			data?: {
+				groups?: string;
+				users?: string;
+			};
+			message: string;
+		}) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const queryAsset = useQueryClient();
+
+	const mutation = useMutation(
+		async (
+			/** How to write the data
+			 * Explain Methods
+			 * --------------
+			 * 'POST' -> Will override the current users/groups with the provided one i.e. prisma 'set'
+			 * 'PUT' -> Will add the provided users/groups to the existing ones i.e. prisma 'connnect'
+			 * 'DELETE' -> Will remove the provided users/groups i.e. prisma 'disconnect'
+			 *
+			 * Explain Permission
+			 * ------------------
+			 * 'DELETE' -> Will affect only users/groups concerning the DELETE permission
+			 * 'EDIT' -> Will affect only users/groups concerning the EDIT permission
+			 * 'VIEW' -> Will affect only users/groups concerning the VIEW permission
+			 *
+			 * Data Example
+			 * For example, Removing multiple permissions from a user
+			 * at once will look like this. This will remove a user totally from all permissions
+			 * associating with the object/record
+			 *
+			 * data = [
+			 * 		{
+			 * 			method: 'DELETE',
+			 * 			permission: 'DELETE',
+			 * 			form: { users: ['3facdgs-4524-24gs-g2g4m4] }
+			 * 		},
+			 * 		{
+			 * 			method: 'DELETE',
+			 * 			permission: 'EDIT',
+			 * 			form: { users: ['3facdgs-4524-24gs-g2g4m4] }
+			 * 		},
+			 * 		{
+			 * 			method: 'DELETE',
+			 * 			permission: 'VIEW',
+			 * 			form: { users: ['3facdgs-4524-24gs-g2g4m4] }
+			 * 		},
+			 * ]
+			 */
+			data: {
+				method: 'POST' | 'PUT' | 'DELETE';
+				permission: 'DELETE' | 'EDIT' | 'VIEW';
+				form: { users?: string[]; groups?: string[] };
+			}[]
+		) => {
+			const input = data.map(async (info) => {
+				const url = OBJECT_PERMISSIONS_URL(
+					object.model,
+					object.id,
+					info.permission
+				);
+
+				return axiosInstance({
+					url,
+					method: info.method,
+					data: info.form,
+				});
+				// .then((response: AxiosResponse<BaseResponseType>) => response.data);
+			});
+
+			return Promise.all(input).then(
+				(responses: AxiosResponse<BaseResponseType>[]) => responses[0].data
+			);
+		},
+		{
+			onSuccess() {
+				queryAsset.invalidateQueries([tags.PERMISSIONS_OBJECT]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors<{
+						groups?: string;
+						users?: string;
+					}>(err);
+					if (error) options.onError(error);
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}
+
 // get permissions
 export function useGetPermissionsQuery(
 	{

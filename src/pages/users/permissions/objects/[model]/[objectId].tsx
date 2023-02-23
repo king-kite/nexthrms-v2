@@ -1,12 +1,7 @@
 import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import {
-	models,
-	permissions,
-	DEFAULT_PAGINATION_SIZE,
-	LOGIN_PAGE_URL,
-} from '../../../../../config';
+import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
@@ -75,18 +70,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 
 	const auth = serializeUserData(req.user);
-	const data = await getObjectPermissions(modelName, objectId, undefined, {
-		groups: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		users: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-	});
+	const data = await getObjectPermissions(modelName, objectId);
 
 	return {
 		props: {
