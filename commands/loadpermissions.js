@@ -133,6 +133,13 @@ const { logger } = require('./utils/index.js');
 		return [...acc, ...modelPermissions];
 	}, []);
 
+	// Add the api documentation permission
+	permissions.push({
+		name: `can view api documentation`.toUpperCase(),
+		codename: `can_view_api_documentation`.toLowerCase(),
+		description: `Specifies whether a user can view the API Documentation`,
+	});
+
 	// Create a array of promises to add new permissions
 	const permissionPromises = permissions.map(
 		({ categoryName, ...permission }) => {

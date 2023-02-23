@@ -14,6 +14,9 @@ function makePermissions(name: string): {
 	};
 }
 
+export const apidoc = {
+	VIEW: 'can_view_api_documentation',
+};
 export const asset = makePermissions('asset');
 export const attendance = makePermissions('attendance');
 // export const attendanceAdmin = makePermissions('attendanceAdmin');
