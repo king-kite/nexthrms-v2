@@ -99,6 +99,16 @@ const Container: FC<ContainerProps> = ({
 		if (error && error.statusCode === 401) logout();
 	}, [logout, error]);
 
+	if (loading) return <LoadingPage />;
+
+	if (error) return <Error
+					statusCode={error.statusCode || 500}
+					title={
+						error.title ||
+						'A server error occurred! Please try again later.'
+					}
+				/>;
+
 	return (
 		<>
 			<div className="relative w-full">
@@ -139,38 +149,26 @@ const Container: FC<ContainerProps> = ({
 					</div>
 				)}
 				<div className={`p-2 md:p-4 ${background}`}>
-					{loading ? (
-						<LoadingPage />
-					) : error ? (
-						<Error
-							statusCode={error.statusCode || 500}
-							title={
-								error.title ||
-								'A server error occurred! Please try again later.'
+					<div className="px-2 relative md:px-3 lg:px-4">
+						<div
+							className={
+								(alert.visible
+									? 'translate-y-0 visible z-[500]'
+									: 'invisible translate-y-full z-[-100]') +
+								' bottom-[10%] duration-1000 fixed px-3 py-1 right-0 transition transform w-full sm:px-4 md:px-7 lg:ml-auto lg:px-8 lg:w-[83%]'
 							}
-						/>
-					) : (
-						<div className="px-2 relative md:px-3 lg:px-4">
-							<div
-								className={
-									(alert.visible
-										? 'translate-y-0 visible z-[500]'
-										: 'invisible translate-y-full z-[-100]') +
-									' bottom-[10%] duration-1000 fixed px-3 py-1 right-0 transition transform w-full sm:px-4 md:px-7 lg:ml-auto lg:px-8 lg:w-[83%]'
-								}
-							>
-								<Alert
-									message={alert.message}
-									onClose={alert.close}
-									padding={alert.padding}
-									rounded={alert.rounded}
-									type={alert.type}
-									visible={alert.visible}
-								/>
-							</div>
-							<div className="py-1 md:mt-2 lg:mt-3">{children}</div>
+						>
+							<Alert
+								message={alert.message}
+								onClose={alert.close}
+								padding={alert.padding}
+								rounded={alert.rounded}
+								type={alert.type}
+								visible={alert.visible}
+							/>
 						</div>
-					)}
+						<div className="py-1 md:mt-2 lg:mt-3">{children}</div>
+					</div>
 					{paginate && paginate.totalItems > 0 && (
 						<div className="pt-2 pb-5">
 							<Pagination
