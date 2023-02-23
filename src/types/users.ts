@@ -57,7 +57,7 @@ export interface ObjPermUser extends ObjectPermissionUserType {
 
 export type ObjectPermissionType = {
 	users: ObjectPermissionUserType[];
-	permission: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW';
+	permission: 'DELETE' | 'EDIT' | 'VIEW';
 	groups: {
 		id: string;
 		name: string;

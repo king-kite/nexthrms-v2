@@ -3,10 +3,11 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Container } from '../../../components/common';
+import { UserTable } from '../../../components/Permissions/Objects';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
-	ObjectPermissionType,
+	ObjPermUser,
 	ObjectPermissionUserType,
 	GetObjectPermissionsResponseType,
 	PermissionModelNameType,
@@ -47,36 +48,35 @@ function ObjectPermissions({
 		}
 	);
 
-	const users = React.useMemo(() => {
+	const users: ObjPermUser[] = React.useMemo(() => {
 		if (!data) return [];
+		const users = data.result.reduce((acc: ObjPermUser[], obj) => {
+			// Store all the users in an array and the permission they got
+			// To be returned later after modification if neccessary
+			const users = acc;
 
-		// scoped users array with will include boolean fields for permissions
-		const users: (ObjectPermissionUserType & {
-			permissions: ('CREATE' | 'DELETE' | 'EDIT' | 'VIEW')[];
-		})[] = [];
+			// NOTE: obj.permission will go/vary from 'DELETE' to 'EDIT' to 'VIEW'
+			// in the reduce function
 
-		data.result.forEach((objPerm) => {
-			// loop through the users in the objPerm and
-			// check if there is a user already in the scoped user variable
-			objPerm.users.forEach((user) => {
+			obj.users.forEach((user) => {
+				// Check if user is already in the accumulator
 				const found = users.find((item) => item.id === user.id);
-				// Check if the user exists in the scoped variable
-				// and does not have this objPerm permission yet
-				if (found && !found.permissions.includes(objPerm.permission)) {
+				if (found) {
 					const index = users.indexOf(found);
 					users[index] = {
-						...found,
-						permissions: [...found.permissions, objPerm.permission],
+						...users[index],
+						[obj.permission.toLowerCase()]: true,
 					};
 				} else {
 					users.push({
 						...user,
-						permissions: [objPerm.permission],
+						[obj.permission.toLowerCase()]: true, // reduce the permission from upper to lower case
 					});
 				}
 			});
-		});
 
+			return users;
+		}, []);
 		return users;
 	}, [data]);
 
@@ -94,7 +94,7 @@ function ObjectPermissions({
 			<TabNavigator
 				screens={[
 					{
-						component: <></>,
+						component: <UserTable users={users} />,
 						description:
 							'This screen shows the users with access to this record',
 						title: 'Users',
