@@ -2,7 +2,7 @@ import { TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { Container } from '../../../components/common';
+import { Container, Pagination } from '../../../components/common';
 import { GroupTable, UserTable } from '../../../components/Permissions/Objects';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
@@ -19,17 +19,30 @@ function ObjectPermissions({
 	permissions: GetObjectPermissionsResponseType['data'];
 }) {
 	const router = useRouter();
-	const [paginateGroups, setPaginateGroups] = React.useState({
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset: 0,
-		search: '',
-	});
+	/** Pagination will be done on the frontend
+	 * Say we have over a thousand users that may be have scattered permissions for this object.
+	 * For e.g a user A might have view and delete and a user B might have view and edit.
+	 * we have 3 permission types per object i.e. DELETE, EDIT, VIEW which have their own users array
+	 * if user A was at the very bottom of the view array and at the top of the delete array
+	 * and we were to paginate, only he's 'delete' permission may show at a time first and he's
+	 * 'view' permission will show later on as we go paginate further and doing so may also make
+	 * he's 'delete' permission disappear as well since we go further down and it will be left behind.
+	 * Hence getting all the users from the object permission is ideal as we'll get them all
+	 * and then paginate them on the frontend
+	 */
+	// paginate on the frontend
 
-	const [paginateUsers, setPaginateUsers] = React.useState({
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset: 0,
-		search: '',
-	});
+	// const [paginateGroups, setPaginateGroups] = React.useState({
+	// 	limit: DEFAULT_PAGINATION_SIZE,
+	// 	offset: 0,
+	// 	search: '',
+	// });
+
+	// const [paginateUsers, setPaginateUsers] = React.useState({
+	// 	limit: DEFAULT_PAGINATION_SIZE,
+	// 	offset: 0,
+	// 	search: '',
+	// });
 
 	const modelName = router.query.model as PermissionModelNameType;
 	const objectId = router.query.objectId as string;
@@ -38,8 +51,6 @@ function ObjectPermissions({
 		{
 			modelName,
 			objectId,
-			users: paginateUsers,
-			groups: paginateGroups,
 		},
 		{
 			initialData() {
@@ -125,11 +136,27 @@ function ObjectPermissions({
 				screens={[
 					{
 						component: (
-							<UserTable
-								modelName={modelName}
-								objectId={objectId}
-								users={users}
-							/>
+							<>
+								<UserTable
+									modelName={modelName}
+									objectId={objectId}
+									users={users}
+								/>
+								{/* {paginate.totalItems > 0 && (
+									<div className="pt-2 pb-5">
+										<Pagination
+											disabled={paginate.loading || false}
+											onChange={(pageNo: number) => {
+												const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+												paginate.offset !== value &&
+													paginate.setOffset(value * DEFAULT_PAGINATION_SIZE);
+											}}
+											pageSize={DEFAULT_PAGINATION_SIZE}
+											totalItems={paginate.totalItems || 0}
+										/>
+									</div>
+								)} */}
+							</>
 						),
 						description:
 							'This screen shows the users with access to this record',
