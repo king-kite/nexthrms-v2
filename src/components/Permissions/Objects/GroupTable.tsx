@@ -1,6 +1,17 @@
-import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
+import {
+	Button,
+	Table,
+	TableHeadType,
+	TableRowType,
+} from 'kite-react-tailwind';
 import React from 'react';
-import { FaCheckCircle, FaEye, FaTimesCircle, FaTrash } from 'react-icons/fa';
+import {
+	FaCheckCircle,
+	FaPen,
+	FaTimesCircle,
+	FaTrash,
+	FaUserFriends,
+} from 'react-icons/fa';
 
 import { ObjPermGroupType } from '../../../types';
 
@@ -49,7 +60,7 @@ const getRows = (data: ObjPermGroupType[]): TableRowType[] =>
 				value: [
 					{
 						color: 'primary',
-						icon: FaEye,
+						icon: FaPen,
 					},
 					{
 						color: 'danger',
@@ -72,8 +83,19 @@ const GroupPermissionsTable = ({ groups = [] }: TableType) => {
 	}, [groups]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table heads={heads} rows={rows} />
+		<div>
+			<div className="flex flex-wrap items-center w-full lg:justify-end">
+				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+					<Button
+						iconLeft={FaUserFriends}
+						rounded="rounded-xl"
+						title="Add Groups"
+					/>
+				</div>
+			</div>
+			<div className="mt-2 rounded-lg py-2 md:mt-1">
+				<Table heads={heads} rows={rows} />
+			</div>
 		</div>
 	);
 };
