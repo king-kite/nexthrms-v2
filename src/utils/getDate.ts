@@ -1,3 +1,16 @@
+export function getStringedDate(_date?: Date | string) {
+	const date = _date
+		? typeof _date === 'string'
+			? new Date(_date)
+			: _date
+		: new Date();
+	const day = date.getDate();
+	let month: string | number = date.getMonth() + 1; // month starts from 0 to 11
+	if (month < 10) month = `0${month}`;
+	const year = date.getFullYear();
+	return `${year}-${month}-${day}`;
+}
+
 export const getDate = (
 	dateString?: string | Date,
 	str = false
@@ -5,11 +18,11 @@ export const getDate = (
 	if (dateString) {
 		const date =
 			typeof dateString === 'string' ? new Date(dateString) : dateString;
-		return str ? date.toLocaleDateString('en-CA') : date;
+		return str ? getStringedDate(date) : date;
 	} else {
 		const date = new Date();
 		date.setHours(0, 0, 0, 0);
-		return str ? date.toLocaleDateString('en-CA') : date;
+		return str ? getStringedDate(date) : date;
 	}
 };
 
@@ -68,12 +81,14 @@ export const getNextDate = (
 	dateTime.setHours(0, 0, 0, 0);
 
 	const nd = new Date(number_of_days + dateTime.getTime());
-	return str ? nd.toLocaleDateString('en-CA') : nd;
+	return str ? getStringedDate(nd) : nd;
 };
 
 export function getNoOfDays(start: Date | string, end: Date | string): number {
-	const startEdit = new Date(start); startEdit.setHours(0, 0, 0, 0);
-	const endEdit = new Date(end); endEdit.setHours(0, 0, 0, 0);
+	const startEdit = new Date(start);
+	startEdit.setHours(0, 0, 0, 0);
+	const endEdit = new Date(end);
+	endEdit.setHours(0, 0, 0, 0);
 	const startDate = startEdit.getTime();
 	const endDate = endEdit.getTime();
 	return (endDate - startDate) / (1000 * 60 * 60 * 24);

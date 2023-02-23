@@ -30,7 +30,7 @@ function AttendanceAdmin({
 		}
 	>({
 		employee: '',
-		date: date.toLocaleDateString('en-Ca'),
+		date: getDate(undefined, true) as string,
 		punchIn: '08:00',
 	});
 
@@ -105,7 +105,7 @@ function AttendanceAdmin({
 				openModal={() => {
 					setForm({
 						employee: '',
-						date: date.toLocaleDateString('en-Ca'),
+						date: getDate(undefined, true) as string,
 						punchIn: '08:00',
 					});
 					setModalVisible(true);
@@ -173,7 +173,7 @@ function AttendanceAdmin({
 							}
 							setForm({
 								employee: '',
-								date: date.toLocaleDateString('en-Ca'),
+								date: getDate(undefined, true) as string,
 								punchIn: '08:00',
 							});
 						}}

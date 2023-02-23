@@ -6,6 +6,7 @@ import { DEFAULT_IMAGE } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditProjectMutation } from '../../../store/queries';
 import { ProjectType } from '../../../types';
+import { getStringedDate } from '../../../utils';
 
 const ProjectDetail = ({
 	data,
@@ -101,12 +102,8 @@ const ProjectDetail = ({
 												initialCost: data.initialCost,
 												rate: data.rate,
 												completed: data.completed,
-												startDate: new Date(data.startDate).toLocaleDateString(
-													'en-CA'
-												),
-												endDate: new Date(data.endDate).toLocaleDateString(
-													'en-CA'
-												),
+												startDate: getStringedDate(data.startDate),
+												endDate: getStringedDate(data.endDate),
 												priority: value as 'HIGH' | 'MEDIUM' | 'LOW',
 												client: data.client?.id || '',
 											},

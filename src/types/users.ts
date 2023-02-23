@@ -49,9 +49,15 @@ export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
 // Object Permission Types Start
 export type ObjectPermissionUserType = Omit<GroupUserType, 'isActive'>;
 
+export interface ObjPermUser extends ObjectPermissionUserType {
+	delete?: boolean;
+	edit?: boolean;
+	view?: boolean;
+}
+
 export type ObjectPermissionType = {
 	users: ObjectPermissionUserType[];
-	permission: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW';
+	permission: 'DELETE' | 'EDIT' | 'VIEW';
 	groups: {
 		id: string;
 		name: string;

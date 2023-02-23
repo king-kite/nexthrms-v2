@@ -5,6 +5,7 @@ import { FaCheckCircle, FaEye, FaTimesCircle } from 'react-icons/fa';
 
 import { USER_PAGE_URL } from '../../config/routes';
 import { UserType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'first name' },
@@ -95,14 +96,10 @@ const getRows = (data: UserType[]): TableRowType[] =>
 				icon: user.isSuperUser ? FaCheckCircle : FaTimesCircle,
 			},
 			{
-				value: user.updatedAt
-					? new Date(user.updatedAt).toLocaleDateString('en-CA')
-					: '---',
+				value: user.updatedAt ? getStringedDate(user.updatedAt) : '---',
 			},
 			{
-				value: user.createdAt
-					? new Date(user.createdAt).toLocaleDateString('en-CA')
-					: '---',
+				value: user.createdAt ? getStringedDate(user.createdAt) : '---',
 			},
 			{
 				type: 'actions',

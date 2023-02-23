@@ -1,23 +1,23 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	post: {
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
-						required: ["emails", "action"],
+						type: 'object',
+						required: ['emails', 'action'],
 						properties: {
 							emails: {
 								type: 'array',
 								items: {
 									type: 'string',
-									format: 'email'
-								}
+									format: 'email',
+								},
 							},
 							action: {
 								type: 'string',
@@ -25,45 +25,45 @@ const path = {
 							},
 						},
 						example: {
-							emails: ['jandoe@gmail.com'],
-							action: 'activate'
-						}
+							emails: ['jandoe@kitehrms.com'],
+							action: 'activate',
+						},
 					},
 				},
 			},
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
+							$ref: refs.BASE,
 						},
 					},
 				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												emails: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												action: {
-													type: "string",
+													type: 'string',
 													nullable: true,
-												}
+												},
 											},
 										},
 									},
@@ -74,7 +74,7 @@ const path = {
 				},
 			},
 		},
-		summary: "Activate or Deactivate User",
+		summary: 'Activate or Deactivate User',
 		tags: [tags.Users],
 	},
 };

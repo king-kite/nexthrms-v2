@@ -20,7 +20,7 @@ import {
 	CreateEmployeeErrorResponseType,
 	EmployeeType,
 } from '../../types';
-import { toCapitalize } from '../../utils';
+import { getStringedDate, toCapitalize } from '../../utils';
 import {
 	createEmployeeSchema,
 	handleAxiosErrors,
@@ -464,9 +464,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.user.profile?.dob
-								? new Date(initState.user.profile.dob).toLocaleDateString(
-										'en-CA'
-								  )
+								? getStringedDate(initState.user.profile.dob)
 								: undefined
 						}
 						disabled={loading}
@@ -482,8 +480,8 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.dateEmployed
-								? new Date(initState.dateEmployed).toLocaleDateString('en-CA')
-								: undefined
+								? getStringedDate(initState.dateEmployed)
+								: getStringedDate()
 						}
 						disabled={loading}
 						error={formErrors?.dateEmployed || errors?.dateEmployed}

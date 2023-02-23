@@ -74,7 +74,7 @@ export const DepartmentModel = {
 			user: {
 				firstName: 'Jan',
 				lastName: 'Doe',
-				email: 'jandoe@gmail.com',
+				email: 'jandoe@kitehrms.com',
 				profile: {
 					image: '/images/default.png',
 				},

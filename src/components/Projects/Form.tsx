@@ -16,7 +16,7 @@ import {
 	CreateProjectQueryType,
 	ProjectType,
 } from '../../types';
-import { toCapitalize } from '../../utils';
+import { getStringedDate, toCapitalize } from '../../utils';
 import { handleJoiErrors, projectCreateSchema } from '../../validators';
 
 interface ErrorType extends CreateProjectErrorResponseType {
@@ -260,7 +260,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.startDate
-								? new Date(initState.startDate).toLocaleDateString('en-CA')
+								? getStringedDate(initState.startDate)
 								: undefined
 						}
 						disabled={loading}
@@ -276,7 +276,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.endDate
-								? new Date(initState.endDate).toLocaleDateString('en-CA')
+								? getStringedDate(initState.endDate)
 								: undefined
 						}
 						disabled={loading}

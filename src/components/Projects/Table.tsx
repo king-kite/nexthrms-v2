@@ -15,6 +15,7 @@ import {
 	useMarkProjectMutation,
 } from '../../store/queries';
 import { ProjectType } from '../../types';
+import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -52,14 +53,10 @@ const getRows = (
 				value: project.priority,
 			},
 			{
-				value: project.startDate
-					? new Date(project.startDate).toLocaleDateString('en-CA')
-					: '---',
+				value: project.startDate ? getStringedDate(project.startDate) : '---',
 			},
 			{
-				value: project.endDate
-					? new Date(project.endDate).toLocaleDateString('en-CA')
-					: '---',
+				value: project.endDate ? getStringedDate(project.endDate) : '---',
 			},
 			{
 				options: {

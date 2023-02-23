@@ -1,40 +1,40 @@
 const userExample = {
 	firstName: 'John',
 	lastName: 'Doe',
-	email: 'johndoe@gmail.com',
+	email: 'johndoe@kitehrms.com',
 	profile: {
-		image: '/images/default.png'	
-	}
-}
+		image: '/images/default.png',
+	},
+};
 
 const userModel = {
 	type: 'object',
 	properties: {
 		firstName: {
-			type: 'string'
+			type: 'string',
 		},
 		lastName: {
-			type: 'string'
+			type: 'string',
 		},
 		email: {
 			type: 'string',
-			format: 'email'
+			format: 'email',
 		},
 		profile: {
 			type: 'object',
 			nullable: true,
 			properties: {
 				image: {
-					type: 'string'
-				}
-			}
-		}
-	}
-}
+					type: 'string',
+				},
+			},
+		},
+	},
+};
 
 export const NotificationModel = {
 	type: 'object',
-	required: ["name"],
+	required: ['name'],
 	properties: {
 		id: {
 			type: 'string',
@@ -44,18 +44,18 @@ export const NotificationModel = {
 			type: 'string',
 		},
 		message: {
-			type: 'string'
+			type: 'string',
 		},
 		messageId: {
 			type: 'string',
 			format: 'uuid',
-			nullable: true
+			nullable: true,
 		},
 		read: {
 			type: 'boolean',
 		},
 		title: {
-			type: 'string'
+			type: 'string',
 		},
 		createdAt: {
 			type: 'string',

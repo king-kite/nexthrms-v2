@@ -1,16 +1,16 @@
 import { parametersWithSearch as parameters } from '../../parameters';
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
 		parameters,
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -21,154 +21,151 @@ const path = {
 											type: 'object',
 											properties: {
 												total: {
-													type: 'number'
+													type: 'number',
 												},
 												active: {
-													type: 'number'
+													type: 'number',
 												},
 												inactive: {
-													type: 'number'
+													type: 'number',
 												},
 												on_leave: {
-													type: 'number'
+													type: 'number',
 												},
 												result: {
-													type: "array",
+													type: 'array',
 													items: {
 														$ref: refs.EMPLOYEE,
 													},
-												}
-											}
-										}
-									}
-								}
+												},
+											},
+										},
+									},
+								},
 							],
 						},
 					},
 				},
-				description: "Get All Employees Information",
+				description: 'Get All Employees Information',
 			},
 		},
-		summary: "Get All Employees",
+		summary: 'Get All Employees',
 		tags: [tags.Employees],
 	},
 	post: {
 		requestBody: {
 			required: true,
 			content: {
-				"multipart/form-data": {
+				'multipart/form-data': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							image: {
-								type: "string",
-								format: "base64",
+								type: 'string',
+								format: 'base64',
 							},
 							form: {
-								type: "object",
-								required: [
-									"department",
-									"job"
-								],
+								type: 'object',
+								required: ['department', 'job'],
 								properties: {
 									dateEmployed: {
 										type: 'string',
-										format: 'date-time'
+										format: 'date-time',
 									},
 									department: {
 										type: 'string',
-										format: 'uuid'
+										format: 'uuid',
 									},
 									job: {
 										type: 'string',
-										format: 'uuid'
+										format: 'uuid',
 									},
 									supervisor: {
 										type: 'string',
 										nullable: true,
-										format: 'uuid'
+										format: 'uuid',
 									},
 									userId: {
 										type: 'string',
 										nullable: true,
-										format: 'uuid'
+										format: 'uuid',
 									},
 									user: {
 										type: 'object',
 										nullable: true,
-										required: ["firstName", "lastName", "email", "profile"],
+										required: ['firstName', 'lastName', 'email', 'profile'],
 										properties: {
 											firstName: {
-												type: "string",
+												type: 'string',
 											},
 											lastName: {
-												type: "string",
+												type: 'string',
 											},
 											email: {
-												type: "string",
-												format: 'email'
+												type: 'string',
+												format: 'email',
 											},
 											profile: {
-												type: "object",
-												required: ["image"],
+												type: 'object',
+												required: ['image'],
 												properties: {
 													phone: {
-														type: "string",
+														type: 'string',
 													},
 													gender: {
-														type: "string",
-														format: "MALE | FEMALE",
+														type: 'string',
+														format: 'MALE | FEMALE',
 													},
 													image: {
-														type: "string",
+														type: 'string',
 													},
 													dob: {
-														type: "string",
-														format: "date-time",
+														type: 'string',
+														format: 'date-time',
 													},
 													address: {
-														type: "string",
+														type: 'string',
 													},
 													state: {
-														type: "string",
+														type: 'string',
 													},
 													city: {
-														type: "string",
+														type: 'string',
 													},
 												},
 											},
-										}
-									}
+										},
+									},
 								},
 								example: {
-									dateEmployed: "2022-10-29T00:00:00.000Z",
-									department: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-									supervisor: "9c48f93c-35d8-47b3-ad2a-938689b63262",
-									job: "9c48f93c-35d8-47b3-ad2a-938689b63262",
+									dateEmployed: '2022-10-29T00:00:00.000Z',
+									department: '9c48f93c-35d8-47b3-ad2a-938689b63262',
+									supervisor: '9c48f93c-35d8-47b3-ad2a-938689b63262',
+									job: '9c48f93c-35d8-47b3-ad2a-938689b63262',
 									user: {
-										firstName: "Jan",
-										lastName: "Doe",
-										email: "jandoe@gmail.com",
+										firstName: 'Jan',
+										lastName: 'Doe',
+										email: 'jandoe@kitehrms.com',
 										profile: {
-											phone: "08123456789",
-											gender: "MALE",
+											phone: '08123456789',
+											gender: 'MALE',
 											image:
-												"/media/users/profile/jan_doe_jandoe@gmail.com_1671403740847.jpg",
+												'/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
 											address:
 												"This is Jan Doe's Home Address. Leave any message or letter at this address",
-											state: "New State",
-											city: "New City",
-											dob: "2000-02-12",
-										}
+											state: 'New State',
+											city: 'New City',
+											dob: '2000-02-12',
+										},
 									},
-									userId: null
+									userId: null,
 								},
 							},
 						},
 					},
 					encoding: {
 						image: {
-							contentType: "image/*",
+							contentType: 'image/*',
 						},
 					},
 				},
@@ -176,14 +173,14 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"201": {
+			'201': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										data: {
 											$ref: refs.EMPLOYEE,
@@ -195,79 +192,79 @@ const path = {
 					},
 				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										error: {
-											type: "object",
+											type: 'object',
 											nullable: true,
 											properties: {
 												firstName: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												lastName: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												email: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												phone: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												image: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												gender: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												address: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												state: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												city: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												dob: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												dateEmployed: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												department: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												job: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												supervisor: {
-													type: "string",
+													type: 'string',
 													nullable: true,
 												},
 												userId: {
 													type: 'string',
-													nullable: true
-												}
+													nullable: true,
+												},
 											},
 										},
 									},
@@ -278,7 +275,7 @@ const path = {
 				},
 			},
 		},
-		summary: "Create new employee",
+		summary: 'Create new employee',
 		tags: [tags.Employees],
 	},
 };

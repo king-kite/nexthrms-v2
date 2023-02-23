@@ -1,11 +1,12 @@
-import { InfoComp } from 'kite-react-tailwind';
+import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	FaCheckCircle,
 	FaTimesCircle,
 	FaUserCheck,
 	FaUserEdit,
+	FaUserShield,
 	FaUserSlash,
 	FaLock,
 	FaTrash,
@@ -15,15 +16,20 @@ import { Container, InfoTopBar, Modal } from '../../components/common';
 import { UpdateForm } from '../../components/Clients';
 import { ChangePasswordForm } from '../../components/Employees';
 
-import { CLIENTS_PAGE_URL, DEFAULT_IMAGE } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import {
+	permissions,
+	CLIENTS_PAGE_URL,
+	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
+	DEFAULT_IMAGE,
+} from '../../config';
+import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useActivateUserMutation,
 	useDeleteClientMutation,
 	useGetClientQuery,
 } from '../../store/queries';
 import { ClientType } from '../../types';
-import { toCapitalize, getDate } from '../../utils';
+import { hasPermission, toCapitalize, getDate } from '../../utils';
 
 const ClientDetail = ({ client }: { client: ClientType }) => {
 	const router = useRouter();
@@ -34,6 +40,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 	const [formType, setFormType] = useState<'client' | 'password'>('client');
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
 
 	const { data, isLoading, isFetching, refetch } = useGetClientQuery(
 		{ id },
@@ -55,6 +62,89 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 
 	const { activate, isLoading: loading } = useActivateUserMutation();
 
+	const actions: ButtonType[] = useMemo(() => {
+		if (!data || !authData) return [];
+		const buttons: ButtonType[] = [];
+		const canEdit =
+			authData.isSuperUser ||
+			hasPermission(authData.permissions, [permissions.client.EDIT]);
+		const canDelete =
+			authData.isSuperUser ||
+			hasPermission(authData.permissions, [permissions.client.DELETE]);
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			hasPermission(authData.permissions, [permissions.permissionobject.VIEW]);
+
+		if (canEdit)
+			buttons.push(
+				{
+					onClick: () => {
+						formType !== 'client' && setFormType('client');
+						setModalVisible(true);
+					},
+					disabled: loading || delLoading,
+					iconLeft: FaUserEdit,
+					title: 'Edit Client',
+				},
+				{
+					bg: 'bg-yellow-600 hover:bg-yellow-500',
+					iconLeft: FaLock,
+					disabled: loading || delLoading,
+					onClick: () => {
+						formType !== 'password' && setFormType('password');
+						setModalVisible(true);
+					},
+					title: 'Change Password',
+				},
+				{
+					bg: data.contact.isActive
+						? 'bg-gray-500 hover:bg-gray-600'
+						: 'bg-green-500 hover:bg-green-600',
+					disabled: loading || delLoading,
+					onClick: () =>
+						data?.contact
+							? activate(
+									[data.contact.email],
+									data.contact.isActive ? 'deactivate' : 'activate'
+							  )
+							: () => {},
+					iconLeft: data.contact.isActive ? FaUserSlash : FaUserCheck,
+					title: data.contact.isActive
+						? loading
+							? 'Deactivating...'
+							: 'Deactivate Client'
+						: loading
+						? 'Activating...'
+						: 'Activate Client',
+				}
+			);
+		if (canDelete)
+			buttons.push({
+				bg: 'bg-red-600 hover:bg-red-500',
+				iconLeft: FaTrash,
+				disabled: loading || delLoading,
+				onClick: () => deleteClient(data.id),
+				title: delLoading ? 'Deleting Client...' : 'Delete Client',
+			});
+		if (canViewObjectPermissions)
+			buttons.push({
+				bg: 'bg-gray-600 hover:bg-gray-500',
+				iconLeft: FaUserShield,
+				link: CLIENT_OBJECT_PERMISSIONS_PAGE_URL(id),
+				title: 'View Record Permissions',
+			});
+		return buttons;
+	}, [
+		activate,
+		authData,
+		data,
+		deleteClient,
+		delLoading,
+		formType,
+		id,
+		loading,
+	]);
+
 	return (
 		<Container
 			heading="Client Information"
@@ -74,55 +164,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 							`${data?.contact.firstName} ${data?.contact.lastName}`
 						)}
 						image={data?.contact.profile?.image || DEFAULT_IMAGE}
-						actions={[
-							{
-								onClick: () => {
-									formType !== 'client' && setFormType('client');
-									setModalVisible(true);
-								},
-								disabled: loading || delLoading,
-								iconLeft: FaUserEdit,
-								title: 'Edit Client',
-							},
-							{
-								bg: 'bg-yellow-600 hover:bg-yellow-500',
-								iconLeft: FaLock,
-								disabled: loading || delLoading,
-								onClick: () => {
-									formType !== 'password' && setFormType('password');
-									setModalVisible(true);
-								},
-								title: 'Change Password',
-							},
-							{
-								bg: data.contact.isActive
-									? 'bg-gray-500 hover:bg-gray-600'
-									: 'bg-green-500 hover:bg-green-600',
-								disabled: loading || delLoading,
-								onClick: () =>
-									data?.contact
-										? activate(
-												[data.contact.email],
-												data.contact.isActive ? 'deactivate' : 'activate'
-										  )
-										: () => {},
-								iconLeft: data.contact.isActive ? FaUserSlash : FaUserCheck,
-								title: data.contact.isActive
-									? loading
-										? 'Deactivating...'
-										: 'Deactivate Client'
-									: loading
-									? 'Activating...'
-									: 'Activate Client',
-							},
-							{
-								bg: 'bg-red-600 hover:bg-red-500',
-								iconLeft: FaTrash,
-								disabled: loading || delLoading,
-								onClick: () => deleteClient(data.id),
-								title: delLoading ? 'Deleting Client...' : 'Delete Client',
-							},
-						]}
+						actions={actions}
 					/>
 
 					<div className="mt-4">

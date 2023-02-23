@@ -1,51 +1,60 @@
 export const AssetModel = {
-	type: "object",
+	type: 'object',
 	required: [
-		'assetId', 'condition', 'manufacturer', 'name', 'purchaseDate', 'purchaseFrom', 'serialNo',
-		'supplier', 'status', 'warranty', 'value'
+		'assetId',
+		'condition',
+		'manufacturer',
+		'name',
+		'purchaseDate',
+		'purchaseFrom',
+		'serialNo',
+		'supplier',
+		'status',
+		'warranty',
+		'value',
 	],
 	properties: {
 		id: {
-			type: "string",
-			format: "uuid",
+			type: 'string',
+			format: 'uuid',
 		},
 		assetId: {
-			type: 'string'
+			type: 'string',
 		},
 		condition: {
-			type: "string",
-			format: "'BAD' | 'GOOD' | 'EXCELLENT'"
+			type: 'string',
+			format: "'BAD' | 'GOOD' | 'EXCELLENT'",
 		},
 		description: {
 			type: 'string',
 			nullable: true,
 		},
 		manufacturer: {
-			type: 'string'
+			type: 'string',
 		},
 		model: {
 			type: 'string',
 			nullable: true,
 		},
 		name: {
-			type: 'string'
+			type: 'string',
 		},
 		purchaseDate: {
 			type: 'string',
-			format: 'date-time'
+			format: 'date-time',
 		},
 		purchaseFrom: {
 			type: 'string',
 		},
 		serialNo: {
-			type: 'string'
+			type: 'string',
 		},
 		supplier: {
-			type: 'string'
+			type: 'string',
 		},
 		status: {
-			type: "string",
-			format: "'APPROVED' | 'DENIED' | 'PENDING' | 'RETURNED'"
+			type: 'string',
+			format: "'APPROVED' | 'DENIED' | 'PENDING' | 'RETURNED'",
 		},
 		user: {
 			type: 'object',
@@ -59,40 +68,40 @@ export const AssetModel = {
 					type: 'string',
 				},
 				lastName: {
-					type: 'string'
+					type: 'string',
 				},
 				email: {
 					type: 'string',
-					format: 'email'
+					format: 'email',
 				},
 				profile: {
 					type: 'object',
 					nullable: true,
 					properties: {
 						image: {
-							type: 'string'
-						}
-					}
-				}
-			}
+							type: 'string',
+						},
+					},
+				},
+			},
 		},
 		warranty: {
-			type: 'number'
+			type: 'number',
 		},
 		value: {
-			type: 'number'
+			type: 'number',
 		},
 		updatedAt: {
 			type: 'string',
-			format: 'date-time'
-		}
+			format: 'date-time',
+		},
 	},
 	example: {
-		id: "e0c55c26-e5b8-41a2-8269-13881ad7b563",
+		id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 		assetId: 'AST001',
 		condition: 'GOOD',
 		description: 'This is the description of this asset.',
-		manufacturer: "AB & D",
+		manufacturer: 'AB & D',
 		model: 'Sandbox',
 		name: 'Printer Max 2',
 		purchaseDate: '2022-10-29T00:00:00.000Z',
@@ -101,13 +110,13 @@ export const AssetModel = {
 		status: 'APPROVED',
 		supplier: 'Tim Delivery',
 		user: {
-			id: "e0c55c26-e5b8-41a2-8269-13881ad7b563",
+			id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 			firstName: 'Jan',
 			lastName: 'Doe',
-			email: 'jandoe@gmail.com',
+			email: 'jandoe@kitehrms.com',
 			profile: {
-				image: '/images/default.png'
-			}
+				image: '/images/default.png',
+			},
 		},
 		warranty: 12,
 		value: 400,

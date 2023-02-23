@@ -1,137 +1,136 @@
-import { userEmployeeProperties, userProfileProperties } from "./properties"
+import { userEmployeeProperties, userProfileProperties } from './properties';
 import * as refs from '../refs';
 
 export const AuthUserDataModel = {
-	type: "object",
-	required: ["email", "firstName", "lastName", "fullName"],
+	type: 'object',
+	required: ['email', 'firstName', 'lastName', 'fullName'],
 	properties: {
 		email: {
-			type: "string",
-			format: "email",
-			example: "johndoe@gmail.com",
+			type: 'string',
+			format: 'email',
+			example: 'johndoe@kitehrms.com',
 			description: "The user's email",
 		},
 		firstName: {
-			type: "string",
-			example: "John",
+			type: 'string',
+			example: 'John',
 			description: "The user's first name",
 		},
 		fullName: {
-			type: "string",
-			example: "John Doe",
+			type: 'string',
+			example: 'John Doe',
 			description: "The user's first name + The user's last name",
 		},
 		lastName: {
-			type: "string",
-			example: "Doe",
+			type: 'string',
+			example: 'Doe',
 			description: "The user's last name",
 		},
 		profile: {
-			type: "object",
+			type: 'object',
 			nullable: true,
-			required: ["image"],
-			description:
-				"An object containing the user's profile information",
+			required: ['image'],
+			description: "An object containing the user's profile information",
 			properties: {
 				image: {
-					type: "string",
+					type: 'string',
 					description: "The user's profile image",
-					example: "/images/default.png",
+					example: '/images/default.png',
 				},
 			},
 			example: {
-				image: "/images/default.png",
+				image: '/images/default.png',
 			},
 		},
 		employee: {
-			type: "object",
+			type: 'object',
 			nullable: true,
-			required: ["id"],
-			description: "Information if the user is an employee.",
+			required: ['id'],
+			description: 'Information if the user is an employee.',
 			properties: {
 				id: {
-					type: "string",
-					format: "uuid",
+					type: 'string',
+					format: 'uuid',
 					description: "The user's employee ID",
 				},
 				job: {
-					type: "object",
+					type: 'object',
 					nullable: true,
-					required: ["name"],
-					description: "Information about the employee job.",
+					required: ['name'],
+					description: 'Information about the employee job.',
 					properties: {
 						name: {
-							type: "string",
-							description: "The name of the employee job",
+							type: 'string',
+							description: 'The name of the employee job',
 						},
 					},
 				},
 			},
 		},
 		permissions: {
-			type: "array",
+			type: 'array',
 			items: {
-				$ref: refs.PERMISSION
-			}
-		}
-	}
-}
+				$ref: refs.PERMISSION,
+			},
+		},
+	},
+};
 
 export const LoginErrorModel = {
-	type: "object",
+	type: 'object',
 	nullable: true,
 	properties: {
 		email: {
-			type: "string",
+			type: 'string',
 			nullable: true,
 		},
 		password: {
-			type: "string",
+			type: 'string',
 			nullable: true,
 		},
 	},
 };
 
 export const UserProfileDataModel = {
-	type: "object",
-	required: ["email", "firstName", "lastName", "isEmailVerified"],
+	type: 'object',
+	required: ['email', 'firstName', 'lastName', 'isEmailVerified'],
 	properties: {
 		isEmailVerified: {
-			type: "boolean",
+			type: 'boolean',
 			description: "The user's email verification status",
 		},
 		...userProfileProperties,
 		employee: {
-			type: "object",
+			type: 'object',
 			nullable: true,
-			required: ["id"],
-			description: "Information if the user is an employee.",
+			required: ['id'],
+			description: 'Information if the user is an employee.',
 			properties: userEmployeeProperties,
 		},
 	},
 	example: {
-		firstName: "Jan",
-		lastName: "Doe",
-		email: "jandoe@gmail.com",
+		firstName: 'Jan',
+		lastName: 'Doe',
+		email: 'jandoe@kitehrms.com',
 		isEmailVerified: true,
 		profile: {
-			dob: "2001-03-14T00:00:00.000Z",
-			gender: "MALE",
+			dob: '2001-03-14T00:00:00.000Z',
+			gender: 'MALE',
 			image:
-				"/media/users/profile/jan_doe_jandoe@gmail.com_1669361137919.jpg",
-			address: "This is my Home Address. Please leave a note or letter",
-			city: "New City",
-			phone: "08123456789",
-			state: "New Town",
+				'/media/users/profile/jan_doe_jandoe@kitehrms.com_1669361137919.jpg',
+			address: 'This is my Home Address. Please leave a note or letter',
+			city: 'New City',
+			phone: '08123456789',
+			state: 'New Town',
 		},
 		employee: {
-			dateEmployed: "2022-10-29T08:31:54.808Z",
+			dateEmployed: '2022-10-29T08:31:54.808Z',
 			department: null,
 			job: {
-				name: "CEO",
+				name: 'CEO',
 			},
 			supervisor: null,
 			leaves: [],
 		},
 	},
-}
+};

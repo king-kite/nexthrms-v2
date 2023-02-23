@@ -21,6 +21,8 @@ export const RESET_PASSWORD_CONFIRM_PAGE_URL = (
 // Clients section
 export const CLIENTS_PAGE_URL = '/clients/';
 export const CLIENT_PAGE_URL = (slug: string) => `/clients/${slug}/`;
+export const CLIENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/clients/${slug}/clients/object-permissions/`;
 
 // Employees Section
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
@@ -35,7 +37,7 @@ export const ADMIN_LEAVES_PAGE_URL = '/employees/leaves/admin/';
 export const ADMIN_LEAVE_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/leaves/admin/${slug}/`;
 export const ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL = (id: string) =>
-	`/employees/leaves/admin/${id}/leaves/${id}/object-permissions/`;
+	`/employees/leaves/admin/${id}/leaves/object-permissions/`;
 export const LEAVES_PAGE_URL = '/employees/leaves/';
 export const LEAVE_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/leaves/${slug}/`;

@@ -29,7 +29,7 @@ import {
 	CreateUserErrorResponseType,
 	UserType,
 } from '../../types';
-import { toCapitalize } from '../../utils';
+import { getStringedDate, toCapitalize } from '../../utils';
 import {
 	createUserSchema,
 	handleAxiosErrors,
@@ -358,7 +358,7 @@ const Form: FC<FormProps> = ({
 					<Input
 						defaultValue={
 							initState?.profile?.dob
-								? new Date(initState.profile.dob).toLocaleDateString('en-CA')
+								? getStringedDate(initState.profile.dob)
 								: undefined
 						}
 						disabled={loading}
@@ -372,11 +372,7 @@ const Form: FC<FormProps> = ({
 				</div>
 				<div className="w-full">
 					<Input
-						defaultValue={
-							initState?.createdAt
-								? new Date(initState.createdAt).toLocaleDateString('en-CA')
-								: new Date().toLocaleDateString('en-CA')
-						}
+						defaultValue={getStringedDate(initState?.createdAt)}
 						disabled={loading}
 						error={formErrors?.dob || errors?.dob}
 						label="Date Joined"
@@ -447,7 +443,7 @@ const Form: FC<FormProps> = ({
 						textSize="text-sm md:text-base"
 					/>
 				</div>
-						
+
 				<div className="gap-2 grid grid-cols-1 w-full md:col-span-2 md:grid-cols-2 md:gap-4 lg:gap-6">
 					{!initState?.employee && (
 						<div className="w-full">
@@ -469,7 +465,7 @@ const Form: FC<FormProps> = ({
 							/>
 						</div>
 					)}
-					
+
 					{!initState?.client && (
 						<div className="w-full">
 							<Checkbox
@@ -654,7 +650,7 @@ const Form: FC<FormProps> = ({
 						</div>
 						<div className="w-full">
 							<Input
-								defaultValue={new Date().toLocaleDateString('en-CA')}
+								defaultValue={getStringedDate()}
 								disabled={loading}
 								error={formErrors?.dateEmployed || errors?.dateEmployed}
 								label="Date Employed"
