@@ -136,7 +136,13 @@ function ObjectPermissions({
 						title: 'Users',
 					},
 					{
-						component: <GroupTable groups={groups} />,
+						component: (
+							<GroupTable
+								groups={groups}
+								modelName={modelName}
+								objectId={objectId}
+							/>
+						),
 						description:
 							'This screen shows the groups with access to this record',
 						title: 'Groups',

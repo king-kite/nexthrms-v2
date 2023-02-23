@@ -13,7 +13,9 @@ import {
 	FaUserFriends,
 } from 'react-icons/fa';
 
-import { ObjPermGroupType } from '../../../types';
+import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
+import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -23,7 +25,10 @@ const heads: TableHeadType = [
 	{ type: 'actions', value: 'actions' },
 ];
 
-const getRows = (data: ObjPermGroupType[]): TableRowType[] =>
+const getRows = (
+	data: ObjPermGroupType[],
+	removeGroup: (id: string) => void
+): TableRowType[] =>
 	data.map((group) => ({
 		id: group.id,
 		rows: [
@@ -65,6 +70,7 @@ const getRows = (data: ObjPermGroupType[]): TableRowType[] =>
 					{
 						color: 'danger',
 						icon: FaTrash,
+						onClick: () => removeGroup(group.id),
 					},
 				],
 			},
@@ -73,14 +79,91 @@ const getRows = (data: ObjPermGroupType[]): TableRowType[] =>
 
 type TableType = {
 	groups: ObjPermGroupType[];
+	modelName: PermissionModelNameType;
+	objectId: string;
 };
 
-const GroupPermissionsTable = ({ groups = [] }: TableType) => {
+const GroupPermissionsTable = ({
+	groups = [],
+	modelName,
+	objectId,
+}: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
+	const { open: showAlert } = useAlertContext();
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const { mutate } = useEditObjectPermissionMutation(
+		{ model: modelName, id: objectId },
+		{
+			onError(err) {
+				showAlert({
+					message: err.data?.groups || err.message,
+					type: 'danger',
+				});
+			},
+			onSuccess() {
+				showAlert({
+					message: 'Removed group successfully!',
+					type: 'success',
+				});
+			},
+		},
+		{
+			onSettled() {
+				close();
+			},
+		}
+	);
+
+	const removeGroup = React.useCallback(
+		(id: string) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Remove Group?',
+				color: 'danger',
+				message: 'Do you want to remove this group?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate([
+								{
+									method: 'DELETE',
+									permission: 'DELETE',
+									form: { groups: [id] },
+								},
+								{
+									method: 'DELETE',
+									permission: 'EDIT',
+									form: { groups: [id] },
+								},
+								{
+									method: 'DELETE',
+									permission: 'VIEW',
+									form: { groups: [id] },
+								},
+							]);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
 	React.useEffect(() => {
-		setRows(getRows(groups));
-	}, [groups]);
+		setRows(getRows(groups, removeGroup));
+	}, [groups, removeGroup]);
 
 	return (
 		<div>
