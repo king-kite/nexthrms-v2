@@ -102,10 +102,10 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			error={!canView && {
+			error={!canView ? {
 				statusCode: 403,
 				title: 'You are not authorized to view this page!'
-			}}
+			} : undefined}
 			paginate={
 				canView && data
 					? {
