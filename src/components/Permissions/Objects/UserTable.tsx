@@ -45,7 +45,7 @@ const getRows = (data: ObjPermUser[]): TableRowType[] =>
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: user.edit ? FaCheckCircle : FaTimesCircle,
+				icon: user.delete ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				type: 'actions',
