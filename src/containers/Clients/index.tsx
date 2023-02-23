@@ -3,8 +3,8 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, ClientTable, Form, Topbar } from '../../components/Clients';
-import { CLIENTS_EXPORT_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useAlertContext, useAlertModalContext } from '../../store/contexts';
+import { permissions, CLIENTS_EXPORT_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAuthContext, useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
 	useGetClientsQuery,
 	useCreateClientMutation,
@@ -13,7 +13,7 @@ import {
 	CreateClientErrorResponseType,
 	GetClientsResponseType,
 } from '../../types';
-import { downloadFile } from '../../utils';
+import { downloadFile, hasPermission } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
@@ -25,6 +25,12 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 
 	const { open } = useAlertContext();
 	const { open: openModal } = useAlertModalContext();
+	const { data: authData } = useAuthContext();
+
+	const canCreate = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.CREATE]) : false;
+	const canExport = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.EXPORT]) : false;
+	// TODO: Add Object Level Permissions As Well
+	const canView = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.VIEW]) : false;
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
 		{
@@ -79,9 +85,9 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 
 	const handleSubmit = useCallback(
 		(form: FormData) => {
-			createClient(form);
+			if (canCreate) createClient(form);
 		},
-		[createClient]
+		[canCreate, createClient]
 	);
 
 	const createError = createData.error
@@ -96,8 +102,12 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				onClick: refetch,
 				loading: isFetching,
 			}}
+			error={!canView && {
+				statusCode: 403,
+				title: 'You are not authorized to view this page!'
+			}}
 			paginate={
-				data
+				canView && data
 					? {
 							loading: isFetching,
 							offset,
@@ -117,46 +127,50 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
 				exportData={async (type, filtered) => {
-					let url = CLIENTS_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'clients.csv' : 'clients.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						open({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
+					if (canExport) {
+						let url = CLIENTS_EXPORT_URL + '?type=' + type;
+						if (filtered) {
+							url =
+								url +
+								`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
+						}
+						const result = await downloadFile({
+							url,
+							name: type === 'csv' ? 'clients.csv' : 'clients.xlsx',
+							setLoading: setExportLoading,
 						});
+						if (result?.status !== 200) {
+							open({
+								type: 'danger',
+								message: 'An error occurred. Unable to export file!',
+							});
+						}
 					}
 				}}
 				exportLoading={exportLoading}
 			/>
 			<ClientTable clients={data ? data.result : []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						errors={
-							createError
-								? { ...createError?.data, message: createError.message }
-								: undefined
-						}
-						loading={createData.isLoading}
-						onSubmit={(form: FormData) => handleSubmit(form)}
-						success={createData.isSuccess}
-					/>
-				}
-				keepVisible
-				description="Fill in the form below to add a new Client"
-				title="Add Client"
-				visible={modalVisible}
-			/>
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							errors={
+								createError
+									? { ...createError?.data, message: createError.message }
+									: undefined
+							}
+							loading={createData.isLoading}
+							onSubmit={(form: FormData) => handleSubmit(form)}
+							success={createData.isSuccess}
+						/>
+					}
+					keepVisible
+					description="Fill in the form below to add a new Client"
+					title="Add Client"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };
