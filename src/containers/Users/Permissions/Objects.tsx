@@ -2,9 +2,13 @@ import { TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { Container, Pagination } from '../../../components/common';
-import { GroupTable, UserTable } from '../../../components/Permissions/Objects';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { Container, Modal } from '../../../components/common';
+import {
+	GroupTable,
+	UserForm,
+	UserTable,
+} from '../../../components/Permissions/Objects';
+// import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
 	ObjPermGroupType,
@@ -47,11 +51,11 @@ function ObjectPermissions({
 	const modelName = router.query.model as PermissionModelNameType;
 	const objectId = router.query.objectId as string;
 
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [modalType, setModalType] = React.useState<'groups' | 'users'>('users');
+
 	const { data, isFetching, refetch } = useGetObjectPermissionsQuery(
-		{
-			modelName,
-			objectId,
-		},
+		{ modelName, objectId },
 		{
 			initialData() {
 				return permissions;
@@ -138,6 +142,10 @@ function ObjectPermissions({
 						component: (
 							<>
 								<UserTable
+									openModal={() => {
+										setModalType('users');
+										setModalVisible(true);
+									}}
 									modelName={modelName}
 									objectId={objectId}
 									users={users}
@@ -175,6 +183,14 @@ function ObjectPermissions({
 						title: 'Groups',
 					},
 				]}
+			/>
+			<Modal
+				close={() => setModalVisible(false)}
+				component={modalType === 'users' ? <UserForm /> : <></>}
+				keepVisible
+				description={`Fill the form update ${modalType} permissions for this record`}
+				title={`Update ${modalType} permissions`}
+				visible={modalVisible}
 			/>
 		</Container>
 	);

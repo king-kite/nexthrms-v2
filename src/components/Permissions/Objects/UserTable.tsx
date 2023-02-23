@@ -83,6 +83,7 @@ const getRows = (
 type TableType = {
 	modelName: PermissionModelNameType;
 	objectId: string;
+	openModal: () => void;
 	users: ObjPermUser[];
 };
 
@@ -90,11 +91,12 @@ const UserPermissionsTable = ({
 	users = [],
 	modelName,
 	objectId,
+	openModal,
 }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
-	const { open: openModal, close, showLoader } = useAlertModalContext();
+	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
 
 	const { mutate } = useEditObjectPermissionMutation(
 		{ model: modelName, id: objectId },
@@ -121,7 +123,7 @@ const UserPermissionsTable = ({
 
 	const removeUser = React.useCallback(
 		(id: string) => {
-			openModal({
+			openAlertModal({
 				closeOnButtonClick: false,
 				header: 'Remove User?',
 				color: 'danger',
@@ -161,7 +163,7 @@ const UserPermissionsTable = ({
 				],
 			});
 		},
-		[openModal, close, mutate, showLoader]
+		[openAlertModal, close, mutate, showLoader]
 	);
 
 	React.useEffect(() => {
@@ -174,6 +176,7 @@ const UserPermissionsTable = ({
 				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 					<Button
 						iconLeft={FaUserEdit}
+						onClick={openModal}
 						rounded="rounded-xl"
 						title="Add Users"
 					/>
