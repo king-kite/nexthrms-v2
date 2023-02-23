@@ -3,12 +3,12 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Container } from '../../../components/common';
-import { UserTable } from '../../../components/Permissions/Objects';
+import { GroupTable, UserTable } from '../../../components/Permissions/Objects';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
+	ObjPermGroupType,
 	ObjPermUser,
-	ObjectPermissionUserType,
 	GetObjectPermissionsResponseType,
 	PermissionModelNameType,
 } from '../../../types';
@@ -48,6 +48,38 @@ function ObjectPermissions({
 		}
 	);
 
+	const groups: ObjPermGroupType[] = React.useMemo(() => {
+		if (!data) return [];
+		const groups = data.result.reduce((acc: ObjPermGroupType[], obj) => {
+			// Store all the groups in an array and the permission they got
+			// To be returned later after modification if neccessary
+			const groups = acc;
+
+			// NOTE: obj.permission will go/vary from 'DELETE' to 'EDIT' to 'VIEW'
+			// in the reduce function
+
+			obj.groups.forEach((group) => {
+				// Check if group is already in the accumulator
+				const found = groups.find((item) => item.id === group.id);
+				if (found) {
+					const index = groups.indexOf(found);
+					groups[index] = {
+						...groups[index],
+						[obj.permission.toLowerCase()]: true,
+					};
+				} else {
+					groups.push({
+						...group,
+						[obj.permission.toLowerCase()]: true, // reduce the permission from upper to lower case
+					});
+				}
+			});
+
+			return groups;
+		}, []);
+		return groups;
+	}, [data]);
+
 	const users: ObjPermUser[] = React.useMemo(() => {
 		if (!data) return [];
 		const users = data.result.reduce((acc: ObjPermUser[], obj) => {
@@ -80,8 +112,6 @@ function ObjectPermissions({
 		return users;
 	}, [data]);
 
-	console.log({ users });
-
 	return (
 		<Container
 			heading="Object/Record Permissions"
@@ -100,7 +130,7 @@ function ObjectPermissions({
 						title: 'Users',
 					},
 					{
-						component: <></>,
+						component: <GroupTable groups={groups} />,
 						description:
 							'This screen shows the groups with access to this record',
 						title: 'Groups',
