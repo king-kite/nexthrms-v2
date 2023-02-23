@@ -101,7 +101,7 @@ const UserPermissionsTable = ({
 		{
 			onError(err) {
 				showAlert({
-					message: err.data?.groups || err.data?.users || err.message,
+					message: err.data?.users || err.message,
 					type: 'danger',
 				});
 			},
