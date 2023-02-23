@@ -27,7 +27,7 @@ const getRows = (data: ObjPermUser[]): TableRowType[] =>
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: true ? FaCheckCircle : FaTimesCircle,
+				icon: user.view ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
@@ -36,16 +36,16 @@ const getRows = (data: ObjPermUser[]): TableRowType[] =>
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: true ? FaCheckCircle : FaTimesCircle,
+				icon: user.edit ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
 					className: `${
-						user.view ? 'text-green-600' : 'text-red-600'
+						user.delete ? 'text-green-600' : 'text-red-600'
 					} text-sm md:text-base`,
 				},
 				type: 'icon',
-				icon: true ? FaCheckCircle : FaTimesCircle,
+				icon: user.edit ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				type: 'actions',
