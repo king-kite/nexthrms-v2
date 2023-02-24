@@ -8,7 +8,7 @@ import { useGetUsersQuery } from '../../../store/queries';
 import { ObjPermUser } from '../../../types';
 import { handleAxiosErrors } from '../../../validators';
 
-type FormType = {
+export type FormType = {
 	permissions: {
 		name: 'DELETE' | 'EDIT' | 'VIEW';
 		value: boolean;
@@ -44,21 +44,18 @@ function handleDataError(err: unknown): string | undefined {
 
 function UserForm({
 	editMode,
-	errors,
+	error,
 	loading,
 	initState,
 	initUsers = [],
-	resetErrors,
+	onSubmit,
 }: {
 	editMode: boolean;
-	errors?: {
-		message?: string;
-		users?: string;
-	};
-	loading: true;
+	error?: string;
+	loading: boolean;
 	initState?: FormType;
 	initUsers?: ObjPermUser[];
-	resetErrors: () => void;
+	onSubmit: (form: FormType) => void;
 }) {
 	const [form, setForm] = React.useState(
 		initState
@@ -68,10 +65,6 @@ function UserForm({
 			  }
 			: defaultValue
 	);
-	const [formErrors, setFormErrors] = React.useState<{
-		users?: string;
-		message?: string;
-	}>();
 	const [selectedUsers, setSelectedUsers] =
 		React.useState<ObjPermUser[]>(initUsers);
 
@@ -87,6 +80,11 @@ function UserForm({
 
 	return (
 		<div className="p-4">
+			{error && (
+				<div className="pb-4 w-full">
+					<Alert type="danger" message={error} />
+				</div>
+			)}
 			{!editMode && (
 				<div className="gap-3 mb-1 pb-2 w-full md:flex md:items-end">
 					<div className="my-2 py-2 w-full md:w-1/2">
@@ -196,24 +194,9 @@ function UserForm({
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
+					onSubmit(form);
 				}}
 			>
-				{(formErrors?.message || errors?.message) && (
-					<div className="pb-4 w-full">
-						<Alert
-							type="danger"
-							message={formErrors?.message || errors?.message}
-							onClose={() => {
-								if (errors?.message) resetErrors();
-								else if (formErrors?.message)
-									setFormErrors((prevState) => ({
-										...prevState,
-										message: undefined,
-									}));
-							}}
-						/>
-					</div>
-				)}
 				<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
 					<div className="flex flex-wrap items-center w-full md:col-span-2">
 						<div className="my-1 w-1/3">
