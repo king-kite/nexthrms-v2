@@ -57,6 +57,7 @@ function UserForm({
 	initUsers?: ObjPermUser[];
 	onSubmit: (form: FormType) => void;
 }) {
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [form, setForm] = React.useState(
 		initState
 			? {
@@ -192,9 +193,23 @@ function UserForm({
 				</div>
 			)}
 			<form
+				ref={formRef}
 				onSubmit={(e) => {
 					e.preventDefault();
-					onSubmit(form);
+					const data = {
+						...form,
+						permissions: form.permissions.map((permission) => ({
+							name: permission.name,
+							value: formRef.current
+								? formRef.current[permission.name.toLowerCase()].checked ||
+								  false
+								: false,
+						})),
+					};
+
+					// Check if some the permission values are true
+					if (data.permissions.some((permission) => permission.value === true))
+						onSubmit(data);
 				}}
 			>
 				<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
