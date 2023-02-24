@@ -2,13 +2,8 @@ import { TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { Container, Modal } from '../../../components/common';
-import {
-	GroupTable,
-	UserForm,
-	UserTable,
-} from '../../../components/Permissions/Objects';
-// import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { Container } from '../../../components/common';
+import { GroupTable, Users } from '../../../components/Permissions/Objects';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
 	ObjPermGroupType,
@@ -34,25 +29,9 @@ function ObjectPermissions({
 	 * Hence getting all the users from the object permission is ideal as we'll get them all
 	 * and then paginate them on the frontend
 	 */
-	// paginate on the frontend
-
-	// const [paginateGroups, setPaginateGroups] = React.useState({
-	// 	limit: DEFAULT_PAGINATION_SIZE,
-	// 	offset: 0,
-	// 	search: '',
-	// });
-
-	// const [paginateUsers, setPaginateUsers] = React.useState({
-	// 	limit: DEFAULT_PAGINATION_SIZE,
-	// 	offset: 0,
-	// 	search: '',
-	// });
 
 	const modelName = router.query.model as PermissionModelNameType;
 	const objectId = router.query.objectId as string;
-
-	const [modalVisible, setModalVisible] = React.useState(false);
-	const [modalType, setModalType] = React.useState<'groups' | 'users'>('users');
 
 	const { data, isFetching, refetch } = useGetObjectPermissionsQuery(
 		{ modelName, objectId },
@@ -140,31 +119,7 @@ function ObjectPermissions({
 				screens={[
 					{
 						component: (
-							<>
-								<UserTable
-									openModal={() => {
-										setModalType('users');
-										setModalVisible(true);
-									}}
-									modelName={modelName}
-									objectId={objectId}
-									users={users}
-								/>
-								{/* {paginate.totalItems > 0 && (
-									<div className="pt-2 pb-5">
-										<Pagination
-											disabled={paginate.loading || false}
-											onChange={(pageNo: number) => {
-												const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-												paginate.offset !== value &&
-													paginate.setOffset(value * DEFAULT_PAGINATION_SIZE);
-											}}
-											pageSize={DEFAULT_PAGINATION_SIZE}
-											totalItems={paginate.totalItems || 0}
-										/>
-									</div>
-								)} */}
-							</>
+							<Users modelName={modelName} objectId={objectId} users={users} />
 						),
 						description:
 							'This screen shows the users with access to this record',
@@ -183,14 +138,6 @@ function ObjectPermissions({
 						title: 'Groups',
 					},
 				]}
-			/>
-			<Modal
-				close={() => setModalVisible(false)}
-				component={modalType === 'users' ? <UserForm /> : <></>}
-				keepVisible
-				description={`Fill the form update ${modalType} permissions for this record`}
-				title={`Update ${modalType} permissions`}
-				visible={modalVisible}
 			/>
 		</Container>
 	);
