@@ -332,8 +332,6 @@ const Form: FC<FormProps> = ({
 										handleFormChange('permissions', []);
 									}
 								}}
-								between
-								reverse
 								required={false}
 								textSize="text-sm md:text-base"
 							/>
@@ -382,8 +380,6 @@ const Form: FC<FormProps> = ({
 													handleFormChange('permissions', newPermissions);
 												}
 											}}
-											between
-											reverse
 											required={false}
 											textSize="text-sm md:text-base"
 										/>

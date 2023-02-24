@@ -149,8 +149,6 @@ const Form: FC<FormProps> = ({
 											handleFormChange('groups', newGroups);
 										}
 									}}
-									between
-									reverse
 									required={false}
 									textSize="text-sm md:text-base"
 								/>
