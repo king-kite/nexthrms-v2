@@ -287,6 +287,7 @@ export function useGetGroupsQuery(
 		};
 	},
 	options?: {
+		enabled?: boolean;
 		onSuccess?: (data: GetGroupsResponseType['data']) => void;
 		onError?: (err: unknown) => void;
 		initialData?: () => GetGroupsResponseType['data'];

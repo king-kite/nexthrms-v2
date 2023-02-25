@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Container } from '../../../components/common';
-import { GroupTable, Users } from '../../../components/Permissions/Objects';
+import { Groups, Users } from '../../../components/Permissions/Objects';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
 	ObjPermGroupType,
@@ -127,7 +127,7 @@ function ObjectPermissions({
 					},
 					{
 						component: (
-							<GroupTable
+							<Groups
 								groups={groups}
 								modelName={modelName}
 								objectId={objectId}

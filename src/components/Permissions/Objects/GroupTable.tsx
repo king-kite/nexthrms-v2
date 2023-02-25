@@ -27,7 +27,8 @@ const heads: TableHeadType = [
 
 const getRows = (
 	data: ObjPermGroupType[],
-	removeGroup: (id: string) => void
+	removeGroup: (id: string) => void,
+	onEdit: (group: ObjPermGroupType) => void
 ): TableRowType[] =>
 	data.map((group) => ({
 		id: group.id,
@@ -66,6 +67,7 @@ const getRows = (
 					{
 						color: 'primary',
 						icon: FaPen,
+						onClick: () => onEdit(group),
 					},
 					{
 						color: 'danger',
@@ -81,17 +83,21 @@ type TableType = {
 	groups: ObjPermGroupType[];
 	modelName: PermissionModelNameType;
 	objectId: string;
+	onEdit: (group: ObjPermGroupType) => void;
+	openModal: () => void;
 };
 
 const GroupPermissionsTable = ({
 	groups = [],
 	modelName,
 	objectId,
+	onEdit,
+	openModal,
 }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
-	const { open: openModal, close, showLoader } = useAlertModalContext();
+	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
 
 	const { mutate } = useEditObjectPermissionMutation(
 		{ model: modelName, id: objectId },
@@ -118,7 +124,7 @@ const GroupPermissionsTable = ({
 
 	const removeGroup = React.useCallback(
 		(id: string) => {
-			openModal({
+			openAlertModal({
 				closeOnButtonClick: false,
 				header: 'Remove Group?',
 				color: 'danger',
@@ -158,12 +164,12 @@ const GroupPermissionsTable = ({
 				],
 			});
 		},
-		[openModal, close, mutate, showLoader]
+		[openAlertModal, close, mutate, showLoader]
 	);
 
 	React.useEffect(() => {
-		setRows(getRows(groups, removeGroup));
-	}, [groups, removeGroup]);
+		setRows(getRows(groups, removeGroup, onEdit));
+	}, [groups, removeGroup, onEdit]);
 
 	return (
 		<div>
@@ -171,6 +177,7 @@ const GroupPermissionsTable = ({
 				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 					<Button
 						iconLeft={FaUserFriends}
+						onClick={openModal}
 						rounded="rounded-xl"
 						title="Add Groups"
 					/>

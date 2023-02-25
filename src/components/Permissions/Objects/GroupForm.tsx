@@ -1,11 +1,10 @@
 import { Alert, Button, Checkbox, Input, Select2 } from 'kite-react-tailwind';
-import Image from 'next/image';
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 
-import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useGetUsersQuery } from '../../../store/queries';
-import { ObjPermUser } from '../../../types';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { useGetGroupsQuery } from '../../../store/queries';
+import { ObjPermGroupType } from '../../../types';
 import { handleAxiosErrors } from '../../../validators';
 
 export type FormType = {
@@ -13,7 +12,7 @@ export type FormType = {
 		name: 'DELETE' | 'EDIT' | 'VIEW';
 		value: boolean;
 	}[];
-	users: string[];
+	groups: string[];
 };
 
 const defaultValue: FormType = {
@@ -31,7 +30,7 @@ const defaultValue: FormType = {
 			value: false,
 		},
 	],
-	users: [],
+	groups: [],
 };
 
 function handleDataError(err: unknown): string | undefined {
@@ -42,36 +41,36 @@ function handleDataError(err: unknown): string | undefined {
 	return undefined;
 }
 
-function UserForm({
+function GroupForm({
 	editMode,
 	error,
 	loading,
 	initState,
-	initUsers = [],
+	initGroups = [],
 	onSubmit,
 }: {
 	editMode: boolean;
 	error?: string;
 	loading: boolean;
 	initState?: FormType;
-	initUsers?: ObjPermUser[];
+	initGroups?: ObjPermGroupType[];
 	onSubmit: (form: FormType) => void;
 }) {
 	const [errorMessage, setErrorMessage] = React.useState(error);
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [form, setForm] = React.useState(initState || defaultValue);
-	const [selectedUsers, setSelectedUsers] =
-		React.useState<ObjPermUser[]>(initUsers);
+	const [selectedGroups, setSelectedGroups] =
+		React.useState<ObjPermGroupType[]>(initGroups);
 
 	const [search, setSearch] = React.useState('');
 	const [usrLimit, setUsrLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const users = useGetUsersQuery(
+	const groups = useGetGroupsQuery(
 		{ limit: usrLimit, offset: 0, search },
 		{ enabled: !editMode }
 	);
 
-	const usersError = handleDataError(users.error);
+	const groupsError = handleDataError(groups.error);
 
 	return (
 		<div className="p-4">
@@ -91,101 +90,93 @@ function UserForm({
 							btn={{
 								caps: true,
 								disabled:
-									users.isFetching ||
-									(users.data && users.data.result.length >= users.data.total),
+									groups.isFetching ||
+									(groups.data &&
+										groups.data.result.length >= groups.data.total),
 								onClick: () => {
 									if (
-										users.data &&
-										users.data.total > users.data.result.length
+										groups.data &&
+										groups.data.total > groups.data.result.length
 									) {
 										setUsrLimit(
 											(prevState) => prevState + DEFAULT_PAGINATION_SIZE
 										);
 									}
 								},
-								title: users.isFetching
+								title: groups.isFetching
 									? 'loading...'
-									: users.data && users.data.result.length >= users.data.total
+									: groups.data &&
+									  groups.data.result.length >= groups.data.total
 									? 'loaded all'
 									: 'load more',
 							}}
-							label="Search Users"
+							label="Search Groups"
 							height="h-[36px]"
 							padding="px-3"
 							rounded="rounded-md"
 							required={false}
 							onChange={({ target: { value } }) => setSearch(value)}
-							placeholder="Search by first name, last name or email"
+							placeholder="Search by name"
 						/>
 					</div>
 					<div className="my-2 py-2 w-full md:w-1/2">
 						<Select2
-							bdrColor={usersError ? 'border-red-600' : 'border-primary-600'}
-							disabled={users.isFetching}
+							bdrColor={groupsError ? 'border-red-600' : 'border-primary-600'}
+							disabled={groups.isFetching}
 							onSelect={({ value }) => {
-								// Check if the user with this value as id is selected
-								const selected = selectedUsers.find(
+								// Check if the group with this value as id is selected
+								const selected = selectedGroups.find(
 									(item) => item.id === value
 								);
 								if (selected) {
 									// Remove from selection
 									setForm((prevState) => ({
 										...prevState,
-										users: prevState.users.filter((item) => item !== value),
+										groups: prevState.groups.filter((item) => item !== value),
 									}));
-									setSelectedUsers((prevState) =>
+									setSelectedGroups((prevState) =>
 										prevState.filter((item) => item.id !== value)
 									);
 								} else {
 									// Add to selection
-									// First find the user to get more info
-									const user = users.data?.result.find(
+									// First find the group to get more info
+									const group = groups.data?.result.find(
 										(item) => item.id === value
 									);
-									if (user) {
+									if (group) {
 										setForm((prevState) => ({
 											...prevState,
-											users: [...prevState.users, value],
+											groups: [...prevState.groups, value],
 										}));
-										setSelectedUsers((prevState) => [
+										setSelectedGroups((prevState) => [
 											...prevState,
 											{
-												id: user.id,
-												firstName: user.firstName,
-												lastName: user.lastName,
-												email: user.email,
-												profile: user.profile
-													? {
-															image: user.profile.image,
-													  }
-													: null,
+												id: group.id,
+												name: group.name,
 											},
 										]);
 									}
 								}
 							}}
-							error={usersError}
+							error={groupsError}
 							options={
-								users.data
-									? users.data.result
+								groups.data
+									? groups.data.result
 											.sort((a, b) => {
-												const aName: string =
-													`${a.firstName} ${a.lastName}`.toLowerCase();
-												const bName: string =
-													`${b.firstName} ${b.lastName}`.toLowerCase();
+												const aName: string = `${a.name}`.toLowerCase();
+												const bName: string = `${b.name}`.toLowerCase();
 												return aName < bName ? -1 : aName > bName ? 1 : 0;
 											})
-											.map((user) => ({
-												image: user.profile?.image || DEFAULT_IMAGE,
-												title: `${user.firstName} ${user.lastName}`,
-												value: user.id,
+											.map((group) => ({
+												title: group.name,
+												value: group.id,
 											}))
 									: []
 							}
 							multiple
-							value={form.users}
-							label="Select Users"
-							placeholder="Select Users"
+							value={form.groups}
+							label="Select Groups"
+							placeholder="Select Groups"
 						/>
 					</div>
 				</div>
@@ -209,8 +200,8 @@ function UserForm({
 						data.permissions.every((perm) => perm.value === false)
 					) {
 						setErrorMessage('Please select at least one permission!');
-					} else if (data.users.length <= 0) {
-						setErrorMessage('Please select at leaset one user!');
+					} else if (data.groups.length <= 0) {
+						setErrorMessage('Please select at leaset one group!');
 					} else onSubmit(data);
 				}}
 			>
@@ -262,34 +253,32 @@ function UserForm({
 							/>
 						</div>
 					</div>
-					{selectedUsers.length <= 0 ? (
+					{selectedGroups.length <= 0 ? (
 						<p className="font-medium my-1 pr-2 text-gray-700 text-sm md:text-base">
-							No users selected
+							No groups selected
 						</p>
 					) : (
-						selectedUsers
+						selectedGroups
 							.sort((a, b) => {
-								const aName: string =
-									`${a.firstName} ${a.lastName}`.toLowerCase();
-								const bName: string =
-									`${b.firstName} ${b.lastName}`.toLowerCase();
+								const aName: string = `${a.name}`.toLowerCase();
+								const bName: string = `${b.name}`.toLowerCase();
 								return aName < bName ? -1 : aName > bName ? 1 : 0;
 							})
-							.map((user, index) => (
-								<UserTag
+							.map((group, index) => (
+								<GroupTag
 									key={index}
-									removeUser={() => {
-										setSelectedUsers((prevState) =>
-											prevState.filter((item) => item.id !== user.id)
+									removeGroup={() => {
+										setSelectedGroups((prevState) =>
+											prevState.filter((item) => item.id !== group.id)
 										);
 										setForm((prevState) => ({
 											...prevState,
-											users: prevState.users.filter((item) => item !== user.id),
+											groups: prevState.groups.filter(
+												(item) => item !== group.id
+											),
 										}));
 									}}
-									name={`${user.firstName} ${user.lastName}`}
-									email={user.email}
-									image={user.profile?.image || DEFAULT_IMAGE}
+									name={group.name}
 								/>
 							))
 					)}
@@ -300,8 +289,8 @@ function UserForm({
 							disabled={loading}
 							title={
 								loading
-									? 'Updating User Record Permissions...'
-									: 'Set User Record Permissions'
+									? 'Updating Group Record Permissions...'
+									: 'Set Group Record Permissions'
 							}
 							type="submit"
 						/>
@@ -312,47 +301,28 @@ function UserForm({
 	);
 }
 
-function UserTag({
+function GroupTag({
 	name,
-	email,
-	image,
-	removeUser,
+	removeGroup,
 }: {
 	name: string;
-	email: string;
-	image: string;
-	removeUser: () => void;
+	removeGroup: () => void;
 }) {
 	return (
-		<div className="bg-gray-200 border border-gray-400 border-l-8 p-1 flex items-start justify-between rounded-md lg:pl-4 lg:p-3">
-			<div className="h-[30px] mt-2 mr-2 relative rounded-full w-[30px]">
-				<Image
-					layout="fill"
-					src={image}
-					className="rounded-full"
-					placeholder="blur"
-					blurDataURL={DEFAULT_IMAGE}
-					alt={name}
-				/>
-			</div>
-			<div style={{ width: `calc(100% - 30px)` }}>
-				<div className="flex items-center justify-between py-1 w-full">
-					<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">
-						{name}
-					</h4>
-					<div
-						onClick={removeUser}
-						className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
-					>
-						<FaTimes className="text-xs sm:text-sm" />
-					</div>
+		<div className="bg-gray-200 border border-gray-400 border-l-8 p-1 rounded-md lg:pl-4 lg:p-3">
+			<div className="flex items-center justify-between py-1 w-full">
+				<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">
+					{name}
+				</h4>
+				<div
+					onClick={removeGroup}
+					className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
+				>
+					<FaTimes className="text-xs sm:text-sm" />
 				</div>
-				<p className="font-medium pr-2 text-gray-700 text-sm md:text-base">
-					{email}
-				</p>
 			</div>
 		</div>
 	);
 }
 
-export default UserForm;
+export default GroupForm;

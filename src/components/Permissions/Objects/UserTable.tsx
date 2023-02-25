@@ -29,7 +29,8 @@ const heads: TableHeadType = [
 
 const getRows = (
 	data: ObjPermUser[],
-	removeUser: (id: string) => void
+	removeUser: (id: string) => void,
+	onEdit: (user: ObjPermUser) => void
 ): TableRowType[] =>
 	data.map((user) => ({
 		id: user.id,
@@ -69,6 +70,7 @@ const getRows = (
 					{
 						color: 'primary',
 						icon: FaPen,
+						onClick: () => onEdit(user),
 					},
 					{
 						color: 'danger',
@@ -83,15 +85,17 @@ const getRows = (
 type TableType = {
 	modelName: PermissionModelNameType;
 	objectId: string;
+	onEdit: (user: ObjPermUser) => void;
 	openModal: () => void;
 	users: ObjPermUser[];
 };
 
 const UserPermissionsTable = ({
-	users = [],
 	modelName,
 	objectId,
+	onEdit,
 	openModal,
+	users = [],
 }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
@@ -167,8 +171,8 @@ const UserPermissionsTable = ({
 	);
 
 	React.useEffect(() => {
-		setRows(getRows(users, removeUser));
-	}, [users, removeUser]);
+		setRows(getRows(users, removeUser, onEdit));
+	}, [users, removeUser, onEdit]);
 
 	return (
 		<div>
