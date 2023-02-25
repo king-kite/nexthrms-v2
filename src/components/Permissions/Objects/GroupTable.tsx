@@ -14,6 +14,8 @@ import {
 	FaUserFriends,
 } from 'react-icons/fa';
 
+import { Pagination } from '../../common';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
 import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
@@ -95,6 +97,7 @@ const GroupPermissionsTable = ({
 	onEdit,
 	openModal,
 }: TableType) => {
+	const [offset, setOffset] = React.useState(0);
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [search, setSearch] = React.useState('');
 
@@ -186,9 +189,15 @@ const GroupPermissionsTable = ({
 		return values;
 	}, [search, groups]);
 
+	const paginatedGroups = React.useMemo(() => {
+		const limit = DEFAULT_PAGINATION_SIZE;
+		const values = [...searchedGroups];
+		return values.splice(offset, limit);
+	}, [searchedGroups, offset]);
+
 	React.useEffect(() => {
-		setRows(getRows(searchedGroups, removeGroup, onEdit));
-	}, [searchedGroups, removeGroup, onEdit]);
+		setRows(getRows(paginatedGroups, removeGroup, onEdit));
+	}, [paginatedGroups, removeGroup, onEdit]);
 
 	return (
 		<div>
@@ -215,6 +224,19 @@ const GroupPermissionsTable = ({
 			<div className="mt-2 rounded-lg py-2 md:mt-1">
 				<Table heads={heads} rows={rows} />
 			</div>
+			{searchedGroups.length > 0 && (
+				<div className="pt-2 pb-5">
+					<Pagination
+						disabled={false}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * DEFAULT_PAGINATION_SIZE);
+						}}
+						pageSize={DEFAULT_PAGINATION_SIZE}
+						totalItems={searchedGroups.length}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
