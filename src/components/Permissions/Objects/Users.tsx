@@ -85,9 +85,74 @@ function Users({
 						form: { users: form.users },
 					});
 				mutate(data);
+			} else {
+				// We're in edit mode
+				const user = initUsers?.[0]; // user must be in the array on edit mode
+				if (!user) return;
+				const data: {
+					method: 'PUT' | 'DELETE';
+					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					form: { users: string[] };
+				}[] = [];
+
+				// Check the if the user had delete permission
+				// And can not delete any more, then disconnect
+				if (user.delete === true && canDelete === false)
+					data.push({
+						method: 'DELETE',
+						permission: 'DELETE',
+						form: { users: form.users },
+					});
+
+				// Check the if the user does not have delete permission
+				// And can delete now, then connect
+				if (!user.delete && canDelete === true)
+					data.push({
+						method: 'PUT',
+						permission: 'DELETE',
+						form: { users: form.users },
+					});
+
+				// Check the if the user had edit permission
+				// And can not edit any more, then disconnect
+				if (user.edit === true && canEdit === false)
+					data.push({
+						method: 'DELETE',
+						permission: 'EDIT',
+						form: { users: form.users },
+					});
+
+				// Check the if the user does not have edit permission
+				// And can edit now, then connect
+				if (!user.edit && canEdit === true)
+					data.push({
+						method: 'PUT',
+						permission: 'EDIT',
+						form: { users: form.users },
+					});
+
+				// Check the if the user had view permission
+				// And can not view any more, then disconnect
+				if (user.view === true && canView === false)
+					data.push({
+						method: 'DELETE',
+						permission: 'VIEW',
+						form: { users: form.users },
+					});
+
+				// Check the if the user does not have view permission
+				// And can view now, then connect
+				if (!user.view && canView === true)
+					data.push({
+						method: 'PUT',
+						permission: 'VIEW',
+						form: { users: form.users },
+					});
+
+				if (data.length > 0) mutate(data);
 			}
 		},
-		[editMode, mutate, reset]
+		[editMode, initUsers, mutate, reset]
 	);
 
 	return (
