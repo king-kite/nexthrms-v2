@@ -1,4 +1,6 @@
 import { FC } from 'react';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+
 import usePagination, { PaginationType } from '../../hooks/usePagination';
 
 const paginationNumberStyle =
@@ -17,7 +19,7 @@ const PageNumber = ({
 }) => (
 	<span
 		onClick={disabled === false ? onClick : undefined}
-		className={`${paginationNumberStyle} px-2 py-1 text-white sm:mx-[4px] md:mx-[5px] lg:mx-[6px] ${
+		className={`${paginationNumberStyle} select-none px-2 py-1 text-white sm:mx-[4px] md:mx-[5px] lg:mx-[6px] ${
 			disabled
 				? 'bg-gray-500 cursor-not-allowed'
 				: active
@@ -47,10 +49,14 @@ const Arrow = ({
 					? 'bg-gray-500 cursor-not-allowed text-white'
 					: ' border-primary-500 cursor-pointer text-primary-500 hover:bg-primary-500 hover:text-white'
 			}` +
-			' border sm:mx-[4px] md:mx-[5px] p-1'
+			' border select-none sm:mx-[4px] md:mx-[5px] p-1'
 		}
 	>
-		<i className={`fas fa-chevron-${direction} text-tiny`} />
+		{direction === 'left' ? (
+			<FaChevronLeft className="select-none text-tiny" />
+		) : (
+			<FaChevronRight className="select-none text-tiny" />
+		)}
 	</span>
 );
 

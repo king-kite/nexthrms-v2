@@ -1,8 +1,11 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../config';
 import { prisma, getClient } from '../../../db';
 import { auth } from '../../../middlewares';
 import { ClientCreateQueryType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema } from '../../../validators';
@@ -15,6 +18,12 @@ export const config = {
 
 export default auth()
 	.get(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const data = await getClient(req.query.id as string);
 
 		if (!data)
@@ -30,6 +39,12 @@ export default auth()
 		});
 	})
 	.put(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.EDIT]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;
 			fields: any;
@@ -131,6 +146,12 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.DELETE]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		await prisma.client.delete({
 			where: {
 				id: req.query.id as string,

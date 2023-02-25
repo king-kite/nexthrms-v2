@@ -2,7 +2,7 @@ import { getPrismaModels, models, permissions } from '../../../../../config';
 import { getObjectPermissions, prisma } from '../../../../../db';
 import { admin } from '../../../../../middlewares';
 import { PermissionModelNameType } from '../../../../../types';
-import { hasPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { objectPermissionSchema } from '../../../../../validators';
 
@@ -11,19 +11,21 @@ export default admin()
 		// Check the user has edit or view permissions
 		const editPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.EDIT,
 			]);
 
 		const viewPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.VIEW,
 			]);
 
 		if (!editPerm && !viewPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const modelName = (
+			req.query.model as string as PermissionModelNameType
+		)?.toLowerCase() as PermissionModelNameType;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 
 		// Check if modelName is in the valid models array
@@ -63,13 +65,15 @@ export default admin()
 	.get(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.VIEW,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const modelName = (
+			req.query.model as string as PermissionModelNameType
+		)?.toLowerCase() as PermissionModelNameType;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = req.query.permission as
 			| ('DELETE' | 'EDIT' | 'VIEW')
@@ -152,13 +156,15 @@ export default admin()
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.EDIT,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const modelName = (
+			req.query.model as string as PermissionModelNameType
+		)?.toLowerCase() as PermissionModelNameType;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
@@ -226,13 +232,15 @@ export default admin()
 	.put(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.EDIT,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const modelName = (
+			req.query.model as string as PermissionModelNameType
+		)?.toLowerCase() as PermissionModelNameType;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
@@ -300,13 +308,15 @@ export default admin()
 	.delete(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.EDIT,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const modelName = (req.query.model as string as PermissionModelNameType)?.toLowerCase() as PermissionModelNameType;
+		const modelName = (
+			req.query.model as string as PermissionModelNameType
+		)?.toLowerCase() as PermissionModelNameType;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'

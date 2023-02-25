@@ -29,7 +29,7 @@ import {
 	useGetClientQuery,
 } from '../../store/queries';
 import { ClientType } from '../../types';
-import { hasPermission, toCapitalize, getDate } from '../../utils';
+import { hasModelPermission, toCapitalize, getDate } from '../../utils';
 
 const ClientDetail = ({ client }: { client: ClientType }) => {
 	const router = useRouter();
@@ -67,13 +67,15 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		const buttons: ButtonType[] = [];
 		const canEdit =
 			authData.isSuperUser ||
-			hasPermission(authData.permissions, [permissions.client.EDIT]);
+			hasModelPermission(authData.permissions, [permissions.client.EDIT]);
 		const canDelete =
 			authData.isSuperUser ||
-			hasPermission(authData.permissions, [permissions.client.DELETE]);
+			hasModelPermission(authData.permissions, [permissions.client.DELETE]);
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
-			hasPermission(authData.permissions, [permissions.permissionobject.VIEW]);
+			hasModelPermission(authData.permissions, [
+				permissions.permissionobject.VIEW,
+			]);
 
 		if (canEdit)
 			buttons.push(

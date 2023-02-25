@@ -4,7 +4,7 @@ export function isServer(): boolean {
 }
 
 export { default as downloadFile } from './downloadFile';
-export { default as hasPermission } from './hasPermission';
+export { hasModelPermission } from './permission';
 export { default as toCapitalize } from './toCapitalize';
 
 export * from './axios';

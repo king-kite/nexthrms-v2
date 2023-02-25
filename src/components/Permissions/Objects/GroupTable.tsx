@@ -1,5 +1,6 @@
 import {
 	Button,
+	Input,
 	Table,
 	TableHeadType,
 	TableRowType,
@@ -13,6 +14,8 @@ import {
 	FaUserFriends,
 } from 'react-icons/fa';
 
+import { Pagination } from '../../common';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
 import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
@@ -94,7 +97,9 @@ const GroupPermissionsTable = ({
 	onEdit,
 	openModal,
 }: TableType) => {
+	const [offset, setOffset] = React.useState(0);
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [search, setSearch] = React.useState('');
 
 	const { open: showAlert } = useAlertContext();
 	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
@@ -167,14 +172,47 @@ const GroupPermissionsTable = ({
 		[openAlertModal, close, mutate, showLoader]
 	);
 
+	const searchedGroups = React.useMemo(() => {
+		let values = groups;
+		const searchInput = search.trim().toLowerCase();
+		if (searchInput.length >= 0) {
+			values = groups.filter((group) => {
+				const groupSearchVariable = group.name.toLowerCase();
+				if (groupSearchVariable.includes(searchInput)) return group;
+			});
+			values = values.sort((a, b) => {
+				const aName = a.name.toLowerCase();
+				const bName = b.name.toLowerCase();
+				return aName < bName ? -1 : aName > bName ? 1 : 0;
+			});
+		}
+		return values;
+	}, [search, groups]);
+
+	const paginatedGroups = React.useMemo(() => {
+		const limit = DEFAULT_PAGINATION_SIZE;
+		const values = [...searchedGroups];
+		return values.splice(offset, limit);
+	}, [searchedGroups, offset]);
+
 	React.useEffect(() => {
-		setRows(getRows(groups, removeGroup, onEdit));
-	}, [groups, removeGroup, onEdit]);
+		setRows(getRows(paginatedGroups, removeGroup, onEdit));
+	}, [paginatedGroups, removeGroup, onEdit]);
 
 	return (
 		<div>
-			<div className="flex flex-wrap items-center w-full lg:justify-end">
-				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+			<div className="flex flex-wrap items-end w-full md:justify-between">
+				<div className="my-2 w-full sm:px-2 sm:w-2/3 md:pl-0 md:w-2/4">
+					<Input
+						bdrColor="border-gray-300"
+						onChange={({ target: { value } }) => setSearch(value)}
+						label="Search"
+						placeholder="Search by name"
+						rounded="rounded-lg"
+						value={search}
+					/>
+				</div>
+				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pr-0 md:w-1/4">
 					<Button
 						iconLeft={FaUserFriends}
 						onClick={openModal}
@@ -186,6 +224,19 @@ const GroupPermissionsTable = ({
 			<div className="mt-2 rounded-lg py-2 md:mt-1">
 				<Table heads={heads} rows={rows} />
 			</div>
+			{searchedGroups.length > 0 && (
+				<div className="pt-2 pb-5">
+					<Pagination
+						disabled={false}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * DEFAULT_PAGINATION_SIZE);
+						}}
+						pageSize={DEFAULT_PAGINATION_SIZE}
+						totalItems={searchedGroups.length}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

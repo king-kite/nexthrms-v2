@@ -1,5 +1,6 @@
 import {
 	Button,
+	Input,
 	Table,
 	TableHeadType,
 	TableRowType,
@@ -13,6 +14,8 @@ import {
 	FaUserEdit,
 } from 'react-icons/fa';
 
+import { Pagination } from '../../common';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
 import { ObjPermUser, PermissionModelNameType } from '../../../types';
@@ -97,7 +100,9 @@ const UserPermissionsTable = ({
 	openModal,
 	users = [],
 }: TableType) => {
+	const [offset, setOffset] = React.useState(0);
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [search, setSearch] = React.useState('');
 
 	const { open: showAlert } = useAlertContext();
 	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
@@ -170,14 +175,48 @@ const UserPermissionsTable = ({
 		[openAlertModal, close, mutate, showLoader]
 	);
 
+	const searchedUsers = React.useMemo(() => {
+		let values = users;
+		const searchInput = search.trim().toLowerCase();
+		if (searchInput.length >= 0) {
+			values = users.filter((user) => {
+				const userSearchVariable =
+					`${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
+				if (userSearchVariable.includes(searchInput)) return user;
+			});
+			values = values.sort((a, b) => {
+				const aName = `${a.firstName} ${a.lastName}`.toLowerCase();
+				const bName = `${b.firstName} ${b.lastName}`.toLowerCase();
+				return aName < bName ? -1 : aName > bName ? 1 : 0;
+			});
+		}
+		return values;
+	}, [search, users]);
+
+	const paginatedUsers = React.useMemo(() => {
+		const limit = DEFAULT_PAGINATION_SIZE;
+		const values = [...searchedUsers];
+		return values.splice(offset, limit);
+	}, [searchedUsers, offset]);
+
 	React.useEffect(() => {
-		setRows(getRows(users, removeUser, onEdit));
-	}, [users, removeUser, onEdit]);
+		setRows(getRows(paginatedUsers, removeUser, onEdit));
+	}, [paginatedUsers, removeUser, onEdit]);
 
 	return (
 		<div>
-			<div className="flex flex-wrap items-center w-full lg:justify-end">
-				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+			<div className="flex flex-wrap items-end w-full md:justify-between">
+				<div className="my-2 w-full sm:px-2 sm:w-2/3 md:pl-0 md:w-2/4">
+					<Input
+						bdrColor="border-gray-300"
+						onChange={({ target: { value } }) => setSearch(value)}
+						label="Search"
+						placeholder="Search by first name, last name or email address"
+						rounded="rounded-lg"
+						value={search}
+					/>
+				</div>
+				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pr-0 md:w-1/4">
 					<Button
 						iconLeft={FaUserEdit}
 						onClick={openModal}
@@ -189,6 +228,19 @@ const UserPermissionsTable = ({
 			<div className="mt-2 rounded-lg py-2 md:mt-1">
 				<Table heads={heads} rows={rows} />
 			</div>
+			{searchedUsers.length > 0 && (
+				<div className="pt-2 pb-5">
+					<Pagination
+						disabled={false}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * DEFAULT_PAGINATION_SIZE);
+						}}
+						pageSize={DEFAULT_PAGINATION_SIZE}
+						totalItems={searchedUsers.length}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

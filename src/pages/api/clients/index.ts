@@ -1,8 +1,11 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../config';
 import { getClients, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema, validateParams } from '../../../validators';
@@ -15,6 +18,12 @@ export const config = {
 
 export default auth()
 	.get(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const params = validateParams(req.query);
 
 		const data = await getClients({ ...params });
@@ -26,6 +35,12 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;
 			fields: any;

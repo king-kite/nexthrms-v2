@@ -9,7 +9,7 @@ import {
 	ExtendedGetServerSideProps,
 	PermissionModelNameType,
 } from '../../../../../types';
-import { hasPermission, Title } from '../../../../../utils';
+import { hasModelPermission, Title } from '../../../../../utils';
 import { serializeUserData } from '../../../../../utils/serializers';
 
 const Page = ({
@@ -45,7 +45,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	const hasPerm =
 		req.user.isSuperUser ||
 		(req.user.isAdmin &&
-			hasPermission(req.user.allPermissions, [
+			hasModelPermission(req.user.allPermissions, [
 				permissions.permissionobject.VIEW,
 			]));
 

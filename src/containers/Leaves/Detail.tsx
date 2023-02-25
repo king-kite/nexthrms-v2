@@ -28,7 +28,12 @@ import {
 	CreateLeaveQueryType,
 	LeaveType,
 } from '../../types';
-import { getDate, getNextDate, getNoOfDays, hasPermission } from '../../utils';
+import {
+	getDate,
+	getNextDate,
+	getNoOfDays,
+	hasModelPermission,
+} from '../../utils';
 
 type ErrorType = CreateLeaveErrorResponseType & {
 	message?: string;
@@ -47,7 +52,7 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 		admin && authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
-					hasPermission(authData.permissions, [
+					hasModelPermission(authData.permissions, [
 						permissions.permissionobject.VIEW,
 					]))
 			: false;

@@ -6,7 +6,7 @@ import {
 } from '../../../../db';
 import { employee } from '../../../../middlewares';
 import { CreateLeaveQueryType } from '../../../../types';
-import { hasPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { leaveCreateSchema, validateParams } from '../../../../validators';
 
@@ -14,7 +14,7 @@ export default employee()
 	.get(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.leave.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.VIEW]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -30,7 +30,7 @@ export default employee()
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.leave.CREATE]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
