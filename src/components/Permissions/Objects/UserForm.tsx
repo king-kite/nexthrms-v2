@@ -48,7 +48,6 @@ function UserForm({
 	loading,
 	initState,
 	initUsers = [],
-	reset,
 	onSubmit,
 }: {
 	editMode: boolean;
@@ -56,19 +55,11 @@ function UserForm({
 	loading: boolean;
 	initState?: FormType;
 	initUsers?: ObjPermUser[];
-	reset: boolean;
 	onSubmit: (form: FormType) => void;
 }) {
 	const [errorMessage, setErrorMessage] = React.useState(error);
 	const formRef = React.useRef<HTMLFormElement | null>(null);
-	const [form, setForm] = React.useState(
-		initState
-			? {
-					permissions: initState.permissions,
-					users: initState.users,
-			  }
-			: defaultValue
-	);
+	const [form, setForm] = React.useState(initState || defaultValue);
 	const [selectedUsers, setSelectedUsers] =
 		React.useState<ObjPermUser[]>(initUsers);
 
@@ -81,14 +72,6 @@ function UserForm({
 	);
 
 	const usersError = handleDataError(users.error);
-
-	React.useEffect(() => {
-		if (formRef.current && reset) {
-			formRef.current.reset();
-			setSelectedUsers([]);
-			setForm(defaultValue);
-		}
-	}, [reset]);
 
 	return (
 		<div className="p-4">

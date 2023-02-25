@@ -23,31 +23,30 @@ function Users({
 
 	const { open: showAlert } = useAlertContext();
 
-	const { error, mutate, reset, isLoading, isSuccess } =
-		useEditObjectPermissionMutation(
-			{
-				model: modelName,
-				id: objectId,
+	const { error, mutate, reset, isLoading } = useEditObjectPermissionMutation(
+		{
+			model: modelName,
+			id: objectId,
+		},
+		{
+			onSuccess() {
+				setEditMode(false);
+				setInitState(undefined);
+				setInitUsers(undefined);
+				setModalVisible(false);
+				showAlert({
+					type: 'success',
+					message: 'Record permissions have updated successfully!',
+				});
 			},
-			{
-				onSuccess() {
-					setEditMode(false);
-					setInitState(undefined);
-					setInitUsers(undefined);
-					setModalVisible(false);
-					showAlert({
-						type: 'success',
-						message: 'Record permissions have updated successfully!',
-					});
-				},
-				onError(error) {
-					showAlert({
-						type: 'success',
-						message: error.data?.users || error.message,
-					});
-				},
-			}
-		);
+			onError(error) {
+				showAlert({
+					type: 'success',
+					message: error.data?.users || error.message,
+				});
+			},
+		}
+	);
 
 	const handleSubmit = React.useCallback(
 		(form: FormType) => {
@@ -100,6 +99,28 @@ function Users({
 					setInitUsers(undefined);
 					setModalVisible(true);
 				}}
+				onEdit={(user: ObjPermUser) => {
+					setEditMode(true);
+					setInitState({
+						permissions: [
+							{
+								name: 'DELETE',
+								value: user.delete || false,
+							},
+							{
+								name: 'EDIT',
+								value: user.edit || false,
+							},
+							{
+								name: 'VIEW',
+								value: user.view || false,
+							},
+						],
+						users: [user.id],
+					});
+					setInitUsers([user]);
+					setModalVisible(true);
+				}}
 				modelName={modelName}
 				objectId={objectId}
 				users={users}
@@ -112,19 +133,23 @@ function Users({
 					setModalVisible(false);
 				}}
 				component={
-					<UserForm
-						editMode={editMode}
-						error={
-							error
-								? (error as any).data?.users || (error as any).message
-								: undefined
-						}
-						initUsers={initUsers}
-						initState={initState}
-						loading={isLoading}
-						reset={isSuccess} // Reset the form if the mutation was successful
-						onSubmit={handleSubmit}
-					/>
+					modalVisible ? (
+						<UserForm
+							editMode={editMode}
+							error={
+								error
+									? (error as any).data?.users || (error as any).message
+									: undefined
+							}
+							initUsers={initUsers}
+							initState={initState}
+							loading={isLoading}
+							// reset={isSuccess} // Reset the form if the mutation was successful
+							onSubmit={handleSubmit}
+						/>
+					) : (
+						<></>
+					)
 				}
 				keepVisible
 				description="Fill the form update users permissions for this record"
