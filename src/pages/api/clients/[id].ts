@@ -4,7 +4,7 @@ import { permissions } from '../../../config';
 import { prisma, getClient } from '../../../db';
 import { auth } from '../../../middlewares';
 import { ClientCreateQueryType } from '../../../types';
-import { hasPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
@@ -20,7 +20,7 @@ export default auth()
 	.get(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.client.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -41,7 +41,7 @@ export default auth()
 	.put(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.client.EDIT]);
+			hasModelPermission(req.user.allPermissions, [permissions.client.EDIT]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -148,7 +148,7 @@ export default auth()
 	.delete(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.client.DELETE]);
+			hasModelPermission(req.user.allPermissions, [permissions.client.DELETE]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

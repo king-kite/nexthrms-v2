@@ -7,14 +7,14 @@ import {
 import { employee } from '../../../../middlewares';
 import { leaveCreateSchema } from '../../../../validators';
 import { CreateLeaveQueryType } from '../../../../types';
-import { hasPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 
 export default employee()
 	.get(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.leave.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.VIEW]);
 
 		const leave = await getLeave(req.query.id as string);
 
@@ -38,7 +38,7 @@ export default employee()
 	.put(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.leave.EDIT]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.EDIT]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -84,7 +84,7 @@ export default employee()
 	.delete(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.leave.DELETE]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.DELETE]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

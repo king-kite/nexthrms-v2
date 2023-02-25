@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { permissions } from '../../../config';
 import { getClients, prisma } from '../../../db';
 import { auth } from '../../../middlewares';
-import { hasPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
@@ -20,7 +20,7 @@ export default auth()
 	.get(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.client.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -37,7 +37,7 @@ export default auth()
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasPermission(req.user.allPermissions, [permissions.client.CREATE]);
+			hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

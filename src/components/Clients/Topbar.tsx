@@ -5,7 +5,7 @@ import { FaCloudDownloadAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
 import { ExportForm } from '../common';
 import { permissions } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import { hasPermission } from '../../utils';
+import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	openModal: () => void;
@@ -25,8 +25,14 @@ const Topbar: FC<TopbarProps> = ({
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const canCreate = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.CREATE]) : false;
-	const canExport = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.EXPORT]) : false;
+	const canCreate = authData
+		? authData.isSuperUser ||
+		  hasModelPermission(authData.permissions, [permissions.client.CREATE])
+		: false;
+	const canExport = authData
+		? authData.isSuperUser ||
+		  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
+		: false;
 
 	return (
 		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">

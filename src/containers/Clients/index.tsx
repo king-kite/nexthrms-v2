@@ -3,8 +3,16 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, ClientTable, Form, Topbar } from '../../components/Clients';
-import { permissions, CLIENTS_EXPORT_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useAuthContext, useAlertContext, useAlertModalContext } from '../../store/contexts';
+import {
+	permissions,
+	CLIENTS_EXPORT_URL,
+	DEFAULT_PAGINATION_SIZE,
+} from '../../config';
+import {
+	useAuthContext,
+	useAlertContext,
+	useAlertModalContext,
+} from '../../store/contexts';
 import {
 	useGetClientsQuery,
 	useCreateClientMutation,
@@ -13,7 +21,7 @@ import {
 	CreateClientErrorResponseType,
 	GetClientsResponseType,
 } from '../../types';
-import { downloadFile, hasPermission } from '../../utils';
+import { downloadFile, hasModelPermission } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
@@ -27,10 +35,19 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	const { open: openModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
-	const canCreate = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.CREATE]) : false;
-	const canExport = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.EXPORT]) : false;
+	const canCreate = authData
+		? authData.isSuperUser ||
+		  hasModelPermission(authData.permissions, [permissions.client.CREATE])
+		: false;
+	const canExport = authData
+		? authData.isSuperUser ||
+		  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
+		: false;
 	// TODO: Add Object Level Permissions As Well
-	const canView = authData ? authData.isSuperUser || hasPermission(authData.permissions, [permissions.client.VIEW]) : false;
+	const canView = authData
+		? authData.isSuperUser ||
+		  hasModelPermission(authData.permissions, [permissions.client.VIEW])
+		: false;
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
 		{
@@ -102,10 +119,14 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			error={!canView ? {
-				statusCode: 403,
-				title: 'You are not authorized to view this page!'
-			} : undefined}
+			error={
+				!canView
+					? {
+							statusCode: 403,
+							title: 'You are not authorized to view this page!',
+					  }
+					: undefined
+			}
 			paginate={
 				canView && data
 					? {

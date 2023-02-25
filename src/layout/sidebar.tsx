@@ -31,7 +31,7 @@ import { LinkType, PropsType } from './types';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, LOGOUT_URL, permissions } from '../config';
 import { useAlertModalContext, useAuthContext } from '../store/contexts';
-import { axiosInstance, hasPermission } from '../utils';
+import { axiosInstance, hasModelPermission } from '../utils';
 
 const sidebarStyle =
 	'absolute bg-primary-500 duration-1000 h-full overflow-y-auto transform top-16 w-3/4 z-50 sm:top-14 md:px-2 md:w-1/3 lg:fixed lg:px-0 lg:py-6 lg:top-0 lg:translate-x-0 lg:w-1/6 xl:py-7';
@@ -259,7 +259,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 				if (data.isSuperUser) return link;
 				// isAdmin. Check if the link requires admin access only
 				if (link.admin && !data.isAdmin) return false;
-				const hasPerm = hasPermission(data.permissions, link.permissions);
+				const hasPerm = hasModelPermission(data.permissions, link.permissions);
 				if (hasPerm) return link;
 			});
 			return protectedCategories;
@@ -322,7 +322,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 
 													// Check if the user doesn't have permission
 													// and is not a super user
-													const hasPerm = hasPermission(
+													const hasPerm = hasModelPermission(
 														data.permissions,
 														permissions
 													);
@@ -353,7 +353,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 
 											// Check if the user doesn't have permission
 											// and is not a super user
-											const hasPerm = hasPermission(
+											const hasPerm = hasModelPermission(
 												data.permissions,
 												permissions
 											);

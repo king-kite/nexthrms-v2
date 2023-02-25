@@ -4,7 +4,8 @@ type OptionsType = {
 	every?: boolean; // means all required permissions must be met
 };
 
-function hasPermission(
+// A function to check if a user has a model level permission
+export function hasModelPermission(
 	userPermissions: PermissionType[],
 	requiredPermissions: string[], // code names
 	options?: OptionsType
@@ -36,5 +37,3 @@ function hasPermission(
 
 	return hasPerm;
 }
-
-export default hasPermission;
