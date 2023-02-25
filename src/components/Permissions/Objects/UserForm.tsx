@@ -48,6 +48,7 @@ function UserForm({
 	loading,
 	initState,
 	initUsers = [],
+	reset,
 	onSubmit,
 }: {
 	editMode: boolean;
@@ -55,8 +56,10 @@ function UserForm({
 	loading: boolean;
 	initState?: FormType;
 	initUsers?: ObjPermUser[];
+	reset: boolean;
 	onSubmit: (form: FormType) => void;
 }) {
+	const [errorMessage, setErrorMessage] = React.useState(error);
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [form, setForm] = React.useState(
 		initState
@@ -79,11 +82,23 @@ function UserForm({
 
 	const usersError = handleDataError(users.error);
 
+	React.useEffect(() => {
+		if (formRef.current && reset) {
+			formRef.current.reset();
+			setSelectedUsers([]);
+			setForm(defaultValue);
+		}
+	}, [reset]);
+
 	return (
 		<div className="p-4">
-			{error && (
+			{(error || errorMessage) && (
 				<div className="pb-4 w-full">
-					<Alert type="danger" message={error} />
+					<Alert
+						type="danger"
+						message={error || errorMessage}
+						onClose={() => setErrorMessage(undefined)}
+					/>
 				</div>
 			)}
 			{!editMode && (
@@ -206,10 +221,14 @@ function UserForm({
 								: false,
 						})),
 					};
-
-					// Check if some the permission values are true
-					if (data.permissions.some((permission) => permission.value === true))
-						onSubmit(data);
+					if (
+						!editMode &&
+						data.permissions.every((perm) => perm.value === false)
+					) {
+						setErrorMessage('Please select at least one permission!');
+					} else if (data.users.length <= 0) {
+						setErrorMessage('Please select at leaset one user!');
+					} else onSubmit(data);
 				}}
 			>
 				<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">

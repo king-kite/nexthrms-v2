@@ -23,33 +23,35 @@ function Users({
 
 	const { open: showAlert } = useAlertContext();
 
-	const { error, mutate, isLoading } = useEditObjectPermissionMutation(
-		{
-			model: modelName,
-			id: objectId,
-		},
-		{
-			onSuccess() {
-				setEditMode(false);
-				setInitState(undefined);
-				setInitUsers(undefined);
-				setModalVisible(false);
-				showAlert({
-					type: 'success',
-					message: 'Record permissions have updated successfully!',
-				});
+	const { error, mutate, reset, isLoading, isSuccess } =
+		useEditObjectPermissionMutation(
+			{
+				model: modelName,
+				id: objectId,
 			},
-			onError(error) {
-				showAlert({
-					type: 'success',
-					message: error.data?.users || error.message,
-				});
-			},
-		}
-	);
+			{
+				onSuccess() {
+					setEditMode(false);
+					setInitState(undefined);
+					setInitUsers(undefined);
+					setModalVisible(false);
+					showAlert({
+						type: 'success',
+						message: 'Record permissions have updated successfully!',
+					});
+				},
+				onError(error) {
+					showAlert({
+						type: 'success',
+						message: error.data?.users || error.message,
+					});
+				},
+			}
+		);
 
 	const handleSubmit = React.useCallback(
 		(form: FormType) => {
+			reset();
 			const canDelete =
 				form.permissions.find((item) => item.name === 'DELETE')?.value || false;
 			const canEdit =
@@ -57,7 +59,7 @@ function Users({
 			const canView =
 				form.permissions.find((item) => item.name === 'VIEW')?.value || false;
 
-			if (!editMode) {
+			if (!editMode && (canDelete || canEdit || canView)) {
 				// If not in edit mode this means that we want to connect the users
 				// to the respective permissions
 				const data: {
@@ -86,7 +88,7 @@ function Users({
 				mutate(data);
 			}
 		},
-		[editMode, mutate]
+		[editMode, mutate, reset]
 	);
 
 	return (
@@ -120,6 +122,7 @@ function Users({
 						initUsers={initUsers}
 						initState={initState}
 						loading={isLoading}
+						reset={isSuccess} // Reset the form if the mutation was successful
 						onSubmit={handleSubmit}
 					/>
 				}
