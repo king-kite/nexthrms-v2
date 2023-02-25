@@ -1,5 +1,6 @@
 import {
 	Button,
+	Input,
 	Table,
 	TableHeadType,
 	TableRowType,
@@ -97,6 +98,7 @@ const UserPermissionsTable = ({
 	openModal,
 	users = [],
 }: TableType) => {
+	const [search, setSearch] = React.useState('');
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
@@ -170,14 +172,42 @@ const UserPermissionsTable = ({
 		[openAlertModal, close, mutate, showLoader]
 	);
 
+	const searchedUsers = React.useMemo(() => {
+		let values = users;
+		const searchInput = search.trim().toLowerCase();
+		if (searchInput.length >= 0) {
+			values = users.filter((user) => {
+				const userSearchVariable =
+					`${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
+				if (userSearchVariable.includes(searchInput)) return user;
+			});
+			values = values.sort((a, b) => {
+				const aName = `${a.firstName} ${a.lastName}`.toLowerCase();
+				const bName = `${b.firstName} ${b.lastName}`.toLowerCase();
+				return aName < bName ? -1 : aName > bName ? 1 : 0;
+			});
+		}
+		return values;
+	}, [search, users]);
+
 	React.useEffect(() => {
-		setRows(getRows(users, removeUser, onEdit));
-	}, [users, removeUser, onEdit]);
+		setRows(getRows(searchedUsers, removeUser, onEdit));
+	}, [searchedUsers, removeUser, onEdit]);
 
 	return (
 		<div>
-			<div className="flex flex-wrap items-center w-full lg:justify-end">
-				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+			<div className="flex flex-wrap items-end w-full md:justify-between">
+				<div className="my-2 w-full sm:px-2 sm:w-2/3 md:pl-0 md:w-2/4">
+					<Input
+						bdrColor="border-gray-300"
+						onChange={({ target: { value } }) => setSearch(value)}
+						label="Search"
+						placeholder="Search by first name, last name or email address"
+						rounded="rounded-lg"
+						value={search}
+					/>
+				</div>
+				<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pr-0 md:w-1/4">
 					<Button
 						iconLeft={FaUserEdit}
 						onClick={openModal}
