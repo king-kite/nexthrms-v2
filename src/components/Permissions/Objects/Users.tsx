@@ -221,20 +221,6 @@ function Users({
 				title="Update users permissions"
 				visible={modalVisible}
 			/>
-			{/* {paginate.totalItems > 0 && (
-        <div className="pt-2 pb-5">
-          <Pagination
-            disabled={paginate.loading || false}
-            onChange={(pageNo: number) => {
-              const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-              paginate.offset !== value &&
-                paginate.setOffset(value * DEFAULT_PAGINATION_SIZE);
-            }}
-            pageSize={DEFAULT_PAGINATION_SIZE}
-            totalItems={paginate.totalItems || 0}
-          />
-        </div>
-      )} */}
 		</React.Fragment>
 	);
 }

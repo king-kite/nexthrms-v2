@@ -14,6 +14,8 @@ import {
 	FaUserEdit,
 } from 'react-icons/fa';
 
+import { Pagination } from '../../common';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
 import { ObjPermUser, PermissionModelNameType } from '../../../types';
@@ -98,8 +100,9 @@ const UserPermissionsTable = ({
 	openModal,
 	users = [],
 }: TableType) => {
-	const [search, setSearch] = React.useState('');
+	const [offset, setOffset] = React.useState(0);
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [search, setSearch] = React.useState('');
 
 	const { open: showAlert } = useAlertContext();
 	const { open: openAlertModal, close, showLoader } = useAlertModalContext();
@@ -190,9 +193,15 @@ const UserPermissionsTable = ({
 		return values;
 	}, [search, users]);
 
+	const paginatedUsers = React.useMemo(() => {
+		const limit = DEFAULT_PAGINATION_SIZE;
+		const values = [...searchedUsers];
+		return values.splice(offset, limit);
+	}, [searchedUsers, offset]);
+
 	React.useEffect(() => {
-		setRows(getRows(searchedUsers, removeUser, onEdit));
-	}, [searchedUsers, removeUser, onEdit]);
+		setRows(getRows(paginatedUsers, removeUser, onEdit));
+	}, [paginatedUsers, removeUser, onEdit]);
 
 	return (
 		<div>
@@ -219,6 +228,19 @@ const UserPermissionsTable = ({
 			<div className="mt-2 rounded-lg py-2 md:mt-1">
 				<Table heads={heads} rows={rows} />
 			</div>
+			{searchedUsers.length > 0 && (
+				<div className="pt-2 pb-5">
+					<Pagination
+						disabled={false}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * DEFAULT_PAGINATION_SIZE);
+						}}
+						pageSize={DEFAULT_PAGINATION_SIZE}
+						totalItems={searchedUsers.length}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
