@@ -61,8 +61,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			props: {
 				auth,
 				errorPage: {
-					statusCode: 403,
-					message: 'You are not authorized to view this page!',
+					statusCode: 403
 				},
 			},
 		};
