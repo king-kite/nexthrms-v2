@@ -1,13 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
-import { ParsedUrlQuery } from 'querystring';
 import React from 'react';
 
-import { LOGIN_PAGE_URL } from '../../config';
+import { permissions, LOGIN_PAGE_URL } from '../../config';
 import ClientDetail from '../../containers/Clients/Detail';
 import { getClient } from '../../db';
+import { getUserObjectPermissions } from '../../db/utils';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps } from '../../types';
-import { Title } from '../../utils';
+import { hasModelPermission, Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 
 const Page = ({
@@ -18,10 +18,6 @@ const Page = ({
 		<ClientDetail client={data} />
 	</React.Fragment>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	req,
@@ -44,8 +40,35 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+
+	if (!hasPerm) {
+		// check if the user has a view object permission for this record
+		const objPerm = await getUserObjectPermissions({
+			modelName: 'clients',
+			objectId: params?.id as string,
+			permission: 'VIEW',
+			userId: req.user.id,
+		});
+		if (objPerm.view === true) hasPerm = true;
+	}
+
 	const auth = serializeUserData(req.user);
-	const data = await getClient(params?.id as IParams['id']);
+	if (!hasPerm) {
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+					message: 'You are not authorized to view this page!',
+				},
+			},
+		};
+	}
+
+	const data = await getClient(params?.id as string);
 
 	if (!data) {
 		return {
