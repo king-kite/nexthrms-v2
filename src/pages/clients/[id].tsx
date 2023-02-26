@@ -55,13 +55,13 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		if (objPerm.view === true) hasPerm = true;
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	if (!hasPerm) {
 		return {
 			props: {
 				auth,
 				errorPage: {
-					statusCode: 403
+					statusCode: 403,
 				},
 			},
 		};

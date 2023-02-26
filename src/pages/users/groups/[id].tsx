@@ -41,7 +41,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const data = await getGroup(params?.id as IParams['id'], {
 		user: {
 			limit: DEFAULT_PAGINATION_SIZE,

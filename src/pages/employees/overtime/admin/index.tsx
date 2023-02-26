@@ -57,7 +57,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const overtime: GetAllOvertimeResponseType['data'] = JSON.parse(
 		JSON.stringify(await getAllOvertimeAdmin())
 	);

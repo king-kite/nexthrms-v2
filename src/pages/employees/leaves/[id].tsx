@@ -63,7 +63,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const { id } = params as IParams;
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const leave: LeaveType = JSON.parse(JSON.stringify(await getLeave(id)));
 
 	return {

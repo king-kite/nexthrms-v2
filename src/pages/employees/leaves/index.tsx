@@ -5,7 +5,10 @@ import { LOGIN_PAGE_URL } from '../../../config';
 import Leaves from '../../../containers/Leaves';
 import { getLeaves } from '../../../db';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps, GetLeavesResponseType } from '../../../types';
+import {
+	ExtendedGetServerSideProps,
+	GetLeavesResponseType,
+} from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
@@ -54,7 +57,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const leaves: GetLeavesResponseType['data'] = JSON.parse(
 		JSON.stringify(await getLeaves({ id: req.user.employee.id }))
 	);

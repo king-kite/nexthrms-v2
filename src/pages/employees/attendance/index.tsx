@@ -65,7 +65,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const attendanceData: GetAttendanceResponseType['data'] = JSON.parse(
 		JSON.stringify(await getAttendance({ id: req.user.employee.id }))
 	);

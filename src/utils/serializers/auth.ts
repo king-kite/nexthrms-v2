@@ -1,3 +1,11 @@
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+	Prisma,
+} from '@prisma/client';
+
+import { models } from '../../config';
+import prisma from '../../db/client';
 import { AuthDataType, PermissionType, RequestUserType } from '../../types';
 
 // return distinct permissions from the groups permission and user permissions;
@@ -19,9 +27,9 @@ export function getDistinctPermissions(
 	return distinctPermissions;
 }
 
-export function serializeUserData(
+export async function serializeUserData(
 	user: Omit<RequestUserType, 'checkPassword'>
-): AuthDataType {
+): Promise<AuthDataType> {
 	let data: AuthDataType = {
 		firstName: user.firstName,
 		lastName: user.lastName,
@@ -39,6 +47,9 @@ export function serializeUserData(
 				return [...acc, ...group.permissions];
 			}, []),
 		]),
+		objPermissions: await getUserModelObjectPermissions({
+			userId: user.id,
+		}),
 	};
 	if (user.employee) {
 		data.employee = {
@@ -54,4 +65,88 @@ export function serializeUserData(
 	if (user.isSuperUser) data.isSuperUser = true;
 
 	return data;
+}
+
+// A function to check if the user has a certain object permission
+// for a model. By default it gets the VIEW object permission
+// for all models for the provided user ID
+export async function getUserModelObjectPermissions({
+	modelNames = models,
+	permission = 'VIEW',
+	userId,
+}: {
+	modelNames?: PermissionModelChoices[];
+	permission?: PermissionObjectChoices;
+	userId: string;
+}): Promise<
+	{
+		modelName: PermissionModelChoices;
+		permission: PermissionObjectChoices;
+	}[]
+> {
+	try {
+		const objPermissions = modelNames.reduce(
+			(
+				acc: Prisma.Prisma__PermissionObjectClient<
+					{
+						modelName: PermissionModelChoices;
+						permission: PermissionObjectChoices;
+					} | null,
+					null
+				>[],
+				modelName
+			) => {
+				const result = prisma.permissionObject.findFirst({
+					where: {
+						modelName,
+						permission,
+						OR: [
+							{
+								users: {
+									some: {
+										id: userId,
+									},
+								},
+							},
+							{
+								groups: {
+									some: {
+										users: {
+											some: {
+												id: userId,
+											},
+										},
+									},
+								},
+							},
+						],
+					},
+					select: {
+						modelName: true,
+						permission: true,
+					},
+				});
+				return [...acc, result];
+			},
+			[]
+		);
+
+		const results = await prisma.$transaction(objPermissions);
+		const data = results.reduce(
+			(
+				acc: {
+					modelName: PermissionModelChoices;
+					permission: PermissionObjectChoices;
+				}[],
+				item
+			) => {
+				if (item === null) return acc;
+				return [...acc, item];
+			},
+			[]
+		);
+		return data;
+	} catch (error) {
+		throw error;
+	}
 }

@@ -67,7 +67,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			notFound: true,
 		};
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const data = await getObjectPermissions(modelName, objectId);
 
 	return {

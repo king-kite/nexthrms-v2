@@ -48,7 +48,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const tasks: GetProjectTasksResponseType['data'] = JSON.parse(
 		JSON.stringify(await getProjectTasks({ id }))
 	);
