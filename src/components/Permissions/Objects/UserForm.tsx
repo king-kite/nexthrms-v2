@@ -1,3 +1,4 @@
+import { PermissionObjectChoices } from '@prisma/client';
 import { Alert, Button, Checkbox, Input, Select2 } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
@@ -10,7 +11,7 @@ import { handleAxiosErrors } from '../../../validators';
 
 export type FormType = {
 	permissions: {
-		name: 'DELETE' | 'EDIT' | 'VIEW';
+		name: PermissionObjectChoices;
 		value: boolean;
 	}[];
 	users: string[];

@@ -1,4 +1,7 @@
-import { PermissionModelChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 import React from 'react';
 
 import UserForm, { FormType } from './UserForm';
@@ -64,7 +67,7 @@ function Users({
 				// to the respective permissions
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { users: string[] };
 				}[] = [];
 				if (canDelete)
@@ -92,7 +95,7 @@ function Users({
 				if (!user) return;
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { users: string[] };
 				}[] = [];
 

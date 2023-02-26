@@ -1,4 +1,7 @@
-import { PermissionModelChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 
 const ROOT_URL = '/api';
 
@@ -110,7 +113,7 @@ type ObjectPermissionType = {
 export const OBJECT_PERMISSIONS_URL = (
 	model: PermissionModelChoices,
 	objectId: string,
-	permission?: 'CREATE' | 'DELETE' | 'EDIT' | 'VIEW' | '',
+	permission?: PermissionObjectChoices | '',
 	groups?: ObjectPermissionType,
 	users?: ObjectPermissionType
 ) => {

@@ -1,4 +1,7 @@
-import { PermissionModelChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 
 import { getPrismaModels, models, permissions } from '../../../../../config';
 import { getObjectPermissions, prisma } from '../../../../../db';
@@ -77,7 +80,7 @@ export default admin()
 		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = req.query.permission as
-			| ('DELETE' | 'EDIT' | 'VIEW')
+			| PermissionObjectChoices
 			| undefined;
 		const {
 			groupLimit,

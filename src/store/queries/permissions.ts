@@ -1,4 +1,7 @@
-import { PermissionModelChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
@@ -38,7 +41,7 @@ export function useGetObjectPermissionsQuery(
 	}: {
 		modelName: PermissionModelChoices;
 		objectId: string;
-		permission?: 'DELETE' | 'EDIT' | 'VIEW' | '';
+		permission?: PermissionObjectChoices | '';
 		onError?: (error: { status: number; message: string }) => void;
 		groups?: {
 			limit: number;
@@ -161,7 +164,7 @@ export function useEditObjectPermissionMutation(
 			 */
 			data: {
 				method: 'POST' | 'PUT' | 'DELETE';
-				permission: 'DELETE' | 'EDIT' | 'VIEW';
+				permission: PermissionObjectChoices;
 				form: { users?: string[]; groups?: string[] };
 			}[]
 		) => {

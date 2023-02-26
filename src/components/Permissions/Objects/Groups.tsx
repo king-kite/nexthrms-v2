@@ -1,4 +1,7 @@
-import { PermissionModelChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 import React from 'react';
 
 import GroupForm, { FormType } from './GroupForm';
@@ -64,7 +67,7 @@ function Groups({
 				// to the respective permissions
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { groups: string[] };
 				}[] = [];
 				if (canDelete)
@@ -92,7 +95,7 @@ function Groups({
 				if (!group) return;
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { groups: string[] };
 				}[] = [];
 

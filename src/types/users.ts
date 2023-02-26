@@ -1,3 +1,5 @@
+import { PermissionObjectChoices } from '@prisma/client';
+
 import { PaginatedResponseType, SuccessResponseType } from './base';
 
 // Groups Types Start
@@ -65,7 +67,7 @@ export interface ObjPermUser extends ObjectPermissionUserType {
 
 export type ObjectPermissionType = {
 	users: ObjectPermissionUserType[];
-	permission: 'DELETE' | 'EDIT' | 'VIEW';
+	permission: PermissionObjectChoices;
 	groups: {
 		id: string;
 		name: string;
