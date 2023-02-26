@@ -120,20 +120,26 @@ export async function getUserObjects({
 			where: {
 				modelName,
 				permission,
-				users: {
-					some: {
-						id: userId,
-					},
-				},
-				groups: {
-					some: {
+				OR: [
+					{
 						users: {
 							some: {
 								id: userId,
 							},
 						},
 					},
-				},
+					{
+						groups: {
+							some: {
+								users: {
+									some: {
+										id: userId,
+									},
+								},
+							},
+						},
+					},
+				],
 			},
 			select: {
 				objectId: true,
