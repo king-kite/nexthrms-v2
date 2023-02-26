@@ -110,24 +110,6 @@ export type PermissionPrismaModelNameType =
 	| 'projectTeam'
 	| 'user';
 
-export type PermissionModelNameType =
-	| 'assets'
-	| 'attendance'
-	| 'clients'
-	| 'deparments'
-	| 'employees'
-	| 'groups'
-	| 'holiday'
-	| 'jobs'
-	| 'leaves'
-	| 'overtime'
-	| 'projects'
-	| 'projects_files'
-	| 'projects_tasks'
-	| 'projects_tasks_followers'
-	| 'projects_team'
-	| 'users';
-
 export type GetPermissionsResponseType = PaginatedResponseType<
 	PermissionType[]
 >;

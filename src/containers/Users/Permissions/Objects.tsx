@@ -1,3 +1,4 @@
+import { PermissionModelChoices } from '@prisma/client';
 import { TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -9,7 +10,6 @@ import {
 	ObjPermGroupType,
 	ObjPermUser,
 	GetObjectPermissionsResponseType,
-	PermissionModelNameType,
 } from '../../../types';
 
 function ObjectPermissions({
@@ -30,7 +30,7 @@ function ObjectPermissions({
 	 * and then paginate them on the frontend
 	 */
 
-	const modelName = router.query.model as PermissionModelNameType;
+	const modelName = router.query.model as PermissionModelChoices;
 	const objectId = router.query.objectId as string;
 
 	const { data, isFetching, refetch } = useGetObjectPermissionsQuery(

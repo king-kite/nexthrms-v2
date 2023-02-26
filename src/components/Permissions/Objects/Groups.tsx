@@ -1,3 +1,4 @@
+import { PermissionModelChoices } from '@prisma/client';
 import React from 'react';
 
 import GroupForm, { FormType } from './GroupForm';
@@ -5,14 +6,14 @@ import GroupTable from './GroupTable';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
+import { ObjPermGroupType } from '../../../types';
 
 function Groups({
 	modelName,
 	objectId,
 	groups,
 }: {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	objectId: string;
 	groups: ObjPermGroupType[];
 }) {

@@ -1,7 +1,6 @@
-import {
-	PermissionModelNameType,
-	PermissionPrismaModelNameType,
-} from '../types';
+import { PermissionModelChoices } from '@prisma/client';
+
+import { PermissionPrismaModelNameType } from '../types';
 
 export const ACCESS_TOKEN = 'access';
 export const ACCESS_TOKEN_LIFETIME = process.env
@@ -27,7 +26,7 @@ export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
 	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
 	: false;
 
-export const models: PermissionModelNameType[] = [
+export const models: PermissionModelChoices[] = [
 	'assets',
 	'attendance',
 	'clients',
@@ -66,10 +65,10 @@ export const prismaModels: PermissionPrismaModelNameType[] = [
 ];
 
 export const getPrismaModels = (
-	model: PermissionModelNameType
+	model: PermissionModelChoices
 ): PermissionPrismaModelNameType | undefined => {
 	const modelName = model.toLowerCase();
-	switch(modelName) {
+	switch (modelName) {
 		case 'assets':
 			return 'asset';
 		case 'attendance':

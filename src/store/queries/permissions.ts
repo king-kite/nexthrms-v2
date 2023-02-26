@@ -1,3 +1,4 @@
+import { PermissionModelChoices } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
@@ -21,7 +22,6 @@ import {
 	CreateGroupResponseType,
 	SuccessResponseType,
 	BaseResponseType,
-	PermissionModelNameType,
 } from '../../types';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors } from '../../validators';
@@ -36,7 +36,7 @@ export function useGetObjectPermissionsQuery(
 		groups,
 		users,
 	}: {
-		modelName: PermissionModelNameType;
+		modelName: PermissionModelChoices;
 		objectId: string;
 		permission?: 'DELETE' | 'EDIT' | 'VIEW' | '';
 		onError?: (error: { status: number; message: string }) => void;
@@ -98,7 +98,7 @@ export function useGetObjectPermissionsQuery(
 // use mutate users/groups from object permission
 export function useEditObjectPermissionMutation(
 	object: {
-		model: PermissionModelNameType;
+		model: PermissionModelChoices;
 		id: string;
 	},
 	options?: {
