@@ -42,7 +42,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const { data, isLoading, isFetching, refetch } = useGetClientQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetClientQuery(
 		{ id },
 		{
 			initialData() {
@@ -150,6 +150,16 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 	return (
 		<Container
 			heading="Client Information"
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title:
+								(error as any).message ||
+								'An error occurred. Please try again later',
+					  }
+					: undefined
+			}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
