@@ -93,7 +93,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaUserFriends,
 									title: 'all employees',
 									href: routes.EMPLOYEES_PAGE_URL,
-									permissions: [permissions.employee.VIEW],
+									permissions: [
+										permissions.employee.VIEW,
+										permissions.employee.CREATE,
+									],
 									// check if the user has view employees obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -105,7 +108,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaSuitcaseRolling,
 									title: 'leaves',
 									href: routes.LEAVES_PAGE_URL,
-									permissions: [permissions.leave.VIEW],
+									permissions: [
+										permissions.leave.VIEW,
+										permissions.leave.CREATE,
+									],
 									// Not placing oject permission check here since this
 									// will only fetch the employee's leave, same thing for
 									// attendance, overtime
@@ -115,7 +121,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaSuitcase,
 									title: 'leaves (admin)',
 									href: routes.ADMIN_LEAVES_PAGE_URL,
-									permissions: [permissions.leave.VIEW],
+									permissions: [
+										permissions.leave.VIEW,
+										permissions.leave.CREATE,
+									],
 									// check if the user has view leaves obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -133,7 +142,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaClipboardList,
 									title: 'attendance (admin)',
 									href: routes.ATTENDANCE_ADMIN_PAGE_URL,
-									permissions: [permissions.attendance.VIEW],
+									permissions: [
+										permissions.attendance.VIEW,
+										permissions.attendance.CREATE,
+									],
 									// check if the user has view attendance obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -145,7 +157,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaWarehouse,
 									title: 'departments',
 									href: routes.DEPARTMENTS_PAGE_URL,
-									permissions: [permissions.department.VIEW],
+									permissions: [
+										permissions.department.VIEW,
+										permissions.department.CREATE,
+									],
 									// check if the user has view departments obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -157,7 +172,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaCalendarAlt,
 									title: 'holiday',
 									href: routes.HOLIDAYS_PAGE_URL,
-									permissions: [permissions.holiday.VIEW],
+									permissions: [
+										permissions.holiday.VIEW,
+										permissions.holiday.CREATE,
+									],
 									// check if the user has view holidays obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -168,14 +186,20 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaClock,
 									title: 'overtime',
 									href: routes.OVERTIME_PAGE_URL,
-									permissions: [permissions.overtime.VIEW],
+									permissions: [
+										permissions.overtime.VIEW,
+										permissions.overtime.CREATE,
+									],
 								},
 								{
 									admin: true,
 									icon: FaUserClock,
 									title: 'overtime (admin)',
 									href: routes.ADMIN_OVERTIME_PAGE_URL,
-									permissions: [permissions.overtime.VIEW],
+									permissions: [
+										permissions.overtime.VIEW,
+										permissions.overtime.CREATE,
+									],
 									// check if the user has view overtime obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -189,7 +213,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaHandshake,
 							title: 'clients',
 							href: routes.CLIENTS_PAGE_URL,
-							permissions: [permissions.client.VIEW],
+							permissions: [permissions.client.VIEW, permissions.client.CREATE],
 							// check if the user has view clients obj permission
 							objPerm: !!data?.objPermissions.find(
 								(perm) =>
@@ -200,7 +224,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaProjectDiagram,
 							title: 'projects',
 							href: routes.PROJECTS_PAGE_URL,
-							permissions: [permissions.project.VIEW],
+							permissions: [
+								permissions.project.VIEW,
+								permissions.project.CREATE,
+							],
 							// check if the user has view projects obj permission
 							objPerm: !!data?.objPermissions.find(
 								(perm) =>
@@ -210,13 +237,21 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 					],
 					permissions: [
 						permissions.attendance.VIEW,
+						permissions.attendance.CREATE,
 						permissions.client.VIEW,
+						permissions.client.CREATE,
 						permissions.department.VIEW,
+						permissions.department.CREATE,
 						permissions.employee.VIEW,
+						permissions.employee.CREATE,
 						permissions.holiday.VIEW,
+						permissions.holiday.CREATE,
 						permissions.leave.VIEW,
+						permissions.leave.CREATE,
 						permissions.overtime.VIEW,
+						permissions.overtime.CREATE,
 						permissions.project.VIEW,
+						permissions.project.CREATE,
 					],
 				},
 				{
@@ -226,7 +261,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaArchive,
 							title: 'assets',
 							href: routes.ASSETS_PAGE_URL,
-							permissions: [permissions.asset.VIEW],
+							permissions: [permissions.asset.VIEW, permissions.asset.CREATE],
 							// check if the user has view assets obj permission
 							objPerm: !!data?.objPermissions.find(
 								(perm) =>
@@ -244,7 +279,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaRProject,
 							title: 'jobs',
 							href: routes.JOBS_PAGE_URL,
-							permissions: [permissions.job.VIEW],
+							permissions: [permissions.job.VIEW, permissions.job.CREATE],
 							// check if the user has view jobs obj permission
 							objPerm: !!data?.objPermissions.find(
 								(perm) =>
@@ -259,7 +294,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaPeopleArrows,
 									title: 'all users',
 									href: routes.USERS_PAGE_URL,
-									permissions: [permissions.user.VIEW],
+									permissions: [permissions.user.VIEW, permissions.user.CREATE],
 									// check if the user has view users obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
@@ -270,7 +305,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaUserShield,
 									title: 'groups',
 									href: routes.GROUPS_PAGE_URL,
-									permissions: [permissions.group.VIEW],
+									permissions: [
+										permissions.group.VIEW,
+										permissions.group.CREATE,
+									],
 									// check if the user has view leaves obj permission
 									objPerm: !!data?.objPermissions.find(
 										(perm) =>
