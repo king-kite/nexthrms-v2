@@ -30,7 +30,7 @@ export const models: PermissionModelChoices[] = [
 	'assets',
 	'attendance',
 	'clients',
-	'deparments',
+	'departments',
 	'employees',
 	'groups',
 	'holiday',

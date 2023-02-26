@@ -50,9 +50,7 @@ export function serializeUserData(
 			};
 		}
 	}
-
 	if (user.isAdmin) data.isAdmin = true;
-
 	if (user.isSuperUser) data.isSuperUser = true;
 
 	return data;
