@@ -23,12 +23,13 @@ const UpdateForm = ({
 	const { data: authData } = useAuthContext();
 	const canEdit = authData
 		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.EDIT]) ||
+		  hasModelPermission(authData.permissions, [permissions.client.EDIT])
+		: // This should be an API request to the server
 		  // check object permission
-		  !!authData?.objPermissions.find(
-				(perm) => perm.modelName === 'clients' && perm.permission === 'EDIT'
-		  )
-		: false;
+		  // !!authData?.objPermissions.find(
+		  // 	(perm) => perm.modelName === 'clients' && perm.permission === 'EDIT'
+		  // )
+		  false;
 
 	const { mutate: updateClient, isLoading } = useEditClientMutation({
 		onSuccess,
