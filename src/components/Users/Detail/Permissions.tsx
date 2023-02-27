@@ -38,7 +38,8 @@ function UserPermissions({
 	const id = router.query.id as string;
 
 	const { open: showAlert } = useAlertContext();
-	const { close: closeAlertModal } = useAlertModalContext();
+	const { visible: alertModalVisible, close: closeAlertModal } =
+		useAlertModalContext();
 
 	const { data, isLoading, isFetching } = useGetUserPermissionsQuery(
 		{
@@ -55,45 +56,47 @@ function UserPermissions({
 	);
 
 	const { mutate: editPermissions, isLoading: editLoading } =
-		useEditUserPermissionsMutation({
-			onSuccess() {
-				if (errorType === 'single') {
-					closeAlertModal();
+		useEditUserPermissionsMutation(
+			{
+				onSuccess() {
 					showAlert({
 						type: 'success',
-						message: 'Permission was removed successfully!',
+						message:
+							errorType === 'single'
+								? 'Permission was removed successfully!'
+								: 'User permissions were updated successfully!',
 					});
-				} else {
-					setModalVisible(false);
-					showAlert({
-						type: 'success',
-						message: 'User permissions were updated successfully!',
-					});
-				}
+				},
+				onError(err) {
+					if (errorType === 'single') {
+						showAlert({
+							type: 'danger',
+							message: err?.data?.permissions || err.message,
+						});
+					} else {
+						setErrors((prevState) =>
+							prevState
+								? {
+										...prevState,
+										permissions: err?.data?.permissions,
+										message: err.message,
+								  }
+								: {
+										permissions: err?.data?.permissions,
+										message: err.message,
+								  }
+						);
+					}
+				},
 			},
-			onError(err) {
-				if (errorType === 'single') {
-					closeAlertModal();
-					showAlert({
-						type: 'danger',
-						message: err?.data?.permissions || err.message,
-					});
-				} else {
-					setErrors((prevState) =>
-						prevState
-							? {
-									...prevState,
-									permissions: err?.data?.permissions,
-									message: err.message,
-							  }
-							: {
-									permissions: err?.data?.permissions,
-									message: err.message,
-							  }
-					);
-				}
-			},
-		});
+			{
+				onSettled() {
+					if (alertModalVisible) closeAlertModal();
+					if (modalVisible) setModalVisible(false);
+					setErrorType('single');
+				},
+			}
+		);
 
 	return (
 		<React.Fragment>
@@ -106,7 +109,7 @@ function UserPermissions({
 							title="Update Permissions"
 							disabled={isFetching || editLoading}
 							onClick={() => {
-                hideOtherModals();
+								hideOtherModals();
 								setModalVisible(true);
 								setErrorType('multiple');
 							}}
@@ -119,6 +122,7 @@ function UserPermissions({
 			) : data && data.result.length > 0 ? (
 				<div>
 					<Permissions
+						name="user"
 						permissions={data.result}
 						removePermission={(codename: string) => {
 							setErrorType('single');
