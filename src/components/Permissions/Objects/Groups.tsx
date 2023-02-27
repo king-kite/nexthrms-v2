@@ -1,3 +1,7 @@
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 import React from 'react';
 
 import GroupForm, { FormType } from './GroupForm';
@@ -5,14 +9,14 @@ import GroupTable from './GroupTable';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermGroupType, PermissionModelNameType } from '../../../types';
+import { ObjPermGroupType } from '../../../types';
 
 function Groups({
 	modelName,
 	objectId,
 	groups,
 }: {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	objectId: string;
 	groups: ObjPermGroupType[];
 }) {
@@ -63,7 +67,7 @@ function Groups({
 				// to the respective permissions
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { groups: string[] };
 				}[] = [];
 				if (canDelete)
@@ -91,7 +95,7 @@ function Groups({
 				if (!group) return;
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { groups: string[] };
 				}[] = [];
 

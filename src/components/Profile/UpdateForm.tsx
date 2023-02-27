@@ -51,6 +51,7 @@ const Form = ({
 			onSuccess(data) {
 				queryClient.invalidateQueries([tags.PROFILE]);
 				login({
+					objPermissions: previousData?.objPermissions || [],
 					...previousData,
 					permissions: previousData ? previousData.permissions : [],
 					firstName: data.firstName,

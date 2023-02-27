@@ -11,6 +11,7 @@ export type LinkItemType = {
 	href?: string;
 	icon: IconType;
 	links?: LinkItemType[];
+	objPerm?: boolean;
 	onClick?: () => void;
 	permissions?: string[];
 	title: string;

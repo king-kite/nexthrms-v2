@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { prisma, getClient } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { ClientCreateQueryType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -18,9 +19,20 @@ export const config = {
 
 export default auth()
 	.get(async (req, res) => {
-		const hasPerm =
+		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'clients',
+				objectId: req.query.id as string,
+				permission: 'VIEW',
+				userId: req.user.id
+			})
+			if (objPerm.view === true) hasPerm = true;
+		}
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -39,9 +51,20 @@ export default auth()
 		});
 	})
 	.put(async (req, res) => {
-		const hasPerm =
+		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.client.EDIT]);
+
+		if (!hasPerm) {
+			// check if the user has an edit object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'clients',
+				objectId: req.query.id as string,
+				permission: 'EDIT',
+				userId: req.user.id
+			})
+			if (objPerm.edit === true) hasPerm = true;
+		}
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -146,9 +169,20 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
-		const hasPerm =
+		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.client.DELETE]);
+
+		if (!hasPerm) {
+			// check if the user has a delete object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'clients',
+				objectId: req.query.id as string,
+				permission: 'DELETE',
+				userId: req.user.id
+			})
+			if (objPerm.delete === true) hasPerm = true;
+		}
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

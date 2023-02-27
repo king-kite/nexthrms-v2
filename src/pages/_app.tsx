@@ -36,7 +36,11 @@ function App({
 	return errorPage ? (
 		<Error
 			statusCode={errorPage?.statusCode || 500}
-			title={errorPage?.title || 'A server error occurred'}
+			title={
+				errorPage?.title || errorPage?.statusCode === 403
+					? 'You are not authorized to view this page!'
+					: 'A server error occurred'
+			}
 		/>
 	) : Component.noWrapper ? (
 		<Component {...pageProps} />

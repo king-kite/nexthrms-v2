@@ -1,7 +1,9 @@
-import { PermissionObjectChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 
 import prisma from '../client';
-import { PermissionModelNameType } from '../../types';
 
 // A function to check if a user has view, edit or delete
 // permissions concerning an object in a model
@@ -30,7 +32,7 @@ export async function getUserObjectPermissions({
 	userId,
 	permission,
 }: {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	objectId: string;
 	userId: string;
 	permission?: PermissionObjectChoices;
@@ -43,20 +45,26 @@ export async function getUserObjectPermissions({
 				modelName,
 				objectId,
 				permission,
-				users: {
-					some: {
-						id: userId,
-					},
-				},
-				groups: {
-					some: {
+				OR: [
+					{
 						users: {
 							some: {
 								id: userId,
 							},
 						},
 					},
-				},
+					{
+						groups: {
+							some: {
+								users: {
+									some: {
+										id: userId,
+									},
+								},
+							},
+						},
+					},
+				],
 			},
 			select: {
 				permission: true,
@@ -111,7 +119,7 @@ export async function getUserObjects({
 	userId,
 	permission,
 }: {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	userId: string;
 	permission?: PermissionObjectChoices;
 }) {
@@ -120,20 +128,26 @@ export async function getUserObjects({
 			where: {
 				modelName,
 				permission,
-				users: {
-					some: {
-						id: userId,
-					},
-				},
-				groups: {
-					some: {
+				OR: [
+					{
 						users: {
 							some: {
 								id: userId,
 							},
 						},
 					},
-				},
+					{
+						groups: {
+							some: {
+								users: {
+									some: {
+										id: userId,
+									},
+								},
+							},
+						},
+					},
+				],
 			},
 			select: {
 				objectId: true,

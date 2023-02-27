@@ -1,3 +1,4 @@
+import { PermissionModelChoices } from '@prisma/client';
 import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
@@ -5,10 +6,7 @@ import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	PermissionModelNameType,
-} from '../../../../../types';
+import { ExtendedGetServerSideProps } from '../../../../../types';
 import { hasModelPermission, Title } from '../../../../../utils';
 import { serializeUserData } from '../../../../../utils/serializers';
 
@@ -61,7 +59,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const modelName = params?.model as PermissionModelNameType;
+	const modelName = params?.model as PermissionModelChoices;
 	const objectId = params?.objectId as string;
 
 	if (!models.includes(modelName))
@@ -69,7 +67,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			notFound: true,
 		};
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const data = await getObjectPermissions(modelName, objectId);
 
 	return {

@@ -34,7 +34,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const profile = await getProfile(req.user.id);
 
 	if (!profile) {

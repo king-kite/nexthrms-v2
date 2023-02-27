@@ -46,7 +46,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const { task_id } = params as IParams;
 
-	const auth = serializeUserData(req.user);
+	const auth = await serializeUserData(req.user);
 	const task: ProjectTaskType = JSON.parse(
 		JSON.stringify(await getProjectTask(task_id))
 	);

@@ -1,3 +1,4 @@
+import { PermissionModelChoices } from '@prisma/client';
 import {
 	Button,
 	Input,
@@ -18,7 +19,7 @@ import { Pagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermUser, PermissionModelNameType } from '../../../types';
+import { ObjPermUser } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
 const heads: TableHeadType = [
@@ -86,7 +87,7 @@ const getRows = (
 	}));
 
 type TableType = {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	objectId: string;
 	onEdit: (user: ObjPermUser) => void;
 	openModal: () => void;

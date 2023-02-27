@@ -1,4 +1,4 @@
-// middleware.ts
+import { PermissionModelChoices } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -7,7 +7,6 @@ import {
 	OBJECT_PERMISSIONS_PAGE_URL,
 	USE_LOCAL_MEDIA_STORAGE,
 } from './config';
-import { PermissionModelNameType } from './types';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -25,11 +24,11 @@ export function middleware(request: NextRequest) {
 
 		const splitKeys = requestUrl.split('/');
 
-		let modelName: PermissionModelNameType | undefined = splitKeys[
+		let modelName: PermissionModelChoices | undefined = splitKeys[
 			splitKeys.length - 2
-		] as PermissionModelNameType | undefined;
+		] as PermissionModelChoices | undefined;
 		modelName = modelName
-			? (modelName.toLowerCase() as PermissionModelNameType)
+			? (modelName.toLowerCase() as PermissionModelChoices)
 			: undefined;
 		const objectId = splitKeys[splitKeys.length - 3];
 

@@ -1,3 +1,7 @@
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 import React from 'react';
 
 import UserForm, { FormType } from './UserForm';
@@ -5,14 +9,14 @@ import UserTable from './UserTable';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermUser, PermissionModelNameType } from '../../../types';
+import { ObjPermUser } from '../../../types';
 
 function Users({
 	modelName,
 	objectId,
 	users,
 }: {
-	modelName: PermissionModelNameType;
+	modelName: PermissionModelChoices;
 	objectId: string;
 	users: ObjPermUser[];
 }) {
@@ -63,7 +67,7 @@ function Users({
 				// to the respective permissions
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { users: string[] };
 				}[] = [];
 				if (canDelete)
@@ -91,7 +95,7 @@ function Users({
 				if (!user) return;
 				const data: {
 					method: 'PUT' | 'DELETE';
-					permission: 'DELETE' | 'EDIT' | 'VIEW';
+					permission: PermissionObjectChoices;
 					form: { users: string[] };
 				}[] = [];
 

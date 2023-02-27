@@ -1,11 +1,16 @@
-import { Prisma, Permission, PermissionCategory } from '@prisma/client';
+import {
+	Prisma,
+	Permission,
+	PermissionCategory,
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 
 import prisma from '../client';
 import {
 	ParamsType,
 	PermissionType,
 	PermissionCategoryType,
-	PermissionModelNameType,
 } from '../../types';
 
 export const objectPermissionSelectQuery = {
@@ -123,9 +128,9 @@ export const getPermissionCategoriesQuery = ({
 };
 
 export const getObjectPermissions = async (
-	modelName: PermissionModelNameType,
+	modelName: PermissionModelChoices,
 	objectId: string,
-	permission?: 'DELETE' | 'EDIT' | 'VIEW',
+	permission?: PermissionObjectChoices,
 	options?: {
 		groups?: {
 			limit?: number;

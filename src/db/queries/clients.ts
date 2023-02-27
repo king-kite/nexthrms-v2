@@ -33,8 +33,11 @@ export const getClientsQuery = ({
 	limit,
 	search = undefined,
 	from,
-	to
-}: ParamsType): Prisma.ClientFindManyArgs => {
+	to,
+	where = {},
+}: ParamsType & {
+	where?: Prisma.ClientWhereInput;
+}): Prisma.ClientFindManyArgs => {
 	const query: Prisma.ClientFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -75,8 +78,9 @@ export const getClientsQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
-			: {},
+			: where,
 		select: clientSelectQuery,
 	};
 
@@ -90,13 +94,17 @@ export const getClientsQuery = ({
 	return query;
 };
 
-export const getClients = async (params?: ParamsType): Promise<{
+export const getClients = async (
+	params?: ParamsType & {
+		where?: Prisma.ClientWhereInput;
+	}
+): Promise<{
 	active: number;
 	inactive: number;
 	total: number;
 	result: ClientType[] | Client[];
 }> => {
-	const query = getClientsQuery({...params});
+	const query = getClientsQuery({ ...params });
 
 	const [total, active, inactive, result] = await prisma.$transaction([
 		prisma.client.count({ where: query.where }),
@@ -105,6 +113,7 @@ export const getClients = async (params?: ParamsType): Promise<{
 				contact: {
 					isActive: true,
 				},
+				...query.where,
 			},
 		}),
 		prisma.client.count({
@@ -112,6 +121,7 @@ export const getClients = async (params?: ParamsType): Promise<{
 				contact: {
 					isActive: false,
 				},
+				...query.where,
 			},
 		}),
 		prisma.client.findMany(query),

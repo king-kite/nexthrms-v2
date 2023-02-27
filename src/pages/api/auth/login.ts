@@ -98,7 +98,7 @@ async function handler(
 					{ expiresIn: REFRESH_TOKEN_LIFETIME }
 				);
 				setTokens(res, accessToken, refreshToken);
-				const data = serializeUserData({
+				const data = await serializeUserData({
 					...user,
 					fullName: user.firstName + ' ' + user.lastName,
 					allPermissions: [], // not going to be returned or used anyway so it's okay to leave empty

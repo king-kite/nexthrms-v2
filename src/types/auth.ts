@@ -1,3 +1,8 @@
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
+
 import { BaseResponseType, SuccessResponseType } from './base';
 import { PermissionType } from './users';
 
@@ -13,6 +18,10 @@ export interface AuthDataType extends UserDataType {
 		} | null;
 	} | null;
 	permissions: PermissionType[];
+	objPermissions: {
+		modelName: PermissionModelChoices;
+		permission: PermissionObjectChoices;
+	}[];
 	isSuperUser?: boolean;
 	isAdmin?: boolean;
 }

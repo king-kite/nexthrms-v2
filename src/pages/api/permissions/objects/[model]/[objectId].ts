@@ -1,7 +1,11 @@
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
+
 import { getPrismaModels, models, permissions } from '../../../../../config';
 import { getObjectPermissions, prisma } from '../../../../../db';
 import { admin } from '../../../../../middlewares';
-import { PermissionModelNameType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { objectPermissionSchema } from '../../../../../validators';
@@ -24,8 +28,8 @@ export default admin()
 		if (!editPerm && !viewPerm) throw new NextApiErrorMessage(403);
 
 		const modelName = (
-			req.query.model as string as PermissionModelNameType
-		)?.toLowerCase() as PermissionModelNameType;
+			req.query.model as string as PermissionModelChoices
+		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 
 		// Check if modelName is in the valid models array
@@ -72,11 +76,11 @@ export default admin()
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const modelName = (
-			req.query.model as string as PermissionModelNameType
-		)?.toLowerCase() as PermissionModelNameType;
+			req.query.model as string as PermissionModelChoices
+		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = req.query.permission as
-			| ('DELETE' | 'EDIT' | 'VIEW')
+			| PermissionObjectChoices
 			| undefined;
 		const {
 			groupLimit,
@@ -163,8 +167,8 @@ export default admin()
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const modelName = (
-			req.query.model as string as PermissionModelNameType
-		)?.toLowerCase() as PermissionModelNameType;
+			req.query.model as string as PermissionModelChoices
+		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
@@ -239,8 +243,8 @@ export default admin()
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const modelName = (
-			req.query.model as string as PermissionModelNameType
-		)?.toLowerCase() as PermissionModelNameType;
+			req.query.model as string as PermissionModelChoices
+		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'
@@ -315,8 +319,8 @@ export default admin()
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const modelName = (
-			req.query.model as string as PermissionModelNameType
-		)?.toLowerCase() as PermissionModelNameType;
+			req.query.model as string as PermissionModelChoices
+		)?.toLowerCase() as PermissionModelChoices;
 		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
 		const permission = (req.query.permission as string)?.toUpperCase() as
 			| 'DELETE'

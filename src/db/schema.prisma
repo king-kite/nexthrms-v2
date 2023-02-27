@@ -527,7 +527,7 @@ enum PermissionModelChoices {
   assets
   attendance
   clients
-  deparments
+  departments
   employees
   groups
   holiday

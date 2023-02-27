@@ -46,7 +46,11 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	// TODO: Add Object Level Permissions As Well
 	const canView = authData
 		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.VIEW])
+		  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
+		  // check object permission
+		  !!authData?.objPermissions.find(
+				(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
+		  )
 		: false;
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
@@ -120,7 +124,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				loading: isFetching,
 			}}
 			error={
-				!canView
+				!canView && !canCreate
 					? {
 							statusCode: 403,
 							title: 'You are not authorized to view this page!',
@@ -138,11 +142,13 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 					: undefined
 			}
 		>
-			<Cards
-				active={data ? data.active : 0}
-				inactive={data ? data.inactive : 0}
-				total={data ? data.total : 0}
-			/>
+			{canView && (
+				<Cards
+					active={data ? data.active : 0}
+					inactive={data ? data.inactive : 0}
+					total={data ? data.total : 0}
+				/>
+			)}
 			<Topbar
 				openModal={() => setModalVisible(true)}
 				loading={isFetching}
@@ -170,7 +176,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				}}
 				exportLoading={exportLoading}
 			/>
-			<ClientTable clients={data ? data.result : []} />
+			{canView && <ClientTable clients={data ? data.result : []} />}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}

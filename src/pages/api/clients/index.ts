@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { getClients, prisma } from '../../../db';
+import { getUserObjects } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
@@ -22,17 +23,45 @@ export default auth()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		// if the user has model permissions
+		if (hasPerm) {
+			const params = validateParams(req.query);
+			const data = await getClients({ ...params });
 
-		const params = validateParams(req.query);
+			return res.status(200).json({
+				status: 'success',
+				message: 'Fetched clients successfully! A total of ' + data.total,
+				data,
+			});
+		}
 
-		const data = await getClients({ ...params });
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched clients successfully! A total of ' + data.total,
-			data,
+		// if the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'clients',
+			permission: 'VIEW',
+			userId: req.user.id,
 		});
+
+		if (userObjects.length > 0) {
+			const params = validateParams(req.query);
+			const data = await getClients({
+				...params,
+				where: {
+					id: {
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
+			});
+			if (data.total > 0) {
+				return res.status(200).json({
+					status: 'success',
+					message: 'Fetched clients successfully! A total of ' + data.total,
+					data,
+				});
+			}
+		}
+
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =

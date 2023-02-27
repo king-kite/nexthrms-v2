@@ -42,7 +42,7 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const { data, isLoading, isFetching, refetch } = useGetClientQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetClientQuery(
 		{ id },
 		{
 			initialData() {
@@ -67,10 +67,22 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		const buttons: ButtonType[] = [];
 		const canEdit =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.client.EDIT]);
+			hasModelPermission(authData.permissions, [permissions.client.EDIT]) ||
+			false;
+		// This should be an api request to the server
+		// check object permission
+		// !!authData?.objPermissions.find(
+		// 	(perm) => perm.modelName === 'clients' && perm.permission === 'EDIT'
+		// );
 		const canDelete =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.client.DELETE]);
+			hasModelPermission(authData.permissions, [permissions.client.DELETE]) ||
+			false;
+		// This should be an api request to the server
+		// check object permission
+		// !!authData?.objPermissions.find(
+		// 	(perm) => perm.modelName === 'clients' && perm.permission === 'DELETE'
+		// );
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [
@@ -150,6 +162,16 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 	return (
 		<Container
 			heading="Client Information"
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title:
+								(error as any).message ||
+								'An error occurred. Please try again later',
+					  }
+					: undefined
+			}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
