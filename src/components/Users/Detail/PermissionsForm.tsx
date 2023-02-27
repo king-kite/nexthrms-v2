@@ -1,5 +1,5 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useGetPermissionsQuery } from '../../../store/queries';
 import { PermissionType } from '../../../types';
@@ -28,16 +28,11 @@ const Form: FC<FormProps> = ({
 	loading,
 	onSubmit,
 }) => {
-	const formStaleData = useMemo(
-		() => ({
-			permissions: initState
-				? initState.map((permission) => permission.codename)
-				: [],
-		}),
-		[initState]
-	);
-
-	const [form, setForm] = useState(formStaleData);
+	const [form, setForm] = useState<{
+		permissions: string[];
+	}>({
+		permissions: [],
+	});
 	const [formErrors, setErrors] = useState<ErrorType>();
 
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -46,6 +41,14 @@ const Form: FC<FormProps> = ({
 		data: permissions = { total: 0, result: [] },
 		isLoading: permissionsLoading,
 	} = useGetPermissionsQuery({});
+
+	useEffect(() => {
+		setForm({
+			permissions: initState
+				? initState.map((permission) => permission.codename)
+				: [],
+		});
+	}, [initState]);
 
 	const sortedPermissions = useMemo(() => {
 		if (permissions.result.length <= 0) return [];
