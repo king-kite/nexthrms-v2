@@ -67,10 +67,18 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		const buttons: ButtonType[] = [];
 		const canEdit =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.client.EDIT]);
+			hasModelPermission(authData.permissions, [permissions.client.EDIT]) ||
+			// check object permission
+			!!authData?.objPermissions.find(
+				(perm) => perm.modelName === 'clients' && perm.permission === 'EDIT'
+			);
 		const canDelete =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.client.DELETE]);
+			hasModelPermission(authData.permissions, [permissions.client.DELETE]) ||
+			// check object permission
+			!!authData?.objPermissions.find(
+				(perm) => perm.modelName === 'clients' && perm.permission === 'DELETE'
+			);
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [
