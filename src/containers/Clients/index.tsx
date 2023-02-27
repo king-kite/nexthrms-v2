@@ -49,7 +49,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 		  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
 		  // check object permission
 		  !!authData?.objPermissions.find(
-				(perm) => perm.modelName === 'projects' && perm.permission === 'VIEW'
+				(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
 		  )
 		: false;
 

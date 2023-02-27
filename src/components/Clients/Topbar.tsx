@@ -27,7 +27,11 @@ const Topbar: FC<TopbarProps> = ({
 
 	const canView = authData
 		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.VIEW])
+		  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
+		  // check object permission
+		  !!authData?.objPermissions.find(
+				(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
+		  )
 		: false;
 	const canCreate = authData
 		? authData.isSuperUser ||
