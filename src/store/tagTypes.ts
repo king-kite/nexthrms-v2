@@ -24,3 +24,4 @@ export const PROJECTS = 'projects';
 export const USERS = 'users';
 export const USER_GROUPS = 'user_groups';
 export const USER_PERMISSIONS = 'user_permissions';
+export const USER_OBJECT_PERMISSIONS = 'user_object_permissions';

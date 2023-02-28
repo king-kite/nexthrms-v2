@@ -60,8 +60,7 @@ export function useGetUserObjectPermissionsQuery(
 	}
 ) {
 	const query = useQuery(
-		// TODO: Check the tag type properly
-		[tags.PERMISSIONS_OBJECT, { modelName, objectId, permission }],
+		[tags.USER_OBJECT_PERMISSIONS, { modelName, objectId, permission }],
 		async () => {
 			const url = USER_OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
 
