@@ -47,8 +47,8 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	let hasPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
-
+		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]) ||
+		hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
 	// If the user has model permissions
 	if (hasPerm) {
 		const data = await getClients();
