@@ -1,5 +1,5 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useGetGroupsQuery } from '../../../store/queries';
 import { GroupType, UserGroupType } from '../../../types';
@@ -25,20 +25,23 @@ const Form: FC<FormProps> = ({
 	loading,
 	onSubmit,
 }) => {
-	const formStaleData = useMemo(
-		() => ({
-			groups: initState ? initState.map((group) => group.id) : [],
-		}),
-		[initState]
-	);
-
-	const [form, setForm] = useState(formStaleData);
+	const [form, setForm] = useState<{
+		groups: string[];
+	}>({
+		groups: [],
+	});
 	const [formErrors, setErrors] = useState<ErrorType>();
 
 	const formRef = useRef<HTMLFormElement | null>(null);
 
 	const { data: groups = { total: 0, result: [] }, isLoading: groupsLoading } =
 		useGetGroupsQuery({});
+
+	useEffect(() => {
+		setForm({
+			groups: initState ? initState.map((group) => group.id) : [],
+		});
+	}, [initState]);
 
 	const handleSubmit = useCallback(
 		async (input: { groups: string[] }) => {
