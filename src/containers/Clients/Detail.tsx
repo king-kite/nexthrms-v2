@@ -85,11 +85,11 @@ const ClientDetail = ({
 	const actions: ButtonType[] = useMemo(() => {
 		if (!data || !authData) return [];
 		const buttons: ButtonType[] = [];
-		const canEdit: boolean =
+		const canEdit =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.client.EDIT]) ||
 			(!permLoading && objPermData && objPermData.edit);
-		const canDelete: boolean =
+		const canDelete =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.client.DELETE]) ||
 			(!permLoading && objPermData && objPermData.delete);
