@@ -1,6 +1,8 @@
 import { userEmployeeProperties, userProfileProperties } from './properties';
 import * as refs from '../refs';
 
+import { models } from '../../config';
+
 export const AuthUserDataModel = {
 	type: 'object',
 	required: ['email', 'firstName', 'lastName', 'fullName'],
@@ -25,6 +27,16 @@ export const AuthUserDataModel = {
 			type: 'string',
 			example: 'Doe',
 			description: "The user's last name",
+		},
+		isAdmin: {
+			type: 'boolean',
+			example: false,
+			nullable: true,
+		},
+		isSuperUser: {
+			type: 'boolean',
+			example: false,
+			nullable: true,
 		},
 		profile: {
 			type: 'object',
@@ -71,6 +83,25 @@ export const AuthUserDataModel = {
 			type: 'array',
 			items: {
 				$ref: refs.PERMISSION,
+			},
+		},
+		objPermissions: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: {
+					modelName: {
+						type: 'string',
+						format: JSON.stringify(models)
+							.replace('[', '(')
+							.replace(']', ')')
+							.replaceAll(',', ' | '),
+					},
+					permission: {
+						type: 'string',
+						format: 'DELETE | EDIT | VIEW',
+					},
+				},
 			},
 		},
 	},
