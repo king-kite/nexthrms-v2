@@ -1,4 +1,4 @@
-import { Asset, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { AssetType, ParamsType } from '../../types';
@@ -40,7 +40,10 @@ export const getAssetsQuery = ({
 	search,
 	from,
 	to,
-}: ParamsType): Prisma.AssetFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.AssetWhereInput;
+}): Prisma.AssetFindManyArgs => {
 	const query: Prisma.AssetFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -93,8 +96,9 @@ export const getAssetsQuery = ({
 										},
 								  ]
 								: undefined,
+						...where,
 				  }
-				: {},
+				: where,
 		select: assetSelectQuery,
 	};
 
@@ -102,19 +106,21 @@ export const getAssetsQuery = ({
 };
 
 export const getAssets = async (
-	params?: ParamsType
+	params?: ParamsType & {
+		where?: Prisma.AssetWhereInput;
+	}
 ): Promise<{
 	total: number;
-	result: AssetType[] | Asset[];
+	result: AssetType[];
 }> => {
-	const query = getAssetsQuery({...params});
+	const query = getAssetsQuery({ ...params });
 
 	const [total, result] = await prisma.$transaction([
 		prisma.asset.count({ where: query.where }),
 		prisma.asset.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as AssetType[] };
 };
 
 export const getAsset = async (id: string) => {
