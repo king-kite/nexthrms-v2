@@ -1,13 +1,22 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { IconType } from 'react-icons';
 import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
-import { ASSET_OBJECT_PERMISSIONS_PAGE_URL, USER_PAGE_URL } from '../../config';
-import { useAlertContext, useAlertModalContext } from '../../store/contexts';
+import {
+	permissions,
+	ASSET_OBJECT_PERMISSIONS_PAGE_URL,
+	USER_PAGE_URL,
+} from '../../config';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../../store/contexts';
 import { useDeleteAssetMutation } from '../../store/queries';
 import { AssetType } from '../../types';
-import { getStringedDate } from '../../utils';
+import { getStringedDate, hasModelPermission } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'asset name' },
@@ -29,88 +38,107 @@ const getRows = (
 		editAsset,
 		deleteAsset,
 		showAsset,
+		getObjPermLink,
 	}: {
-		deleteAsset: (id: string) => void;
-		editAsset: (asset: AssetType) => void;
+		deleteAsset?: (id: string) => void;
+		editAsset?: (asset: AssetType) => void;
 		showAsset: (asset: AssetType) => void;
+		getObjPermLink?: (id: string) => string;
 	}
 ): TableRowType[] =>
-	data.map((asset) => ({
-		id: asset.id,
-		rows: [
+	data.map((asset) => {
+		const actions: {
+			color: string;
+			icon: IconType;
+			onClick?: () => void;
+			link?: string;
+		}[] = [
 			{
+				color: 'primary',
+				icon: FaEye,
 				onClick: () => showAsset(asset),
-				value: asset.name || '---',
 			},
-			{
-				link: asset.user ? USER_PAGE_URL(asset.user.id) : undefined,
-				value: asset.user
-					? `${asset.user.firstName} ${asset.user.lastName}`
-					: '---',
-			},
-			{ value: asset.assetId || '---' },
-			{
-				options: {
-					bg:
-						asset.condition === 'BAD'
-							? 'danger'
-							: asset.condition === 'GOOD'
-							? 'primary'
-							: 'success',
+		];
+		if (editAsset) {
+			actions.push({
+				color: 'primary',
+				icon: FaPen,
+				onClick: () => editAsset(asset),
+			});
+		}
+		if (deleteAsset) {
+			actions.push({
+				color: 'danger',
+				icon: FaTrash,
+				onClick: () => deleteAsset(asset.id),
+			});
+		}
+		if (getObjPermLink) {
+			actions.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: getObjPermLink(asset.id),
+			});
+		}
+
+		return {
+			id: asset.id,
+			rows: [
+				{
+					onClick: () => showAsset(asset),
+					value: asset.name || '---',
 				},
-				type: 'badge',
-				value: asset.condition,
-			},
-			{ value: asset.value || '---' },
-			{ value: asset.warranty || '---' },
-			{
-				value: asset.purchaseDate ? getStringedDate(asset.purchaseDate) : '---',
-			},
-			{
-				options: {
-					bg:
-						asset.status === 'APPROVED'
-							? 'success'
-							: asset.status === 'DENIED'
-							? 'danger'
-							: asset.status === 'PENDING'
-							? 'warning'
-							: 'seoncdary',
+				{
+					link: asset.user ? USER_PAGE_URL(asset.user.id) : undefined,
+					value: asset.user
+						? `${asset.user.firstName} ${asset.user.lastName}`
+						: '---',
 				},
-				type: 'badge',
-				value: asset.status,
-			},
-			{ value: asset.serialNo || '---' },
-			{
-				value: asset.updatedAt ? getStringedDate(asset.updatedAt) : '---',
-			},
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaEye,
-						onClick: () => showAsset(asset),
+				{ value: asset.assetId || '---' },
+				{
+					options: {
+						bg:
+							asset.condition === 'BAD'
+								? 'danger'
+								: asset.condition === 'GOOD'
+								? 'primary'
+								: 'success',
 					},
-					{
-						color: 'primary',
-						icon: FaPen,
-						onClick: () => editAsset(asset),
+					type: 'badge',
+					value: asset.condition,
+				},
+				{ value: asset.value || '---' },
+				{ value: asset.warranty || '---' },
+				{
+					value: asset.purchaseDate
+						? getStringedDate(asset.purchaseDate)
+						: '---',
+				},
+				{
+					options: {
+						bg:
+							asset.status === 'APPROVED'
+								? 'success'
+								: asset.status === 'DENIED'
+								? 'danger'
+								: asset.status === 'PENDING'
+								? 'warning'
+								: 'seoncdary',
 					},
-					{
-						color: 'danger',
-						icon: FaTrash,
-						onClick: () => deleteAsset(asset.id),
-					},
-					{
-						color: 'info',
-						icon: FaUserShield,
-						link: ASSET_OBJECT_PERMISSIONS_PAGE_URL(asset.id),
-					},
-				],
-			},
-		],
-	}));
+					type: 'badge',
+					value: asset.status,
+				},
+				{ value: asset.serialNo || '---' },
+				{
+					value: asset.updatedAt ? getStringedDate(asset.updatedAt) : '---',
+				},
+				{
+					type: 'actions',
+					value: actions,
+				},
+			],
+		};
+	});
 
 type TableType = {
 	assets: AssetType[];
@@ -126,6 +154,29 @@ const AssetTable = ({ assets, editAsset, showAsset }: TableType) => {
 
 	const { open: openAlert } = useAlertContext();
 	const { close: closeModal } = useAlertModalContext();
+	const { data: authData } = useAuthContext();
+
+	// has model permission
+	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+		const canEdit = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.EDIT]))
+			: false;
+		const canDelete = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.DELETE]))
+			: false;
+		const canViewObjectPermissions = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]))
+			: false;
+		return [canEdit, canDelete, canViewObjectPermissions];
+	}, [authData]);
 
 	const { deleteAsset } = useDeleteAssetMutation({
 		onSuccess() {
@@ -156,8 +207,26 @@ const AssetTable = ({ assets, editAsset, showAsset }: TableType) => {
 		} else {
 			finalList = assets;
 		}
-		setRows(getRows(finalList, { deleteAsset, editAsset, showAsset }));
-	}, [activeRow, assets, deleteAsset, editAsset, showAsset]);
+		setRows(
+			getRows(finalList, {
+				deleteAsset: canDelete ? deleteAsset : undefined,
+				editAsset: canEdit ? editAsset : undefined,
+				getObjPermLink: canViewObjectPermissions
+					? ASSET_OBJECT_PERMISSIONS_PAGE_URL
+					: undefined,
+				showAsset,
+			})
+		);
+	}, [
+		activeRow,
+		assets,
+		deleteAsset,
+		editAsset,
+		showAsset,
+		canViewObjectPermissions,
+		canEdit,
+		canDelete,
+	]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">

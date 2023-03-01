@@ -58,7 +58,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			  (authData.isAdmin &&
 					hasModelPermission(authData.permissions, [permissions.asset.EXPORT]))
 			: false;
-		// TODO: Add Object Level Permissions As Well
+		// Added Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
