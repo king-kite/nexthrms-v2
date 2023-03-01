@@ -38,6 +38,14 @@ body {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/*.bg-indigo-900 {
+	background-color: #312e81 !important;
+}
+
+.hover\:bg-indigo-800:hover {
+	background-color: #3730a3 !important;
+}
+*/
 @media (min-width: 768px) {
 	.md\:grid-cols-4 {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
