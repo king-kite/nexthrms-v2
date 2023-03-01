@@ -41,3 +41,28 @@ export const projectteam = makePermissions('projectteam');
 export const projecttask = makePermissions('projecttask');
 export const projecttaskfollower = makePermissions('projecttaskfollower');
 export const user = makePermissions('user');
+
+const permissions = {
+	apidoc,
+	asset,
+	attendance,
+	client,
+	department,
+	employee,
+	group,
+	holiday,
+	job,
+	leave,
+	overtime,
+	permission,
+	permissioncategory,
+	permissionobject,
+	project,
+	projectfile,
+	projectteam,
+	projecttask,
+	projecttaskfollower,
+	user,
+};
+
+export default permissions;
