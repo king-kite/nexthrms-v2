@@ -51,7 +51,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
 	// If the user has model permissions
 	if (hasPerm) {
-		const data = await getClients();
+		const data = await getClients({
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		});
 
 		return {
 			props: {
