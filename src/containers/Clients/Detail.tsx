@@ -95,9 +95,10 @@ const ClientDetail = ({
 			(!permLoading && objPermData && objPermData.delete);
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.permissionobject.VIEW,
-			]);
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
 
 		if (canEdit)
 			buttons.push(
