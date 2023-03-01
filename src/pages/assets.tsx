@@ -45,7 +45,8 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const auth = await serializeUserData(req.user);
 
-	if (!req.user.isAdmin) {
+	// Must be admin user
+	if (!req.user.isSuperUser && !req.user.isAdmin) {
 		return {
 			props: {
 				auth,
