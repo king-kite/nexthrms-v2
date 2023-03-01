@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { Container, Modal } from '../../components/common';
@@ -35,23 +35,26 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	const { open: openModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
-	const canCreate = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.CREATE])
-		: false;
-	const canExport = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
-		: false;
-	// TODO: Add Object Level Permissions As Well
-	const canView = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
-		  // check object permission
-		  !!authData?.objPermissions.find(
-				(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
-		  )
-		: false;
+	const [canCreate, canExport, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
+			: false;
+		// TODO: Add Object Level Permissions As Well
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
 		{
@@ -123,14 +126,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			error={
-				!canView && !canCreate
-					? {
-							statusCode: 403,
-							title: 'You are not authorized to view this page!',
-					  }
-					: undefined
-			}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
 				canView && data
 					? {

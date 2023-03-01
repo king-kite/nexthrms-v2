@@ -17,6 +17,15 @@ export const PASSWORD_RESET_VERIFY_URL = `${ROOT_URL}/auth/password/reset/verify
 export const PROFILE_URL = `${ROOT_URL}/auth/profile/`;
 export const REGISTER_URL = `${ROOT_URL}/auth/register/`;
 export const USER_DATA_URL = `${ROOT_URL}/auth/user/`;
+export const USER_OBJECT_PERMISSIONS_URL = (
+	model: PermissionModelChoices,
+	objectId: string,
+	permission?: PermissionObjectChoices | ''
+) => {
+	let url = `${ROOT_URL}/auth/permissions/${model}/${objectId}/`;
+	if (permission) url += `?permission=${permission || ''}`;
+	return url;
+};
 
 export const NOTIFICATIONS_URL = `${ROOT_URL}/notifications/`;
 export const NOTIFICATION_URL = (id: number | string) =>

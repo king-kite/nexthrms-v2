@@ -27,11 +27,18 @@ import {
 	useActivateUserMutation,
 	useDeleteClientMutation,
 	useGetClientQuery,
+	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
-import { ClientType } from '../../types';
+import { ClientType, UserObjPermType } from '../../types';
 import { hasModelPermission, toCapitalize, getDate } from '../../utils';
 
-const ClientDetail = ({ client }: { client: ClientType }) => {
+const ClientDetail = ({
+	client,
+	objPerm,
+}: {
+	client: ClientType;
+	objPerm: UserObjPermType;
+}) => {
 	const router = useRouter();
 
 	const id = router.query.id as string;
@@ -51,6 +58,19 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		}
 	);
 
+	const { data: objPermData, isLoading: permLoading } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'clients',
+				objectId: id,
+			},
+			{
+				initialData() {
+					return objPerm;
+				},
+			}
+		);
+
 	const { deleteClient, isLoading: delLoading } = useDeleteClientMutation({
 		onSuccess() {
 			router.push(CLIENTS_PAGE_URL);
@@ -68,26 +88,17 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		const canEdit =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.client.EDIT]) ||
-			false;
-		// This should be an api request to the server
-		// check object permission
-		// !!authData?.objPermissions.find(
-		// 	(perm) => perm.modelName === 'clients' && perm.permission === 'EDIT'
-		// );
+			(!permLoading && objPermData && objPermData.edit);
 		const canDelete =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.client.DELETE]) ||
-			false;
-		// This should be an api request to the server
-		// check object permission
-		// !!authData?.objPermissions.find(
-		// 	(perm) => perm.modelName === 'clients' && perm.permission === 'DELETE'
-		// );
+			(!permLoading && objPermData && objPermData.delete);
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.permissionobject.VIEW,
-			]);
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
 
 		if (canEdit)
 			buttons.push(
@@ -155,6 +166,8 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 		deleteClient,
 		delLoading,
 		formType,
+		permLoading,
+		objPermData,
 		id,
 		loading,
 	]);

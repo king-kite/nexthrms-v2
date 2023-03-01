@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
-import { getClients, prisma } from '../../../db';
+import { clientSelectQuery, getClients, prisma } from '../../../db';
 import { getUserObjects } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
@@ -152,7 +152,7 @@ export default auth()
 
 		const client = await prisma.client.create({
 			data,
-			select: selectQuery,
+			select: clientSelectQuery,
 		});
 
 		return res.status(201).json({
@@ -161,28 +161,3 @@ export default auth()
 			data: client,
 		});
 	});
-
-const selectQuery: Prisma.ClientSelect = {
-	id: true,
-	company: true,
-	contact: {
-		select: {
-			firstName: true,
-			lastName: true,
-			email: true,
-			profile: {
-				select: {
-					image: true,
-					gender: true,
-					city: true,
-					address: true,
-					dob: true,
-					phone: true,
-					state: true,
-				},
-			},
-			isActive: true,
-		},
-	},
-	position: true,
-};

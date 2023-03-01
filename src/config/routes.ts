@@ -1,9 +1,22 @@
+// Administration Section
 export const DOCS_PAGE_URL = '/docs/';
 export const HOME_PAGE_URL = '/';
 export const JOBS_PAGE_URL = '/jobs/';
 
 // Assets Section
 export const ASSETS_PAGE_URL = '/assets/';
+export const ASSET_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/assets/${slug}/assets/object-permissions/`;
+
+export const GROUPS_PAGE_URL = '/users/groups/';
+export const GROUP_PAGE_URL = (slug: string) => `/users/groups/${slug}/`;
+export const OBJECT_PERMISSIONS_PAGE_URL = (
+	model: string,
+	objectId: string = ''
+) => `/users/permissions/objects/${model}/${objectId}/`;
+export const PERMISSIONS_PAGE_URL = '/users/permissions/';
+export const USERS_PAGE_URL = '/users/all/';
+export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;
 
 // Authentication Section
 export const LOGIN_PAGE_URL = '/account/login/';
@@ -59,14 +72,3 @@ export const PROJECT_TASK_PAGE_URL = (slug: string, id: string = '') =>
 	`/projects/${slug}/tasks/${id}/`;
 export const PROJECT_TEAM_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/team/`;
-
-// Users Section
-export const GROUPS_PAGE_URL = '/users/groups/';
-export const GROUP_PAGE_URL = (slug: string) => `/users/groups/${slug}/`;
-export const OBJECT_PERMISSIONS_PAGE_URL = (
-	model: string,
-	objectId: string = ''
-) => `/users/permissions/objects/${model}/${objectId}/`;
-export const PERMISSIONS_PAGE_URL = '/users/permissions/';
-export const USERS_PAGE_URL = '/users/all/';
-export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;

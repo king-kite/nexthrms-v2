@@ -101,13 +101,17 @@ const Container: FC<ContainerProps> = ({
 
 	if (loading) return <LoadingPage />;
 
-	if (error) return <Error
-					statusCode={error.statusCode || 500}
-					title={
-						error.title ||
-						'A server error occurred! Please try again later.'
-					}
-				/>;
+	if (error)
+		return (
+			<Error
+				statusCode={error.statusCode || 500}
+				title={
+					error.title || error.statusCode === 403
+						? 'You are not authorized to view this page!'
+						: 'A server error occurred! Please try again later.'
+				}
+			/>
+		);
 
 	return (
 		<>

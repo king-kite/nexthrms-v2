@@ -102,7 +102,7 @@ export const getClients = async (
 	active: number;
 	inactive: number;
 	total: number;
-	result: ClientType[] | Client[];
+	result: ClientType[];
 }> => {
 	const query = getClientsQuery({ ...params });
 
@@ -127,7 +127,7 @@ export const getClients = async (
 		prisma.client.findMany(query),
 	]);
 
-	return { total, active, inactive, result };
+	return { total, active, inactive, result: result as unknown as ClientType[] };
 };
 
 export const getClient = async (id: string) => {

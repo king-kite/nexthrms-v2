@@ -13,6 +13,12 @@ export type ParamsType = {
 	to?: Date;
 };
 
+export type UserObjPermType = {
+	delete: boolean;
+	edit: boolean;
+	view: boolean;
+};
+
 export interface SuccessResponseType<DataType = unknown> extends ResponseType {
 	data: DataType;
 }

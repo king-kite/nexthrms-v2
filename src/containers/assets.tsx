@@ -1,13 +1,22 @@
-import { Button, ButtonDropdown } from 'kite-react-tailwind';
+import { Alert, Button, ButtonDropdown } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 
 import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
 import { Container, ExportForm, Modal } from '../components/common';
-import { DEFAULT_PAGINATION_SIZE, ASSETS_EXPORT_URL } from '../config';
-import { useAlertContext } from '../store/contexts';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	ASSETS_EXPORT_URL,
+} from '../config';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../store/contexts';
 import {
 	useCreateAssetMutation,
+	useDeleteAssetMutation,
 	useEditAssetMutation,
 	useGetAssetsQuery,
 } from '../store/queries';
@@ -17,7 +26,7 @@ import {
 	CreateAssetErrorResponseType,
 	GetAssetsResponseType,
 } from '../types';
-import { downloadFile, getStringedDate } from '../utils';
+import { downloadFile, getStringedDate, hasModelPermission } from '../utils';
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
@@ -41,6 +50,34 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	}>();
 
 	const { open } = useAlertContext();
+	const { visible: alertModalVisible, close: closeModal } =
+		useAlertModalContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = React.useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.CREATE]))
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.EXPORT]))
+			: false;
+		// Added Object Level Permissions As Well
+		const canView = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.VIEW])) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'assets' && perm.permission === 'VIEW'
+			  )
+			: false;
+
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const { data, isFetching, refetch } = useGetAssetsQuery(
 		{
@@ -108,12 +145,40 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		},
 	});
 
+	const { deleteAsset } = useDeleteAssetMutation(
+		{
+			onSuccess() {
+				open({
+					type: 'success',
+					message: 'Asset Removed Successfully.',
+				});
+				if (modalVisible) setModalVisible(false);
+				if (editId) setEditId(undefined);
+				if (showAsset) setShowAsset(undefined);
+			},
+			onError(error) {
+				open({
+					message: error.message,
+					type: 'danger',
+				});
+			},
+		},
+		{
+			onSettled() {
+				if (alertModalVisible) closeModal();
+			},
+		}
+	);
+
 	const handleSubmit = React.useCallback(
 		(form: AssetCreateQueryType) => {
+			// A check should be made to see if the user can edit a select asset;
+			// if the user can edit the asset, then the editId field should
+			// be set and not be undefined
 			if (editId) editAsset({ id: editId, form });
-			else createAsset(form);
+			else if (canCreate) createAsset(form);
 		},
-		[createAsset, editAsset, editId]
+		[canCreate, createAsset, editAsset, editId]
 	);
 
 	return (
@@ -123,6 +188,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
 				data
 					? {
@@ -135,87 +201,100 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			}
 		>
 			<div className="flex items-center justify-end gap-4 my-3 w-full">
-				<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-					<ButtonDropdown
-						component={() => (
-							<ExportForm
-								loading={exportLoading}
-								onSubmit={async (type: 'csv' | 'excel', filtered: boolean) => {
-									let url = ASSETS_EXPORT_URL + '?type=' + type;
-									if (filtered) {
-										url =
-											url +
-											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
-												searchForm?.name || ''
-											}`;
-										if (searchForm?.startDate && searchForm?.endDate) {
-											url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
+				{canExport && (
+					<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+						<ButtonDropdown
+							component={() => (
+								<ExportForm
+									loading={exportLoading}
+									onSubmit={async (
+										type: 'csv' | 'excel',
+										filtered: boolean
+									) => {
+										let url = ASSETS_EXPORT_URL + '?type=' + type;
+										if (filtered) {
+											url =
+												url +
+												`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+													searchForm?.name || ''
+												}`;
+											if (searchForm?.startDate && searchForm?.endDate) {
+												url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
+											}
 										}
-									}
-									const result = await downloadFile({
-										url,
-										name: type === 'csv' ? 'assets.csv' : 'assets.xlsx',
-										setLoading: setExportLoading,
-									});
-									if (result?.status !== 200) {
-										open({
-											type: 'danger',
-											message: 'An error occurred. Unable to export file!',
+										const result = await downloadFile({
+											url,
+											name: type === 'csv' ? 'assets.csv' : 'assets.xlsx',
+											setLoading: setExportLoading,
 										});
-									}
-								}}
-							/>
-						)}
-						props={{
-							caps: true,
-							iconLeft: FaCloudDownloadAlt,
-							margin: 'lg:mr-6',
-							padding: 'px-3 py-2 md:px-6',
-							rounded: 'rounded-xl',
-							title: 'export',
+										if (result?.status !== 200) {
+											open({
+												type: 'danger',
+												message: 'An error occurred. Unable to export file!',
+											});
+										}
+									}}
+								/>
+							)}
+							props={{
+								caps: true,
+								iconLeft: FaCloudDownloadAlt,
+								margin: 'lg:mr-6',
+								padding: 'px-3 py-2 md:px-6',
+								rounded: 'rounded-xl',
+								title: 'export',
+							}}
+						/>
+					</div>
+				)}
+				{canCreate && (
+					<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+						<Button
+							onClick={() => {
+								setErrors(undefined);
+								setForm(formStaleData);
+								setEditId(undefined);
+								setShowAsset(undefined);
+								setModalVisible(true);
+							}}
+							rounded="rounded-xl"
+							title="Add new Asset"
+						/>
+					</div>
+				)}
+			</div>
+			{canView && (
+				<>
+					<div className="py-2 md:pt-4 lg:pt-6">
+						<SearchForm
+							form={searchForm}
+							loading={isFetching}
+							setForm={setSearchForm}
+						/>
+					</div>
+					<AssetTable
+						assets={data?.result || []}
+						showAsset={(asset) => {
+							setShowAsset(asset);
+							setModalVisible(true);
 						}}
-					/>
-				</div>
-				<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-					<Button
-						onClick={() => {
+						deleteAsset={deleteAsset}
+						editAsset={({ id, updatedAt, user, ...asset }) => {
 							setErrors(undefined);
-							setForm(formStaleData);
-							setEditId(undefined);
+							setEditId(id);
+							setForm({
+								...asset,
+								description: asset.description || undefined,
+								model: asset.model || undefined,
+								userId: user?.id || '',
+							});
 							setShowAsset(undefined);
 							setModalVisible(true);
 						}}
-						rounded="rounded-xl"
-						title="Add new Asset"
 					/>
-				</div>
-			</div>
-			<div className="py-2 md:pt-4 lg:pt-6">
-				<SearchForm
-					form={searchForm}
-					loading={isFetching}
-					setForm={setSearchForm}
-				/>
-			</div>
-			<AssetTable
-				assets={data?.result || []}
-				showAsset={(asset) => {
-					setShowAsset(asset);
-					setModalVisible(true);
-				}}
-				editAsset={({ id, updatedAt, user, ...asset }) => {
-					setErrors(undefined);
-					setEditId(id);
-					setForm({
-						...asset,
-						description: asset.description || undefined,
-						model: asset.model || undefined,
-						userId: user?.id || '',
-					});
-					setShowAsset(undefined);
-					setModalVisible(true);
-				}}
-			/>
+				</>
+			)}
+			{/* editId will determine if the user has edit permission */}
 			<Modal
 				close={() => {
 					setModalVisible(false);
@@ -225,8 +304,23 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				}}
 				component={
 					showAsset ? (
-						<Details asset={showAsset} />
-					) : (
+						<Details
+							asset={showAsset}
+							editAsset={({ id, updatedAt, user, ...asset }) => {
+								setErrors(undefined);
+								setEditId(id);
+								setForm({
+									...asset,
+									description: asset.description || undefined,
+									model: asset.model || undefined,
+									userId: user?.id || '',
+								});
+								setShowAsset(undefined);
+								setModalVisible(true);
+							}}
+							deleteAsset={deleteAsset}
+						/>
+					) : canCreate || editId ? (
 						<Form
 							form={form}
 							editMode={!!editId}
@@ -235,6 +329,12 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							setErrors={setErrors}
 							onChange={handleChange}
 							onSubmit={handleSubmit}
+						/>
+					) : (
+						<Alert
+							visible
+							type="info"
+							message="Sorry! Unable to display content for this screen at the moment. Please try again later. Thank You."
 						/>
 					)
 				}

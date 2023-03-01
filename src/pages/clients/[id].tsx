@@ -12,10 +12,11 @@ import { serializeUserData } from '../../utils/serializers';
 
 const Page = ({
 	data,
+	objPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Client Information" />
-		<ClientDetail client={data} />
+		<ClientDetail client={data} objPerm={objPerm} />
 	</React.Fragment>
 );
 
@@ -44,16 +45,13 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
 
-	if (!hasPerm) {
-		// check if the user has a view object permission for this record
-		const objPerm = await getUserObjectPermissions({
-			modelName: 'clients',
-			objectId: params?.id as string,
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
-		if (objPerm.view === true) hasPerm = true;
-	}
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'clients',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) hasPerm = true;
 
 	const auth = await serializeUserData(req.user);
 	if (!hasPerm) {
@@ -79,6 +77,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		props: {
 			auth,
 			data: JSON.parse(JSON.stringify(data)),
+			objPerm,
 		},
 	};
 };
