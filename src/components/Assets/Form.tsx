@@ -15,7 +15,7 @@ import {
 	AssetCreateQueryType,
 	CreateAssetErrorResponseType,
 } from '../../types';
-import { getStringedDate, toCapitalize } from '../../utils';
+import { toCapitalize } from '../../utils';
 import {
 	createAssetSchema,
 	handleAxiosErrors,
@@ -138,7 +138,7 @@ const Form: FC<FormProps> = ({
 						onChange={onChange}
 						placeholder="Purchase Date"
 						type="date"
-						value={getStringedDate(form?.purchaseDate)}
+						value={form?.purchaseDate}
 					/>
 				</div>
 				<div className="w-full">

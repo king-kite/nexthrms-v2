@@ -287,6 +287,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								description: asset.description || undefined,
 								model: asset.model || undefined,
 								userId: user?.id || '',
+								purchaseDate: getStringedDate(asset.purchaseDate)
 							});
 							setShowAsset(undefined);
 							setModalVisible(true);
@@ -314,6 +315,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 									description: asset.description || undefined,
 									model: asset.model || undefined,
 									userId: user?.id || '',
+									purchaseDate: getStringedDate(asset.purchaseDate)
 								});
 								setShowAsset(undefined);
 								setModalVisible(true);
