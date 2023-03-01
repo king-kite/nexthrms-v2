@@ -1,18 +1,59 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../config';
 import { getClients } from '../../../db';
+import { getUserObjects } from '../../../db/utils';
 import { auth } from '../../../middlewares';
-import { ClientType } from '../../../types';
+import { GetClientsResponseType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 
 export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.asset.EXPORT]);
 
-	const data = await getClients({ ...params });
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	const clients = data.result.map((cli) => {
-		const client = cli as ClientType;
+	let data: GetClientsResponseType['data'] = {
+		active: 0,
+		inactive: 0,
+		total: 0,
+		result: [],
+	};
+
+	const hasViewPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+
+	// if the user has model permissions
+	if (hasViewPerm) {
+		const params = validateParams(req.query);
+		data = await getClients({ ...params });
+	} else {
+		// if the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'clients',
+			permission: 'VIEW',
+			userId: req.user.id,
+		});
+
+		if (userObjects.length > 0) {
+			const params = validateParams(req.query);
+			data = await getClients({
+				...params,
+				where: {
+					id: {
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
+			});
+		}
+	}
+
+	const clients = data.result.map((client) => {
 		return {
 			id: client.id,
 			company: client.company,
