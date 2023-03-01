@@ -80,7 +80,7 @@ export default admin()
 	.delete(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.asset.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.asset.DELETE]);
 
 		if (!hasPerm) {
 			// check if the user has a view object permission for this record
