@@ -258,6 +258,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 					title: 'administration',
 					links: [
 						{
+							admin: true,
 							icon: FaArchive,
 							title: 'assets',
 							href: routes.ASSETS_PAGE_URL,
@@ -276,6 +277,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							permissions: [permissions.apidoc.VIEW],
 						},
 						{
+							admin: true,
 							icon: FaRProject,
 							title: 'jobs',
 							href: routes.JOBS_PAGE_URL,
@@ -287,6 +289,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							),
 						},
 						{
+							admin: true,
 							icon: FaUsersCog,
 							title: 'users',
 							links: [
