@@ -9,12 +9,7 @@ import {
 	ASSET_OBJECT_PERMISSIONS_PAGE_URL,
 	USER_PAGE_URL,
 } from '../../config';
-import {
-	useAlertContext,
-	useAlertModalContext,
-	useAuthContext,
-} from '../../store/contexts';
-import { useDeleteAssetMutation } from '../../store/queries';
+import { useAuthContext } from '../../store/contexts';
 import { AssetType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
 
@@ -142,18 +137,22 @@ const getRows = (
 
 type TableType = {
 	assets: AssetType[];
+	deleteAsset: (id: string) => void;
 	editAsset: (asset: AssetType) => void;
 	showAsset: (asset: AssetType) => void;
 };
 
-const AssetTable = ({ assets, editAsset, showAsset }: TableType) => {
+const AssetTable = ({
+	assets,
+	deleteAsset,
+	editAsset,
+	showAsset,
+}: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<
 		'all' | 'approved' | 'denied' | 'pending' | 'returned'
 	>('all');
 
-	const { open: openAlert } = useAlertContext();
-	const { close: closeModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
 	// has model permission
@@ -177,22 +176,6 @@ const AssetTable = ({ assets, editAsset, showAsset }: TableType) => {
 			: false;
 		return [canEdit, canDelete, canViewObjectPermissions];
 	}, [authData]);
-
-	const { deleteAsset } = useDeleteAssetMutation({
-		onSuccess() {
-			openAlert({
-				type: 'success',
-				message: 'Asset Removed Successfully.',
-			});
-		},
-		onError(error) {
-			closeModal();
-			openAlert({
-				message: error.message,
-				type: 'danger',
-			});
-		},
-	});
 
 	useEffect(() => {
 		let finalList;

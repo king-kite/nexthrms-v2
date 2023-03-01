@@ -1,9 +1,54 @@
-import { InfoComp, InfoCompType } from 'kite-react-tailwind';
+import { Button, InfoComp, InfoCompType } from 'kite-react-tailwind';
 import React from 'react';
-import { DEFAULT_IMAGE } from '../../config';
-import { AssetType } from '../../types';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
-function Details({ asset }: { asset: AssetType }) {
+import { permissions, DEFAULT_IMAGE } from '../../config';
+import { useAuthContext } from '../../store/contexts';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries';
+import { AssetType } from '../../types';
+import { hasModelPermission } from '../../utils';
+
+function Details({
+	asset,
+	deleteAsset,
+	editAsset,
+}: {
+	asset: AssetType;
+	deleteAsset: (id: string) => void;
+	editAsset: (asset: AssetType) => void;
+}) {
+	const { data: authData } = useAuthContext();
+
+	const { data: objPermData, isLoading: permLoading } =
+		useGetUserObjectPermissionsQuery({
+			modelName: 'assets',
+			objectId: asset.id,
+		});
+
+	const [canEdit, canDelete] = React.useMemo(() => {
+		let canDelete = false;
+		let canEdit = false;
+
+		// Check model permissions
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canEdit =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.EDIT]));
+			canDelete =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.DELETE]));
+		}
+
+		// If the user doesn't have model edit permissions, then check obj edit permission
+		if (!canEdit && objPermData) canEdit = objPermData.edit;
+		// If the user doesn't have model edit permissions, then check obj edit permission
+		if (!canDelete && objPermData) canDelete = objPermData.delete;
+
+		return [canEdit, canDelete];
+	}, [authData, objPermData]);
+
 	const infos = React.useMemo(() => {
 		let data: InfoCompType['infos'] = [
 			{ title: 'Asset Name', value: asset.name },
@@ -81,9 +126,35 @@ function Details({ asset }: { asset: AssetType }) {
 	}, [asset]);
 
 	return (
-		<div className="pt-4">
-			<InfoComp infos={infos} />
-		</div>
+		<>
+			{(canEdit || canDelete) && (
+				<div className="flex items-center justify-end gap-4 my-3 w-full">
+					{canEdit && (
+						<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+							<Button
+								iconLeft={FaPen}
+								onClick={() => editAsset(asset)}
+								padding="px-4 py-2 sm:py-3"
+								title="edit"
+							/>
+						</div>
+					)}
+					{canDelete && (
+						<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+							<Button
+								iconLeft={FaTrash}
+								onClick={() => deleteAsset(asset.id)}
+								padding="px-4 py-2 sm:py-3"
+								title="delete"
+							/>
+						</div>
+					)}
+				</div>
+			)}
+			<div className="pt-4">
+				<InfoComp infos={infos} />
+			</div>
+		</>
 	);
 }
 

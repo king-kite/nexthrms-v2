@@ -9,9 +9,14 @@ import {
 	DEFAULT_PAGINATION_SIZE,
 	ASSETS_EXPORT_URL,
 } from '../config';
-import { useAlertContext, useAuthContext } from '../store/contexts';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../store/contexts';
 import {
 	useCreateAssetMutation,
+	useDeleteAssetMutation,
 	useEditAssetMutation,
 	useGetAssetsQuery,
 } from '../store/queries';
@@ -45,6 +50,8 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	}>();
 
 	const { open } = useAlertContext();
+	const { visible: alertModalVisible, close: closeModal } =
+		useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
 	const [canCreate, canExport, canView] = React.useMemo(() => {
@@ -137,6 +144,31 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			setErrors({ message: error?.message, ...error?.data });
 		},
 	});
+
+	const { deleteAsset } = useDeleteAssetMutation(
+		{
+			onSuccess() {
+				open({
+					type: 'success',
+					message: 'Asset Removed Successfully.',
+				});
+				if (modalVisible) setModalVisible(false);
+				if (editId) setEditId(undefined);
+				if (showAsset) setShowAsset(undefined);
+			},
+			onError(error) {
+				open({
+					message: error.message,
+					type: 'danger',
+				});
+			},
+		},
+		{
+			onSettled() {
+				if (alertModalVisible) closeModal();
+			},
+		}
+	);
 
 	const handleSubmit = React.useCallback(
 		(form: AssetCreateQueryType) => {
@@ -246,6 +278,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							setShowAsset(asset);
 							setModalVisible(true);
 						}}
+						deleteAsset={deleteAsset}
 						editAsset={({ id, updatedAt, user, ...asset }) => {
 							setErrors(undefined);
 							setEditId(id);
@@ -271,7 +304,22 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				}}
 				component={
 					showAsset ? (
-						<Details asset={showAsset} />
+						<Details
+							asset={showAsset}
+							editAsset={({ id, updatedAt, user, ...asset }) => {
+								setErrors(undefined);
+								setEditId(id);
+								setForm({
+									...asset,
+									description: asset.description || undefined,
+									model: asset.model || undefined,
+									userId: user?.id || '',
+								});
+								setShowAsset(undefined);
+								setModalVisible(true);
+							}}
+							deleteAsset={deleteAsset}
+						/>
 					) : canCreate || editId ? (
 						<Form
 							form={form}
