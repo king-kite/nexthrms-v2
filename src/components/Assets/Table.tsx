@@ -1,9 +1,9 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye, FaPen, FaTrash } from 'react-icons/fa';
+import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
-import { USER_PAGE_URL } from '../../config';
+import { ASSET_OBJECT_PERMISSIONS_PAGE_URL, USER_PAGE_URL } from '../../config';
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import { useDeleteAssetMutation } from '../../store/queries';
 import { AssetType } from '../../types';
@@ -101,6 +101,11 @@ const getRows = (
 						color: 'danger',
 						icon: FaTrash,
 						onClick: () => deleteAsset(asset.id),
+					},
+					{
+						color: 'info',
+						icon: FaUserShield,
+						link: ASSET_OBJECT_PERMISSIONS_PAGE_URL(asset.id),
 					},
 				],
 			},
