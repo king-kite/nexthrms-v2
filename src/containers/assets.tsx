@@ -50,16 +50,19 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.asset.CREATE])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.CREATE]))
 			: false;
 		const canExport = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.asset.EXPORT])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.EXPORT]))
 			: false;
 		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.asset.VIEW]) ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.asset.VIEW])) ||
 			  // check object permission
 			  !!authData?.objPermissions.find(
 					(perm) => perm.modelName === 'assets' && perm.permission === 'VIEW'
