@@ -262,7 +262,6 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				</>
 			)}
 			{/* editId will determine if the user has edit permission */}
-			(
 			<Modal
 				close={() => {
 					setModalVisible(false);
@@ -304,7 +303,6 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				}
 				visible={modalVisible}
 			/>
-			)
 		</Container>
 	);
 }
