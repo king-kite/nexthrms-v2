@@ -65,4 +65,26 @@ const permissions = {
 	user,
 };
 
+export type PermissionKeyType =
+	| 'apidoc'
+	| 'asset'
+	| 'attendance'
+	| 'client'
+	| 'department'
+	| 'employee'
+	| 'group'
+	| 'holiday'
+	| 'job'
+	| 'leave'
+	| 'overtime'
+	| 'permission'
+	| 'permissioncategory'
+	| 'permissionobject'
+	| 'project'
+	| 'projectfile'
+	| 'projectteam'
+	| 'projecttask'
+	| 'projecttaskfollower'
+	| 'user';
+
 export default permissions;
