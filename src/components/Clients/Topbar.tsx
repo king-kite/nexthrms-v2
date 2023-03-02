@@ -58,12 +58,12 @@ const Topbar: FC<TopbarProps> = ({
 						ref={searchRef}
 						buttonProps={{
 							disabled: loading,
-							padding: 'pl-2 pr-4 py-[0.54rem]',
+							// padding: 'pl-2 pr-4 py-[0.54rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
 						inputProps={{
-							bdrColor: 'border-primary-500',
+							// bdrColor: 'border-primary-500',
 							disabled: loading,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {

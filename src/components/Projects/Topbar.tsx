@@ -34,12 +34,12 @@ const Topbar: FC<TopbarProps> = ({
 						caps: true,
 						disabled: loading,
 						iconLeft: FaSearch,
-						padding: 'pl-2 pr-4 py-[0.54rem]',
+						// padding: 'pl-2 pr-4 py-[0.54rem]',
 						title: 'Search',
 						type: 'submit',
 					}}
 					inputProps={{
-						bdrColor: 'border-primary-500',
+						// bdrColor: 'border-primary-500',
 						disabled: loading,
 						icon: FaSearch,
 						onChange: ({ target: { value } }) => {
