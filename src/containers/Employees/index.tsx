@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
-import { DEFAULT_PAGINATION_SIZE, EMPLOYEES_EXPORT_URL } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	EMPLOYEES_EXPORT_URL,
+} from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useCreateEmployeeMutation,
 	useGetEmployeesQuery,
@@ -12,7 +16,7 @@ import {
 	CreateEmployeeErrorResponseType,
 	GetEmployeesResponseType,
 } from '../../types';
-import { downloadFile } from '../../utils';
+import { downloadFile, hasModelPermission } from '../../utils';
 
 interface ErrorType extends CreateEmployeeErrorResponseType {
 	message?: string;
@@ -31,6 +35,28 @@ const Employees = ({
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.employee.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.employee.EXPORT])
+			: false;
+		// TODO: Add Object Level Permissions As Well
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.employee.VIEW]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'employees' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const employees = useGetEmployeesQuery(
 		{
@@ -73,15 +99,24 @@ const Employees = ({
 		},
 	});
 
+	const handleSubmit = useCallback(
+		(form: FormData) => {
+			if (canCreate) createEmployee(form);
+		},
+		[canCreate, createEmployee]
+	);
+
 	return (
 		<Container
 			heading="Employees"
+			disabledLoading={employees.isLoading}
 			refresh={{
 				loading: employees.isFetching,
 				onClick: employees.refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				employees.data
+				canView && employees.data
 					? {
 							offset,
 							setOffset,
@@ -91,16 +126,19 @@ const Employees = ({
 					: undefined
 			}
 		>
-			<Cards
-				active={employees.data?.active || 0}
-				leave={employees.data?.on_leave || 0}
-				inactive={employees.data?.inactive || 0}
-			/>
+			{canView && (
+				<Cards
+					active={employees.data?.active || 0}
+					leave={employees.data?.on_leave || 0}
+					inactive={employees.data?.inactive || 0}
+				/>
+			)}
 			<Topbar
 				openModal={() => setModalVisible(true)}
 				loading={employees.isFetching}
 				onSubmit={(name: string) => setSearch(name)}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = EMPLOYEES_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -121,24 +159,28 @@ const Employees = ({
 				}}
 				exportLoading={exportLoading}
 			/>
-			<div className="mt-3">
-				<EmployeeTable employees={employees.data?.result || []} />
-			</div>
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						errors={errors}
-						resetErrors={() => setErrors(undefined)}
-						loading={loading}
-						onSubmit={createEmployee}
-						success={formSuccess}
-					/>
-				}
-				description="Fill in the form below to add a new Employee"
-				title="Add Employee"
-				visible={modalVisible}
-			/>
+			{canView && (
+				<div className="mt-3">
+					<EmployeeTable employees={employees.data?.result || []} />
+				</div>
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							errors={errors}
+							resetErrors={() => setErrors(undefined)}
+							loading={loading}
+							onSubmit={handleSubmit}
+							success={formSuccess}
+						/>
+					}
+					description="Fill in the form below to add a new Employee"
+					title="Add Employee"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };
