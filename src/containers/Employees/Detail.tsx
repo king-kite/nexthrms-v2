@@ -30,9 +30,11 @@ import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 const Employee = ({
 	employee,
 	objPerm,
+	objUserPerm,
 }: {
 	employee: EmployeeType;
 	objPerm: UserObjPermType;
+	objUserPerm: UserObjPermType;
 }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -102,6 +104,9 @@ const Employee = ({
 		},
 		{
 			enabled: data && !!data.user.id,
+			initialData() {
+				return objUserPerm;
+			},
 		}
 	);
 

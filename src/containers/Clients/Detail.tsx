@@ -33,9 +33,11 @@ import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 const ClientDetail = ({
 	client,
 	objPerm,
+	objUserPerm,
 }: {
 	client: ClientType;
 	objPerm: UserObjPermType;
+	objUserPerm: UserObjPermType;
 }) => {
 	const router = useRouter();
 
@@ -78,6 +80,9 @@ const ClientDetail = ({
 		},
 		{
 			enabled: data && !!data.contact.id,
+			initialData() {
+				return objUserPerm
+			}
 		}
 	);
 
