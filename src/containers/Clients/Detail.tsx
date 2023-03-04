@@ -69,6 +69,35 @@ const ClientDetail = ({
 			}
 		);
 
+	// check if the user has edit user permission
+	const { data: objUserPermData } = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'users',
+			objectId: data?.contact.id || '',
+			permission: 'EDIT',
+		},
+		{
+			enabled: data && !!data.contact.id,
+		}
+	);
+
+	const canEditUser = useMemo(() => {
+		let canEdit = false;
+
+		// Check model permissions
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canEdit =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
+		}
+
+		// If the user doesn't have model edit permissions, then check obj edit permission
+		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
+
+		return canEdit;
+	}, [authData, objUserPermData]);
+
 	const { deleteClient, isLoading: delLoading } = useDeleteClientMutation({
 		onSuccess() {
 			router.back();
@@ -99,16 +128,17 @@ const ClientDetail = ({
 				]));
 
 		if (canEdit)
-			buttons.push(
-				{
-					onClick: () => {
-						formType !== 'client' && setFormType('client');
-						setModalVisible(true);
-					},
-					disabled: loading || delLoading,
-					iconLeft: FaUserEdit,
-					title: 'Edit Client',
+			buttons.push({
+				onClick: () => {
+					formType !== 'client' && setFormType('client');
+					setModalVisible(true);
 				},
+				disabled: loading || delLoading,
+				iconLeft: FaUserEdit,
+				title: 'Edit Client',
+			});
+		if (canEditUser)
+			buttons.push(
 				{
 					bg: 'bg-yellow-600 hover:bg-yellow-500',
 					iconLeft: FaLock,
@@ -161,6 +191,7 @@ const ClientDetail = ({
 		activate,
 		authData,
 		data,
+		canEditUser,
 		deleteClient,
 		delLoading,
 		formType,
