@@ -1,4 +1,4 @@
-import { Employee, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { EmployeeType, ParamsType } from '../../types';
@@ -175,7 +175,7 @@ export const getEmployees = async (
 	inactive: number;
 	total: number;
 	on_leave: number;
-	result: EmployeeType[] | Employee[];
+	result: EmployeeType[];
 }> => {
 	const query = getEmployeesQuery({ ...params });
 
@@ -236,7 +236,13 @@ export const getEmployees = async (
 		}),
 	]);
 
-	return { total, active, inactive: total - active, on_leave, result };
+	return {
+		total,
+		active,
+		inactive: total - active,
+		on_leave,
+		result: result as unknown as EmployeeType[],
+	};
 };
 
 export const getEmployee = async (id: string) => {
