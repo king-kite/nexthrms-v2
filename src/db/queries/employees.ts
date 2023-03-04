@@ -252,5 +252,5 @@ export const getEmployee = async (id: string) => {
 		select: employeeSelectQuery,
 	});
 
-	return employee;
+	return employee as unknown as EmployeeType;
 };
