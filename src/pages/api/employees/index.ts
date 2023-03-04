@@ -1,13 +1,17 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../config';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployees,
 	prisma,
 } from '../../../db';
-import { auth } from '../../../middlewares';
+import { getUserObjects } from '../../../db/utils';
+import { admin } from '../../../middlewares';
 import { CreateEmployeeQueryType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createEmployeeSchema, validateParams } from '../../../validators';
@@ -18,19 +22,63 @@ export const config = {
 	},
 };
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		const params = validateParams(req.query);
+		// User doesn't need to an employee to view employees
 
-		const data = await getEmployees({ ...params });
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.employee.VIEW]);
 
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched Employees successfully! A total of ' + data.total,
-			data,
+		// if the user has model permissions
+		if (hasPerm) {
+			const params = validateParams(req.query);
+			const data = await getEmployees({ ...params });
+
+			return res.status(200).json({
+				status: 'success',
+				message: 'Fetched Employees successfully! A total of ' + data.total,
+				data,
+			});
+		}
+
+		// if the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'employees',
+			permission: 'VIEW',
+			userId: req.user.id,
 		});
+
+		if (userObjects.length > 0) {
+			const params = validateParams(req.query);
+
+			const data = await getEmployees({
+				...params,
+				where: {
+					id: {
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
+			});
+
+			return res.status(200).json({
+				status: 'success',
+				message: 'Fetched Employees successfully! A total of ' + data.total,
+				data,
+			});
+		}
+
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.employee.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;
 			fields: any;
