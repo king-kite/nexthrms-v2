@@ -158,3 +158,47 @@ export async function getUserObjects({
 		throw error;
 	}
 }
+
+export async function addObjectPermissions({
+	model: modelName,
+	permissions = ['DELETE', 'EDIT', 'VIEW'],
+	objectId,
+	userId,
+}: {
+	model: PermissionModelChoices;
+	permissions?: PermissionObjectChoices[];
+	objectId: string;
+	userId: string;
+}) {
+	return prisma.$transaction(
+		permissions.map((permission) =>
+			prisma.permissionObject.create({
+				data: {
+					permission,
+					modelName,
+					objectId,
+					users: { connect: { id: userId } },
+				},
+				select: { id: true },
+			})
+		)
+	);
+	// return prisma.permissionObject.upsert({
+	// 	create: {
+	// 		permission,
+	// 		modelName,
+	// 		objectId,
+	// 		users: { connect: [{ id: userId }] },
+	// 	},
+	// 	where: {
+	// 		modelName_objectId_permission: {
+	// 			modelName,
+	// 			objectId,
+	// 			permission,
+	// 		},
+	// 	},
+	// 	update: {
+	// 		users: { connect: [{ id: userId }] },
+	// 	},
+	// });
+}

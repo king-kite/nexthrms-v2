@@ -135,17 +135,18 @@ function Details({
 								iconLeft={FaPen}
 								onClick={() => editAsset(asset)}
 								padding="px-4 py-2 sm:py-3"
-								title="edit"
+								title="Edit"
 							/>
 						</div>
 					)}
 					{canDelete && (
 						<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
 							<Button
+								bg="bg-red-600 hover:bg-red-500"
 								iconLeft={FaTrash}
 								onClick={() => deleteAsset(asset.id)}
 								padding="px-4 py-2 sm:py-3"
-								title="delete"
+								title="Delete"
 							/>
 						</div>
 					)}

@@ -1,12 +1,16 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../config';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployee,
 	prisma,
 } from '../../../db';
-import { auth } from '../../../middlewares';
+import { getUserObjectPermissions } from '../../../db/utils';
+import { admin } from '../../../middlewares';
 import { CreateEmployeeQueryType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createEmployeeSchema } from '../../../validators';
@@ -17,8 +21,25 @@ export const config = {
 	},
 };
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.employee.VIEW]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'employees',
+				objectId: req.query.id as string,
+				permission: 'VIEW',
+				userId: req.user.id,
+			});
+			if (objPerm.view === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const employee = await getEmployee(req.query.id as string);
 
 		if (!employee) {
@@ -35,6 +56,23 @@ export default auth()
 		});
 	})
 	.put(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.employee.EDIT]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'employees',
+				objectId: req.query.id as string,
+				permission: 'EDIT',
+				userId: req.user.id,
+			});
+			if (objPerm.edit === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;
 			fields: any;
@@ -148,6 +186,25 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.employee.DELETE,
+			]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'employees',
+				objectId: req.query.id as string,
+				permission: 'DELETE',
+				userId: req.user.id,
+			});
+			if (objPerm.delete === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		await prisma.employee.delete({
 			where: {
 				id: req.query.id as string,

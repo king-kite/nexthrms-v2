@@ -51,6 +51,7 @@ export type CreateEmployeeErrorResponseType = {
 };
 
 interface EmployeeUserType extends UserDataType {
+	id: string;
 	profile: {
 		dob: string | null;
 		gender: 'MALE' | 'FEMALE';

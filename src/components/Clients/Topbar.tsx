@@ -1,5 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useRef } from 'react';
+import { FC, useRef, useMemo } from 'react';
 import { FaCloudDownloadAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
 
 import { ExportForm } from '../common';
@@ -25,22 +25,25 @@ const Topbar: FC<TopbarProps> = ({
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const canView = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
-		  // check object permission
-		  !!authData?.objPermissions.find(
-				(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
-		  )
-		: false;
-	const canCreate = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.CREATE])
-		: false;
-	const canExport = authData
-		? authData.isSuperUser ||
-		  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
-		: false;
+	const [canView, canCreate, canExport] = useMemo(() => {
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'clients' && perm.permission === 'VIEW'
+			  )
+			: false;
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
+			: false;
+		return [canView, canCreate, canExport];
+	}, [authData]);
 
 	return (
 		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
@@ -58,12 +61,12 @@ const Topbar: FC<TopbarProps> = ({
 						ref={searchRef}
 						buttonProps={{
 							disabled: loading,
-							padding: 'pl-2 pr-4 py-[0.54rem]',
+							// padding: 'pl-2 pr-4 py-[0.54rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
 						inputProps={{
-							bdrColor: 'border-primary-500',
+							// bdrColor: 'border-primary-500',
 							disabled: loading,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {

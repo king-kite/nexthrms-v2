@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { clientSelectQuery, getClients, prisma } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
@@ -154,6 +154,14 @@ export default auth()
 			data,
 			select: clientSelectQuery,
 		});
+
+		if (client && client.id)
+			// Set the object permissions
+			await addObjectPermissions({
+				model: 'clients',
+				objectId: client.id,
+				userId: req.user.id,
+			});
 
 		return res.status(201).json({
 			status: 'success',

@@ -45,12 +45,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const auth = await serializeUserData(req.user);
 
-	let hasPerm =
+	const hasViewPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]) ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
+		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
 	// If the user has model permissions
-	if (hasPerm) {
+	if (hasViewPerm) {
 		const data = await getClients({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset: 0,
@@ -91,6 +90,21 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				},
 			};
 		}
+	}
+
+	// If the user does not have model level and object level permission
+	// check if the user has CREATE permission
+	const hasCreatePerm = hasModelPermission(req.user.allPermissions, [
+		permissions.client.CREATE,
+	]);
+
+	if (hasCreatePerm) {
+		return {
+			props: {
+				auth,
+				data: undefined,
+			},
+		};
 	}
 
 	return {

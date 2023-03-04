@@ -5,6 +5,7 @@ export type ClientType = {
 	company: string;
 	position: string;
 	contact: {
+		id: string;
 		firstName: string;
 		lastName: string;
 		email: string;

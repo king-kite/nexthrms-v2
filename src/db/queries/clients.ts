@@ -1,4 +1,4 @@
-import { Client, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { ClientType, ParamsType } from '../../types';
@@ -6,8 +6,10 @@ import { ClientType, ParamsType } from '../../types';
 export const clientSelectQuery = {
 	id: true,
 	company: true,
+	// Note: Contact is the user model/table relation name
 	contact: {
 		select: {
+			id: true,
 			firstName: true,
 			lastName: true,
 			email: true,

@@ -57,12 +57,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	let hasPerm =
+	const hasViewPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.asset.VIEW]) ||
-		hasModelPermission(req.user.allPermissions, [permissions.asset.CREATE]);
+		hasModelPermission(req.user.allPermissions, [permissions.asset.VIEW]);
 	// If the user has model permissions
-	if (hasPerm) {
+	if (hasViewPerm) {
 		const data = await getAssets({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset: 0,
@@ -77,7 +76,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	// Since the user is not a super user and doe not have model permissions
+	// Since the user is not a super user and does not have model permissions
 	// check if the user has a view object permission for any record in this table
 	const records = await getUserObjects({
 		modelName: 'assets',
@@ -103,6 +102,21 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				},
 			};
 		}
+	}
+
+	// If the user does not have model level and object level permission
+	// check if the user has CREATE permission
+	const hasCreatePerm = hasModelPermission(req.user.allPermissions, [
+		permissions.asset.CREATE,
+	]);
+
+	if (hasCreatePerm) {
+		return {
+			props: {
+				auth,
+				data: undefined,
+			},
+		};
 	}
 
 	return {

@@ -15,14 +15,12 @@ import {
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { UpdateForm } from '../../components/Clients';
 import { ChangePasswordForm } from '../../components/Employees';
-
 import {
 	permissions,
-	CLIENTS_PAGE_URL,
 	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
 	DEFAULT_IMAGE,
 } from '../../config';
-import { useAuthContext, useAlertContext } from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useActivateUserMutation,
 	useDeleteClientMutation,
@@ -30,14 +28,16 @@ import {
 	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
 import { ClientType, UserObjPermType } from '../../types';
-import { hasModelPermission, toCapitalize, getDate } from '../../utils';
+import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 
 const ClientDetail = ({
 	client,
 	objPerm,
+	objUserPerm,
 }: {
 	client: ClientType;
 	objPerm: UserObjPermType;
+	objUserPerm: UserObjPermType;
 }) => {
 	const router = useRouter();
 
@@ -71,9 +71,41 @@ const ClientDetail = ({
 			}
 		);
 
+	// check if the user has edit user permission
+	const { data: objUserPermData } = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'users',
+			objectId: data?.contact.id || '',
+			permission: 'EDIT',
+		},
+		{
+			enabled: data && !!data.contact.id,
+			initialData() {
+				return objUserPerm
+			}
+		}
+	);
+
+	const canEditUser = useMemo(() => {
+		let canEdit = false;
+
+		// Check model permissions
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canEdit =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
+		}
+
+		// If the user doesn't have model edit permissions, then check obj edit permission
+		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
+
+		return canEdit;
+	}, [authData, objUserPermData]);
+
 	const { deleteClient, isLoading: delLoading } = useDeleteClientMutation({
 		onSuccess() {
-			router.push(CLIENTS_PAGE_URL);
+			router.back();
 		},
 		onError({ message }) {
 			showAlert({ type: 'success', message });
@@ -101,16 +133,17 @@ const ClientDetail = ({
 				]));
 
 		if (canEdit)
-			buttons.push(
-				{
-					onClick: () => {
-						formType !== 'client' && setFormType('client');
-						setModalVisible(true);
-					},
-					disabled: loading || delLoading,
-					iconLeft: FaUserEdit,
-					title: 'Edit Client',
+			buttons.push({
+				onClick: () => {
+					formType !== 'client' && setFormType('client');
+					setModalVisible(true);
 				},
+				disabled: loading || delLoading,
+				iconLeft: FaUserEdit,
+				title: 'Edit Client',
+			});
+		if (canEditUser)
+			buttons.push(
 				{
 					bg: 'bg-yellow-600 hover:bg-yellow-500',
 					iconLeft: FaLock,
@@ -163,6 +196,7 @@ const ClientDetail = ({
 		activate,
 		authData,
 		data,
+		canEditUser,
 		deleteClient,
 		delLoading,
 		formType,
@@ -179,9 +213,7 @@ const ClientDetail = ({
 				error
 					? {
 							statusCode: (error as any).status || 500,
-							title:
-								(error as any).message ||
-								'An error occurred. Please try again later',
+							title: (error as any).message,
 					  }
 					: undefined
 			}

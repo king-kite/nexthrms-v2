@@ -1,4 +1,4 @@
-import { Employee, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { EmployeeType, ParamsType } from '../../types';
@@ -46,6 +46,7 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	},
 	user: {
 		select: {
+			id: true,
 			firstName: true,
 			lastName: true,
 			email: true,
@@ -112,8 +113,11 @@ export const getEmployeesQuery = ({
 	limit,
 	search = undefined,
 	from,
-	to
-}: ParamsType): Prisma.EmployeeFindManyArgs => {
+	to,
+	where = {},
+}: ParamsType & {
+	where?: Prisma.EmployeeWhereInput;
+}): Prisma.EmployeeFindManyArgs => {
 	const query: Prisma.EmployeeFindManyArgs = {
 		select: employeeSelectQuery,
 		orderBy: {
@@ -145,8 +149,9 @@ export const getEmployeesQuery = ({
 							},
 						],
 					},
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (offset !== undefined) query.skip = offset;
@@ -162,14 +167,18 @@ export const getEmployeesQuery = ({
 	return query;
 };
 
-export const getEmployees = async (params?: ParamsType): Promise<{
+export const getEmployees = async (
+	params?: ParamsType & {
+		where?: Prisma.EmployeeWhereInput;
+	}
+): Promise<{
 	active: number;
 	inactive: number;
 	total: number;
 	on_leave: number;
-	result: EmployeeType[] | Employee[];
+	result: EmployeeType[];
 }> => {
-	const query = getEmployeesQuery({...params});
+	const query = getEmployeesQuery({ ...params });
 
 	const [total, result, active, on_leave] = await prisma.$transaction([
 		prisma.employee.count({ where: query.where }),
@@ -198,6 +207,7 @@ export const getEmployees = async (params?: ParamsType): Promise<{
 						},
 					},
 				],
+				...query.where, // NEW
 			},
 		}),
 		// prisma.employee.count({
@@ -222,11 +232,18 @@ export const getEmployees = async (params?: ParamsType): Promise<{
 						},
 					},
 				},
+				...query.where, // NEW
 			},
 		}),
 	]);
 
-	return { total, active, inactive: total - active, on_leave, result };
+	return {
+		total,
+		active,
+		inactive: total - active,
+		on_leave,
+		result: result as unknown as EmployeeType[],
+	};
 };
 
 export const getEmployee = async (id: string) => {
@@ -235,5 +252,5 @@ export const getEmployee = async (id: string) => {
 		select: employeeSelectQuery,
 	});
 
-	return employee;
+	return employee as unknown as EmployeeType;
 };

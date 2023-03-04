@@ -1,24 +1,25 @@
+import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
-import { ParsedUrlQuery } from 'querystring';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { permissions, LOGIN_PAGE_URL } from '../../../config';
 import Employee from '../../../containers/Employees/Detail';
 import { getEmployee } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps, EmployeeType } from '../../../types';
-import { Title } from '../../../utils';
+import { ExtendedGetServerSideProps } from '../../../types';
+import { hasModelPermission, Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
-const Page = ({ data }: { data: EmployeeType }) => (
+const Page = ({
+	data,
+	objPerm,
+	objUserPerm,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Employee Information" />
-		<Employee employee={data} />
+		<Employee employee={data} objPerm={objPerm} objUserPerm={objUserPerm} />
 	</React.Fragment>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	req,
@@ -41,8 +42,31 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.employee.VIEW]);
+
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'employees',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) hasPerm = true;
+
 	const auth = await serializeUserData(req.user);
-	const data = await getEmployee(params?.id as IParams['id']);
+	if (!hasPerm) {
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+				},
+			},
+		};
+	}
+
+	const data = await getEmployee(params?.id as string);
 
 	if (!data) {
 		return {
@@ -50,10 +74,19 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	const objUserPerm = await getUserObjectPermissions({
+		modelName: 'users',
+		objectId: data.user.id,
+		userId: req.user.id,
+		permission: 'EDIT',
+	});
+
 	return {
 		props: {
 			auth,
 			data: JSON.parse(JSON.stringify(data)),
+			objPerm,
+			objUserPerm,
 		},
 	};
 };

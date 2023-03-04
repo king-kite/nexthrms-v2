@@ -29,7 +29,7 @@ export default auth()
 		if (!req.user.employee) {
 			return res.status(403).json({
 				status: 'error',
-				message: 'Only employees can request leaves',
+				message: 'Only employees can create leaves',
 			});
 		}
 
@@ -62,6 +62,11 @@ export default auth()
 						id: data.employee,
 					},
 				},
+				createdBy: {
+					connect: {
+						id: req.user.employee.id
+					}
+				}
 			},
 			select: selectQuery,
 		});
