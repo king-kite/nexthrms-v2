@@ -52,6 +52,7 @@ export function useGetUserObjectPermissionsQuery(
 			}>['data']
 		) => void;
 		onError?: (err: unknown) => void;
+		enabled?: boolean;
 		initialData?: () => SuccessResponseType<{
 			delete: boolean;
 			edit: boolean;
