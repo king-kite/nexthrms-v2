@@ -6,7 +6,7 @@ import {
 	getEmployees,
 	prisma,
 } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { CreateEmployeeQueryType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -183,6 +183,14 @@ export default admin()
 			data,
 			select: selectQuery,
 		});
+
+		if (employee && employee.id)
+			// Set the object permissions
+			await addObjectPermissions({
+				model: 'employees',
+				objectId: employee.id,
+				userId: req.user.id,
+			});
 
 		return res.status(201).json({
 			status: 'success',

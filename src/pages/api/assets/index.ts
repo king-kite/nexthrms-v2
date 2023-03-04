@@ -4,7 +4,7 @@ import {
 	getAssets,
 	prisma,
 } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { AssetCreateQueryType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -75,6 +75,14 @@ export default admin()
 			data: valid,
 			select: selectQuery,
 		});
+
+		if (data && data.id)
+			// Set the object permissions
+			await addObjectPermissions({
+				model: 'assets',
+				objectId: data.id,
+				userId: req.user.id,
+			});
 
 		return res.status(201).json({
 			status: 'success',

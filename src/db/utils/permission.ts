@@ -166,7 +166,7 @@ export async function addObjectPermissions({
 	userId,
 }: {
 	model: PermissionModelChoices;
-	permissions: PermissionObjectChoices[];
+	permissions?: PermissionObjectChoices[];
 	objectId: string;
 	userId: string;
 }) {
