@@ -93,6 +93,35 @@ const Employee = ({
 		},
 	});
 
+	// check if the user has edit user permission
+	const { data: objUserPermData } = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'users',
+			objectId: data?.user.id || '',
+			permission: 'EDIT',
+		},
+		{
+			enabled: data && !!data.user.id,
+		}
+	);
+
+	const canEditUser = useMemo(() => {
+		let canEdit = false;
+
+		// Check model permissions
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canEdit =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
+		}
+
+		// If the user doesn't have model edit permissions, then check obj edit permission
+		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
+
+		return canEdit;
+	}, [authData, objUserPermData]);
+
 	const actions: ButtonType[] = useMemo(() => {
 		if (!data || !authData) return [];
 		const buttons: ButtonType[] = [];
@@ -112,16 +141,17 @@ const Employee = ({
 				]));
 
 		if (canEdit)
-			buttons.push(
-				{
-					onClick: () => {
-						formType !== 'employee' && setFormType('employee');
-						setModalVisible(true);
-					},
-					disabled: actLoading || delLoading,
-					iconLeft: FaUserEdit,
-					title: 'Edit Employee',
+			buttons.push({
+				onClick: () => {
+					formType !== 'employee' && setFormType('employee');
+					setModalVisible(true);
 				},
+				disabled: actLoading || delLoading,
+				iconLeft: FaUserEdit,
+				title: 'Edit Employee',
+			});
+		if (canEditUser)
+			buttons.push(
 				{
 					bg: 'bg-yellow-600 hover:bg-yellow-500',
 					iconLeft: FaLock,
@@ -175,6 +205,7 @@ const Employee = ({
 		authData,
 		data,
 		deleteEmployee,
+		canEditUser,
 		actLoading,
 		delLoading,
 		formType,
