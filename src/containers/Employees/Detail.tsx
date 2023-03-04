@@ -1,30 +1,42 @@
-import { InfoComp } from 'kite-react-tailwind';
+import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	FaLock,
 	FaUserEdit,
 	FaUserCheck,
+	FaUserShield,
 	FaUserSlash,
 	FaTrash,
 } from 'react-icons/fa';
 
-import { ChangePasswordForm, EmployeeForm } from '../../components/Employees';
 import { Container, InfoTopBar, Modal } from '../../components/common';
-import { DEFAULT_IMAGE } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import { ChangePasswordForm, EmployeeForm } from '../../components/Employees';
 import {
-	useGetEmployeeQuery,
+	permissions,
+	DEFAULT_IMAGE,
+	EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
+import {
 	useActivateUserMutation,
 	useDeleteEmployeeMutation,
+	useGetEmployeeQuery,
+	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
-import { EmployeeType } from '../../types';
-import { getDate, toCapitalize } from '../../utils';
+import { EmployeeType, UserObjPermType } from '../../types';
+import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 
-const Employee = ({ employee }: { employee: EmployeeType }) => {
+const Employee = ({
+	employee,
+	objPerm,
+}: {
+	employee: EmployeeType;
+	objPerm: UserObjPermType;
+}) => {
 	const router = useRouter();
 	const id = router.query.id as string;
-	const { data, isLoading, isFetching, refetch } = useGetEmployeeQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetEmployeeQuery(
 		{
 			id,
 		},
@@ -36,9 +48,23 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 	);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
 
 	const [formType, setFormType] = useState<'employee' | 'password'>('employee');
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const { data: objPermData, isLoading: permLoading } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'employees',
+				objectId: id,
+			},
+			{
+				initialData() {
+					return objPerm;
+				},
+			}
+		);
 
 	const { deleteEmployee, isLoading: delLoading } = useDeleteEmployeeMutation({
 		onSuccess() {
@@ -67,9 +93,107 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 		},
 	});
 
+	const actions: ButtonType[] = useMemo(() => {
+		if (!data || !authData) return [];
+		const buttons: ButtonType[] = [];
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.employee.EDIT]) ||
+			(!permLoading && objPermData && objPermData.edit);
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.employee.DELETE]) ||
+			(!permLoading && objPermData && objPermData.delete);
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
+
+		if (canEdit)
+			buttons.push(
+				{
+					onClick: () => {
+						formType !== 'employee' && setFormType('employee');
+						setModalVisible(true);
+					},
+					disabled: actLoading || delLoading,
+					iconLeft: FaUserEdit,
+					title: 'Edit Employee',
+				},
+				{
+					bg: 'bg-yellow-600 hover:bg-yellow-500',
+					iconLeft: FaLock,
+					disabled: actLoading || delLoading,
+					onClick: () => {
+						formType !== 'password' && setFormType('password');
+						setModalVisible(true);
+					},
+					title: 'Change Password',
+				},
+				{
+					bg: data.user.isActive
+						? 'bg-gray-500 hover:bg-gray-600'
+						: 'bg-green-500 hover:bg-green-600',
+					disabled: actLoading || delLoading,
+					onClick: () =>
+						data?.user.email && data.user.isActive !== undefined
+							? activate(
+									[data.user.email],
+									data.user.isActive ? 'deactivate' : 'activate'
+							  )
+							: undefined,
+					iconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
+					title: data.user.isActive
+						? actLoading
+							? 'Deactivating Employee...'
+							: 'Deactivate Employee'
+						: actLoading
+						? 'Activating Employee...'
+						: 'Activate Employee',
+				}
+			);
+		if (canDelete)
+			buttons.push({
+				bg: 'bg-red-600 hover:bg-red-500',
+				iconLeft: FaTrash,
+				disabled: actLoading || delLoading,
+				onClick: () => deleteEmployee(data.id),
+				title: delLoading ? 'Deleting Employee...' : 'Delete Employee',
+			});
+		if (canViewObjectPermissions)
+			buttons.push({
+				bg: 'bg-gray-600 hover:bg-gray-500',
+				iconLeft: FaUserShield,
+				link: EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL(id),
+				title: 'View Record Permissions',
+			});
+		return buttons;
+	}, [
+		activate,
+		authData,
+		data,
+		deleteEmployee,
+		actLoading,
+		delLoading,
+		formType,
+		permLoading,
+		objPermData,
+		id,
+	]);
+
 	return (
 		<Container
 			heading="Employee Information"
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title: (error as any).message,
+					  }
+					: undefined
+			}
 			icon
 			refresh={{
 				loading: isFetching,
@@ -86,55 +210,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 							data.user.firstName + ' ' + data.user.lastName
 						)}
 						image={data.user.profile?.image || DEFAULT_IMAGE}
-						actions={[
-							{
-								onClick: () => {
-									formType !== 'employee' && setFormType('employee');
-									setModalVisible(true);
-								},
-								disabled: actLoading || delLoading,
-								iconLeft: FaUserEdit,
-								title: 'Edit Employee',
-							},
-							{
-								bg: 'bg-yellow-600 hover:bg-yellow-500',
-								iconLeft: FaLock,
-								disabled: actLoading || delLoading,
-								onClick: () => {
-									formType !== 'password' && setFormType('password');
-									setModalVisible(true);
-								},
-								title: 'Change Password',
-							},
-							{
-								bg: data.user.isActive
-									? 'bg-gray-500 hover:bg-gray-600'
-									: 'bg-green-500 hover:bg-green-600',
-								disabled: actLoading || delLoading,
-								onClick: () =>
-									data?.user.email && data.user.isActive !== undefined
-										? activate(
-												[data.user.email],
-												data.user.isActive ? 'deactivate' : 'activate'
-										  )
-										: undefined,
-								iconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
-								title: data.user.isActive
-									? actLoading
-										? 'Deactivating Employee...'
-										: 'Deactivate Employee'
-									: actLoading
-									? 'Activating Employee...'
-									: 'Activate Employee',
-							},
-							{
-								bg: 'bg-red-600 hover:bg-red-500',
-								iconLeft: FaTrash,
-								disabled: actLoading || delLoading,
-								onClick: () => deleteEmployee(data.id),
-								title: delLoading ? 'Deleting Employee...' : 'Delete Employee',
-							},
-						]}
+						actions={actions}
 					/>
 
 					<div className="mt-4">

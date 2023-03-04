@@ -15,14 +15,12 @@ import {
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { UpdateForm } from '../../components/Clients';
 import { ChangePasswordForm } from '../../components/Employees';
-
 import {
 	permissions,
-	CLIENTS_PAGE_URL,
 	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
 	DEFAULT_IMAGE,
 } from '../../config';
-import { useAuthContext, useAlertContext } from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useActivateUserMutation,
 	useDeleteClientMutation,
@@ -30,7 +28,7 @@ import {
 	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
 import { ClientType, UserObjPermType } from '../../types';
-import { hasModelPermission, toCapitalize, getDate } from '../../utils';
+import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 
 const ClientDetail = ({
 	client,
@@ -73,7 +71,7 @@ const ClientDetail = ({
 
 	const { deleteClient, isLoading: delLoading } = useDeleteClientMutation({
 		onSuccess() {
-			router.push(CLIENTS_PAGE_URL);
+			router.back();
 		},
 		onError({ message }) {
 			showAlert({ type: 'success', message });
@@ -179,9 +177,7 @@ const ClientDetail = ({
 				error
 					? {
 							statusCode: (error as any).status || 500,
-							title:
-								(error as any).message ||
-								'An error occurred. Please try again later',
+							title: (error as any).message,
 					  }
 					: undefined
 			}
