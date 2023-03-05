@@ -1,6 +1,6 @@
 import { permissions } from '../../../../config';
 import { prisma } from '../../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils';
 import { hashPassword } from '../../../../utils/bcrypt';
@@ -41,13 +41,13 @@ export default admin().post(async (req, res) => {
 		// get the user
 		const user = await prisma.user.findUnique({
 			where: { email },
-			select: { id: true }
-		})
-		if (!user) 
+			select: { id: true },
+		});
+		if (!user)
 			return res.status(404).json({
 				status: 'error',
-				message: 'User with specified email address was not found!'
-			})
+				message: 'User with specified email address was not found!',
+			});
 		const objPerm = await getUserObjectPermissions({
 			modelName: 'users',
 			objectId: user.id,
