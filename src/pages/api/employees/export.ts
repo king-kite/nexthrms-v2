@@ -13,7 +13,7 @@ import { validateParams } from '../../../validators';
 export default admin().get(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.asset.EXPORT]);
+		hasModelPermission(req.user.allPermissions, [permissions.employee.EXPORT]);
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
