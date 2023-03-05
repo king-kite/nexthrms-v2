@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import {
 	FaLock,
+	FaUser,
 	FaUserEdit,
 	FaUserCheck,
 	FaUserShield,
@@ -16,6 +17,7 @@ import {
 	permissions,
 	DEFAULT_IMAGE,
 	EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL,
+	USER_PAGE_URL,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
@@ -100,7 +102,6 @@ const Employee = ({
 		{
 			modelName: 'users',
 			objectId: data?.user.id || '',
-			permission: 'EDIT',
 		},
 		{
 			enabled: data && !!data.user.id,
@@ -110,8 +111,9 @@ const Employee = ({
 		}
 	);
 
-	const canEditUser = useMemo(() => {
+	const [canEditUser, canViewUser] = useMemo(() => {
 		let canEdit = false;
+		let canView = false;
 
 		// Check model permissions
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
@@ -120,11 +122,18 @@ const Employee = ({
 				(!!authData.isAdmin &&
 					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
 		}
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canView =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.user.VIEW]));
+		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
 		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
+		if (!canView && objUserPermData) canView = objUserPermData.view;
 
-		return canEdit;
+		return [canEdit, canView];
 	}, [authData, objUserPermData]);
 
 	const actions: ButtonType[] = useMemo(() => {
@@ -145,6 +154,13 @@ const Employee = ({
 					permissions.permissionobject.VIEW,
 				]));
 
+		if (canViewUser)
+			buttons.push({
+				bg: 'bg-green-600 hover:bg-green-500',
+				iconLeft: FaUser,
+				link: USER_PAGE_URL(data.user.id),
+				title: 'User Information',
+			});
 		if (canEdit)
 			buttons.push({
 				onClick: () => {
@@ -211,6 +227,7 @@ const Employee = ({
 		data,
 		deleteEmployee,
 		canEditUser,
+		canViewUser,
 		actLoading,
 		delLoading,
 		formType,

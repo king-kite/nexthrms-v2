@@ -78,7 +78,6 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		modelName: 'users',
 		objectId: data.user.id,
 		userId: req.user.id,
-		permission: 'EDIT',
 	});
 
 	return {
