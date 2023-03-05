@@ -1,6 +1,6 @@
 import { permissions } from '../../../../config';
 import { getUserPermissions, prisma } from '../../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
