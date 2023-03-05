@@ -13,7 +13,7 @@ import { serializeUserData } from '../../utils/serializers';
 const Page = ({
 	data,
 	objPerm,
-	objUserPerm
+	objUserPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Client Information" />
@@ -78,7 +78,6 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		modelName: 'users',
 		objectId: data.contact.id as string, // contact represents user in the relation
 		userId: req.user.id,
-		permission: 'EDIT'
 	});
 
 	return {
@@ -86,7 +85,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			auth,
 			data: JSON.parse(JSON.stringify(data)),
 			objPerm,
-			objUserPerm
+			objUserPerm,
 		},
 	};
 };

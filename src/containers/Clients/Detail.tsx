@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import {
 	FaCheckCircle,
 	FaTimesCircle,
+	FaUser,
 	FaUserCheck,
 	FaUserEdit,
 	FaUserShield,
@@ -19,6 +20,7 @@ import {
 	permissions,
 	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
 	DEFAULT_IMAGE,
+	USER_PAGE_URL,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
@@ -76,18 +78,18 @@ const ClientDetail = ({
 		{
 			modelName: 'users',
 			objectId: data?.contact.id || '',
-			permission: 'EDIT',
 		},
 		{
 			enabled: data && !!data.contact.id,
 			initialData() {
-				return objUserPerm
-			}
+				return objUserPerm;
+			},
 		}
 	);
 
-	const canEditUser = useMemo(() => {
+	const [canEditUser, canViewUser] = useMemo(() => {
 		let canEdit = false;
+		let canView = false;
 
 		// Check model permissions
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
@@ -96,11 +98,18 @@ const ClientDetail = ({
 				(!!authData.isAdmin &&
 					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
 		}
+		if (authData && (authData.isAdmin || authData.isSuperUser)) {
+			canView =
+				!!authData.isSuperUser ||
+				(!!authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.user.VIEW]));
+		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
 		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
+		if (!canView && objUserPermData) canView = objUserPermData.view;
 
-		return canEdit;
+		return [canEdit, canView];
 	}, [authData, objUserPermData]);
 
 	const { deleteClient, isLoading: delLoading } = useDeleteClientMutation({
@@ -132,6 +141,13 @@ const ClientDetail = ({
 					permissions.permissionobject.VIEW,
 				]));
 
+		if (canViewUser)
+			buttons.push({
+				bg: 'bg-green-600 hover:bg-green-500',
+				iconLeft: FaUser,
+				link: USER_PAGE_URL(data.contact.id),
+				title: 'Contact Information',
+			});
 		if (canEdit)
 			buttons.push({
 				onClick: () => {
@@ -197,6 +213,7 @@ const ClientDetail = ({
 		authData,
 		data,
 		canEditUser,
+		canViewUser,
 		deleteClient,
 		delLoading,
 		formType,
