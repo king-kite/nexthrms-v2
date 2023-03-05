@@ -1,9 +1,13 @@
+import { permissions } from '../../../../config';
 import { prisma } from '../../../../db';
-import { auth } from '../../../../middlewares';
+import { getUserObjectPermissions } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
+import { hasModelPermission } from '../../../../utils';
 import { hashPassword } from '../../../../utils/bcrypt';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 import { changeUserPasswordSchema } from '../../../../validators';
 
-export default auth().post(async (req, res) => {
+export default admin().post(async (req, res) => {
 	if (!req.body.email || !req.body.password1 || !req.body.password2) {
 		return res.status(400).json({
 			status: 'error',
@@ -27,6 +31,33 @@ export default auth().post(async (req, res) => {
 	// Used emails and not IDs so schema and api route can be used by
 	// users, employees and clients since they each have a unique
 	// accessible email on get
+
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.user.EDIT]);
+
+	if (!hasPerm) {
+		// check if the user has a view object permission for this record
+		// get the user
+		const user = await prisma.user.findUnique({
+			where: { email },
+			select: { id: true },
+		});
+		if (!user)
+			return res.status(404).json({
+				status: 'error',
+				message: 'User with specified email address was not found!',
+			});
+		const objPerm = await getUserObjectPermissions({
+			modelName: 'users',
+			objectId: user.id,
+			permission: 'EDIT',
+			userId: req.user.id,
+		});
+		if (objPerm.edit === true) hasPerm = true;
+	}
+
+	if (!hasPerm) throw new NextApiErrorMessage(403);
 
 	await prisma.user.update({
 		where: {

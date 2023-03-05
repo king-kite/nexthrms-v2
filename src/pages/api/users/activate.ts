@@ -1,8 +1,12 @@
+import { permissions } from '../../../config';
 import { prisma } from '../../../db';
-import { auth } from '../../../middlewares';
+import { getUserObjectPermissions } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { multipleEmailSchema } from '../../../validators';
 
-export default auth().post(async (req, res) => {
+export default admin().post(async (req, res) => {
 	const { action, emails } = req.body;
 	if (!action || !emails) {
 		return res.status(400).json({
@@ -42,6 +46,46 @@ export default auth().post(async (req, res) => {
 	const valid: {
 		emails: string[];
 	} = await multipleEmailSchema.validateAsync({ emails });
+
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.user.EDIT]);
+
+	if (!hasPerm) {
+		// get the users from the emails
+		const users = await prisma.user.findMany({
+			where: {
+				email: {
+					in: valid.emails,
+				},
+			},
+			select: {
+				id: true,
+			},
+		});
+		// Check to make sure that the request user has edit permission on all provided emails
+		const hasPerms = await Promise.all(
+			users.map((user) =>
+				getUserObjectPermissions({
+					modelName: 'users',
+					objectId: user.id,
+					permission: 'EDIT',
+					userId: req.user.id,
+				})
+			)
+		);
+
+		const hasEditPerm = hasPerms.every((perm) => perm.edit === true);
+		if (hasEditPerm) hasPerm = true;
+	}
+
+	if (!hasPerm)
+		throw new NextApiErrorMessage(
+			403,
+			valid.emails.length < 2
+				? 'You are not authorized to activate nor deactivate this user!'
+				: 'You are not authorized to activate nor deactivate some of the users provided!'
+		);
 
 	await prisma.user.updateMany({
 		where: {

@@ -60,32 +60,36 @@ const ClientDetail = ({
 		}
 	);
 
-	const { data: objPermData, isLoading: permLoading } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'clients',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
-
-	// check if the user has edit user permission
-	const { data: objUserPermData } = useGetUserObjectPermissionsQuery(
+	const {
+		data: objPermData,
+		isLoading: permLoading,
+		refetch: objPermRefetch,
+	} = useGetUserObjectPermissionsQuery(
 		{
-			modelName: 'users',
-			objectId: data?.contact.id || '',
+			modelName: 'clients',
+			objectId: id,
 		},
 		{
-			enabled: data && !!data.contact.id,
 			initialData() {
-				return objUserPerm;
+				return objPerm;
 			},
 		}
 	);
+
+	// check if the user has edit user permission
+	const { data: objUserPermData, refetch: objUserPermRefetch } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'users',
+				objectId: data?.contact.id || '',
+			},
+			{
+				enabled: data && !!data.contact.id,
+				initialData() {
+					return objUserPerm;
+				},
+			}
+		);
 
 	const [canEditUser, canViewUser] = useMemo(() => {
 		let canEdit = false;
@@ -235,7 +239,11 @@ const ClientDetail = ({
 					: undefined
 			}
 			refresh={{
-				onClick: refetch,
+				onClick: () => {
+					refetch();
+					objPermRefetch();
+					objUserPermRefetch();
+				},
 				loading: isFetching,
 			}}
 			title={data ? data.company.toUpperCase() : undefined}

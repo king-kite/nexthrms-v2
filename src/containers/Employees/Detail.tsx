@@ -57,18 +57,21 @@ const Employee = ({
 	const [formType, setFormType] = useState<'employee' | 'password'>('employee');
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const { data: objPermData, isLoading: permLoading } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'employees',
-				objectId: id,
+	const {
+		data: objPermData,
+		isLoading: permLoading,
+		refetch: objPermRefetch,
+	} = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'employees',
+			objectId: id,
+		},
+		{
+			initialData() {
+				return objPerm;
 			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+		}
+	);
 
 	const { deleteEmployee, isLoading: delLoading } = useDeleteEmployeeMutation({
 		onSuccess() {
@@ -98,18 +101,19 @@ const Employee = ({
 	});
 
 	// check if the user has edit user permission
-	const { data: objUserPermData } = useGetUserObjectPermissionsQuery(
-		{
-			modelName: 'users',
-			objectId: data?.user.id || '',
-		},
-		{
-			enabled: data && !!data.user.id,
-			initialData() {
-				return objUserPerm;
+	const { data: objUserPermData, refetch: objUserPermRefetch } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'users',
+				objectId: data?.user.id || '',
 			},
-		}
-	);
+			{
+				enabled: data && !!data.user.id,
+				initialData() {
+					return objUserPerm;
+				},
+			}
+		);
 
 	const [canEditUser, canViewUser] = useMemo(() => {
 		let canEdit = false;
@@ -250,7 +254,11 @@ const Employee = ({
 			icon
 			refresh={{
 				loading: isFetching,
-				onClick: refetch,
+				onClick: () => {
+					refetch();
+					objPermRefetch();
+					objUserPermRefetch();
+				},
 			}}
 			loading={isLoading}
 			title={data ? data.user.firstName + ' ' + data.user.lastName : undefined}
