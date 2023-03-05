@@ -17,15 +17,8 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let data: GetUsersResponseType['data'] = {
-		inactive: 0,
-		active: 0,
-		on_leave: 0,
-		total: 0,
-		clients: 0,
-		employees: 0,
-		result: [],
-	};
+	// let data: GetUsersResponseType['data'] = {
+	let data;
 
 	const hasViewPerm =
 		req.user.isSuperUser ||
@@ -55,6 +48,17 @@ export default admin().get(async (req, res) => {
 			});
 		}
 	}
+
+	if (!data)
+		data = {
+			active: 0,
+			inactive: 0,
+			on_leave: 0,
+			employees: 0,
+			clients: 0,
+			total: 0,
+			result: [],
+		};
 
 	const users = data.result.map((user) => {
 		return {
