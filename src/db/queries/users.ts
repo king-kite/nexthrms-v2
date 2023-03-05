@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { getGroupsQuery } from './groups';
 import { getPermissionsQuery } from './permissions';
@@ -90,7 +90,10 @@ export const getUsersQuery = ({
 	search = undefined,
 	from,
 	to,
-}: ParamsType): Prisma.UserFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.UserWhereInput;
+}): Prisma.UserFindManyArgs => {
 	const query: Prisma.UserFindManyArgs = {
 		select: userSelectQuery,
 		orderBy: {
@@ -118,8 +121,9 @@ export const getUsersQuery = ({
 							},
 						},
 					],
+					...where
 			  }
-			: {},
+			: where,
 	};
 
 	if (offset !== undefined) query.skip = offset;
@@ -145,7 +149,9 @@ export const getUser = async (id: string) => {
 };
 
 export const getUsers = async (
-	params: ParamsType = {
+	params: ParamsType & {
+		where?: Prisma.UserWhereInput
+	} = {
 		search: undefined,
 	}
 ): Promise<{
@@ -155,7 +161,7 @@ export const getUsers = async (
 	employees: number;
 	clients: number;
 	total: number;
-	result: UserType[] | User[];
+	result: UserType[];
 }> => {
 	const query = getUsersQuery({ ...params });
 
@@ -187,6 +193,7 @@ export const getUsers = async (
 							},
 						},
 					],
+					...query.where,
 				},
 			}),
 			prisma.user.count({
@@ -206,6 +213,7 @@ export const getUsers = async (
 							},
 						},
 					},
+					...query.where,
 				},
 			}),
 			prisma.user.count({
@@ -213,6 +221,7 @@ export const getUsers = async (
 					employee: {
 						isNot: null,
 					},
+					...query.where,
 				},
 			}),
 			prisma.user.count({
@@ -220,6 +229,7 @@ export const getUsers = async (
 					client: {
 						isNot: null,
 					},
+					...query.where,
 				},
 			}),
 		]);
@@ -235,7 +245,7 @@ export const getUsers = async (
 		// inactive: total - (active + clients),
 		inactive,
 		on_leave,
-		result,
+		result: result as unknown as UserType[],
 	};
 };
 
