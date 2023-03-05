@@ -1,9 +1,9 @@
-import { permissions } from '../../../../config';
+import { permissions } from '../../../config';
 import { prisma } from '../../../db';
 import { getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../../utils';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { multipleEmailSchema } from '../../../validators';
 
 export default admin().post(async (req, res) => {
@@ -56,30 +56,35 @@ export default admin().post(async (req, res) => {
 		const users = await prisma.user.findMany({
 			where: {
 				email: {
-					in: valid.emails
-				}
+					in: valid.emails,
+				},
 			},
 			select: {
-				id: true
-			}
-		})
+				id: true,
+			},
+		});
 		// Check to make sure that the request user has edit permission on all provided emails
-		const hasPerms = await Promise.all(users.map(user => getUserObjectPermissions({
-			modelName: 'users',
-			objectId: user.id,
-			permission: 'EDIT',
-			userId: req.user.id,
-		})))
-		
-		const hasEditPerm = hasPerms.every(perm => perm.edit === true);
+		const hasPerms = await Promise.all(
+			users.map((user) =>
+				getUserObjectPermissions({
+					modelName: 'users',
+					objectId: user.id,
+					permission: 'EDIT',
+					userId: req.user.id,
+				})
+			)
+		);
+
+		const hasEditPerm = hasPerms.every((perm) => perm.edit === true);
 		if (hasEditPerm) hasPerm = true;
 	}
 
-	if (!hasPerm) 
-		throw new NextApiErrorMessage(403,
-			valid.emails.length < 2 ? 
-				'You are not authorized to activate nor deactivate this user!' : 
-				'You are not authorized to activate nor deactivate some of the users provided!'
+	if (!hasPerm)
+		throw new NextApiErrorMessage(
+			403,
+			valid.emails.length < 2
+				? 'You are not authorized to activate nor deactivate this user!'
+				: 'You are not authorized to activate nor deactivate some of the users provided!'
 		);
 
 	await prisma.user.updateMany({

@@ -7,7 +7,7 @@ import { getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { GetUsersResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
-import { NextApiErrorMessage } form '../../../utils/classes';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 
 export default admin().get(async (req, res) => {
