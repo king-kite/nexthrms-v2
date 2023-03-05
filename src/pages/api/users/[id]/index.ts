@@ -6,7 +6,7 @@ import {
 	getUser,
 	prisma,
 } from '../../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { CreateUserQueryType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
