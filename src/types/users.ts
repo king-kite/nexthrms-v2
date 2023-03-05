@@ -232,8 +232,7 @@ export type CreateUserErrorResponseType = {
 
 export type CreateUserResponseType = SuccessResponseType<UserType>;
 
-export interface GetUsersResponseType
-	extends PaginatedResponseType<UserType[]> {
+export type GetUsersResponseType = SuccessResponseType<{
 	total: number;
 	result: UserType[];
 	active: number;
@@ -241,5 +240,16 @@ export interface GetUsersResponseType
 	on_leave: number;
 	employees: number;
 	clients: number;
-}
+}>;
+
+// export interface GetUsersResponseType
+// 	extends PaginatedResponseType<UserType[]> {
+// 	total: number;
+// 	result: UserType[];
+// 	active: number;
+// 	inactive: number;
+// 	on_leave: number;
+// 	employees: number;
+// 	clients: number;
+// }
 // Users Types Stop
