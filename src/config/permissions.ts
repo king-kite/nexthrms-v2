@@ -15,6 +15,8 @@ function makePermissions(name: string): {
 }
 
 export const apidoc = {
+	// ...makePermissions('api_doc'), // not required. Just to make typescript happy and leave me alone
+	CREATE: 'can_view_api_documentation',
 	VIEW: 'can_view_api_documentation',
 };
 export const asset = makePermissions('asset');
