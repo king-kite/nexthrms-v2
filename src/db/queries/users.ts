@@ -145,7 +145,7 @@ export const getUser = async (id: string) => {
 		select: userSelectQuery,
 	});
 
-	return user;
+	return user as unknown as UserType;
 };
 
 export const getUsers = async (
