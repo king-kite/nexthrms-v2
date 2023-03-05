@@ -1,18 +1,62 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../config';
 import { getUsers } from '../../../db';
-import { auth } from '../../../middlewares';
-import { UserType } from '../../../types';
+import { getUserObjects } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { GetUsersResponseType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } form '../../../utils/classes';
 import { validateParams } from '../../../validators';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.user.EXPORT]);
 
-	const data = await getUsers({ ...params });
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	const users = data.result.map((usr) => {
-		const user = usr as UserType;
+	let data: GetUsersResponseType['data'] = {
+		inactive: 0,
+		active: 0,
+		on_leave: 0,
+		total: 0,
+		clients: 0,
+		employees: 0,
+		result: [],
+	};
+
+	const hasViewPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
+
+	// if the user has model permissions
+	if (hasViewPerm) {
+		const params = validateParams(req.query);
+		data = await getUsers({ ...params });
+	} else {
+		// if the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'users',
+			permission: 'VIEW',
+			userId: req.user.id,
+		});
+
+		if (userObjects.length > 0) {
+			const params = validateParams(req.query);
+			data = await getUsers({
+				...params,
+				where: {
+					id: {
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
+			});
+		}
+	}
+
+	const users = data.result.map((user) => {
 		return {
 			id: user.id,
 			email: user.email,
