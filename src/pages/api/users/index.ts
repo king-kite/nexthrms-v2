@@ -118,6 +118,20 @@ export default admin()
 			}
 		}
 
+		if (valid.isSuperUser && !req.user.isSuperUser) {
+			return res.status(403).json({
+				status: 'error',
+				message: 'You are not authorized to create a super user!',
+			});
+		}
+
+		if (valid.isAdmin && !req.user.isSuperUser && !req.user.isAdmin) {
+			return res.status(403).json({
+				status: 'error',
+				message: 'You are not authorized to create an admin user!',
+			});
+		}
+
 		const data: Prisma.UserCreateInput = {
 			...valid,
 			password: await hashPassword(valid.lastName.toUpperCase()),
