@@ -4,6 +4,7 @@ import { permissions } from '../../../config';
 import { clientSelectQuery, getClients, prisma } from '../../../db';
 import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { auth } from '../../../middlewares';
+import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -150,18 +151,25 @@ export default auth()
 			contact,
 		};
 
-		const client = await prisma.client.create({
+		const client = (await prisma.client.create({
 			data,
 			select: clientSelectQuery,
-		});
+		})) as unknown as ClientType;
 
-		if (client && client.id)
-			// Set the object permissions
-			await addObjectPermissions({
-				model: 'clients',
-				objectId: client.id,
-				userId: req.user.id,
-			});
+		if (client)
+			await Promise.all([
+				// Set the object permissions
+				await addObjectPermissions({
+					model: 'clients',
+					objectId: client.id,
+					userId: req.user.id,
+				}),
+				await addObjectPermissions({
+					model: 'users',
+					objectId: client.contact.id,
+					userId: req.user.id,
+				}),
+			]);
 
 		return res.status(201).json({
 			status: 'success',

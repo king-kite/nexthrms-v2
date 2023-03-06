@@ -1,14 +1,10 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
-import { 
-	userSelectQuery as selectQuery, 
-	getUsers, 
-	prisma 
-} from '../../../db';
+import { userSelectQuery as selectQuery, getUsers, prisma } from '../../../db';
 import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateUserQueryType } from '../../../types';
+import { CreateUserQueryType, UserType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -24,10 +20,9 @@ export const config = {
 
 export default admin()
 	.get(async (req, res) => {
-
-		const hasPerm = 
+		const hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.user.VIEW])
+			hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
 
 		// if the user has model permissions
 		if (hasPerm) {
@@ -46,7 +41,7 @@ export default admin()
 			modelName: 'users',
 			permission: 'VIEW',
 			userId: req.user.id,
-		})
+		});
 
 		if (userObjects.length > 0) {
 			const params = validateParams(req.query);
@@ -55,9 +50,9 @@ export default admin()
 				...params,
 				where: {
 					id: {
-						in: userObjects.map(obj => obj.objectId),
-					}
-				}
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
 			});
 
 			return res.status(200).json({
@@ -67,7 +62,7 @@ export default admin()
 			});
 		}
 
-		throw new NextApiErrorMessage(403)
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
@@ -163,10 +158,37 @@ export default admin()
 				  }
 				: {},
 		};
-		const user = await prisma.user.create({
+		const user = (await prisma.user.create({
 			data,
 			select: selectQuery,
-		});
+		})) as unknown as UserType;
+
+		if (user) {
+			const permissionPromises = [
+				addObjectPermissions({
+					model: 'users',
+					objectId: user.id,
+					userId: req.user.id,
+				}),
+			];
+			if (user.employee)
+				permissionPromises.push(
+					addObjectPermissions({
+						model: 'employees',
+						objectId: user.employee.id,
+						userId: req.user.id,
+					})
+				);
+			if (user.client)
+				permissionPromises.push(
+					addObjectPermissions({
+						model: 'clients',
+						objectId: user.client.id,
+						userId: req.user.id,
+					})
+				);
+			await Promise.all(permissionPromises);
+		}
 
 		return res.status(201).json({
 			status: 'success',
