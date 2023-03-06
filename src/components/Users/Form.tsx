@@ -50,7 +50,14 @@ function handleDataError(err: unknown): string | undefined {
 	return undefined;
 }
 
-const formStaleData = {
+const formStaleData: {
+	isEmployee: boolean;
+	isClient: boolean;
+	image: string;
+	department: string | undefined;
+	job: string | undefined;
+	supervisor: string | undefined;
+} = {
 	isEmployee: false,
 	isClient: false,
 	image: '',
@@ -418,7 +425,7 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 
-				{authData?.isAdmin && (
+				{(authData?.isAdmin || authData?.isSuperUser) && (
 					<div className="w-full">
 						<Checkbox
 							defaultChecked={initState?.isAdmin || false}
