@@ -7,23 +7,15 @@ import {
 	Select,
 	Textarea,
 } from 'kite-react-tailwind';
-import {
-	FC,
-	Fragment,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAuthContext } from '../../store/contexts';
 import {
 	useGetDepartmentsQuery,
 	useGetEmployeesQuery,
 	useGetJobsQuery,
 } from '../../store/queries';
-
 import {
 	CreateUserQueryType,
 	CreateUserErrorResponseType,
@@ -58,6 +50,15 @@ function handleDataError(err: unknown): string | undefined {
 	return undefined;
 }
 
+const formStaleData = {
+	isEmployee: false,
+	isClient: false,
+	image: '',
+	department: undefined,
+	job: undefined,
+	supervisor: undefined,
+};
+
 const Form: FC<FormProps> = ({
 	editMode,
 	initState,
@@ -71,22 +72,26 @@ const Form: FC<FormProps> = ({
 	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
 	const [jobLimit, setJobLimit] = useState(DEFAULT_PAGINATION_SIZE);
 
-	const formStaleData = useMemo(
-		() => ({
-			isEmployee: initState?.employee ? true : false,
-			isClient: initState?.client ? true : false,
-			image: '',
-			department: initState?.employee?.department?.id,
-			job: initState?.employee?.job?.id,
-			supervisor: initState?.employee?.supervisor?.id,
-		}),
-		[initState]
-	);
-
 	const [form, setForm] = useState(formStaleData);
 	const [formErrors, setErrors] = useState<ErrorType>();
 
 	const formRef = useRef<HTMLFormElement | null>(null);
+
+	useEffect(() => {
+		if (initState) {
+			setForm({
+				...formStaleData,
+				isEmployee: initState.employee ? true : false,
+				isClient: initState.client ? true : false,
+				image: '',
+				department: initState.employee?.department?.id,
+				job: initState.employee?.job?.id,
+				supervisor: initState.employee?.supervisor?.id,
+			});
+		} else setForm(formStaleData);
+	}, [initState]);
+
+	const { data: authData } = useAuthContext();
 
 	const jobs = useGetJobsQuery(
 		{ limit: jobLimit, offset: 0, search: '' },
@@ -178,7 +183,7 @@ const Form: FC<FormProps> = ({
 				formRef.current.reset();
 			}
 		}
-	}, [formStaleData, success, editMode]);
+	}, [success, editMode]);
 
 	return (
 		<form
@@ -412,37 +417,42 @@ const Form: FC<FormProps> = ({
 						textSize="text-sm md:text-base"
 					/>
 				</div>
-				<div className="w-full">
-					<Checkbox
-						defaultChecked={initState?.isAdmin || false}
-						error={formErrors?.isAdmin || errors?.isAdmin}
-						onChange={() => removeFormErrors('isAdmin')}
-						label="Is Admin"
-						labelColor="text-gray-500"
-						labelSize="text-sm tracking-wider md:text-base"
-						name="isAdmin"
-						between
-						reverse
-						required={false}
-						textSize="text-sm md:text-base"
-					/>
-				</div>
 
-				<div className="w-full">
-					<Checkbox
-						defaultChecked={initState?.isSuperUser || false}
-						error={formErrors?.isSuperUser || errors?.isSuperUser}
-						onChange={() => removeFormErrors('isSuperUser')}
-						label="Is Super User"
-						labelColor="text-gray-500"
-						labelSize="text-sm tracking-wider md:text-base"
-						name="isSuperUser"
-						between
-						reverse
-						required={false}
-						textSize="text-sm md:text-base"
-					/>
-				</div>
+				{authData?.isAdmin && (
+					<div className="w-full">
+						<Checkbox
+							defaultChecked={initState?.isAdmin || false}
+							error={formErrors?.isAdmin || errors?.isAdmin}
+							onChange={() => removeFormErrors('isAdmin')}
+							label="Is Admin"
+							labelColor="text-gray-500"
+							labelSize="text-sm tracking-wider md:text-base"
+							name="isAdmin"
+							between
+							reverse
+							required={false}
+							textSize="text-sm md:text-base"
+						/>
+					</div>
+				)}
+
+				{authData?.isSuperUser && (
+					<div className="w-full">
+						<Checkbox
+							defaultChecked={initState?.isSuperUser || false}
+							error={formErrors?.isSuperUser || errors?.isSuperUser}
+							onChange={() => removeFormErrors('isSuperUser')}
+							label="Is Super User"
+							labelColor="text-gray-500"
+							labelSize="text-sm tracking-wider md:text-base"
+							name="isSuperUser"
+							between
+							reverse
+							required={false}
+							textSize="text-sm md:text-base"
+						/>
+					</div>
+				)}
 
 				<div className="gap-2 grid grid-cols-1 w-full md:col-span-2 md:grid-cols-2 md:gap-4 lg:gap-6">
 					{!initState?.employee && (
