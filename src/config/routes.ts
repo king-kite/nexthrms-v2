@@ -17,6 +17,8 @@ export const OBJECT_PERMISSIONS_PAGE_URL = (
 export const PERMISSIONS_PAGE_URL = '/users/permissions/';
 export const USERS_PAGE_URL = '/users/all/';
 export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;
+export const USER_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/users/all/${slug}/users/object-permissions/`;
 
 // Authentication Section
 export const LOGIN_PAGE_URL = '/account/login/';

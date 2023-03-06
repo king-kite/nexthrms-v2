@@ -15,7 +15,7 @@ function GroupCards({
 	actions?: ButtonType[];
 	name?: string;
 	groups: UserGroupType[];
-	removeGroup: (codename: string) => void;
+	removeGroup?: (codename: string) => void;
 }) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
 
@@ -37,8 +37,10 @@ function GroupCards({
 						bg: 'bg-yellow-600 hover:bg-yellow-500',
 						caps: true,
 						onClick: () => {
-							showLoader();
-							removeGroup(id);
+							if (removeGroup) {
+								showLoader();
+								removeGroup(id);
+							}
 						},
 						title: 'yes',
 					},
@@ -59,12 +61,14 @@ function GroupCards({
 						<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">
 							{group.name.toLowerCase()}
 						</h4>
-						<div
-							onClick={() => removeSingleGroup(group.id)}
-							className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
-						>
-							<FaTimes className="text-xs sm:text-sm" />
-						</div>
+						{removeGroup && (
+							<div
+								onClick={() => removeSingleGroup(group.id)}
+								className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
+							>
+								<FaTimes className="text-xs sm:text-sm" />
+							</div>
+						)}
 					</div>
 					{group.description && (
 						<p className="font-medium my-1 pr-2 text-gray-700 text-sm md:text-base">

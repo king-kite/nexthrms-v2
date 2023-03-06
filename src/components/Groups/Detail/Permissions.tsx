@@ -11,7 +11,7 @@ function Permissions({
 }: {
 	name?: string;
 	permissions: PermissionType[];
-	removePermission: (codename: string) => void;
+	removePermission?: (codename: string) => void;
 }) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
 
@@ -61,8 +61,10 @@ function Permissions({
 						bg: 'bg-yellow-600 hover:bg-yellow-500',
 						caps: true,
 						onClick: () => {
-							showLoader();
-							removePermission(codename);
+							if (removePermission) {
+								showLoader();
+								removePermission(codename);
+							}
 						},
 						title: 'yes',
 					},
@@ -89,12 +91,16 @@ function Permissions({
 									<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">
 										{permission.name.toLowerCase()}
 									</h4>
-									<div
-										onClick={() => removeSinglePermission(permission.codename)}
-										className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
-									>
-										<FaTimes className="text-xs sm:text-sm" />
-									</div>
+									{removeSinglePermission && (
+										<div
+											onClick={() =>
+												removeSinglePermission(permission.codename)
+											}
+											className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
+										>
+											<FaTimes className="text-xs sm:text-sm" />
+										</div>
+									)}
 								</div>
 								{permission.description && (
 									<p className="font-medium my-1 pr-2 text-gray-700 text-sm md:text-base">

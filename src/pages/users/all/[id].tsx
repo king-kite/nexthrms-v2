@@ -1,22 +1,37 @@
 import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	LOGIN_PAGE_URL,
+} from '../../../config';
 import User from '../../../containers/Users/Detail';
 import { getUser, getUserGroups, getUserPermissions } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
-import { Title } from '../../../utils';
+import { hasModelPermission, Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
 	data,
+	objPerm,
+	objClientPerm,
+	objEmployeePerm,
 	groups,
 	permissions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="User Information" />
-		<User groups={groups} permissions={permissions} user={data} />
+		<User
+			groups={groups}
+			objPerm={objPerm}
+			objClientPerm={objClientPerm}
+			objEmployeePerm={objEmployeePerm}
+			permissions={permissions}
+			user={data}
+		/>
 	</React.Fragment>
 );
 
@@ -41,14 +56,37 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
+
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'users',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) hasPerm = true;
+
 	const auth = await serializeUserData(req.user);
+
+	if (!hasPerm)
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+				},
+			},
+		};
+
 	const data = await getUser(params?.id as string);
 	const groups = await getUserGroups(params?.id as string, {
 		limit: DEFAULT_PAGINATION_SIZE,
 		offset: 0,
 		search: '',
 	});
-	const permissions = await getUserPermissions(params?.id as string, {
+	const perms = await getUserPermissions(params?.id as string, {
 		limit: DEFAULT_PAGINATION_SIZE,
 		offset: 0,
 		search: '',
@@ -60,12 +98,35 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	// check if the user has a view object permission for this user's client record
+	const objClientPerm = data.client
+		? await getUserObjectPermissions({
+				modelName: 'clients',
+				objectId: data.client.id,
+				userId: req.user.id,
+				permission: 'VIEW',
+		  })
+		: undefined;
+
+	// check if the user has a view object permission for this user's employee record
+	const objEmployeePerm = data.employee
+		? await getUserObjectPermissions({
+				modelName: 'employees',
+				objectId: data.employee.id,
+				userId: req.user.id,
+				permission: 'VIEW',
+		  })
+		: undefined;
+
 	return {
 		props: {
 			auth,
+			objPerm,
+			objClientPerm,
+			objEmployeePerm,
 			data: JSON.parse(JSON.stringify(data)),
 			groups: JSON.parse(JSON.stringify(groups)),
-			permissions: JSON.parse(JSON.stringify(permissions)),
+			permissions: JSON.parse(JSON.stringify(perms)),
 		},
 	};
 };
