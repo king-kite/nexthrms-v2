@@ -55,6 +55,37 @@ export default admin()
 			data: user,
 		});
 	})
+	.use(async (req, res, next) => {
+		const message = req.method === 'PUT' ? 'update' : 'delete';
+
+		const oldUser = await prisma.user.findUniqueOrThrow({
+			where: {
+				id: req.query.id as string,
+			},
+			select: {
+				isSuperUser: true,
+				isAdmin: true,
+			},
+		});
+
+		// Only super user update super user
+		if (oldUser.isSuperUser && !req.user.isSuperUser) {
+			return res.status(403).json({
+				status: 'error',
+				message: `You are not authorized to ${message} this user!`,
+			});
+		}
+
+		// Only admin or super user update admin user
+		if (oldUser.isAdmin && !req.user.isSuperUser && !req.user.isAdmin) {
+			return res.status(403).json({
+				status: 'error',
+				message: `You are not authorized to ${message} this user!`,
+			});
+		}
+
+		next();
+	})
 	.put(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
