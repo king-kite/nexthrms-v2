@@ -15,9 +15,11 @@ import {
 import { PermissionType } from '../../../types';
 
 function UserPermissions({
+	canEditUser,
 	permissions,
 	hideOtherModals,
 }: {
+	canEditUser: boolean;
 	permissions: {
 		total: number;
 		result: PermissionType[];
@@ -100,7 +102,7 @@ function UserPermissions({
 
 	return (
 		<React.Fragment>
-			{!isLoading && (
+			{canEditUser && !isLoading && (
 				<div className="flex flex-wrap items-center w-full lg:justify-end">
 					<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 						<Button
@@ -124,15 +126,21 @@ function UserPermissions({
 					<Permissions
 						name="user"
 						permissions={data.result}
-						removePermission={(codename: string) => {
-							setErrorType('single');
-							const form = {
-								permissions: data.result
-									.filter((permission) => permission.codename !== codename)
-									.map((permission) => permission.codename),
-							};
-							editPermissions({ id, form });
-						}}
+						removePermission={
+							!canEditUser
+								? undefined
+								: (codename: string) => {
+										setErrorType('single');
+										const form = {
+											permissions: data.result
+												.filter(
+													(permission) => permission.codename !== codename
+												)
+												.map((permission) => permission.codename),
+										};
+										editPermissions({ id, form });
+								  }
+						}
 					/>
 					{data.total > 0 && (
 						<div className="pt-2 pb-5">

@@ -15,9 +15,11 @@ import {
 import { UserGroupType } from '../../../types';
 
 function UserGroups({
+	canEditUser,
 	groups,
 	hideOtherModals,
 }: {
+	canEditUser: boolean;
 	groups: {
 		total: number;
 		result: UserGroupType[];
@@ -97,7 +99,7 @@ function UserGroups({
 
 	return (
 		<React.Fragment>
-			{!isLoading && (
+			{canEditUser && !isLoading && (
 				<div className="flex flex-wrap items-center w-full lg:justify-end">
 					<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 						<Button
@@ -120,15 +122,19 @@ function UserGroups({
 				<div className="mt-3">
 					<GroupCards
 						groups={data.result}
-						removeGroup={(groupId: string) => {
-							setErrorType('single');
-							const form = {
-								groups: data.result
-									.filter((group) => group.id !== groupId)
-									.map((group) => group.id),
-							};
-							editGroups({ id, form });
-						}}
+						removeGroup={
+							!canEditUser
+								? undefined
+								: (groupId: string) => {
+										setErrorType('single');
+										const form = {
+											groups: data.result
+												.filter((group) => group.id !== groupId)
+												.map((group) => group.id),
+										};
+										editGroups({ id, form });
+								  }
+						}
 					/>
 					{data.total > 0 && (
 						<div className="pt-2 pb-5">

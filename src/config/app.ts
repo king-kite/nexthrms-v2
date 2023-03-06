@@ -20,6 +20,10 @@ export const DEFAULT_PAGINATION_SIZE = 100;
 export const isServer = () => (typeof window === undefined ? true : false);
 export const NODE_ENV = process.env.NODE_ENV || 'production';
 
+export const SHOW_QUERY_LOG_TIME = process.env.SHOW_QUERY_LOG_TIME
+	? Boolean(Number(process.env.SHOW_QUERY_LOG_TIME))
+	: false;
+
 export const TITLE = 'Kite Human Resource Management System';
 
 export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE

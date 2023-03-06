@@ -8,7 +8,7 @@ import {
 } from '../../../db';
 import { addObjectPermissions, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateEmployeeQueryType } from '../../../types';
+import { CreateEmployeeQueryType, EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -179,18 +179,28 @@ export default admin()
 			user,
 		};
 
-		const employee = await prisma.employee.create({
+		const employee = (await prisma.employee.create({
 			data,
 			select: selectQuery,
-		});
+		})) as unknown as EmployeeType;
 
-		if (employee && employee.id)
+		if (employee)
 			// Set the object permissions
-			await addObjectPermissions({
-				model: 'employees',
-				objectId: employee.id,
-				userId: req.user.id,
-			});
+			await Promise.all([
+				// Give the creator all permissions on the employee
+				addObjectPermissions({
+					model: 'employees',
+					objectId: employee.id,
+					userId: req.user.id,
+				}),
+
+				// Give the creator all permissions on the user as well
+				addObjectPermissions({
+					model: 'users',
+					objectId: employee.user.id,
+					userId: req.user.id,
+				}),
+			]);
 
 		return res.status(201).json({
 			status: 'success',
