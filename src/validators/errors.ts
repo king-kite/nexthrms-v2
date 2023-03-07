@@ -120,6 +120,7 @@ export function handlePrismaErrors(
 					'The specified table does not exist.',
 					error.message
 				);
+				errors.code = 404;
 				break;
 			// Query Engine Errors
 			case 'P2000':
@@ -136,7 +137,7 @@ export function handlePrismaErrors(
 					`The record searched for ${field} does not exist.`,
 					error.message
 				);
-				errors.code = 400;
+				errors.code = 404;
 				break;
 			case 'P2002':
 				field = getFieldText(error);
@@ -170,10 +171,10 @@ export function handlePrismaErrors(
 			case 'P2018':
 				field = getFieldText(error);
 				errors.message = getError(
-					`All related record for ${field} was not found.`,
+					`A related record for ${field} was not found.`,
 					error.message
 				);
-				errors.code = 400;
+				errors.code = 404;
 				break;
 			case 'P2019':
 			case 'P2020':
@@ -189,7 +190,7 @@ export function handlePrismaErrors(
 					`This operation failed as a result of one or more dependency records associated with ${field}.`,
 					error.message
 				);
-				errors.code = 400;
+				errors.code = 404;
 			default:
 				if (process.env.NODE_ENV === 'development') {
 					errors.message = 'Default Error: ' + error.message;
