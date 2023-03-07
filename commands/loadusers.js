@@ -78,7 +78,7 @@ async function getUser({
 				isSuperUser: false,
 				isAdmin: false,
 				isEmailVerified: false,
-				profile: {
+				profileInfo: {
 					dob: new Date(),
 					address:
 						'This user does not have an address. Do not forward any information to him.',
