@@ -44,8 +44,9 @@ model Attendance {
   punchIn  DateTime  @map("punch_in") @db.Time()
   punchOut DateTime? @map("punch_out") @db.Time()
 
-  employeeId String   @map("employee_id") @db.Uuid
-  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  // Default to the anonymous employee
+  employeeId String   @default("12345678-1234-4b89-8c04-789012345678") @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
 
   overtimeId String?   @unique @map("overtime_id") @db.Uuid
   overtime   Overtime? @relation(fields: [overtimeId], references: [id], onDelete: SetNull)
@@ -184,8 +185,8 @@ model Leave {
   type      LeaveChoices @default(CASUAL)
   status    LeaveStatus  @default(PENDING)
 
-  employeeId String   @map("employee_id") @db.Uuid
-  employee   Employee @relation("employeeLeaves", fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String   @default("12345678-1234-4b89-8c04-789012345678") @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeLeaves", fields: [employeeId], references: [id], onDelete: SetDefault)
 
   createdById String?   @map("created_by") @db.Uuid
   createdBy   Employee? @relation("createdByLeaves", fields: [createdById], references: [id], onDelete: SetNull)
@@ -213,7 +214,7 @@ model Notification {
   sender   User?   @relation("notificationSender", fields: [senderId], references: [id], onDelete: SetNull)
   senderId String? @map("sender_id") @db.Uuid
 
-  recipient   User?   @relation("notificationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipient   User?   @relation("notificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
   recipientId String? @map("recipient_id") @db.Uuid
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -232,8 +233,8 @@ model Overtime {
   reason String
   status LeaveStatus     @default(PENDING)
 
-  employeeId String   @map("employee_id") @db.Uuid
-  employee   Employee @relation("employeeOvertime", fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String   @default("12345678-1234-4b89-8c04-789012345678") @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeOvertime", fields: [employeeId], references: [id], onDelete: SetDefault)
 
   createdById String?   @map("created_by") @db.Uuid
   createdBy   Employee? @relation("createdByOvertime", fields: [createdById], references: [id], onDelete: SetNull)

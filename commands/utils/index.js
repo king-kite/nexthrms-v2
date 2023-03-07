@@ -8,12 +8,13 @@
 // 	readline.close();
 // })
 
-const bcrypt = require("./bcrypt.js");
-const logger = require("./logger.js");
-const validators = require("./validators.js");
+const bcrypt = require('./bcrypt.js');
+const logger = require('./logger.js');
+const validators = require('./validators.js');
 
 module.exports = {
+	anonymousUserId: '12345678-1234-4b89-8c04-789012345678',
 	bcrypt,
 	logger,
-	...validators
-}
+	...validators,
+};
