@@ -1,49 +1,56 @@
-import * as refs from "./refs"
+import * as refs from './refs';
 
 const responses = {
-	"307": {
+	'307': {
 		content: {
-			"application/json": {
+			'application/json': {
 				schema: {
-					allOf: [
-						{ $ref: refs.BASE },
-						{ $ref: refs.BASE_ERROR_REDIRECT }
-					]
-				}
-			}
+					allOf: [{ $ref: refs.BASE }, { $ref: refs.BASE_ERROR_REDIRECT }],
+				},
+			},
 		},
-		description: "Redirect the user to another page"
+		description: 'Redirect the user to another page',
 	},
-	"401": {
+	'401': {
 		content: {
-			"application/json": {
+			'application/json': {
 				schema: {
 					$ref: refs.BASE,
-				}
-			}
+				},
+			},
 		},
-		description: "Authentication Failed"
+		description: 'Authentication Failed',
 	},
-	"403": {
+	'403': {
 		content: {
-			"application/json": {
+			'application/json': {
 				schema: {
 					$ref: refs.BASE,
-				}
-			}
+				},
+			},
 		},
-		description: "Unauthorized"
+		description: 'Unauthorized',
 	},
-	"500": {
+	'404': {
 		content: {
-			"application/json": {
+			'application/json': {
 				schema: {
 					$ref: refs.BASE,
-				}
-			}
+				},
+			},
 		},
-		description: "Internal Server Error"
-	}
-}
+		description: 'Not Found',
+	},
+	'500': {
+		content: {
+			'application/json': {
+				schema: {
+					$ref: refs.BASE,
+				},
+			},
+		},
+		description: 'Internal Server Error',
+	},
+};
 
-export default responses
+export default responses;
