@@ -26,6 +26,8 @@ function getSecretKey(): string | undefined {
 	return undefined;
 }
 
+// Also use for employee table and client table
+export const ANONYMOUS_USER_ID = '12345678-1234-4b89-8c04-789012345678';
 export const DEFAULT_PAGINATION_SIZE = getDefaultPaginationSize();
 export const EMAIL_VERIFICATION_REQUIRED = getEmailVerificationRequired();
 export const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
