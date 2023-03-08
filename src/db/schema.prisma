@@ -535,6 +535,7 @@ enum PermissionModelChoices {
   jobs
   leaves
   overtime
+  permissions
   projects
   projects_files
   projects_tasks
