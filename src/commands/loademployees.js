@@ -66,23 +66,23 @@ async function getEmployee({
 
 (async function main() {
 	// Delete the previous users
-	// logger.info('Removing Old Employees Data...');
-	// await prisma.user.deleteMany({
-	// 	where: {
-	// 		email: {
-	// 			notIn: [anonymousUserEmail],
-	// 		},
-	// 		AND: [
-	// 			{
-	// 				client: { is: null },
-	// 			},
-	// 			{
-	// 				employee: { isNot: null },
-	// 			},
-	// 		],
-	// 	},
-	// });
-	// logger.success('Removed Old Employees Successfully!');
+	logger.info('Removing Old Employees Data...');
+	await prisma.user.deleteMany({
+		where: {
+			email: {
+				notIn: [anonymousUserEmail],
+			},
+			AND: [
+				{
+					client: { is: null },
+				},
+				{
+					employee: { isNot: null },
+				},
+			],
+		},
+	});
+	logger.success('Removed Old Employees Successfully!');
 
 	logger.info('Adding Employees...');
 

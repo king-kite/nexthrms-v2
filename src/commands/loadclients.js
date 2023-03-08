@@ -45,23 +45,23 @@ async function getClient({
 
 (async function main() {
 	// Delete the previous users
-	// logger.info('Removing Old Clients Data...');
-	// await prisma.user.deleteMany({
-	// 	where: {
-	// 		AND: [
-	// 			{
-	// 				client: { isNot: null },
-	// 			},
-	// 			{
-	// 				employee: { is: null },
-	// 			},
-	// 		],
-	// 		email: {
-	// 			notIn: [anonymousUserEmail],
-	// 		},
-	// 	},
-	// });
-	// logger.success('Removed Old Clients Successfully!');
+	logger.info('Removing Old Clients Data...');
+	await prisma.user.deleteMany({
+		where: {
+			AND: [
+				{
+					client: { isNot: null },
+				},
+				{
+					employee: { is: null },
+				},
+			],
+			email: {
+				notIn: [anonymousUserEmail],
+			},
+		},
+	});
+	logger.success('Removed Old Clients Successfully!');
 
 	logger.info('Adding Clients...');
 

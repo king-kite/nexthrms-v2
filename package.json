@@ -15,7 +15,7 @@
 		"loadpermissions": "node src/commands/loadpermissions",
 		"loadusers": "node src/commands/loadusers",
 		"merge-schema": "cat *.prisma > schema.prisma",
-		"seed": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loadusers && npm run loademployees && npm run loadclients"
+		"seed": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loademployees && npm run loadclients && npm run loadusers"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"

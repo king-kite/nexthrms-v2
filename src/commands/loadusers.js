@@ -3,8 +3,6 @@ const prisma = new PrismaClient();
 
 const { getProfile } = require('./common.js');
 const {
-	anonymousUserEmail,
-	anonymousUserId,
 	logger,
 	bcrypt: { hash },
 } = require('./utils/index.js');
@@ -41,38 +39,28 @@ async function getUser({
 	// or are both at the same time
 	logger.info('Removing Old Users Data...');
 
-	await prisma.$transaction(
-		prisma.attendance.deleteMany({}),
-		prisma.leave.deleteMany({}),
-		prisma.overtime.deleteMany({}),
-		prisma.user.deleteMany({})
-	);
-
-	// await prisma.user.deleteMany({
-	// 	where: {
-	// 		email: {
-	// 			notIn: [anonymousUserEmail],
-	// 		},
-	// 		OR: [
-	// 			{
-	// 				AND: [
-	// 					{
-	// 						client: { is: null },
-	// 						employee: { is: null },
-	// 					},
-	// 				],
-	// 			},
-	// 			{
-	// 				AND: [
-	// 					{
-	// 						client: { isNot: null },
-	// 						employee: { isNot: null },
-	// 					},
-	// 				],
-	// 			},
-	// 		],
-	// 	},
-	// });
+	await prisma.user.deleteMany({
+		where: {
+			OR: [
+				{
+					AND: [
+						{
+							client: { is: null },
+							employee: { is: null },
+						},
+					],
+				},
+				{
+					AND: [
+						{
+							client: { isNot: null },
+							employee: { isNot: null },
+						},
+					],
+				},
+			],
+		},
+	});
 	logger.success('Removed Old Users Successfully!');
 
 	logger.info('Adding Users...');
@@ -80,36 +68,36 @@ async function getUser({
 	// Loading Users
 	const users = [
 		// Create Anonymous User who is a client and employee. Just in case
-		{
-			...(await getUser({
-				firstName: 'Anonymous',
-				lastName: 'KiteHRMS',
-				email: anonymousUserEmail,
-				password: 'Password?1234AnonymousUser',
-				isActive: false,
-				isSuperUser: false,
-				isAdmin: false,
-				isEmailVerified: false,
-				profileInfo: {
-					dob: new Date(),
-					address:
-						'This user does not have an address. Do not forward any information to him.',
-				},
-			})),
-			id: anonymousUserId,
-			employee: {
-				create: {
-					id: anonymousUserId,
-				},
-			},
-			client: {
-				create: {
-					id: anonymousUserId,
-					company: 'KiteHRMS',
-					position: 'Anonymous',
-				},
-			},
-		},
+		// {
+		// 	...(await getUser({
+		// 		firstName: 'Anonymous',
+		// 		lastName: 'KiteHRMS',
+		// 		email: anonymousUserEmail,
+		// 		password: 'Password?1234AnonymousUser',
+		// 		isActive: false,
+		// 		isSuperUser: false,
+		// 		isAdmin: false,
+		// 		isEmailVerified: false,
+		// 		profileInfo: {
+		// 			dob: new Date(),
+		// 			address:
+		// 				'This user does not have an address. Do not forward any information to him.',
+		// 		},
+		// 	})),
+		// 	id: anonymousUserId,
+		// 	employee: {
+		// 		create: {
+		// 			id: anonymousUserId,
+		// 		},
+		// 	},
+		// 	client: {
+		// 		create: {
+		// 			id: anonymousUserId,
+		// 			company: 'KiteHRMS',
+		// 			position: 'Anonymous',
+		// 		},
+		// 	},
+		// },
 
 		// Neither client nor employee
 		await getUser({
