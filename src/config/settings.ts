@@ -16,7 +16,7 @@ function getSaltRounds(): number | undefined {
 	if (process.env.SALT_ROUNDS) {
 		return +process.env.SALT_ROUNDS;
 	}
-	return undefined;
+	return 10;
 }
 
 function getSecretKey(): string | undefined {

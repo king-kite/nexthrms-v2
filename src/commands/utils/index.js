@@ -32,6 +32,7 @@ const logger = require('./logger.js');
 const validators = require('./validators.js');
 
 module.exports = {
+	anonymousEmail: 'anonymous@kitehrms.com',
 	anonymousUserId: '12345678-1234-4b89-8c04-789012345678',
 	bcrypt,
 	models,

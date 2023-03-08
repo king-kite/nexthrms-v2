@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 const { getProfile } = require('./common.js');
 const {
+	anonymousUserEmail,
 	anonymousUserId,
 	logger,
 	bcrypt: { hash },
@@ -39,28 +40,39 @@ async function getUser({
 	// Delete the previous users that neither employees and clients
 	// or are both at the same time
 	logger.info('Removing Old Users Data...');
-	await prisma.user.deleteMany({
-		where: {
-			OR: [
-				{
-					AND: [
-						{
-							client: { is: null },
-							employee: { is: null },
-						},
-					],
-				},
-				{
-					AND: [
-						{
-							client: { isNot: null },
-							employee: { isNot: null },
-						},
-					],
-				},
-			],
-		},
-	});
+
+	await prisma.$transaction(
+		prisma.attendance.deleteMany({}),
+		prisma.leave.deleteMany({}),
+		prisma.overtime.deleteMany({}),
+		prisma.user.deleteMany({})
+	);
+
+	// await prisma.user.deleteMany({
+	// 	where: {
+	// 		email: {
+	// 			notIn: [anonymousUserEmail],
+	// 		},
+	// 		OR: [
+	// 			{
+	// 				AND: [
+	// 					{
+	// 						client: { is: null },
+	// 						employee: { is: null },
+	// 					},
+	// 				],
+	// 			},
+	// 			{
+	// 				AND: [
+	// 					{
+	// 						client: { isNot: null },
+	// 						employee: { isNot: null },
+	// 					},
+	// 				],
+	// 			},
+	// 		],
+	// 	},
+	// });
 	logger.success('Removed Old Users Successfully!');
 
 	logger.info('Adding Users...');
@@ -72,7 +84,7 @@ async function getUser({
 			...(await getUser({
 				firstName: 'Anonymous',
 				lastName: 'KiteHRMS',
-				email: 'anonymous@kitehrms.com',
+				email: anonymousUserEmail,
 				password: 'Password?1234AnonymousUser',
 				isActive: false,
 				isSuperUser: false,

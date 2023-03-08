@@ -7,15 +7,15 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"createsuperuser": "node commands/createsuperuser",
-		"loadclients": "node commands/loadclients",
-		"loaddbfunctions": "node commands/loaddbfunctions",
-		"loademployees": "node commands/loademployees",
-		"loadgroups": "node commands/loadgroups",
-		"loadpermissions": "node commands/loadpermissions",
-		"loadusers": "node commands/loadusers",
+		"createsuperuser": "node src/commands/createsuperuser",
+		"loadclients": "node src/commands/loadclients",
+		"loaddbfunctions": "node src/commands/loaddbfunctions",
+		"loademployees": "node src/commands/loademployees",
+		"loadgroups": "node src/commands/loadgroups",
+		"loadpermissions": "node src/commands/loadpermissions",
+		"loadusers": "node src/commands/loadusers",
 		"merge-schema": "cat *.prisma > schema.prisma",
-		"seed": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loademployees && npm run loadclients && npm run loadusers"
+		"seed": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loadusers && npm run loademployees && npm run loadclients"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"

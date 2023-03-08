@@ -53,7 +53,7 @@ model Attendance {
 
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([date, employeeId])
+  // @@unique([date, employeeId])
   @@index([id], map: "attendance_id")
   @@index([employeeId], map: "attendance_employee_id")
   @@map("attendance")
