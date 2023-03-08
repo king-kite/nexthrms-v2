@@ -199,7 +199,8 @@ export function handlePrismaErrors(
 		}
 	} else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
 		errors.code = 500;
-		errors.message = error.message;
+		if (process.env.NODE_ENV === 'development') errors.message = error.message;
+		else errors.message = 'An unknown server client request error occurred!';
 	} else if ((error as any).message && process.env.NODE_ENV === 'development')
 		errors.message = (error as any).message;
 
