@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 const { getProfile } = require('./common.js');
 const {
+	anonymousUserEmail,
 	logger,
 	bcrypt: { hash },
 } = require('./utils/index.js');
@@ -55,6 +56,9 @@ async function getClient({
 					employee: { is: null },
 				},
 			],
+			email: {
+				notIn: [anonymousUserEmail],
+			},
 		},
 	});
 	logger.success('Removed Old Clients Successfully!');

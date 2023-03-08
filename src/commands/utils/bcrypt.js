@@ -4,7 +4,7 @@ function getSaltRounds() {
 	if (process.env.SALT_ROUNDS) {
 		return +process.env.SALT_ROUNDS;
 	}
-	return undefined;
+	return 10;
 }
 
 const SALT_ROUNDS = getSaltRounds();
@@ -15,5 +15,5 @@ async function hashPassword(password) {
 }
 
 module.exports = {
-	hash: hashPassword
-}
+	hash: hashPassword,
+};

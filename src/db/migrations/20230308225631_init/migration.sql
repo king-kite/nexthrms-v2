@@ -23,7 +23,7 @@ CREATE TYPE "OvertimeChoices" AS ENUM ('COMPULSORY', 'HOLIDAY', 'VOLUNTARY');
 CREATE TYPE "PermissionObjectChoices" AS ENUM ('DELETE', 'EDIT', 'VIEW');
 
 -- CreateEnum
-CREATE TYPE "PermissionModelChoices" AS ENUM ('assets', 'attendance', 'clients', 'deparments', 'employees', 'groups', 'holiday', 'jobs', 'leaves', 'overtime', 'projects', 'projects_files', 'projects_tasks', 'projects_tasks_followers', 'projects_team', 'users');
+CREATE TYPE "PermissionModelChoices" AS ENUM ('assets', 'attendance', 'clients', 'departments', 'employees', 'groups', 'holiday', 'jobs', 'leaves', 'overtime', 'permissions', 'projects', 'projects_files', 'projects_tasks', 'projects_tasks_followers', 'projects_team', 'users');
 
 -- CreateEnum
 CREATE TYPE "ProjectPriority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
@@ -379,9 +379,6 @@ CREATE INDEX "attendance_id" ON "attendance"("id");
 CREATE INDEX "attendance_employee_id" ON "attendance"("employee_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "attendance_date_employee_id_key" ON "attendance"("date", "employee_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "clients_contact_id_key" ON "clients"("contact_id");
 
 -- CreateIndex
@@ -625,7 +622,7 @@ ALTER TABLE "leaves" ADD CONSTRAINT "leaves_approved_by_fkey" FOREIGN KEY ("appr
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_sender_id_fkey" FOREIGN KEY ("sender_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "notifications" ADD CONSTRAINT "notifications_recipient_id_fkey" FOREIGN KEY ("recipient_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_recipient_id_fkey" FOREIGN KEY ("recipient_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "overtime" ADD CONSTRAINT "overtime_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE CASCADE ON UPDATE CASCADE;

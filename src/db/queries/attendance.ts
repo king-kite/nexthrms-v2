@@ -40,8 +40,8 @@ export const getAttendanceQuery = ({
 	offset,
 	limit,
 	id,
-	from, 
-	to
+	from,
+	to,
 }: ParamsType & {
 	id: string;
 }): Prisma.AttendanceFindManyArgs => {
@@ -100,12 +100,10 @@ export const getAttendanceInfo = async (id: string) => {
 	date.setHours(0, 0, 0, 0);
 
 	const [timesheet, timeline, statistics] = await prisma.$transaction([
-		prisma.attendance.findUnique({
+		prisma.attendance.findFirst({
 			where: {
-				date_employeeId: {
-					date,
-					employeeId: id,
-				},
+				date,
+				employeeId: id,
 			},
 			select: selectInfo,
 		}),

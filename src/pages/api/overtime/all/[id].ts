@@ -36,12 +36,10 @@ export default auth()
 		const date = new Date(data.date);
 		date.setHours(0, 0, 0, 0);
 
-		const attendance = await prisma.attendance.findUnique({
+		const attendance = await prisma.attendance.findFirst({
 			where: {
-				date_employeeId: {
-					date,
-					employeeId: req.user.employee.id,
-				},
+				date,
+				employeeId: req.user.employee.id,
 			},
 			select: { id: true },
 		});

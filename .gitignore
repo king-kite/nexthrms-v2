@@ -47,3 +47,6 @@ firebase-export*
 
 kitehrms-firebase-adminsdk.json
 notes.txt
+
+src/_commands
+src/_commands/test.ts

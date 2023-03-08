@@ -3,7 +3,6 @@ const prisma = new PrismaClient();
 
 const { getProfile } = require('./common.js');
 const {
-	anonymousUserId,
 	logger,
 	bcrypt: { hash },
 } = require('./utils/index.js');
@@ -39,6 +38,7 @@ async function getUser({
 	// Delete the previous users that neither employees and clients
 	// or are both at the same time
 	logger.info('Removing Old Users Data...');
+
 	await prisma.user.deleteMany({
 		where: {
 			OR: [
@@ -68,36 +68,36 @@ async function getUser({
 	// Loading Users
 	const users = [
 		// Create Anonymous User who is a client and employee. Just in case
-		{
-			...(await getUser({
-				firstName: 'Anonymous',
-				lastName: 'KiteHRMS',
-				email: 'anonymous@kitehrms.com',
-				password: 'Password?1234AnonymousUser',
-				isActive: false,
-				isSuperUser: false,
-				isAdmin: false,
-				isEmailVerified: false,
-				profileInfo: {
-					dob: new Date(),
-					address:
-						'This user does not have an address. Do not forward any information to him.',
-				},
-			})),
-			id: anonymousUserId,
-			employee: {
-				create: {
-					id: anonymousUserId,
-				},
-			},
-			client: {
-				create: {
-					id: anonymousUserId,
-					company: 'KiteHRMS',
-					position: 'Anonymous',
-				},
-			},
-		},
+		// {
+		// 	...(await getUser({
+		// 		firstName: 'Anonymous',
+		// 		lastName: 'KiteHRMS',
+		// 		email: anonymousUserEmail,
+		// 		password: 'Password?1234AnonymousUser',
+		// 		isActive: false,
+		// 		isSuperUser: false,
+		// 		isAdmin: false,
+		// 		isEmailVerified: false,
+		// 		profileInfo: {
+		// 			dob: new Date(),
+		// 			address:
+		// 				'This user does not have an address. Do not forward any information to him.',
+		// 		},
+		// 	})),
+		// 	id: anonymousUserId,
+		// 	employee: {
+		// 		create: {
+		// 			id: anonymousUserId,
+		// 		},
+		// 	},
+		// 	client: {
+		// 		create: {
+		// 			id: anonymousUserId,
+		// 			company: 'KiteHRMS',
+		// 			position: 'Anonymous',
+		// 		},
+		// 	},
+		// },
 
 		// Neither client nor employee
 		await getUser({

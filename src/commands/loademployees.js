@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 const { getProfile } = require('./common.js');
 const {
+	anonymousUserEmail,
 	logger,
 	bcrypt: { hash },
 } = require('./utils/index.js');
@@ -68,6 +69,9 @@ async function getEmployee({
 	logger.info('Removing Old Employees Data...');
 	await prisma.user.deleteMany({
 		where: {
+			email: {
+				notIn: [anonymousUserEmail],
+			},
 			AND: [
 				{
 					client: { is: null },
