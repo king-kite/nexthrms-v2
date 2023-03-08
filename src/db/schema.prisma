@@ -45,8 +45,8 @@ model Attendance {
   punchOut DateTime? @map("punch_out") @db.Time()
 
   // Default to the anonymous employee
-  employeeId String?   @map("employee_id") @db.Uuid
-  employee   Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   overtimeId String?   @unique @map("overtime_id") @db.Uuid
   overtime   Overtime? @relation(fields: [overtimeId], references: [id], onDelete: SetNull)
@@ -185,8 +185,8 @@ model Leave {
   type      LeaveChoices @default(CASUAL)
   status    LeaveStatus  @default(PENDING)
 
-  employeeId String?   @map("employee_id") @db.Uuid
-  employee   Employee? @relation("employeeLeaves", fields: [employeeId], references: [id], onDelete: SetNull)
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeLeaves", fields: [employeeId], references: [id], onDelete: Cascade)
 
   createdById String?   @map("created_by") @db.Uuid
   createdBy   Employee? @relation("createdByLeaves", fields: [createdById], references: [id], onDelete: SetNull)
@@ -233,8 +233,8 @@ model Overtime {
   reason String
   status LeaveStatus     @default(PENDING)
 
-  employeeId String?   @map("employee_id") @db.Uuid
-  employee   Employee? @relation("employeeOvertime", fields: [employeeId], references: [id], onDelete: SetNull)
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation("employeeOvertime", fields: [employeeId], references: [id], onDelete: Cascade)
 
   createdById String?   @map("created_by") @db.Uuid
   createdBy   Employee? @relation("createdByOvertime", fields: [createdById], references: [id], onDelete: SetNull)

@@ -34,7 +34,7 @@ export type LeaveType = {
 	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
-	employee: EmployeeType | null;
+	employee: EmployeeType;
 	approvedBy: EmployeeType | null;
 	createdBy: EmployeeType | null;
 };

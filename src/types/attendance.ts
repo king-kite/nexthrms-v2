@@ -12,7 +12,7 @@ export type AttendanceType = {
 				image: string;
 			} | null;
 		};
-	} | null;
+	};
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut: Date | string | null;
