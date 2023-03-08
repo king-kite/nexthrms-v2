@@ -96,7 +96,7 @@ export const getPrismaModels = (
 		case 'overtime':
 			return 'overtime';
 		case 'permission':
-			return 'permissions';
+			return 'permission';
 		case 'projects':
 			return 'project';
 		case 'projects_files':
