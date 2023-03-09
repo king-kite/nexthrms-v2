@@ -356,6 +356,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 										checkRoute(data, {
 											admin: true,
 											key: 'permission',
+											model: 'permissions',
 										}),
 								},
 							],

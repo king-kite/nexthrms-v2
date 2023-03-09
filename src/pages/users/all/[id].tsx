@@ -116,7 +116,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				userId: req.user.id,
 				permission: 'VIEW',
 		  })
-		: undefined;
+		: null;
 
 	// check if the user has a view object permission for this user's employee record
 	const objEmployeePerm = data.employee
@@ -126,19 +126,20 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				userId: req.user.id,
 				permission: 'VIEW',
 		  })
-		: undefined;
+		: null;
 
-	return {
-		props: {
-			auth,
-			objPerm,
-			objClientPerm,
-			objEmployeePerm,
-			data: JSON.parse(JSON.stringify(data)),
-			groups: JSON.parse(JSON.stringify(groups)),
-			permissions: JSON.parse(JSON.stringify(perms)),
-		},
+	const props = {
+		auth,
+		objPerm,
+		data: JSON.parse(JSON.stringify(data)),
+		groups: JSON.parse(JSON.stringify(groups)),
+		permissions: JSON.parse(JSON.stringify(perms)),
 	};
+
+	if (objClientPerm) Object(props).objClientPerm = objClientPerm;
+	if (objEmployeePerm) Object(props).objEmployeePerm = objEmployeePerm;
+
+	return { props };
 };
 
 export default Page;

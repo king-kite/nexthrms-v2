@@ -1,6 +1,6 @@
 import { permissions } from '../../../../config';
-import { getUserPermissions, prisma } from '../../../../db';
-import { getUserObjectPermissions } from '../../../../db/utils';
+import { getPermissions, getUserPermissions, prisma } from '../../../../db';
+import { getUserObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
@@ -59,6 +59,53 @@ export default admin()
 		const data: {
 			permissions: string[];
 		} = await updateUserPermissionsSchema.validateAsync({ ...req.body });
+
+		// Do this check to make sure a user can not set a permission that he can't even view
+
+		// Check if the user is not a superuser and has the write to even view
+		// the permissions he is about to set for another user
+		let canSetPerm = false;
+		if (req.user.isSuperUser) canSetPerm = true;
+		else {
+			// Can view all permissions i.e. model level
+			const hasViewPerm = hasModelPermission(req.user.allPermissions, [
+				permissions.permission.VIEW,
+			]);
+			if (hasViewPerm) canSetPerm = true;
+			else {
+				// If the user has any view object level permissions
+				const userObjects = await getUserObjects({
+					modelName: 'permissions',
+					permission: 'VIEW',
+					userId: req.user.id,
+				});
+
+				if (userObjects.length > 0) {
+					const { result } = await getPermissions({
+						where: {
+							id: {
+								in: userObjects.map((obj) => obj.objectId),
+							},
+						},
+					});
+
+					// Loop through the permissions sent by the request user and make sure
+					// the request user has access to view them all
+					const hasAllPermissions = data.permissions.every((codename) => {
+						const found = result.find((perm) => perm.codename === codename);
+						if (found) return true;
+						else return false;
+					});
+					if (hasAllPermissions) canSetPerm = true;
+				}
+			}
+		}
+
+		if (!canSetPerm)
+			throw new NextApiErrorMessage(
+				403,
+				'You are not authorized to set some of the requested permissions!'
+			);
 
 		await prisma.user.update({
 			where: {
