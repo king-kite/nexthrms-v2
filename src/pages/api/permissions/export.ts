@@ -1,18 +1,58 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions as perms } from '../../../config';
 import { getPermissions } from '../../../db';
-import { auth } from '../../../middlewares';
-import { PermissionType } from '../../../types';
+import { getUserObjects } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [perms.permission.EXPORT]);
 
-	const data = await getPermissions(params);
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	const permissions = data.result.map((perm) => {
-		const permission = perm as PermissionType;
+	let data;
+
+	const hasViewPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [perms.permission.VIEW]);
+
+	if (hasViewPerm) {
+		const params = validateParams(req.query);
+		data = await getPermissions(params);
+	} else {
+		// if the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'permissions',
+			permission: 'VIEW',
+			userId: req.user.id,
+		});
+
+		if (userObjects.length > 0) {
+			const params = validateParams(req.query);
+			data = await getPermissions({
+				...params,
+				where: {
+					id: {
+						in: userObjects.map((obj) => obj.objectId),
+					},
+				},
+			});
+		}
+	}
+
+	if (!data)
+		data = {
+			total: 0,
+			result: [],
+		};
+
+	const permissions = data.result.map((permission) => {
 		return {
 			id: permission.id,
 			name: permission.name,

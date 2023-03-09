@@ -1,51 +1,39 @@
+import { permissions } from '../../../config';
 import { getPermission } from '../../../db';
-import { auth } from '../../../middlewares';
+import { getUserObjectPermissions } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 
-export default auth()
-	.get(async (req, res) => {
-		const data = await getPermission(req.query.id as string);
+export default admin().get(async (req, res) => {
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.permission.VIEW]);
 
-		if (!data)
-			return res.status(404).json({
-				status: 'success',
-				message: 'Permission with specified ID does not exist!',
-			});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched permission successfully',
-			data,
+	if (!hasPerm) {
+		// check if the user has a view object permission for this record
+		const objPerm = await getUserObjectPermissions({
+			modelName: 'permissions',
+			objectId: req.query.id as string,
+			permission: 'VIEW',
+			userId: req.user.id,
 		});
-	})
-	// .put(async (req, res) => {
-	// 	const data: CreatePermissionQueryType =
-	// 		await createPermissionSchema.validateAsync(
-	// 			{ ...req.body },
-	// 			{ abortEarly: false }
-	// 		);
+		if (objPerm.view === true) hasPerm = true;
+	}
 
-	// 	const permission = await prisma.permission.update({
-	// 		where: {
-	// 			id: req.query.id as string,
-	// 		},
-	// 		data,
-	// 		select: permissionSelectQuery,
-	// 	});
+	if (!hasPerm) throw new NextApiErrorMessage(403);
 
-	// 	return res.status(200).json({
-	// 		status: 'success',
-	// 		message: 'Permission updated successfully!',
-	// 		data: permission,
-	// 	});
-	// })
-	// .delete(async (req, res) => {
-	// 	await prisma.permission.delete({
-	// 		where: {
-	// 			id: req.query.id as string,
-	// 		},
-	// 	});
-	// 	return res.status(200).json({
-	// 		status: 'success',
-	// 		message: 'Permission deleted successfully!',
-	// 	});
-	// });
+	const data = await getPermission(req.query.id as string);
+
+	if (!data)
+		return res.status(404).json({
+			status: 'success',
+			message: 'Permission with specified ID does not exist!',
+		});
+
+	return res.status(200).json({
+		status: 'success',
+		message: 'Fetched permission successfully',
+		data,
+	});
+});
