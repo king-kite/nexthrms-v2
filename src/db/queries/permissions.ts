@@ -1,6 +1,5 @@
 import {
 	Prisma,
-	Permission,
 	PermissionCategory,
 	PermissionModelChoices,
 	PermissionObjectChoices,
@@ -55,7 +54,10 @@ export const getPermissionsQuery = ({
 	offset,
 	limit,
 	search = undefined,
-}: ParamsType): Prisma.PermissionFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.PermissionWhereInput;
+}): Prisma.PermissionFindManyArgs => {
 	const query: Prisma.PermissionFindManyArgs = {
 		select: permissionSelectQuery,
 		orderBy: {
@@ -87,8 +89,9 @@ export const getPermissionsQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (offset) query.skip = offset;
@@ -222,7 +225,7 @@ export const getPermission = async (id: string) => {
 		select: permissionSelectQuery,
 	});
 
-	return permission;
+	return permission as unknown as PermissionType;
 };
 
 export const getPermissionCategory = async (id: string) => {
@@ -235,12 +238,14 @@ export const getPermissionCategory = async (id: string) => {
 };
 
 export const getPermissions = async (
-	params: ParamsType = {
+	params: ParamsType & {
+		where?: Prisma.PermissionWhereInput;
+	} = {
 		search: undefined,
 	}
 ): Promise<{
 	total: number;
-	result: PermissionType[] | Permission[];
+	result: PermissionType[];
 }> => {
 	const query = getPermissionsQuery({ ...params });
 
@@ -251,7 +256,7 @@ export const getPermissions = async (
 
 	return {
 		total,
-		result,
+		result: result as unknown as PermissionType[],
 	};
 };
 

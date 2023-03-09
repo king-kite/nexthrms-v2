@@ -5,7 +5,6 @@ import { permissions } from '../../../config';
 import { getUsers } from '../../../db';
 import { getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { GetUsersResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
@@ -17,7 +16,6 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	// let data: GetUsersResponseType['data'] = {
 	let data;
 
 	const hasViewPerm =

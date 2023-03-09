@@ -45,6 +45,17 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const auth = await serializeUserData(req.user);
 
+	// Check is admin
+	if (!req.user.isAdmin && !req.user.isSuperUser)
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+				},
+			},
+		};
+
 	const hasViewPerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
