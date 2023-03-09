@@ -214,7 +214,7 @@ const Form: FC<FormProps> = ({
 						createdAt: formRef.current?.createdAt.value,
 						isAdmin: formRef.current.isAdmin.checked,
 						isActive: formRef.current.isActive.checked,
-						isSuperUser: formRef.current.isSuperUser.checked,
+						isSuperUser: formRef.current.isSuperUser?.checked || false,
 						isEmailVerified: formRef.current.isEmailVerified.checked,
 					};
 
