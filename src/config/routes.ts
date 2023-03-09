@@ -10,6 +10,10 @@ export const ASSET_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 
 export const GROUPS_PAGE_URL = '/users/groups/';
 export const GROUP_PAGE_URL = (slug: string) => `/users/groups/${slug}/`;
+export const OBJECT_PERMISSIONS_PAGE_URL = (
+	model: string,
+	objectId: string = ''
+) => `/users/permissions/objects/${model}/${objectId}/`;
 export const PERMISSIONS_PAGE_URL = '/users/permissions/';
 export const PERMISSION_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/users/permissions/${slug}/permissions/object-permissions/`;
