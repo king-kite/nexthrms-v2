@@ -65,7 +65,8 @@ export default admin()
 		// Check if the user is not a superuser and has the write to even view
 		// the permissions he is about to set for another user
 		let canSetPerm = false;
-		if (!req.user.isSuperUser) {
+		if (req.user.isSuperUser) canSetPerm = true;
+		else {
 			// Can view all permissions i.e. model level
 			const hasViewPerm = hasModelPermission(req.user.allPermissions, [
 				permissions.permission.VIEW,
