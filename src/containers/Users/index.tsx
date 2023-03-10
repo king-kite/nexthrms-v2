@@ -53,6 +53,12 @@ const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -105,7 +111,7 @@ const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				canView && data
+				(canCreate || canView) && data
 					? {
 							offset,
 							setOffset,
@@ -115,7 +121,7 @@ const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
 					: undefined
 			}
 		>
-			{canView && (
+			{(canCreate || canView) && (
 				<Cards
 					active={data?.active || 0}
 					leave={data?.on_leave || 0}
@@ -151,7 +157,7 @@ const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
 				}}
 				exportLoading={exportLoading}
 			/>
-			{canView && (
+			{(canCreate || canView) && (
 				<div className="mt-3">
 					<UserTable users={data?.result || []} />
 				</div>
