@@ -62,6 +62,24 @@ export default auth()
 			}
 		}
 
+		// Check if the user has create model permissions and return an empty array
+		// The user may not have created any record yet so it is still unwise to throw a 403 error
+		const hasCreatePerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
+
+		if (hasCreatePerm)
+			return res.status(200).json({
+				status: 'success',
+				message: 'Fetched clients successfully! A total of 0',
+				data: {
+					total: 0,
+					inactive: 0,
+					active: 0,
+					result: [],
+				},
+			});
+
 		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
