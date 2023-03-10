@@ -3,11 +3,21 @@ import { parse } from 'json2csv';
 
 import { permissions } from '../../../config';
 import { getUsers } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
+import { UserType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { validateParams } from '../../../validators';
+
+type ResponseType = {
+	total: number;
+	result: UserType[];
+	inactive: number;
+	active: number;
+	on_leave: number;
+	employees: number;
+	clients: number;
+};
 
 export default admin().get(async (req, res) => {
 	const hasExportPerm =
@@ -16,47 +26,28 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let data;
+	const placeholder: ResponseType = {
+		result: [],
+		total: 0,
+		inactive: 0,
+		active: 0,
+		on_leave: 0,
+		employees: 0,
+		clients: 0,
+	};
 
-	const hasViewPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
+	const result = await getRecords<ResponseType>({
+		model: 'users',
+		perm: 'user',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getUsers(params);
+		},
+	});
 
-	// if the user has model permissions
-	if (hasViewPerm) {
-		const params = validateParams(req.query);
-		data = await getUsers({ ...params });
-	} else {
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'users',
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
-
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			data = await getUsers({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-		}
-	}
-
-	if (!data)
-		data = {
-			active: 0,
-			inactive: 0,
-			on_leave: 0,
-			employees: 0,
-			clients: 0,
-			total: 0,
-			result: [],
-		};
+	const data = result ? result.data : placeholder;
 
 	const users = data.result.map((user) => {
 		return {

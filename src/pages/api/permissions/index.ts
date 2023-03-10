@@ -9,8 +9,8 @@ export default admin().get(async (req, res) => {
 		total: number;
 		result: PermissionType[];
 	}>({
-		model: 'users',
-		perm: 'user',
+		model: 'permissions',
+		perm: 'permission',
 		query: req.query,
 		user: req.user,
 		placeholder: {

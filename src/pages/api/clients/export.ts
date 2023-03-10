@@ -8,7 +8,6 @@ import { admin } from '../../../middlewares';
 import { GetClientsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { validateParams } from '../../../validators';
 
 export default admin().get(async (req, res) => {
 	const hasExportPerm =
@@ -17,7 +16,7 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let placeholder: GetClientsResponseType['data'] = {
+	const placeholder: GetClientsResponseType['data'] = {
 		active: 0,
 		inactive: 0,
 		total: 0,

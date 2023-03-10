@@ -3,11 +3,11 @@ import { parse } from 'json2csv';
 
 import { permissions as perms } from '../../../config';
 import { getPermissions } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
+import { PermissionType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { validateParams } from '../../../validators';
 
 export default admin().get(async (req, res) => {
 	const hasExportPerm =
@@ -16,41 +16,32 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let data;
+	const placeholder: {
+		total: number;
+		result: PermissionType[];
+	} = {
+		total: 0,
+		result: [],
+	};
 
-	const hasViewPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [perms.permission.VIEW]);
-
-	if (hasViewPerm) {
-		const params = validateParams(req.query);
-		data = await getPermissions(params);
-	} else {
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'permissions',
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
-
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			data = await getPermissions({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-		}
-	}
-
-	if (!data)
-		data = {
+	const result = await getRecords<{
+		total: number;
+		result: PermissionType[];
+	}>({
+		model: 'permissions',
+		perm: 'permission',
+		query: req.query,
+		user: req.user,
+		placeholder: {
 			total: 0,
 			result: [],
-		};
+		},
+		getData(params) {
+			return getPermissions(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
 
 	const permissions = data.result.map((permission) => {
 		return {
