@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { userSelectQuery as selectQuery, getUsers, prisma } from '../../../db';
-import { addObjectPermissions, getUserObjects } from '../../../db/utils';
+import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { CreateUserQueryType, UserType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -10,7 +10,7 @@ import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createUserSchema, validateParams } from '../../../validators';
+import { createUserSchema } from '../../../validators';
 
 export const config = {
 	api: {
@@ -20,68 +20,34 @@ export const config = {
 
 export default admin()
 	.get(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
-
-		// if the user has model permissions
-		if (hasPerm) {
-			const params = validateParams(req.query);
-			const data = await getUsers({ ...params });
-
-			return res.status(200).json({
-				status: 'success',
-				message: 'Fetched Users successfully! A total of ' + data.total,
-				data,
-			});
-		}
-
-		// If the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'users',
-			permission: 'VIEW',
-			userId: req.user.id,
+		const result = await getRecords<{
+			total: number;
+			result: UserType[];
+			inactive: number;
+			active: number;
+			on_leave: number;
+			employees: number;
+			clients: number;
+		}>({
+			model: 'users',
+			perm: 'user',
+			query: req.query,
+			user: req.user,
+			placeholder: {
+				total: 0,
+				active: 0,
+				inactive: 0,
+				on_leave: 0,
+				employees: 0,
+				clients: 0,
+				result: [],
+			},
+			getData(params) {
+				return getUsers(params);
+			},
 		});
 
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-
-			const data = await getUsers({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-
-			return res.status(200).json({
-				status: 'success',
-				message: 'Fetched Users successfully! A total of ' + data.total,
-				data,
-			});
-		}
-
-		// Check if the user has create model permissions and return an empty array
-		// The user may not have created any record yet so it is still unwise to throw a 403 error
-		const hasCreatePerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.user.CREATE]);
-
-		if (hasCreatePerm)
-			return res.status(200).json({
-				status: 'success',
-				message: 'Fetched users successfully! A total of 0',
-				data: {
-					total: 0,
-					active: 0,
-					inactive: 0,
-					clients: 0,
-					employees: 0,
-					on_leave: 0,
-					result: [],
-				},
-			});
+		if (result) return res.status(200).json(result);
 
 		throw new NextApiErrorMessage(403);
 	})
