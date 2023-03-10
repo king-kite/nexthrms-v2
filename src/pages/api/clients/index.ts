@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { permissions } from '../../../config';
 import { clientSelectQuery, getClients, prisma } from '../../../db';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
-import { auth } from '../../../middlewares';
+import { admin } from '../../../middlewares';
 import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
@@ -18,7 +18,7 @@ export const config = {
 	},
 };
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
 		const result = await getRecords<{
 			total: number;

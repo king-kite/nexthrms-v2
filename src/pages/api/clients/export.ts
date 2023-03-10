@@ -3,55 +3,39 @@ import { parse } from 'json2csv';
 
 import { permissions } from '../../../config';
 import { getClients } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
-import { auth } from '../../../middlewares';
+import { getRecords } from '../../../db/utils';
+import { admin } from '../../../middlewares';
 import { GetClientsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 
-export default auth().get(async (req, res) => {
+export default admin().get(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.client.EXPORT]);
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let data: GetClientsResponseType['data'] = {
+	let placeholder: GetClientsResponseType['data'] = {
 		active: 0,
 		inactive: 0,
 		total: 0,
 		result: [],
 	};
 
-	const hasViewPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+	const result = await getRecords<GetClientsResponseType['data']>({
+		model: 'clients',
+		perm: 'client',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getClients(params);
+		},
+	});
 
-	// if the user has model permissions
-	if (hasViewPerm) {
-		const params = validateParams(req.query);
-		data = await getClients({ ...params });
-	} else {
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'clients',
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
-
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			data = await getClients({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-		}
-	}
+	const data = result ? result.data : placeholder;
 
 	const clients = data.result.map((client) => {
 		return {
