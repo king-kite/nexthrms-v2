@@ -1,37 +1,28 @@
 import { getPermissionCategories } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { validateParams } from '../../../../validators';
+import { getRecords } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
+import { PermissionCategoryType } from '../../../../types';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 
-export default auth()
-	.get(async (req, res) => {
-		const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const result = await getRecords<{
+		total: number;
+		result: PermissionCategoryType[];
+	}>({
+		model: 'permission_categories',
+		perm: 'permissioncategory',
+		query: req.query,
+		user: req.user,
+		placeholder: {
+			total: 0,
+			result: [],
+		},
+		getData(params) {
+			return getPermissionCategories(params);
+		},
+	});
 
-		const data = await getPermissionCategories(params);
+	if (result) return res.status(200).json(result);
 
-		return res.status(200).json({
-			status: 'success',
-			message:
-				'Fetched permission categories successfully! A total of ' + data.total,
-			data,
-		});
-	})
-	// .post(async (req, res) => {
-	// 	const data: { name: string } =
-	// 		await createPermissionCategorySchema.validateAsync(
-	// 			{ ...req.body },
-	// 			{
-	// 				abortEarly: false,
-	// 			}
-	// 		);
-
-	// 	const category = await prisma.permissionCategory.create({
-	// 		data,
-	// 		select: permissionCategorySelectQuery,
-	// 	});
-
-	// 	return res.status(201).json({
-	// 		status: 'success',
-	// 		message: 'Permission Category added successfully',
-	// 		data: category,
-	// 	});
-	// });
+	throw new NextApiErrorMessage(403);
+});

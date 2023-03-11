@@ -1,15 +1,46 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../../config';
 import { getPermissionCategories } from '../../../../db';
-import { auth } from '../../../../middlewares';
+import { getRecords } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
 import { PermissionCategoryType } from '../../../../types';
-import { validateParams } from '../../../../validators';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [
+			permissions.permissioncategory.EXPORT,
+		]);
 
-	const data = await getPermissionCategories(params);
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
+
+	const placeholder: {
+		total: number;
+		result: PermissionCategoryType[];
+	} = {
+		total: 0,
+		result: [],
+	};
+
+	const result = await getRecords<{
+		total: number;
+		result: PermissionCategoryType[];
+	}>({
+		model: 'permission_categories',
+		perm: 'permissioncategory',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getPermissionCategories(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
 
 	const categories = data.result.map((cat) => {
 		const category = cat as PermissionCategoryType;

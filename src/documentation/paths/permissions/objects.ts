@@ -245,7 +245,7 @@ const path = {
 	post: {
 		...commonInfo,
 		description:
-			'This overrwrites previous users and groups with provided data!',
+			'This overwrites previous users and groups with provided data!',
 		summary: 'Set Object/Record Permissions For Users/Groups',
 	},
 	put: {

@@ -106,6 +106,7 @@ export type PermissionPrismaModelNameType =
 	| 'leave'
 	| 'overtime'
 	| 'permission'
+	| 'permissionCategory'
 	| 'project'
 	| 'projectFile'
 	| 'projectTask'
