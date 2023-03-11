@@ -1,8 +1,12 @@
 import type { NextApiRequest } from 'next';
 
+import { permissions } from '../../../config';
 import { getGroup, groupSelectQuery, prisma } from '../../../db';
-import { auth } from '../../../middlewares';
+import { getUserObjectPermissions } from '../../../db/utils';
+import { admin } from '../../../middlewares';
 import { CreateGroupQueryType, ParamsType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import { createGroupSchema, validateParams } from '../../../validators';
 
 function getGroupUserParamsQuery(query: NextApiRequest['query']) {
@@ -15,8 +19,25 @@ function getGroupUserParamsQuery(query: NextApiRequest['query']) {
 	return userQuery;
 }
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.group.VIEW]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'groups',
+				objectId: req.query.id as string,
+				permission: 'VIEW',
+				userId: req.user.id,
+			});
+			if (objPerm.view === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		let params:
 			| {
 					user?: ParamsType;
@@ -49,6 +70,23 @@ export default auth()
 		});
 	})
 	.put(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.group.EDIT]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'groups',
+				objectId: req.query.id as string,
+				permission: 'EDIT',
+				userId: req.user.id,
+			});
+			if (objPerm.edit === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const data: CreateGroupQueryType = await createGroupSchema.validateAsync(
 			{ ...req.body },
 			{ abortEarly: false }
@@ -83,6 +121,23 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.group.DELETE]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'groups',
+				objectId: req.query.id as string,
+				permission: 'DELETE',
+				userId: req.user.id,
+			});
+			if (objPerm.delete === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		await prisma.group.delete({
 			where: {
 				id: req.query.id as string,

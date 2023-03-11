@@ -44,7 +44,9 @@ export async function serializeUserData(
 		permissions: getDistinctPermissions([
 			...user.permissions,
 			...user.groups.reduce((acc: PermissionType[], group) => {
-				return [...acc, ...group.permissions];
+				// Only active groups
+				if (group.active) return [...acc, ...group.permissions];
+				return acc;
 			}, []),
 		]),
 		objPermissions: await getUserModelObjectPermissions({
@@ -111,6 +113,7 @@ export async function getUserModelObjectPermissions({
 							{
 								groups: {
 									some: {
+										active: true, // Only active groups
 										users: {
 											some: {
 												id: userId,
