@@ -1,7 +1,7 @@
 import { Button, InfoComp, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
-import { FaPen, FaTrash } from 'react-icons/fa';
+import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
 import {
@@ -111,8 +111,8 @@ function GroupDetail({
 		},
 	});
 
-	const [canEdit, canDelete] = useMemo(() => {
-		if (!authData) return [false, false];
+	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+		if (!authData) return [false, false, false];
 		if (!authData.isSuperUser && !authData.isAdmin) return [false, false];
 
 		const canEdit =
@@ -124,7 +124,19 @@ function GroupDetail({
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.group.DELETE]) ||
 			(objPermData && objPermData.delete);
-		return [canEdit || false, canDelete || false];
+
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
+
+		return [
+			canEdit || false,
+			canDelete || false,
+			canViewObjectPermissions || false,
+		];
 	}, [authData, objPermData]);
 
 	return (
@@ -165,6 +177,17 @@ function GroupDetail({
 									title={delLoading ? 'Deleting Group...' : 'Delete Group'}
 									disabled={delLoading}
 									onClick={() => deleteGroup(id)}
+								/>
+							</div>
+						)}
+						{canViewObjectPermissions && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									bg="bg-gray-600 hover:bg-gray-500"
+									iconLeft={FaUserShield}
+									rounded="rounded-xl"
+									title="View Object Permissions"
+									link={GROUP_OBJECT_PERMISSIONS_PAGE_URL(id)}
 								/>
 							</div>
 						)}
