@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, Form, Topbar, LeaveTable } from '../../components/Leaves';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetLeavesQuery,
 	useRequestLeaveMutation,
@@ -13,6 +13,7 @@ import {
 	CreateLeaveErrorResponseType,
 	GetLeavesResponseType,
 } from '../../types';
+import { hasModelPermission } from '../../utils';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
@@ -25,6 +26,18 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.leave.CREATE])
+			: false;
+		const canView = authData
+			? authData.isSuperUser || (authData.employee && true)
+			: false;
+		return [canCreate, canView];
+	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesQuery(
 		{
@@ -32,6 +45,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			offset,
 			from: dateQuery?.from || undefined,
 			to: dateQuery?.to || undefined,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -62,10 +81,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 
 	const handleSubmit = useCallback(
 		(form: CreateLeaveQueryType) => {
-			setErrors(undefined);
-			requestLeave(form);
+			if (canCreate) {
+				setErrors(undefined);
+				requestLeave(form);
+			}
 		},
-		[requestLeave]
+		[canCreate, requestLeave]
 	);
 
 	return (
@@ -75,9 +96,10 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -87,11 +109,13 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 					: undefined
 			}
 		>
-			<Cards
-				approved={data?.approved || 0}
-				denied={data?.denied || 0}
-				pending={data?.pending || 0}
-			/>
+			{(canCreate || canView) && (
+				<Cards
+					approved={data?.approved || 0}
+					denied={data?.denied || 0}
+					pending={data?.pending || 0}
+				/>
+			)}
 			<Topbar
 				adminView={false}
 				loading={isFetching}
@@ -99,22 +123,24 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
-			<LeaveTable leaves={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						errors={errors}
-						loading={createLoading}
-						success={isSuccess}
-						onSubmit={handleSubmit}
-					/>
-				}
-				description="Fill in the form below to request a leave"
-				keepVisible
-				title="Request Leave"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && <LeaveTable leaves={data?.result || []} />}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							errors={errors}
+							loading={createLoading}
+							success={isSuccess}
+							onSubmit={handleSubmit}
+						/>
+					}
+					description="Fill in the form below to request a leave"
+					keepVisible
+					title="Request Leave"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

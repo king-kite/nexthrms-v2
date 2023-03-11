@@ -4,6 +4,9 @@ import { FaCloudDownloadAlt, FaPlus, FaSearch } from 'react-icons/fa';
 
 import FilterDropdownForm from './FilterDropdownForm';
 import { ExportForm } from '../common';
+import { permissions } from '../../config';
+import { useAuthContext } from '../../store/contexts';
+import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	adminView: boolean;
@@ -30,6 +33,19 @@ function Topbar({
 	exportData,
 	exportLoading,
 }: TopbarProps) {
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport] = React.useMemo(() => {
+		if (!authData) return [false, false];
+		const canCreate =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.leave.CREATE]);
+		const canExport =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.leave.EXPORT]);
+		return [canCreate, canExport];
+	}, [authData]);
+
 	return (
 		<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
 			{adminView && searchSubmit && (
@@ -55,31 +71,35 @@ function Topbar({
 					</div>
 				</>
 			)}
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
-				<ButtonDropdown
-					component={() => (
-						<FilterDropdownForm
-							loading={loading}
-							form={dateForm}
-							setForm={setDateForm}
-						/>
-					)}
-					props={{
-						title: 'Filter by Date',
-					}}
-				/>
-			</div>
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
-				<Button
-					caps
-					iconLeft={FaPlus}
-					margin="lg:mr-6"
-					onClick={openModal}
-					padding="px-3 py-2 md:px-6"
-					rounded="rounded-xl"
-					title={adminView ? 'Add Leave' : 'Request Leave'}
-				/>
-			</div>
+			{canExport && (
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+					<ButtonDropdown
+						component={() => (
+							<FilterDropdownForm
+								loading={loading}
+								form={dateForm}
+								setForm={setDateForm}
+							/>
+						)}
+						props={{
+							title: 'Filter by Date',
+						}}
+					/>
+				</div>
+			)}
+			{canCreate && (
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
+					<Button
+						caps
+						iconLeft={FaPlus}
+						margin="lg:mr-6"
+						onClick={openModal}
+						padding="px-3 py-2 md:px-6"
+						rounded="rounded-xl"
+						title={adminView ? 'Add Leave' : 'Request Leave'}
+					/>
+				</div>
+			)}
 		</div>
 	);
 }
