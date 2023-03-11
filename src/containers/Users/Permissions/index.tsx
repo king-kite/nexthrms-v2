@@ -24,12 +24,23 @@ const Permissions = ({
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const canExport = useMemo(() => {
-		if (!authData) return false;
+	const [canExport, canView] = useMemo(() => {
+		if (!authData) return [false, false];
 		const hasExportPerm =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.permission.EXPORT]);
-		return hasExportPerm && true;
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [
+					permissions.permission.VIEW,
+			  ]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) =>
+						perm.modelName === 'permissions' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [hasExportPerm, canView];
 	}, [authData]);
 
 	const { data, isFetching, refetch } = useGetPermissionsQuery(
@@ -37,6 +48,12 @@ const Permissions = ({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -53,7 +70,7 @@ const Permissions = ({
 				onClick: refetch,
 			}}
 			paginate={
-				data
+				canView && data
 					? {
 							offset,
 							setOffset,
@@ -91,9 +108,11 @@ const Permissions = ({
 				}
 				exportLoading={exportLoading}
 			/>
-			<div className="mt-3">
-				<PermissionTable permissions={data?.result || []} />
-			</div>
+			{canView && data && (
+				<div className="mt-3">
+					<PermissionTable permissions={data.result} />
+				</div>
+			)}
 		</Container>
 	);
 };

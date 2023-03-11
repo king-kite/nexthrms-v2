@@ -4,56 +4,33 @@ import {
 	getAssets,
 	prisma,
 } from '../../../db';
-import { addObjectPermissions, getUserObjects } from '../../../db/utils';
+import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { AssetCreateQueryType } from '../../../types';
+import { AssetCreateQueryType, AssetType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createAssetSchema, validateParams } from '../../../validators';
+import { createAssetSchema } from '../../../validators';
 
 export default admin()
 	.get(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.asset.VIEW]);
-
-		// if the user has model permissions
-		if (hasPerm) {
-			const params = validateParams(req.query);
-			const data = await getAssets({ ...params });
-
-			return res.status(200).json({
-				status: 'success',
-				message: 'Fetched assets successfully! A total of ' + data.total,
-				data,
-			});
-		}
-
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'assets',
-			permission: 'VIEW',
-			userId: req.user.id,
+		const result = await getRecords<{
+			total: number;
+			result: AssetType[];
+		}>({
+			model: 'assets',
+			perm: 'asset',
+			query: req.query,
+			user: req.user,
+			placeholder: {
+				total: 0,
+				result: [],
+			},
+			getData(params) {
+				return getAssets(params);
+			},
 		});
 
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			const data = await getAssets({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-			if (data.total > 0) {
-				return res.status(200).json({
-					status: 'success',
-					message: 'Fetched assets successfully! A total of ' + data.total,
-					data,
-				});
-			}
-		}
+		if (result) return res.status(200).json(result);
 
 		throw new NextApiErrorMessage(403);
 	})

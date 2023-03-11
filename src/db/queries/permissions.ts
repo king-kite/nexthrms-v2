@@ -1,6 +1,5 @@
 import {
 	Prisma,
-	PermissionCategory,
 	PermissionModelChoices,
 	PermissionObjectChoices,
 } from '@prisma/client';
@@ -266,7 +265,7 @@ export const getPermissionCategories = async (
 	}
 ): Promise<{
 	total: number;
-	result: PermissionCategoryType[] | PermissionCategory[];
+	result: PermissionCategoryType[];
 }> => {
 	const query = getPermissionCategoriesQuery({ ...params });
 
@@ -277,6 +276,6 @@ export const getPermissionCategories = async (
 
 	return {
 		total,
-		result,
+		result: result as unknown as PermissionCategoryType[],
 	};
 };

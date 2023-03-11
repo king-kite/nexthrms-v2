@@ -61,6 +61,12 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -128,7 +134,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				canView && data
+				(canView || canCreate) && data
 					? {
 							loading: isFetching,
 							offset,
@@ -138,7 +144,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 					: undefined
 			}
 		>
-			{canView && (
+			{(canView || canCreate) && (
 				<Cards
 					active={data ? data.active : 0}
 					inactive={data ? data.inactive : 0}
@@ -172,7 +178,9 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				}}
 				exportLoading={exportLoading}
 			/>
-			{canView && <ClientTable clients={data ? data.result : []} />}
+			{(canView || canCreate) && (
+				<ClientTable clients={data ? data.result : []} />
+			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}

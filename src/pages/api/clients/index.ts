@@ -2,15 +2,15 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { clientSelectQuery, getClients, prisma } from '../../../db';
-import { addObjectPermissions, getUserObjects } from '../../../db/utils';
-import { auth } from '../../../middlewares';
+import { addObjectPermissions, getRecords } from '../../../db/utils';
+import { admin } from '../../../middlewares';
 import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createClientSchema, validateParams } from '../../../validators';
+import { createClientSchema } from '../../../validators';
 
 export const config = {
 	api: {
@@ -18,49 +18,30 @@ export const config = {
 	},
 };
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
-
-		// if the user has model permissions
-		if (hasPerm) {
-			const params = validateParams(req.query);
-			const data = await getClients({ ...params });
-
-			return res.status(200).json({
-				status: 'success',
-				message: 'Fetched clients successfully! A total of ' + data.total,
-				data,
-			});
-		}
-
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'clients',
-			permission: 'VIEW',
-			userId: req.user.id,
+		const result = await getRecords<{
+			total: number;
+			result: ClientType[];
+			inactive: number;
+			active: number;
+		}>({
+			model: 'clients',
+			perm: 'client',
+			query: req.query,
+			user: req.user,
+			placeholder: {
+				total: 0,
+				inactive: 0,
+				active: 0,
+				result: [],
+			},
+			getData(params) {
+				return getClients(params);
+			},
 		});
 
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			const data = await getClients({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-			if (data.total > 0) {
-				return res.status(200).json({
-					status: 'success',
-					message: 'Fetched clients successfully! A total of ' + data.total,
-					data,
-				});
-			}
-		}
+		if (result) return res.status(200).json(result);
 
 		throw new NextApiErrorMessage(403);
 	})

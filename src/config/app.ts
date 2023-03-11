@@ -42,6 +42,7 @@ export const models: PermissionModelChoices[] = [
 	'leaves',
 	'overtime',
 	'permissions',
+	'permission_categories',
 	'projects',
 	'projects_files',
 	'projects_tasks',
@@ -62,6 +63,7 @@ export const prismaModels: PermissionPrismaModelNameType[] = [
 	'leave',
 	'overtime',
 	'permission',
+	'permissionCategory',
 	'project',
 	'projectFile',
 	'projectTask',
@@ -97,6 +99,8 @@ export const getPrismaModels = (
 			return 'overtime';
 		case 'permissions':
 			return 'permission';
+		case 'permission_categories':
+			return 'permissionCategory';
 		case 'projects':
 			return 'project';
 		case 'projects_files':

@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { permissions } from '../../../config';
 import { prisma, getClient } from '../../../db';
 import { getUserObjectPermissions } from '../../../db/utils';
-import { auth } from '../../../middlewares';
+import { admin } from '../../../middlewares';
 import { ClientCreateQueryType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -17,7 +17,7 @@ export const config = {
 	},
 };
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
@@ -29,8 +29,8 @@ export default auth()
 				modelName: 'clients',
 				objectId: req.query.id as string,
 				permission: 'VIEW',
-				userId: req.user.id
-			})
+				userId: req.user.id,
+			});
 			if (objPerm.view === true) hasPerm = true;
 		}
 
@@ -61,8 +61,8 @@ export default auth()
 				modelName: 'clients',
 				objectId: req.query.id as string,
 				permission: 'EDIT',
-				userId: req.user.id
-			})
+				userId: req.user.id,
+			});
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
@@ -179,8 +179,8 @@ export default auth()
 				modelName: 'clients',
 				objectId: req.query.id as string,
 				permission: 'DELETE',
-				userId: req.user.id
-			})
+				userId: req.user.id,
+			});
 			if (objPerm.delete === true) hasPerm = true;
 		}
 

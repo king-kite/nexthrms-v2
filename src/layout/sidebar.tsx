@@ -408,8 +408,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 			return routes.filter(route => route.links.length > 0);
 		}, [links]);
 
-		console.log({ validRoutes });
-
 		return (
 			<nav
 				ref={ref}

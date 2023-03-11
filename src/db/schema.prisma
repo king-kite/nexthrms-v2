@@ -536,6 +536,7 @@ enum PermissionModelChoices {
   leaves
   overtime
   permissions
+  permission_categories
   projects
   projects_files
   projects_tasks

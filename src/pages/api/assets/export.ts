@@ -3,12 +3,11 @@ import { parse } from 'json2csv';
 
 import { permissions } from '../../../config';
 import { getAssets } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { GetAssetsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { validateParams } from '../../../validators';
 
 export default admin().get(async (req, res) => {
 	const hasExportPerm =
@@ -17,39 +16,23 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	let data: GetAssetsResponseType['data'] = {
+	const placeholder: GetAssetsResponseType['data'] = {
 		total: 0,
 		result: [],
 	};
 
-	const hasViewPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.asset.VIEW]);
+	const result = await getRecords<GetAssetsResponseType['data']>({
+		model: 'assets',
+		perm: 'asset',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getAssets(params);
+		},
+	});
 
-	// if the user has model permissions
-	if (hasViewPerm) {
-		const params = validateParams(req.query);
-		data = await getAssets({ ...params });
-	} else {
-		// if the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'assets',
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
-
-		if (userObjects.length > 0) {
-			const params = validateParams(req.query);
-			data = await getAssets({
-				...params,
-				where: {
-					id: {
-						in: userObjects.map((obj) => obj.objectId),
-					},
-				},
-			});
-		}
-	}
+	const data = result ? result.data : placeholder;
 
 	const assets = data.result.map((asset) => {
 		return {

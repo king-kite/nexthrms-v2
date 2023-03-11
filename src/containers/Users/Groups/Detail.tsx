@@ -1,7 +1,7 @@
 import { Button, InfoComp, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { FaPen, FaTrash } from 'react-icons/fa';
+import { useMemo, useState } from 'react';
+import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
 import {
@@ -9,17 +9,36 @@ import {
 	Permissions,
 	UsersGrid,
 } from '../../../components/Groups/Detail';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	GROUP_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../../config';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../../../store/contexts';
 import {
 	useDeleteGroupMutation,
 	useEditGroupMutation,
 	useGetGroupQuery,
+	useGetUserObjectPermissionsQuery,
 } from '../../../store/queries';
-import { GroupType, CreateGroupQueryType } from '../../../types';
-import { toCapitalize } from '../../../utils';
+import {
+	GroupType,
+	CreateGroupQueryType,
+	UserObjPermType,
+} from '../../../types';
+import { hasModelPermission, toCapitalize } from '../../../utils';
 
-function GroupDetail({ group }: { group: GroupType }) {
+function GroupDetail({
+	group,
+	objPerm,
+}: {
+	group: GroupType;
+	objPerm: UserObjPermType;
+}) {
 	const [editMessage, setEditMessage] = useState('');
 	const [modalVisible, setModalVisible] = useState(false);
 	const [offset, setOffset] = useState(0);
@@ -43,6 +62,21 @@ function GroupDetail({ group }: { group: GroupType }) {
 	);
 	const { open: showAlert } = useAlertContext();
 	const { close: closeAlertModal } = useAlertModalContext();
+	const { data: authData } = useAuthContext();
+
+	// Get user's object level permissions for the users table
+	const { data: objPermData, refetch: objPermRefetch } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'groups',
+				objectId: id,
+			},
+			{
+				initialData() {
+					return objPerm;
+				},
+			}
+		);
 
 	const { mutate: editGroup, isLoading: editLoading } = useEditGroupMutation({
 		onSuccess() {
@@ -77,13 +111,44 @@ function GroupDetail({ group }: { group: GroupType }) {
 		},
 	});
 
+	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+		if (!authData) return [false, false, false];
+		if (!authData.isSuperUser && !authData.isAdmin) return [false, false];
+
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.group.EDIT]) ||
+			(objPermData && objPermData.edit);
+
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.group.DELETE]) ||
+			(objPermData && objPermData.delete);
+
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
+
+		return [
+			canEdit || false,
+			canDelete || false,
+			canViewObjectPermissions || false,
+		];
+	}, [authData, objPermData]);
+
 	return (
 		<Container
 			heading="Group Information"
 			icon
 			refresh={{
 				loading: isFetching,
-				onClick: refetch,
+				onClick: () => {
+					refetch();
+					objPermRefetch();
+				},
 			}}
 			loading={isLoading}
 			title={data ? toCapitalize(data.name) : undefined}
@@ -91,26 +156,42 @@ function GroupDetail({ group }: { group: GroupType }) {
 			{data && (
 				<>
 					<div className="flex flex-wrap items-center w-full lg:justify-end">
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								iconLeft={FaPen}
-								onClick={() => setModalVisible(true)}
-								rounded="rounded-xl"
-								title="Edit Group"
-								disabled={editLoading}
-							/>
-						</div>
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								bg="bg-red-600 hover:bg-red-500"
-								focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-								iconLeft={FaTrash}
-								rounded="rounded-xl"
-								title={delLoading ? 'Deleting Group...' : 'Delete Group'}
-								disabled={delLoading}
-								onClick={() => deleteGroup(id)}
-							/>
-						</div>
+						{canEdit && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									iconLeft={FaPen}
+									onClick={() => setModalVisible(true)}
+									rounded="rounded-xl"
+									title="Edit Group"
+									disabled={editLoading}
+								/>
+							</div>
+						)}
+						{canDelete && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									bg="bg-red-600 hover:bg-red-500"
+									focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+									iconLeft={FaTrash}
+									rounded="rounded-xl"
+									title={delLoading ? 'Deleting Group...' : 'Delete Group'}
+									disabled={delLoading}
+									onClick={() => deleteGroup(id)}
+								/>
+							</div>
+						)}
+						{canViewObjectPermissions && (
+							// Added a longer button
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/3">
+								<Button
+									bg="bg-gray-600 hover:bg-gray-500"
+									iconLeft={FaUserShield}
+									rounded="rounded-xl"
+									title="View Object Permissions"
+									link={GROUP_OBJECT_PERMISSIONS_PAGE_URL(id)}
+								/>
+							</div>
+						)}
 					</div>
 					<div className="mt-4">
 						<InfoComp
@@ -214,25 +295,27 @@ function GroupDetail({ group }: { group: GroupType }) {
 							]}
 						/>
 					</div>
-					<Modal
-						close={() => setModalVisible(false)}
-						component={
-							<GroupForm
-								group={data}
-								onSuccess={() => {
-									setModalVisible(false);
-									showAlert({
-										type: 'success',
-										message: 'Group updated successfully!',
-									});
-								}}
-							/>
-						}
-						description="Fill in the form to update group information"
-						keepVisible
-						title="Update Group Information"
-						visible={modalVisible}
-					/>
+					{canEdit && (
+						<Modal
+							close={() => setModalVisible(false)}
+							component={
+								<GroupForm
+									group={data}
+									onSuccess={() => {
+										setModalVisible(false);
+										showAlert({
+											type: 'success',
+											message: 'Group updated successfully!',
+										});
+									}}
+								/>
+							}
+							description="Fill in the form to update group information"
+							keepVisible
+							title="Update Group Information"
+							visible={modalVisible}
+						/>
+					)}
 				</>
 			)}
 		</Container>

@@ -91,6 +91,12 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							end: new Date(searchForm.endDate),
 					  }
 					: undefined,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -190,7 +196,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				data
+				(canView || canCreate) && data
 					? {
 							loading: isFetching,
 							offset,
@@ -263,7 +269,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					</div>
 				)}
 			</div>
-			{canView && (
+			{(canView || canCreate) && (
 				<>
 					<div className="py-2 md:pt-4 lg:pt-6">
 						<SearchForm
@@ -287,7 +293,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								description: asset.description || undefined,
 								model: asset.model || undefined,
 								userId: user?.id || '',
-								purchaseDate: getStringedDate(asset.purchaseDate)
+								purchaseDate: getStringedDate(asset.purchaseDate),
 							});
 							setShowAsset(undefined);
 							setModalVisible(true);
@@ -315,7 +321,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 									description: asset.description || undefined,
 									model: asset.model || undefined,
 									userId: user?.id || '',
-									purchaseDate: getStringedDate(asset.purchaseDate)
+									purchaseDate: getStringedDate(asset.purchaseDate),
 								});
 								setShowAsset(undefined);
 								setModalVisible(true);

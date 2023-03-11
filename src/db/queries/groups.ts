@@ -1,4 +1,4 @@
-import { Prisma, Group } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { permissionSelectQuery } from './permissions';
 import prisma from '../client';
@@ -37,7 +37,10 @@ export const getGroupsQuery = ({
 	offset,
 	limit,
 	search = undefined,
-}: ParamsType): Prisma.GroupFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.GroupWhereInput;
+}): Prisma.GroupFindManyArgs => {
 	const query: Prisma.GroupFindManyArgs = {
 		select: groupSelectQuery,
 		orderBy: {
@@ -53,8 +56,9 @@ export const getGroupsQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (offset) query.skip = offset;
@@ -148,10 +152,12 @@ export type GetGroupsParamsType = ParamsType & {
 };
 
 export const getGroups = async (
-	params: GetGroupsParamsType = { search: undefined }
+	params: GetGroupsParamsType & {
+		where?: Prisma.GroupWhereInput;
+	} = { search: undefined }
 ): Promise<{
 	total: number;
-	result: GroupType[] | Group[];
+	result: GroupType[];
 }> => {
 	const { users, ...groupParams } = params;
 	let query = getGroupsQuery({ ...groupParams });
@@ -168,6 +174,6 @@ export const getGroups = async (
 
 	return {
 		total,
-		result,
+		result: result as unknown as GroupType[],
 	};
 };

@@ -63,6 +63,12 @@ const Employees = ({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -116,7 +122,7 @@ const Employees = ({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				canView && employees.data
+				(canCreate || canView) && employees.data
 					? {
 							offset,
 							setOffset,
@@ -126,7 +132,7 @@ const Employees = ({
 					: undefined
 			}
 		>
-			{canView && (
+			{(canCreate || canView) && (
 				<Cards
 					active={employees.data?.active || 0}
 					leave={employees.data?.on_leave || 0}
@@ -159,7 +165,7 @@ const Employees = ({
 				}}
 				exportLoading={exportLoading}
 			/>
-			{canView && (
+			{(canCreate || canView) && (
 				<div className="mt-3">
 					<EmployeeTable employees={employees.data?.result || []} />
 				</div>
