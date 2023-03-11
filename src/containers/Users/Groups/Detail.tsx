@@ -181,7 +181,8 @@ function GroupDetail({
 							</div>
 						)}
 						{canViewObjectPermissions && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+							// Added a longer button
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/3">
 								<Button
 									bg="bg-gray-600 hover:bg-gray-500"
 									iconLeft={FaUserShield}

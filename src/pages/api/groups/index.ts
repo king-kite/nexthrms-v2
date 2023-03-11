@@ -30,8 +30,8 @@ export default admin()
 			total: number;
 			result: GroupType[];
 		}>({
-			model: 'users',
-			perm: 'user',
+			model: 'groups',
+			perm: 'group',
 			query: req.query,
 			user: req.user,
 			placeholder: {
