@@ -1,4 +1,3 @@
-import { permissions } from '../../../../config';
 import {
 	getLeave,
 	prisma,
@@ -8,7 +7,6 @@ import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { leaveCreateSchema } from '../../../../validators';
 import { CreateLeaveQueryType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 
 export default employee()
