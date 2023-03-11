@@ -1,24 +1,28 @@
+import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
-import { ParsedUrlQuery } from 'querystring';
 
-import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	LOGIN_PAGE_URL,
+} from '../../../config';
 import Group from '../../../containers/Users/Groups/Detail';
 import { getGroup } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, GroupType } from '../../../types';
-import { Title } from '../../../utils';
+import { hasModelPermission, Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
-const Page = ({ data }: { data: GroupType }) => (
+const Page = ({
+	data,
+	objPerm,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<React.Fragment>
 		<Title title="Group Information" />
-		<Group group={data} />
+		<Group group={data} objPerm={objPerm} />
 	</React.Fragment>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	req,
@@ -42,7 +46,38 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const data = await getGroup(params?.id as IParams['id'], {
+	// check is admin
+	if (!req.user.isSuperUser && !req.user.isAdmin)
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+
+	let hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.group.VIEW]);
+
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'groups',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) hasPerm = true;
+
+	if (!hasPerm)
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+				},
+			},
+		};
+
+	const data = await getGroup(params?.id as string, {
 		user: {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset: 0,
@@ -59,6 +94,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	return {
 		props: {
 			auth,
+			objPerm,
 			data: JSON.parse(JSON.stringify(data)),
 		},
 	};
