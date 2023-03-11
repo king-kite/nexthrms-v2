@@ -1,34 +1,23 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
-import { ParsedUrlQuery } from 'querystring';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Leave from '../../../containers/Leaves/Detail';
 import { getLeave } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps, LeaveType } from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
-	error,
 	leave,
+	objPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
-		{error ? (
-			<Error title={error.title} statusCode={error.statusCode} />
-		) : (
-			<>
-				<Title title="My Leave Request" />
-				<Leave leave={leave} />
-			</>
-		)}
+		<Title title="My Leave Request" />
+		<Leave leave={leave} objPerm={objPerm} />
 	</>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	params,
@@ -50,10 +39,13 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	const auth = await serializeUserData(req.user);
+
 	if (!req.user.employee) {
 		return {
 			props: {
-				error: {
+				auth,
+				errorPage: {
 					statusCode: 403,
 					title: 'Only employees can view this page',
 				},
@@ -61,15 +53,30 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const { id } = params as IParams;
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'leaves',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) {
+		const leave = JSON.parse(
+			JSON.stringify(await getLeave(params?.id as string))
+		);
 
-	const auth = await serializeUserData(req.user);
-	const leave: LeaveType = JSON.parse(JSON.stringify(await getLeave(id)));
+		return {
+			props: {
+				auth,
+				objPerm,
+				leave,
+			},
+		};
+	}
 
 	return {
 		props: {
 			auth,
-			leave,
+			errorPage: { statusCode: 403 },
 		},
 	};
 };

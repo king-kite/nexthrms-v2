@@ -4,6 +4,7 @@ import {
 	prisma,
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
+import { addObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { CreateLeaveQueryType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
@@ -12,18 +13,31 @@ import { leaveCreateSchema, validateParams } from '../../../../validators';
 
 export default employee()
 	.get(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.leave.VIEW]);
-
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		// If the user has any view object level permissions
+		const userObjects = await getUserObjects({
+			modelName: 'leaves',
+			permission: 'VIEW',
+			userId: req.user.id,
+		});
 
 		const params = validateParams(req.query);
-		const leaves = await getLeaves({ ...params, id: req.user.employee.id });
+
+		// Get leaves that only belong this employee and
+		// ones he/she can view. The user should be able to view all he creates,
+		// unless he is then removed from the view object level permission by a higher user.
+		const leaves = await getLeaves({
+			...params,
+			id: req.user.employee.id,
+			where: {
+				id: {
+					in: userObjects.map((obj) => obj.objectId),
+				},
+			},
+		});
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Fetched leaves successfully',
+			message: 'Fetched data successfully',
 			data: leaves,
 		});
 	})
@@ -37,8 +51,6 @@ export default employee()
 		const data: CreateLeaveQueryType = await leaveCreateSchema.validateAsync({
 			...req.body,
 		});
-
-		// TODO: Check if the user has an approved/pending leave
 
 		const startDate = new Date(data.startDate);
 		startDate.setHours(0, 0, 0, 0);
@@ -59,6 +71,13 @@ export default employee()
 			},
 			select: selectQuery,
 		});
+
+		if (leave.id)
+			await addObjectPermissions({
+				model: 'leaves',
+				objectId: leave.id,
+				userId: req.user.id,
+			});
 
 		return res.status(201).json({
 			status: 'success',

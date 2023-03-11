@@ -1,6 +1,6 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
 	FaCheckCircle,
 	FaEdit,
@@ -19,6 +19,7 @@ import {
 import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetLeaveQuery,
+	useGetUserObjectPermissionsQuery,
 	useApproveLeaveMutation,
 	useDeleteLeaveMutation,
 	useRequestLeaveUpdateMutation,
@@ -27,6 +28,7 @@ import {
 	CreateLeaveErrorResponseType,
 	CreateLeaveQueryType,
 	LeaveType,
+	UserObjPermType,
 } from '../../types';
 import {
 	getDate,
@@ -39,7 +41,19 @@ type ErrorType = CreateLeaveErrorResponseType & {
 	message?: string;
 };
 
-const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
+const Detail = ({
+	admin,
+	leave,
+	objPerm = {
+		delete: false,
+		edit: false,
+		view: false,
+	},
+}: {
+	admin?: boolean;
+	leave: LeaveType;
+	objPerm?: UserObjPermType;
+}) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 
@@ -47,15 +61,6 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const [errors, setErrors] = useState<ErrorType>();
 
 	const { data: authData } = useAuthContext();
-
-	const canViewPermissions =
-		admin && authData
-			? authData.isSuperUser ||
-			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					]))
-			: false;
 
 	const { open } = useAlertContext();
 
@@ -67,6 +72,64 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 			},
 		}
 	);
+	// Get user's object level permissions for the users table
+	const { data: objPermData, refetch: objPermRefetch } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'users',
+				objectId: id,
+			},
+			{
+				initialData() {
+					return objPerm;
+				},
+			}
+		);
+
+	const [canEdit, canDelete, canViewPermissions] = useMemo(() => {
+		if (!authData) return [false, false, false];
+		// Not Admin Page
+		// Only check object level permissions
+		if (!admin) return [objPermData?.edit, objPermData?.delete, false];
+		else {
+			let canEdit = false;
+			let canDelete = false;
+			// Check model permissions
+			if (authData.isAdmin || authData.isSuperUser) {
+				canEdit =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [
+							permissions.leave.EDIT,
+						])) ||
+					false;
+			}
+			if (authData.isAdmin || authData.isSuperUser) {
+				canDelete =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [
+							permissions.leave.DELETE,
+						])) ||
+					false;
+			}
+
+			// If the user doesn't have model edit permissions, then check obj edit permission
+			if (!canEdit && objPermData) canEdit = objPermData.edit;
+			if (!canDelete && objPermData) canDelete = objPermData.delete;
+
+			const canViewPermissions =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					])) ||
+				false;
+
+			return [canEdit, canDelete, canViewPermissions];
+		}
+	}, [authData, admin, objPermData]);
+
 	const { mutate: approveLeave, isLoading: appLoading } =
 		useApproveLeaveMutation({
 			onRequestComplete({ message, error }) {
@@ -107,57 +170,121 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const handleSubmit = useCallback(
 		(form: CreateLeaveQueryType) => {
 			setErrors(undefined);
-			updateLeave({ id, admin, data: form });
+			if (canEdit) updateLeave({ id, admin, data: form });
 		},
-		[updateLeave, admin, id]
+		[canEdit, updateLeave, admin, id]
 	);
 
-	let actions: ButtonType[] = [
-		{
-			disabled: editLoading,
-			iconLeft: FaEdit,
-			onClick: () => setModalVisible(true),
-			title: 'Request Leave Update',
-		},
-		{
-			bg: 'bg-red-600 hover:bg-red-500',
-			disabled: appLoading,
-			iconLeft: FaTrash,
-			onClick: () => deleteLeave(id),
-			title: 'Delete Leave',
-		},
-	];
-	if (admin) {
-		actions = [
-			...actions,
-			{
-				bg: 'bg-green-600 hover:bg-green-500',
-				disabled: appLoading,
-				iconLeft: FaCheckCircle,
-				onClick: () => approveLeave({ id, approval: 'APPROVED' }),
-				title: 'Approve Leave',
-			},
-			{
-				bg: 'bg-yellow-600 hover:bg-yellow-500',
-				disabled: appLoading,
-				iconLeft: FaTimesCircle,
-				onClick: () => approveLeave({ id, approval: 'DENIED' }),
-				title: 'Deny Leave',
-			},
-		];
-
-		if (canViewPermissions) {
-			actions = [
-				...actions,
-				{
+	let actions = useMemo(() => {
+		let buttons: ButtonType[] = [];
+		if (!data) return [];
+		// Not admin page
+		if (!admin) {
+			// If the leave has yet to be approved/denied show buttons
+			if (data.status !== 'APPROVED' && data.status !== 'DENIED') {
+				if (canEdit)
+					buttons.push({
+						disabled: editLoading,
+						iconLeft: FaEdit,
+						onClick: () => setModalVisible(true),
+						title: 'Request Leave Update',
+					});
+				if (canDelete)
+					buttons.push({
+						bg: 'bg-red-600 hover:bg-red-500',
+						disabled: appLoading,
+						iconLeft: FaTrash,
+						onClick: () => deleteLeave(id),
+						title: 'Delete Leave',
+					});
+			}
+		} else {
+			// Admin Page
+			// TODO: Add Admin Buttons
+			// Check if the start date is less than the current date
+			const currentDate = new Date();
+			currentDate.setHours(0, 0, 0, 0);
+			const startDate =
+				typeof data.startDate === 'string'
+					? new Date(data.startDate)
+					: data.startDate;
+			if (currentDate.getTime() >= startDate.getTime()) {
+				// The leave whether pending is now expired or whether approved has now begun;
+				if (data.status === 'PENDING' || data.status === 'DENIED') {
+					if (data.status === 'PENDING' && canEdit)
+						// To be able to change the dates
+						// Do not add approve/disapprove button
+						buttons.push({
+							disabled: editLoading,
+							iconLeft: FaEdit,
+							onClick: () => setModalVisible(true),
+							title: 'Request Leave Update',
+						});
+					if (canDelete)
+						buttons.push({
+							bg: 'bg-red-600 hover:bg-red-500',
+							disabled: appLoading,
+							iconLeft: FaTrash,
+							onClick: () => deleteLeave(id),
+							title: 'Delete Leave',
+						});
+				}
+			} else {
+				if (canEdit)
+					buttons.push({
+						disabled: editLoading,
+						iconLeft: FaEdit,
+						onClick: () => setModalVisible(true),
+						title: 'Request Leave Update',
+					});
+				if (canDelete)
+					buttons.push({
+						bg: 'bg-red-600 hover:bg-red-500',
+						disabled: appLoading,
+						iconLeft: FaTrash,
+						onClick: () => deleteLeave(id),
+						title: 'Delete Leave',
+					});
+				if (canEdit)
+					buttons.push(
+						{
+							bg: 'bg-green-600 hover:bg-green-500',
+							disabled: appLoading,
+							iconLeft: FaCheckCircle,
+							onClick: () => approveLeave({ id, approval: 'APPROVED' }),
+							title: 'Approve Leave',
+						},
+						{
+							bg: 'bg-yellow-600 hover:bg-yellow-500',
+							disabled: appLoading,
+							iconLeft: FaTimesCircle,
+							onClick: () => approveLeave({ id, approval: 'DENIED' }),
+							title: 'Deny Leave',
+						}
+					);
+			}
+			if (canViewPermissions) {
+				buttons.push({
 					bg: 'bg-gray-600 hover:bg-gray-500',
 					iconLeft: FaUserShield,
 					link: ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL(id),
 					title: 'View Record Permissions',
-				},
-			];
+				});
+			}
 		}
-	}
+		return buttons;
+	}, [
+		admin,
+		appLoading,
+		approveLeave,
+		canEdit,
+		canDelete,
+		canViewPermissions,
+		data,
+		deleteLeave,
+		editLoading,
+		id,
+	]);
 
 	return (
 		<Container
@@ -165,7 +292,10 @@ const Detail = ({ admin, leave }: { admin?: boolean; leave: LeaveType }) => {
 			icon
 			refresh={{
 				loading: isFetching,
-				onClick: refetch,
+				onClick: () => {
+					refetch();
+					objPermRefetch();
+				},
 			}}
 			loading={isLoading}
 		>

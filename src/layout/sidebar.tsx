@@ -166,26 +166,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 											key: 'employee',
 											model: 'employees',
 										}),
-									// showRoute: () => {
-									// 	if (!data) return false;
-									// 	if (data.isSuperUser) return true;
-									// 	if (data.isAdmin) {
-									// 		// Check the user has view or create model permission
-									// 		const hasModelPerm = hasModelPermission(
-									// 			data.permissions,
-									// 			[permissions.employee.VIEW, permissions.employee.CREATE]
-									// 		);
-									// 		if (hasModelPerm) return true;
-									// 		// Check if the user has view object level permission
-									// 		const hasObjPerm = data.objPermissions.find(
-									// 			(perm) =>
-									// 				perm.modelName === 'employees' &&
-									// 				perm.permission === 'VIEW'
-									// 		);
-									// 		if (hasObjPerm) return true;
-									// 	}
-									// 	return false;
-									// },
 								},
 								{
 									icon: FaSuitcaseRolling,

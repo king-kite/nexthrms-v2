@@ -121,7 +121,7 @@ export const getUsersQuery = ({
 							},
 						},
 					],
-					...where
+					...where,
 			  }
 			: where,
 	};
@@ -145,12 +145,12 @@ export const getUser = async (id: string) => {
 		select: userSelectQuery,
 	});
 
-	return user as unknown as UserType;
+	return user as unknown as UserType | null;
 };
 
 export const getUsers = async (
 	params: ParamsType & {
-		where?: Prisma.UserWhereInput
+		where?: Prisma.UserWhereInput;
 	} = {
 		search: undefined,
 	}

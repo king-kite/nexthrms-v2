@@ -144,7 +144,7 @@ export const getGroup = async (
 		select: query,
 	});
 
-	return group;
+	return group as unknown as GroupType | null;
 };
 
 export type GetGroupsParamsType = ParamsType & {
