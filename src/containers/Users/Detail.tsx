@@ -182,6 +182,7 @@ const User = ({
 
 	const [canEdit, canDelete] = useMemo(() => {
 		if (!authData) return [false, false];
+		if (!authData.isSuperUser && !authData.isAdmin) return [false, false];
 
 		const canEdit =
 			authData.isSuperUser ||

@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../../components/common';
 import { GroupTable, Form, Topbar } from '../../../components/Groups';
-import { DEFAULT_PAGINATION_SIZE, GROUPS_EXPORT_URL } from '../../../config';
-import { useAlertContext } from '../../../store/contexts';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	GROUPS_EXPORT_URL,
+} from '../../../config';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useCreateGroupMutation,
 	useGetGroupsQuery,
 } from '../../../store/queries';
 import {
+	CreateGroupQueryType,
 	CreateGroupErrorResponseType,
 	GetGroupsResponseType,
 } from '../../../types';
-import { downloadFile } from '../../../utils';
+import { downloadFile, hasModelPermission } from '../../../utils';
 
 interface ErrorType extends CreateGroupErrorResponseType {
 	message?: string;
@@ -30,8 +35,30 @@ const Groups = ({
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
 
-	const { data, isFetching, refetch } = useGetGroupsQuery(
+	const [canCreate, canExport, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.group.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.group.EXPORT])
+			: false;
+		// TODO: Add Object Level Permissions As Well
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.group.VIEW]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'groups' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
+
+	const { data, isFetching, isLoading, refetch } = useGetGroupsQuery(
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
@@ -40,6 +67,12 @@ const Groups = ({
 				limit: DEFAULT_PAGINATION_SIZE,
 				offset: 0,
 				search: '',
+			},
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
 			},
 		},
 		{
@@ -76,15 +109,24 @@ const Groups = ({
 		},
 	});
 
+	const handleSubmit = useCallback(
+		(form: CreateGroupQueryType) => {
+			if (canCreate) createGroup(form);
+		},
+		[canCreate, createGroup]
+	);
+
 	return (
 		<Container
 			heading="Groups"
+			disabledLoading={isLoading}
 			refresh={{
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							offset,
 							setOffset,
@@ -99,6 +141,7 @@ const Groups = ({
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = GROUPS_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -119,24 +162,28 @@ const Groups = ({
 				}}
 				exportLoading={exportLoading}
 			/>
-			<div className="mt-3">
-				<GroupTable groups={data?.result || []} />
-			</div>
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						errors={errors}
-						resetErrors={() => setErrors(undefined)}
-						loading={loading}
-						success={formSuccess}
-						onSubmit={createGroup}
-					/>
-				}
-				description="Fill in the form below to add a new group"
-				title="Add Group"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && (
+				<div className="mt-3">
+					<GroupTable groups={data?.result || []} />
+				</div>
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							errors={errors}
+							resetErrors={() => setErrors(undefined)}
+							loading={loading}
+							success={formSuccess}
+							onSubmit={handleSubmit}
+						/>
+					}
+					description="Fill in the form below to add a new group"
+					title="Add Group"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };
