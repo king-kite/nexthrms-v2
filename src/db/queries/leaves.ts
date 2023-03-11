@@ -1,4 +1,4 @@
-import { Leave, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { LeaveType, ParamsType } from '../../types';
@@ -57,8 +57,10 @@ export const getLeavesQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.LeaveWhereInput;
 }): Prisma.LeaveFindManyArgs => {
 	const query: Prisma.LeaveFindManyArgs = {
 		skip: offset,
@@ -68,6 +70,7 @@ export const getLeavesQuery = ({
 		},
 		where: {
 			employee: { id },
+			...where,
 		},
 		select: leaveSelectQuery,
 	};
@@ -98,13 +101,14 @@ export const getLeavesQuery = ({
 export const getLeaves = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.LeaveWhereInput;
 	}
 ): Promise<{
 	approved: number;
 	pending: number;
 	denied: number;
 	total: number;
-	result: Leave[] | LeaveType[];
+	result: LeaveType[];
 }> => {
 	const query = getLeavesQuery({ ...params });
 
@@ -122,7 +126,13 @@ export const getLeaves = async (
 		}),
 	]);
 
-	return { total, approved, pending, denied, result };
+	return {
+		total,
+		approved,
+		pending,
+		denied,
+		result: result as unknown as LeaveType[],
+	};
 };
 
 export const getLeave = async (id: string) => {
@@ -130,7 +140,7 @@ export const getLeave = async (id: string) => {
 		where: { id },
 		select: leaveSelectQuery,
 	});
-	return leave;
+	return leave as unknown as LeaveType | null;
 };
 
 // ****** Personal Leaves Stop ******
@@ -144,7 +154,10 @@ export const getLeavesAdminQuery = ({
 	search = '',
 	from,
 	to,
-}: ParamsType): Prisma.LeaveFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.LeaveWhereInput;
+}): Prisma.LeaveFindManyArgs => {
 	const query: Prisma.LeaveFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -207,8 +220,9 @@ export const getLeavesAdminQuery = ({
 										],
 								  }
 								: undefined,
+						...where,
 				  }
-				: {},
+				: where,
 		select: leaveSelectQuery,
 	};
 
@@ -216,7 +230,9 @@ export const getLeavesAdminQuery = ({
 };
 
 export const getLeavesAdmin = async (
-	params: ParamsType = {
+	params: ParamsType & {
+		where?: Prisma.LeaveWhereInput;
+	} = {
 		search: '',
 	}
 ): Promise<{
@@ -224,7 +240,7 @@ export const getLeavesAdmin = async (
 	pending: number;
 	denied: number;
 	total: number;
-	result: Leave[] | LeaveType[];
+	result: LeaveType[];
 }> => {
 	const query = getLeavesAdminQuery({ ...params });
 
@@ -236,7 +252,13 @@ export const getLeavesAdmin = async (
 		prisma.leave.count({ where: { ...query.where, status: 'DENIED' } }),
 	]);
 
-	return { total, approved, pending, denied, result };
+	return {
+		total,
+		approved,
+		pending,
+		denied,
+		result: result as unknown as LeaveType[],
+	};
 };
 
 // ****** Admin Leaves Stop ******

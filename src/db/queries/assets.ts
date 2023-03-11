@@ -129,5 +129,5 @@ export const getAsset = async (id: string) => {
 		select: assetSelectQuery,
 	});
 
-	return asset;
+	return asset as unknown as AssetType | null;
 };
