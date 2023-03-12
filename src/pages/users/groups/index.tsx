@@ -75,8 +75,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		},
 		query: params,
 		user: req.user,
-		getData() {
-			return getGroups(params);
+		getData(recordParams) {
+			return getGroups({
+				...recordParams,
+				...params,
+			});
 		},
 	});
 
