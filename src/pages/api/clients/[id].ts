@@ -2,9 +2,9 @@ import { Prisma } from '@prisma/client';
 
 import { permissions } from '../../../config';
 import { prisma, getClient } from '../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { ClientCreateQueryType } from '../../../types';
+import { ClientCreateQueryType, ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
@@ -19,26 +19,20 @@ export const config = {
 
 export default admin()
 	.get(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
+		const record = await getRecord<ClientType | null>({
+			model: 'clients',
+			perm: 'client',
+			objectId: req.query.id as string,
+			permission: 'VIEW',
+			user: req.user,
+			getData() {
+				return getClient(req.user.id as string);
+			},
+		});
 
-		if (!hasPerm) {
-			// check if the user has a view object permission for this record
-			const objPerm = await getUserObjectPermissions({
-				modelName: 'clients',
-				objectId: req.query.id as string,
-				permission: 'VIEW',
-				userId: req.user.id,
-			});
-			if (objPerm.view === true) hasPerm = true;
-		}
+		if (!record) throw new NextApiErrorMessage(403);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
-
-		const data = await getClient(req.query.id as string);
-
-		if (!data)
+		if (!record.data)
 			return res.status(404).json({
 				status: 'success',
 				message: 'Client with specified ID does not exist!',
@@ -47,7 +41,7 @@ export default admin()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched client successfully',
-			data,
+			data: record.data,
 		});
 	})
 	.put(async (req, res) => {

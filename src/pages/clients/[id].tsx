@@ -1,13 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import { permissions, LOGIN_PAGE_URL } from '../../config';
+import { LOGIN_PAGE_URL } from '../../config';
 import ClientDetail from '../../containers/Clients/Detail';
 import { getClient } from '../../db';
-import { getUserObjectPermissions } from '../../db/utils';
+import { getRecord, getUserObjectPermissions } from '../../db/utils';
 import { authPage } from '../../middlewares';
-import { ExtendedGetServerSideProps } from '../../types';
-import { hasModelPermission, Title } from '../../utils';
+import { ExtendedGetServerSideProps, ClientType } from '../../types';
+import { Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 
 const Page = ({
@@ -54,32 +54,25 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			},
 		};
 
-	let hasPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.VIEW]);
-
-	// check if the user has a view object permission for this record
-	const objPerm = await getUserObjectPermissions({
-		modelName: 'clients',
+	const record = await getRecord<ClientType | null>({
+		model: 'clients',
 		objectId: params?.id as string,
-		userId: req.user.id,
+		perm: 'client',
+		user: req.user,
+		getData() {
+			return getClient(params?.id as string);
+		},
 	});
-	if (objPerm.view === true) hasPerm = true;
 
-	if (!hasPerm) {
+	if (!record)
 		return {
 			props: {
 				auth,
-				errorPage: {
-					statusCode: 403,
-				},
+				errorPage: { statusCode: 403 },
 			},
 		};
-	}
 
-	const data = await getClient(params?.id as string);
-
-	if (!data) {
+	if (!record.data) {
 		return {
 			notFound: true,
 		};
@@ -87,15 +80,15 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const objUserPerm = await getUserObjectPermissions({
 		modelName: 'users',
-		objectId: data.contact.id as string, // contact represents user in the relation
+		objectId: record.data.contact.id as string, // contact represents user in the relation
 		userId: req.user.id,
 	});
 
 	return {
 		props: {
 			auth,
-			data: JSON.parse(JSON.stringify(data)),
-			objPerm,
+			data: record.data,
+			objPerm: record.perm,
 			objUserPerm,
 		},
 	};
