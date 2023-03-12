@@ -96,7 +96,7 @@ export default employee()
 				...data,
 				startDate,
 				endDate,
-				status: 'PENDING' // Force the update to be pending
+				status: 'PENDING', // Force the update to be pending
 			},
 			select: selectQuery,
 		});
@@ -131,8 +131,7 @@ export default employee()
 		if (exLeave.status === 'APPROVED' || exLeave.status === 'DENIED') {
 			return res.status(403).json({
 				status: 'error',
-				message:
-					'This leave has already either been approved/denied and can no longer be deleted!',
+				message: `This leave has already either been ${exLeave.status.toLowerCase()} and can no longer be deleted!`,
 			});
 		}
 

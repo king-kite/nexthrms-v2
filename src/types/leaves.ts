@@ -3,6 +3,7 @@ import { SuccessResponseType } from './base';
 type EmployeeType = {
 	id: string;
 	user: {
+		id: string;
 		firstName: string;
 		lastName: string;
 		email: string;
