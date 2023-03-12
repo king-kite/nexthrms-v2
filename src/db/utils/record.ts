@@ -24,8 +24,8 @@ export async function getRecords<DataType>({
 	model: PermissionModelChoices | null;
 	placeholder: DataType;
 	perm: PermissionKeyType;
-	query: NextApiRequest['query'];
-	user: RequestUserType;
+	query: NextApiRequest['query'] | ParamsType;
+	user: Omit<RequestUserType, 'checkPassword'>;
 	getData: (
 		params: ParamsType & {
 			where?: {
@@ -48,7 +48,7 @@ export async function getRecords<DataType>({
 		return {
 			status: 'success',
 			message: `Fetched ${modelName || 'data'} successfully.`,
-			data,
+			data: JSON.parse(JSON.stringify(data)),
 		};
 	}
 
@@ -75,7 +75,7 @@ export async function getRecords<DataType>({
 			return {
 				status: 'success',
 				message: `Fetched ${modelName || 'data'} successfully.`,
-				data,
+				data: JSON.parse(JSON.stringify(data)),
 			};
 		}
 	}
