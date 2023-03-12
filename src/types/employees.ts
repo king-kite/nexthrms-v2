@@ -93,11 +93,10 @@ export type EmployeeType = {
 };
 export type CreateEmployeeResponseType = SuccessResponseType<EmployeeType>;
 
-export interface GetEmployeesResponseType
-	extends PaginatedResponseType<EmployeeType[]> {
+export type GetEmployeesResponseType = SuccessResponseType<{
 	total: number;
 	result: EmployeeType[];
 	active: number;
 	inactive: number;
 	on_leave: number;
-}
+}>;
