@@ -318,8 +318,11 @@ const User = ({
 			error={
 				error
 					? {
-							statusCode: (error as any).status || 500,
-							title: (error as any).message,
+							statusCode:
+								(error as any).response?.status || (error as any).status || 500,
+							title:
+								(error as any)?.response?.data?.message ||
+								(error as any).message,
 					  }
 					: undefined
 			}

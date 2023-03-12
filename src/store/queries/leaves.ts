@@ -43,7 +43,7 @@ export function useGetLeaveQuery(
 		admin ? [tags.LEAVES_ADMIN, { id }] : [tags.LEAVES, { id }],
 		() =>
 			axiosInstance
-				.get(LEAVE_URL(id))
+				.get(admin ? LEAVE_ADMIN_URL(id) : LEAVE_URL(id))
 				.then(
 					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
 						response.data.data
@@ -198,10 +198,10 @@ export function useRequestLeaveUpdateMutation(
 				),
 		{
 			async onSuccess(data, variables) {
-				// if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
-				// else queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
-				queryClient.invalidateQueries([tags.LEAVES]);
-				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
+				if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
+				else queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
+				// queryClient.invalidateQueries([tags.LEAVES]);
+				// queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
