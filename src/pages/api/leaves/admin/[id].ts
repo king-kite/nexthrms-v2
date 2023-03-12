@@ -19,6 +19,12 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
+		if (!req.user.employee) {
+			return res.status(403).json({
+				status: '403',
+				message: 'Sorry, this request is reserved for employees only.',
+			});
+		}
 		const {
 			approval,
 		}: {
@@ -30,6 +36,11 @@ export default auth()
 			},
 			data: {
 				status: approval,
+				approvedBy: {
+					connect: {
+						id: req.user.employee.id,
+					},
+				},
 			},
 			select: selectQuery,
 		});
