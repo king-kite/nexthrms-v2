@@ -13,11 +13,11 @@ import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
 
 const Page = ({
-	leaves,
+	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Employees Leave Requests" />
-		<Leaves leaves={leaves} />
+		<Leaves leaves={data} />
 	</>
 );
 

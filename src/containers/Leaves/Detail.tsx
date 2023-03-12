@@ -191,7 +191,7 @@ const Detail = ({
 			if (
 				data.status !== 'APPROVED' &&
 				data.status !== 'DENIED' &&
-				startDate.getTime() > currentDate.getTime()
+				startDate.getTime() >= currentDate.getTime()
 			) {
 				if (canEdit)
 					buttons.push({

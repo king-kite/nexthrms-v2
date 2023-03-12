@@ -77,40 +77,60 @@ export default employee()
 			});
 		}
 
-		const { employee, ...data }: CreateLeaveQueryType =
-			await leaveCreateSchema.validateAsync({
-				...req.body,
+		const oldStartDate =
+			typeof leave.startDate === 'string'
+				? new Date(leave.startDate)
+				: leave.startDate;
+		const currentDate = new Date();
+		currentDate.setHours(0, 0, 0, 0);
+		// As long as the leave is still pending, the user can edit as he/she likes
+		// Also if the startDate has not yet been reached
+		if (oldStartDate.getTime() >= currentDate.getTime()) {
+			const { employee, ...data }: CreateLeaveQueryType =
+				await leaveCreateSchema.validateAsync({
+					...req.body,
+				});
+
+			const startDate = new Date(data.startDate);
+			startDate.setHours(0, 0, 0, 0);
+
+			const endDate = new Date(data.endDate);
+			endDate.setHours(0, 0, 0, 0);
+
+			const updated = await prisma.leave.update({
+				where: {
+					id: req.query.id as string,
+				},
+				data: {
+					...data,
+					startDate,
+					endDate,
+					status: 'PENDING', // Force the update to be pending
+				},
+				select: selectQuery,
 			});
 
-		const startDate = new Date(data.startDate);
-		startDate.setHours(0, 0, 0, 0);
-
-		const endDate = new Date(data.endDate);
-		endDate.setHours(0, 0, 0, 0);
-
-		const updated = await prisma.leave.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data: {
-				...data,
-				startDate,
-				endDate,
-				status: 'PENDING', // Force the update to be pending
-			},
-			select: selectQuery,
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			mesage: 'Leave request was updated successfully!',
-			data: updated,
+			return res.status(200).json({
+				status: 'success',
+				mesage: 'Leave request was updated successfully!',
+				data: updated,
+			});
+		}
+		return res.status(403).json({
+			status: 'error',
+			message:
+				"This leave is passed it's start date and can no longer be updated.",
 		});
 	})
 	.delete(async (req, res) => {
 		const exLeave = await prisma.leave.findUniqueOrThrow({
 			where: { id: req.query.id as string },
-			select: { status: true, employee: { select: { id: true } } },
+			select: {
+				startDate: true,
+				endDate: true,
+				status: true,
+				employee: { select: { id: true } },
+			},
 		});
 
 		if (exLeave.employee.id !== req.user.employee.id)
@@ -135,10 +155,25 @@ export default employee()
 			});
 		}
 
-		await prisma.leave.delete({ where: { id: req.query.id as string } });
+		const oldStartDate =
+			typeof exLeave.startDate === 'string'
+				? new Date(exLeave.startDate)
+				: exLeave.startDate;
+		const currentDate = new Date();
+		currentDate.setHours(0, 0, 0, 0);
+		// As long as the leave is still pending, the user can edit as he/she likes
+		// Also if the startDate has not yet been reached
+		if (oldStartDate.getTime() >= currentDate.getTime()) {
+			await prisma.leave.delete({ where: { id: req.query.id as string } });
 
-		return res.status(200).json({
-			status: 'success',
-			message: 'Leave deleted successfully',
+			return res.status(200).json({
+				status: 'success',
+				message: 'Leave deleted successfully',
+			});
+		}
+		return res.status(403).json({
+			status: 'error',
+			message:
+				"This leave is passed it's start date and can no longer be deleted.",
 		});
 	});

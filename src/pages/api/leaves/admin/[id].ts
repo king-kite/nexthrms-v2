@@ -118,7 +118,7 @@ export default admin()
 		// 	// Meaning that the start date for leave is either today or has passed
 		// 	// and the leave has either been approved or denied so no updates, deletes, nor approval should be made
 		// }
-		return res.status(400).json({
+		return res.status(403).json({
 			status: 'error',
 			message:
 				"This leave is passed it's start date and can no longer be " +
@@ -221,7 +221,7 @@ export default admin()
 		// 	// Meaning that the start date for leave is either today or has passed
 		// 	// and the leave has either been approved or denied so no updates, deletes, nor approval should be made
 		// }
-		return res.status(400).json({
+		return res.status(403).json({
 			status: 'error',
 			message:
 				"This leave is passed it's start date and can no longer be updated.",
@@ -285,7 +285,7 @@ export default admin()
 		// 	// Meaning that the start date for leave is either today or has passed
 		// 	// and the leave has either been approved or denied so no updates, deletes, nor approval should be made
 		// }
-		return res.status(400).json({
+		return res.status(403).json({
 			status: 'error',
 			message:
 				"This leave is passed it's start date and can no longer be deleted.",

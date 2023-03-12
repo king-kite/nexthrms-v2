@@ -11,11 +11,11 @@ import { serializeUserData } from '../../../../utils/serializers';
 
 const Page = ({
 	objPerm,
-	leave,
+	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Employee Leave Request" />
-		<Leave admin leave={leave} objPerm={objPerm} />
+		<Leave admin leave={data} objPerm={objPerm} />
 	</>
 );
 
