@@ -188,9 +188,9 @@ export function useGetUsersQuery(
 	},
 	options?: {
 		enabled?: boolean;
-		onSuccess?: (data: GetUsersResponseType) => void;
+		onSuccess?: (data: GetUsersResponseType['data']) => void;
 		onError?: (err: unknown) => void;
-		initialData?: () => GetUsersResponseType;
+		initialData?: () => GetUsersResponseType['data'];
 	}
 ) {
 	const query = useQuery(

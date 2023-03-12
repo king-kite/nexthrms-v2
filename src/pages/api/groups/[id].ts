@@ -2,9 +2,9 @@ import type { NextApiRequest } from 'next';
 
 import { permissions } from '../../../config';
 import { getGroup, groupSelectQuery, prisma } from '../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateGroupQueryType, ParamsType } from '../../../types';
+import { CreateGroupQueryType, GroupType, ParamsType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { createGroupSchema, validateParams } from '../../../validators';
@@ -21,43 +21,32 @@ function getGroupUserParamsQuery(query: NextApiRequest['query']) {
 
 export default admin()
 	.get(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.group.VIEW]);
+		const record = await getRecord<GroupType | null>({
+			model: 'groups',
+			perm: 'group',
+			objectId: req.query.id as string,
+			permission: 'VIEW',
+			user: req.user,
+			getData() {
+				let params:
+					| {
+							user?: ParamsType;
+					  }
+					| undefined = {};
+				const userParams = validateParams(getGroupUserParamsQuery(req.query));
 
-		if (!hasPerm) {
-			// check if the user has a view object permission for this record
-			const objPerm = await getUserObjectPermissions({
-				modelName: 'groups',
-				objectId: req.query.id as string,
-				permission: 'VIEW',
-				userId: req.user.id,
-			});
-			if (objPerm.view === true) hasPerm = true;
-		}
+				const isEmpty = Object.values(userParams).every(
+					(item) => item === undefined
+				);
+				if (isEmpty) params = undefined;
+				else params.user = userParams;
+				return getGroup(req.query.id as string, params);
+			},
+		});
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextApiErrorMessage(403);
 
-		let params:
-			| {
-					user?: ParamsType;
-			  }
-			| undefined = {};
-		const userParams = validateParams(getGroupUserParamsQuery(req.query));
-
-		const isEmpty = Object.values(userParams).every(
-			(item) => item === undefined
-		);
-
-		if (isEmpty) {
-			params = undefined;
-		} else {
-			params.user = userParams;
-		}
-
-		const data = await getGroup(req.query.id as string, params);
-
-		if (!data)
+		if (!record.data)
 			return res.status(404).json({
 				status: 'success',
 				message: 'Group with specified ID does not exist!',
@@ -66,7 +55,7 @@ export default admin()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched group successfully',
-			data,
+			data: record.data,
 		});
 	})
 	.put(async (req, res) => {

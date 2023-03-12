@@ -10,12 +10,12 @@ export default admin()
 	.get(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.group.VIEW]);
+			hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
 
 		if (!hasPerm) {
 			// check if the user has a view object permission for this record
 			const objPerm = await getUserObjectPermissions({
-				modelName: 'groups',
+				modelName: 'users',
 				objectId: req.query.id as string,
 				permission: 'VIEW',
 				userId: req.user.id,

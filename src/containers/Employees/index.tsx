@@ -25,7 +25,7 @@ interface ErrorType extends CreateEmployeeErrorResponseType {
 const Employees = ({
 	employees: empData,
 }: {
-	employees: GetEmployeesResponseType;
+	employees: GetEmployeesResponseType['data'];
 }) => {
 	const [errors, setErrors] = useState<ErrorType>();
 

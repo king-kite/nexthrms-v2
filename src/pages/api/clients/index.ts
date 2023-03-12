@@ -4,7 +4,7 @@ import { permissions } from '../../../config';
 import { clientSelectQuery, getClients, prisma } from '../../../db';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { ClientType } from '../../../types';
+import { ClientType, GetClientsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -20,12 +20,7 @@ export const config = {
 
 export default admin()
 	.get(async (req, res) => {
-		const result = await getRecords<{
-			total: number;
-			result: ClientType[];
-			inactive: number;
-			active: number;
-		}>({
+		const result = await getRecords<GetClientsResponseType['data']>({
 			model: 'clients',
 			perm: 'client',
 			query: req.query,

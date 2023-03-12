@@ -3,7 +3,9 @@ import type { NextApiRequest } from 'next';
 // import { DEFAULT_PAGINATION_SIZE } from '../config/settings';
 import { ParamsType } from '../types';
 
-export function validateParams(query: NextApiRequest['query']): ParamsType {
+export function validateParams(
+	query: NextApiRequest['query'] | ParamsType
+): ParamsType {
 	const limit =
 		query.limit && !isNaN(Number(query.limit))
 			? Number(query.limit)

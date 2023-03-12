@@ -35,9 +35,9 @@ export function useGetEmployeesQuery(
 	},
 	options?: {
 		enabled?: boolean;
-		onSuccess?: (data: GetEmployeesResponseType) => void;
+		onSuccess?: (data: GetEmployeesResponseType['data']) => void;
 		onError?: (err: unknown) => void;
-		initialData?: () => GetEmployeesResponseType;
+		initialData?: () => GetEmployeesResponseType['data'];
 	}
 ) {
 	const query = useQuery(

@@ -17,6 +17,9 @@ export default admin().get(async (req, res) => {
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
 	const placeholder: GetEmployeesResponseType['data'] = {
+		active: 0,
+		inactive: 0,
+		on_leave: 0,
 		total: 0,
 		result: [],
 	};

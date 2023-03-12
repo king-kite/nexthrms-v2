@@ -1,17 +1,16 @@
 import type { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import {
-	permissions,
-	DEFAULT_PAGINATION_SIZE,
-	LOGIN_PAGE_URL,
-} from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Users from '../../../containers/Users';
 import { getUsers } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps } from '../../../types';
-import { hasModelPermission, Title } from '../../../utils';
+import {
+	ExtendedGetServerSideProps,
+	GetUsersResponseType,
+} from '../../../types';
+import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
@@ -56,74 +55,43 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			},
 		};
 
-	const hasViewPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
-
-	if (hasViewPerm) {
-		const data = await getUsers({
+	const result = await getRecords<GetUsersResponseType['data']>({
+		model: 'users',
+		perm: 'user',
+		query: {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset: 0,
 			search: '',
-		});
-
-		return {
-			props: {
-				auth,
-				data: JSON.parse(JSON.stringify(data)),
-			},
-		};
-	}
-
-	// Since the user is not a super user and doe not have model permissions
-	// check if the user has a view object permission for any record in this table
-	const records = await getUserObjects({
-		modelName: 'users',
-		permission: 'VIEW',
-		userId: req.user.id,
+		},
+		placeholder: {
+			total: 0,
+			result: [],
+			active: 0,
+			inactive: 0,
+			on_leave: 0,
+			employees: 0,
+			clients: 0,
+		},
+		user: req.user,
+		getData(params) {
+			return getUsers(params);
+		},
 	});
-	if (records.length > 0) {
-		const data = await getUsers({
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-			where: {
-				id: {
-					in: records.map((obj) => obj.objectId),
-				},
-			},
-		});
-		if (data.total > 0) {
-			return {
-				props: {
-					auth,
-					data: JSON.parse(JSON.stringify(data)),
-				},
-			};
-		}
-	}
 
-	// If the user does not have model level and object level permission
-	// check if the user has CREATE permission
-	const hasCreatePerm = hasModelPermission(req.user.allPermissions, [
-		permissions.user.CREATE,
-	]);
-
-	if (hasCreatePerm) {
+	if (!result)
 		return {
 			props: {
 				auth,
-				data: undefined,
+				errorPage: {
+					statusCode: 403,
+				},
 			},
 		};
-	}
 
 	return {
 		props: {
 			auth,
-			errorPage: {
-				statusCode: 403,
-			},
+			data: result.data,
 		},
 	};
 };

@@ -51,42 +51,42 @@ function Topbar({
 			{adminView && searchSubmit && (
 				<>
 					<Form onSubmit={searchSubmit} loading={loading} />
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
-						<ButtonDropdown
-							component={() => (
-								<ExportForm
-									loading={exportLoading}
-									onSubmit={exportData ? exportData : undefined}
-								/>
-							)}
-							props={{
-								caps: true,
-								iconLeft: FaCloudDownloadAlt,
-								margin: 'lg:mr-6',
-								padding: 'px-3 py-2 md:px-6',
-								rounded: 'rounded-xl',
-								title: 'export',
-							}}
-						/>
-					</div>
+					{canExport && (
+						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
+							<ButtonDropdown
+								component={() => (
+									<ExportForm
+										loading={exportLoading}
+										onSubmit={exportData ? exportData : undefined}
+									/>
+								)}
+								props={{
+									caps: true,
+									iconLeft: FaCloudDownloadAlt,
+									margin: 'lg:mr-6',
+									padding: 'px-3 py-2 md:px-6',
+									rounded: 'rounded-xl',
+									title: 'export',
+								}}
+							/>
+						</div>
+					)}
 				</>
 			)}
-			{canExport && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
-					<ButtonDropdown
-						component={() => (
-							<FilterDropdownForm
-								loading={loading}
-								form={dateForm}
-								setForm={setDateForm}
-							/>
-						)}
-						props={{
-							title: 'Filter by Date',
-						}}
-					/>
-				</div>
-			)}
+			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+				<ButtonDropdown
+					component={() => (
+						<FilterDropdownForm
+							loading={loading}
+							form={dateForm}
+							setForm={setDateForm}
+						/>
+					)}
+					props={{
+						title: 'Filter by Date',
+					}}
+				/>
+			</div>
 			{canCreate && (
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
 					<Button

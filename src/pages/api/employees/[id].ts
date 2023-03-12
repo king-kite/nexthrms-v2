@@ -6,9 +6,9 @@ import {
 	getEmployee,
 	prisma,
 } from '../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateEmployeeQueryType } from '../../../types';
+import { CreateEmployeeQueryType, EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
@@ -23,26 +23,20 @@ export const config = {
 
 export default admin()
 	.get(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.employee.VIEW]);
+		const record = await getRecord<EmployeeType | null>({
+			model: 'employees',
+			objectId: req.query.id as string,
+			perm: 'employee',
+			permission: 'VIEW',
+			user: req.user,
+			getData() {
+				return getEmployee(req.query.id as string);
+			},
+		});
 
-		if (!hasPerm) {
-			// check if the user has a view object permission for this record
-			const objPerm = await getUserObjectPermissions({
-				modelName: 'employees',
-				objectId: req.query.id as string,
-				permission: 'VIEW',
-				userId: req.user.id,
-			});
-			if (objPerm.view === true) hasPerm = true;
-		}
+		if (!record) throw new NextApiErrorMessage(403);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
-
-		const employee = await getEmployee(req.query.id as string);
-
-		if (!employee) {
+		if (!record.data) {
 			return res.status(404).json({
 				status: 'success',
 				message: 'Employee with specified ID was not found!',
@@ -52,7 +46,7 @@ export default admin()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched employee successfully',
-			data: employee,
+			data: record.data,
 		});
 	})
 	.put(async (req, res) => {

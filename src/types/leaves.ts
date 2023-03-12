@@ -3,6 +3,7 @@ import { SuccessResponseType } from './base';
 type EmployeeType = {
 	id: string;
 	user: {
+		id: string;
 		firstName: string;
 		lastName: string;
 		email: string;
@@ -31,7 +32,7 @@ export type LeaveType = {
 		| 'MATERNITY'
 		| 'PATERNITY'
 		| 'SICK';
-	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
+	status: 'APPROVED' | 'DENIED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;

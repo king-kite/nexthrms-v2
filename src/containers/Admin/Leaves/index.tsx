@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../../components/common';
 import {
@@ -8,10 +8,11 @@ import {
 	LeaveAdminTable,
 } from '../../../components/Leaves';
 import {
+	permissions,
 	DEFAULT_PAGINATION_SIZE,
 	LEAVES_ADMIN_EXPORT_URL,
 } from '../../../config';
-import { useAlertContext } from '../../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetLeavesAdminQuery,
 	useCreateLeaveMutation,
@@ -21,7 +22,7 @@ import {
 	CreateLeaveErrorResponseType,
 	GetLeavesResponseType,
 } from '../../../types';
-import { downloadFile } from '../../../utils';
+import { downloadFile, hasModelPermission } from '../../../utils';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
@@ -36,6 +37,26 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = useMemo(() => {
+		if (!authData?.isAdmin && !authData?.isSuperUser)
+			return [false, false, false];
+
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.leave.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.leave.EXPORT])
+			: false;
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.leave.VIEW])
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesAdminQuery(
 		{
@@ -44,6 +65,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			search,
 			from: dateQuery?.from || undefined,
 			to: dateQuery?.to || undefined,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -80,9 +107,9 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 					...prevState,
 					employee: 'Employee ID is required',
 				}));
-			} else createLeave(form);
+			} else if (canCreate) createLeave(form);
 		},
-		[createLeave]
+		[canCreate, createLeave]
 	);
 
 	return (
@@ -92,9 +119,10 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -104,11 +132,13 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 					: undefined
 			}
 		>
-			<Cards
-				approved={data?.approved || 0}
-				denied={data?.denied || 0}
-				pending={data?.pending || 0}
-			/>
+			{(canCreate || canView) && (
+				<Cards
+					approved={data?.approved || 0}
+					denied={data?.denied || 0}
+					pending={data?.pending || 0}
+				/>
+			)}
 			<Topbar
 				adminView
 				loading={isFetching}
@@ -117,6 +147,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = LEAVES_ADMIN_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -142,23 +173,27 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				}}
 				exportLoading={exportLoading}
 			/>
-			<LeaveAdminTable leaves={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						adminView
-						errors={errors}
-						loading={createLoading}
-						success={isSuccess}
-						onSubmit={handleSubmit}
-					/>
-				}
-				description="Fill in the form below to create a leave"
-				keepVisible
-				title="Create Leave"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && (
+				<LeaveAdminTable leaves={data?.result || []} />
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							adminView
+							errors={errors}
+							loading={createLoading}
+							success={isSuccess}
+							onSubmit={handleSubmit}
+						/>
+					}
+					description="Fill in the form below to create a leave"
+					keepVisible
+					title="Create Leave"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };
