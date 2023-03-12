@@ -1,39 +1,38 @@
 import { permissions } from '../../../../config';
 import { getUserGroups, getGroups, prisma } from '../../../../db';
-import {
-	getRecords,
-	getUserObjectPermissions,
-	getUserObjects,
-} from '../../../../db/utils';
+import { getUserObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
-import { UserGroupType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { updateUserGroupsSchema, validateParams } from '../../../../validators';
 
 export default admin()
 	.get(async (req, res) => {
-		const records = await getRecords<{
-			total: number;
-			result: UserGroupType[];
-		}>({
-			model: 'users',
-			perm: 'user',
-			query: req.query,
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			user: req.user,
-			getData() {
-				const params = validateParams(req.query);
-				return getUserGroups(req.query.id as string, params);
-			},
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.user.VIEW]);
+
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'users',
+				objectId: req.query.id as string,
+				permission: 'VIEW',
+				userId: req.user.id,
+			});
+			if (objPerm.view === true) hasPerm = true;
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		const params = validateParams(req.query);
+		const data = await getUserGroups(req.query.id as string, params);
+
+		return res.status(200).json({
+			status: 'success',
+			message: "Fetched user's groups successfully. A total of " + data.total,
+			data,
 		});
-
-		if (!records) throw new NextApiErrorMessage(403);
-
-		return res.status(200).json(records);
 	})
 	.put(async (req, res) => {
 		let hasPerm =
