@@ -198,8 +198,10 @@ export function useRequestLeaveUpdateMutation(
 				),
 		{
 			async onSuccess(data, variables) {
-				if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
-				else queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
+				// if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
+				// else queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
+				queryClient.invalidateQueries([tags.LEAVES]);
+				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},

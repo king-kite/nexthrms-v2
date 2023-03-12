@@ -42,7 +42,7 @@ type ErrorType = CreateLeaveErrorResponseType & {
 };
 
 const Detail = ({
-	admin,
+	admin = false,
 	leave,
 	objPerm = {
 		delete: false,
@@ -175,13 +175,24 @@ const Detail = ({
 		[canEdit, updateLeave, admin, id]
 	);
 
-	let actions = useMemo(() => {
-		let buttons: ButtonType[] = [];
-		if (!data) return [];
-		// Not admin page
+	const actions = useMemo(() => {
+		const buttons: ButtonType[] = [];
+		if (!data) return buttons;
+		// Regular/normal user page
 		if (!admin) {
-			// If the leave has yet to be approved/denied show buttons
-			if (data.status !== 'APPROVED' && data.status !== 'DENIED') {
+			const startDate =
+				typeof data.startDate === 'string'
+					? new Date(data.startDate)
+					: data.startDate;
+			const currentDate = new Date();
+			currentDate.setHours(0, 0, 0, 0);
+			// As long as the leave is still pending, the user can edit as he/she likes
+			// Also if the startDate has not yet been reached
+			if (
+				data.status !== 'APPROVED' &&
+				data.status !== 'DENIED' &&
+				startDate.getTime() > currentDate.getTime()
+			) {
 				if (canEdit)
 					buttons.push({
 						disabled: editLoading,
@@ -199,37 +210,20 @@ const Detail = ({
 					});
 			}
 		} else {
-			// Admin Page
-			// TODO: Add Admin Buttons
-			// Check if the start date is less than the current date
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0);
+			// Admin user page
 			const startDate =
 				typeof data.startDate === 'string'
 					? new Date(data.startDate)
 					: data.startDate;
-			if (currentDate.getTime() >= startDate.getTime()) {
-				// The leave whether pending is now expired or whether approved has now begun;
-				if (data.status === 'PENDING' || data.status === 'DENIED') {
-					if (data.status === 'PENDING' && canEdit)
-						// To be able to change the dates
-						// Do not add approve/disapprove button
-						buttons.push({
-							disabled: editLoading,
-							iconLeft: FaEdit,
-							onClick: () => setModalVisible(true),
-							title: 'Request Leave Update',
-						});
-					if (canDelete)
-						buttons.push({
-							bg: 'bg-red-600 hover:bg-red-500',
-							disabled: appLoading,
-							iconLeft: FaTrash,
-							onClick: () => deleteLeave(id),
-							title: 'Delete Leave',
-						});
-				}
-			} else {
+			const currentDate = new Date();
+			currentDate.setHours(0, 0, 0, 0);
+			// If the leave start date is today or next date i.e the current date or days after today
+			//  and it is still pending then it can be approved/denied and also updated and deleted.
+			// Means that the leave has yet to commence.
+			if (
+				currentDate.getTime() <= startDate.getTime() &&
+				data.status === 'PENDING'
+			) {
 				if (canEdit)
 					buttons.push({
 						disabled: editLoading,
@@ -263,6 +257,13 @@ const Detail = ({
 						}
 					);
 			}
+			// } else if (
+			// 	startDate.getTime() >= currentDate.getTime() &&
+			// 	(data.status === 'APPROVED') || data.status === 'DENIED'
+			// ) {
+			// 	// Meaning that the start date for leave is either today or has passed
+			// 	// and the leave has either been approved or denied so no updates, deletes, nor approval should be made
+			// }
 			if (canViewPermissions) {
 				buttons.push({
 					bg: 'bg-gray-600 hover:bg-gray-500',
@@ -277,8 +278,8 @@ const Detail = ({
 		admin,
 		appLoading,
 		approveLeave,
-		canEdit,
 		canDelete,
+		canEdit,
 		canViewPermissions,
 		data,
 		deleteLeave,

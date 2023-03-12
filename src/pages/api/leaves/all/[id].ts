@@ -69,11 +69,11 @@ export default employee()
 		if (!objPerm.edit) throw new NextApiErrorMessage(403);
 
 		// check if the leave has been approved or denied
+		// as long as the leave is still pending, the user can edit is as he/she likes
 		if (leave.status === 'APPROVED' || leave.status === 'DENIED') {
 			return res.status(403).json({
 				status: 'error',
-				message:
-					'This leave has already either been approved/denied and can no longer be updated!',
+				message: `This leave has already either been ${leave.status.toLowerCase()} and can no longer be updated!`,
 			});
 		}
 
@@ -81,8 +81,6 @@ export default employee()
 			await leaveCreateSchema.validateAsync({
 				...req.body,
 			});
-
-		// TODO: Check if the user has an approved/pending leave
 
 		const startDate = new Date(data.startDate);
 		startDate.setHours(0, 0, 0, 0);
@@ -98,6 +96,7 @@ export default employee()
 				...data,
 				startDate,
 				endDate,
+				status: 'PENDING' // Force the update to be pending
 			},
 			select: selectQuery,
 		});
