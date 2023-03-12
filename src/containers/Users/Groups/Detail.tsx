@@ -45,7 +45,7 @@ function GroupDetail({
 
 	const router = useRouter();
 	const id = router.query.id as string;
-	const { data, isLoading, isFetching, refetch } = useGetGroupQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetGroupQuery(
 		{
 			id,
 			users: {
@@ -143,6 +143,14 @@ function GroupDetail({
 		<Container
 			heading="Group Information"
 			icon
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title: (error as any).message,
+					  }
+					: undefined
+			}
 			refresh={{
 				loading: isFetching,
 				onClick: () => {

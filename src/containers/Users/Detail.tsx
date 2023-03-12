@@ -64,7 +64,7 @@ const User = ({
 }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
-	const { data, isLoading, isFetching, refetch } = useGetUserQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetUserQuery(
 		{
 			id,
 		},
@@ -315,6 +315,14 @@ const User = ({
 		<Container
 			heading="User Information"
 			icon
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title: (error as any).message,
+					  }
+					: undefined
+			}
 			refresh={{
 				loading: isFetching,
 				onClick: () => {

@@ -64,7 +64,7 @@ const Detail = ({
 
 	const { open } = useAlertContext();
 
-	const { data, isFetching, isLoading, refetch } = useGetLeaveQuery(
+	const { data, error, isFetching, isLoading, refetch } = useGetLeaveQuery(
 		{ id, admin },
 		{
 			initialData() {
@@ -290,6 +290,14 @@ const Detail = ({
 	return (
 		<Container
 			heading={admin ? 'Leave Information (Admin)' : 'Leave Information'}
+			error={
+				error
+					? {
+							statusCode: (error as any).status || 500,
+							title: (error as any).message,
+					  }
+					: undefined
+			}
 			icon
 			refresh={{
 				loading: isFetching,
