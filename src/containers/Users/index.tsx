@@ -16,7 +16,11 @@ interface ErrorType extends CreateUserErrorResponseType {
 	message?: string;
 }
 
-const Users = ({ users: userData }: { users: GetUsersResponseType }) => {
+const Users = ({
+	users: userData,
+}: {
+	users: GetUsersResponseType['data'];
+}) => {
 	const [errors, setErrors] = useState<ErrorType>();
 
 	const [offset, setOffset] = useState(0);

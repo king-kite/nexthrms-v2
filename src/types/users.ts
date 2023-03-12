@@ -1,6 +1,6 @@
 import { PermissionObjectChoices } from '@prisma/client';
 
-import { PaginatedResponseType, SuccessResponseType } from './base';
+import { SuccessResponseType } from './base';
 
 // Groups Types Start
 export type GroupUserType = {
@@ -45,7 +45,10 @@ export type CreateGroupErrorResponseType = {
 
 export type CreateGroupResponseType = SuccessResponseType<GroupType>;
 
-export type GetGroupsResponseType = PaginatedResponseType<GroupType[]>;
+export type GetGroupsResponseType = SuccessResponseType<{
+	total: number;
+	result: GroupType[];
+}>;
 // Groups Types Stop
 
 // Object Permission Types Start
@@ -114,9 +117,10 @@ export type PermissionPrismaModelNameType =
 	| 'projectTeam'
 	| 'user';
 
-export type GetPermissionsResponseType = PaginatedResponseType<
-	PermissionType[]
->;
+export type GetPermissionsResponseType = SuccessResponseType<{
+	total: number;
+	result: PermissionType[];
+}>;
 // Permisssions Types Stop
 
 // Users Types Start
@@ -234,8 +238,7 @@ export type CreateUserErrorResponseType = {
 
 export type CreateUserResponseType = SuccessResponseType<UserType>;
 
-export interface GetUsersResponseType
-	extends PaginatedResponseType<UserType[]> {
+export type GetUsersResponseType = SuccessResponseType<{
 	total: number;
 	result: UserType[];
 	active: number;
@@ -243,5 +246,6 @@ export interface GetUsersResponseType
 	on_leave: number;
 	employees: number;
 	clients: number;
-}
+}>;
+
 // Users Types Stop
