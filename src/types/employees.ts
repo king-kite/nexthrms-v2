@@ -1,4 +1,4 @@
-import { PaginatedResponseType, SuccessResponseType } from './base';
+import { SuccessResponseType } from './base';
 
 type UserDataType = {
 	firstName: string;
