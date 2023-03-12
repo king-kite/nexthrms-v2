@@ -503,7 +503,6 @@ enum LeaveChoices {
 enum LeaveStatus {
   APPROVED
   DENIED
-  EXPIRED
   PENDING
 }
 

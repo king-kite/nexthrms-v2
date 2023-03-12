@@ -40,9 +40,9 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 							? 'success'
 							: leave.status === 'DENIED'
 							? 'error'
-							: leave.status === 'EXPIRED'
-							? 'info'
-							: 'warning',
+							: // : leave.status === 'EXPIRED'
+							  // ? 'info'
+							  'warning',
 				},
 				type: 'badge',
 				value: leave.status,

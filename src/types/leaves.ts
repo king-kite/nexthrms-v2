@@ -31,7 +31,7 @@ export type LeaveType = {
 		| 'MATERNITY'
 		| 'PATERNITY'
 		| 'SICK';
-	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
+	status: 'APPROVED' | 'DENIED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;
