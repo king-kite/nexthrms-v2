@@ -64,7 +64,7 @@ export const employeeSelectQuery: Prisma.EmployeeSelect = {
 			isActive: true,
 		},
 	},
-	supervisor: {
+	supervisors: {
 		select: {
 			id: true,
 			department: {

@@ -318,7 +318,7 @@ async function getEmployee({
 					id: user.employee.id,
 				},
 				data: {
-					supervisor: {
+					supervisors: {
 						connect: {
 							id: supervisor.employee.id,
 						},

@@ -78,24 +78,26 @@ export const EmployeeModel = {
 				},
 			},
 		},
-		supervisor: {
-			type: 'object',
-			nullable: true,
-			properties: {
-				id: {
-					type: 'string',
-					format: 'uuid',
-				},
-				department: {
-					type: 'object',
-					nullable: true,
-					properties: {
-						name: {
-							type: 'string',
+		supervisors: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: {
+					id: {
+						type: 'string',
+						format: 'uuid',
+					},
+					department: {
+						type: 'object',
+						nullable: true,
+						properties: {
+							name: {
+								type: 'string',
+							},
 						},
 					},
+					user: commonUserProperties,
 				},
-				user: commonUserProperties,
 			},
 		},
 		leaves: userEmployeeLeavesProperties,
@@ -156,20 +158,22 @@ export const EmployeeModel = {
 				},
 			},
 		},
-		supervisor: {
-			id: '7e9915bb-655b-4adc-ba33-12d58ead9360',
-			department: {
-				name: 'Research & Development',
-			},
-			user: {
-				firstName: 'Priscilla',
-				lastName: 'Andrews',
-				email: 'priscillaandrews@kitehrms.com',
-				profile: {
-					image:
-						'/media/users/profile/priscilla_andrews_priscillaandrews@kitehrms.com_1669470278039.jpg',
+		supervisors: [
+			{
+				id: '7e9915bb-655b-4adc-ba33-12d58ead9360',
+				department: {
+					name: 'Research & Development',
+				},
+				user: {
+					firstName: 'Priscilla',
+					lastName: 'Andrews',
+					email: 'priscillaandrews@kitehrms.com',
+					profile: {
+						image:
+							'/media/users/profile/priscilla_andrews_priscillaandrews@kitehrms.com_1669470278039.jpg',
+					},
 				},
 			},
-		},
+		],
 	},
 };

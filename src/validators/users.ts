@@ -67,7 +67,10 @@ export const createUserSchema = Joi.object({
 	employee: Joi.object({
 		department: Joi.string().uuid().required().label('Department'),
 		job: Joi.string().uuid().required().label('Job'),
-		supervisor: Joi.string().uuid().optional().allow('').label('Supervisor'),
+		supervisors: Joi.array()
+			.items(Joi.string().uuid())
+			.optional()
+			.label('Supervisors'),
 		dateEmployed: Joi.date().optional().allow('').label('Date Employed'),
 	})
 		.optional()

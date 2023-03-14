@@ -140,6 +140,8 @@ export default admin()
 			  }
 			: {};
 
+		// const supervisors =
+
 		const data: Prisma.EmployeeCreateInput = {
 			dateEmployed: valid.dateEmployed || new Date(),
 			department: {
@@ -152,11 +154,9 @@ export default admin()
 					id: valid.job,
 				},
 			},
-			supervisor: valid.supervisor
+			supervisors: valid.supervisors
 				? {
-						connect: {
-							id: valid.supervisor,
-						},
+						connect: valid.supervisors.map((id) => ({ id })),
 				  }
 				: undefined,
 			user,

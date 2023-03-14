@@ -3,10 +3,6 @@ import { userProfileProperties } from './properties';
 export const UserModel = {
 	type: 'object',
 	properties: {
-		id: {
-			type: 'string',
-			format: 'uuid',
-		},
 		...userProfileProperties,
 		isActive: {
 			type: 'boolean',
@@ -54,13 +50,15 @@ export const UserModel = {
 						},
 					},
 				},
-				supervisor: {
-					type: 'object',
-					nullable: true,
-					properties: {
-						id: {
-							type: 'string',
-							format: 'uuid',
+				supervisors: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							id: {
+								type: 'string',
+								format: 'uuid',
+							},
 						},
 					},
 				},
@@ -139,9 +137,14 @@ export const UserModel = {
 			job: {
 				id: '2ca4dfe0-08af-43f6-8687-d278647286ca',
 			},
-			supervisor: {
-				id: '34751d45-e2a5-4d3f-ace7-1b739712010b',
-			},
+			supervisors: [
+				{
+					id: '34751d45-e2a5-4d3f-ace7-1b739712010b',
+					employee: {
+						id: '34751d45-e2a5-4d3f-ace7-1b739712010b',
+					},
+				},
+			],
 			leaves: [
 				{
 					startDate: '2022-10-29T00:00:00.000Z',

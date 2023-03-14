@@ -158,13 +158,11 @@ export default admin()
 							id: valid.employee.job,
 						},
 					},
-					supervisor: valid.employee.supervisor
+					supervisors: valid.employee.supervisors
 						? {
-								connect: {
-									id: valid.employee.supervisor,
-								},
+								set: valid.employee.supervisors.map((id) => ({ id })),
 						  }
-						: {},
+						: undefined,
 			  }
 			: {};
 

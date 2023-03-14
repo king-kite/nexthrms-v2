@@ -68,7 +68,8 @@ const Form: FC<FormProps> = ({
 		image: '',
 		department: initState?.department?.id || '',
 		job: initState?.job?.id || '',
-		supervisor: initState?.supervisor?.id || '',
+		supervisors:
+			initState?.supervisors.map((supervisor) => supervisor.id) || [],
 	});
 	const [formErrors, setErrors] = useState<ErrorType>();
 
@@ -133,7 +134,7 @@ const Form: FC<FormProps> = ({
 	);
 
 	const handleFormChange = useCallback(
-		(name: string, value: string) => {
+		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
 				[name]: value,
@@ -145,7 +146,7 @@ const Form: FC<FormProps> = ({
 
 	useEffect(() => {
 		if (success && !editMode) {
-			setForm({ image: '', job: '', department: '', supervisor: '' });
+			setForm({ image: '', job: '', department: '', supervisors: [] });
 			if (formRef.current) {
 				formRef.current.reset();
 			}
@@ -177,7 +178,7 @@ const Form: FC<FormProps> = ({
 						},
 						department: form.department,
 						job: form.job,
-						supervisor: form.supervisor,
+						supervisors: form.supervisors,
 					});
 				}
 			}}
@@ -362,14 +363,19 @@ const Form: FC<FormProps> = ({
 						}}
 						disabled={employees.isLoading || loading}
 						error={
-							employeesError || formErrors?.supervisor || errors?.supervisor
+							employeesError || formErrors?.supervisors || errors?.supervisors
 						}
-						label="Supervisor"
-						name="supervisor"
-						onChange={({ target: { value } }) =>
-							handleFormChange('supervisor', value)
-						}
-						placeholder="Select Supervisor"
+						multiple
+						label="Supervisors"
+						name="supervisors"
+						onChange={({ target: { selectedOptions } }) => {
+							const selectValues = Array.from(
+								selectedOptions,
+								(option) => option.value
+							);
+							handleFormChange('supervisors', selectValues);
+						}}
+						placeholder="Select Supervisors"
 						options={
 							employees.data
 								? employees.data.result.reduce(
@@ -399,7 +405,7 @@ const Form: FC<FormProps> = ({
 								: []
 						}
 						required={false}
-						value={form.supervisor}
+						value={form.supervisors}
 					/>
 				</div>
 				<div className="w-full">

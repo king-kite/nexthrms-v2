@@ -106,12 +106,10 @@ model Employee {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique @map("user_id") @db.Uuid
 
-  supervisorId String?   @map("supervisor_id") @db.Uuid
-  supervisor   Employee? @relation("otheremployees", fields: [supervisorId], references: [id], onDelete: SetNull)
-
-  employees Employee[] @relation("otheremployees")
-
   attendance Attendance[]
+
+  supervisors         Employee[] @relation("supervisor_employees")
+  supervisedEmployees Employee[] @relation("supervisor_employees")
 
   projectFiles        ProjectFile[]
   projectTeam         ProjectTeam[]
@@ -132,7 +130,6 @@ model Employee {
   @@index([id], map: "employee_id")
   @@index([departmentId], map: "employee_department_id")
   @@index([jobId], map: "employee_job_id")
-  @@index([supervisorId], map: "supervisor_id")
   @@map("employees")
 }
 
