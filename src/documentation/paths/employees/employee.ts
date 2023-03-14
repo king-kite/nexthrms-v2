@@ -89,10 +89,15 @@ const path = {
 										type: 'string',
 										format: 'uuid',
 									},
-									supervisor: {
-										type: 'string',
+									supervisors: {
+										description: 'An array of employee IDs.',
 										nullable: true,
-										format: 'uuid',
+										type: 'array',
+										items: {
+											description: "The ID here should be the employee's ID",
+											type: 'string',
+											format: 'uuid',
+										},
 									},
 									userId: {
 										type: 'string',
@@ -149,7 +154,7 @@ const path = {
 								example: {
 									dateEmployed: '2022-10-29T00:00:00.000Z',
 									department: '9c48f93c-35d8-47b3-ad2a-938689b63262',
-									supervisor: '9c48f93c-35d8-47b3-ad2a-938689b63262',
+									supervisors: ['9c48f93c-35d8-47b3-ad2a-938689b63262'],
 									job: '9c48f93c-35d8-47b3-ad2a-938689b63262',
 									user: {
 										firstName: 'Jan',
@@ -286,7 +291,7 @@ const path = {
 													type: 'string',
 													nullable: true,
 												},
-												supervisor: {
+												supervisors: {
 													type: 'string',
 													nullable: true,
 												},

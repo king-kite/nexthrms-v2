@@ -65,7 +65,7 @@ export type ProfileType = {
 		job: {
 			name: string;
 		} | null;
-		supervisor: {
+		supervisors: {
 			user: {
 				firstName: string;
 				lastName: string;
@@ -80,7 +80,7 @@ export type ProfileType = {
 					} | null;
 				};
 			};
-		} | null;
+		}[];
 		leaves: {
 			startDate: Date | string;
 			endDate: Date | string;

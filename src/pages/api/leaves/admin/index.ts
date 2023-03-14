@@ -104,11 +104,11 @@ export default admin()
 					{
 						isSuperUser: true,
 					},
-					// Get the employee's supervisor
+					// Get the employee's supervisors
 					{
 						isAdmin: true,
 						employee: {
-							employees: {
+							supervisedEmployees: {
 								some: {
 									id: { in: [leave.employee.id] },
 								},

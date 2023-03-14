@@ -51,10 +51,9 @@ export default admin().get(async (req, res) => {
 			city: emp.user.profile?.city || null,
 			department: emp.department?.name || null,
 			job: emp.job?.name || null,
-			supervisor: emp.supervisor
-				? emp.supervisor.user.firstName + ' ' + emp.supervisor.user.lastName
-				: null,
-			supervisor_email: emp.supervisor ? emp.supervisor.user.email : null,
+			supervisors_email: emp.supervisors
+				.map((item) => item.user.email)
+				.join(','),
 			is_active: emp.user.isActive,
 			date_employed: emp.dateEmployed,
 		};

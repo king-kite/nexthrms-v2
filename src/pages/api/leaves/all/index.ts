@@ -89,7 +89,7 @@ export default employee()
 					{
 						isAdmin: true,
 						employee: {
-							employees: {
+							supervisedEmployees: {
 								some: {
 									id: { in: [leave.employee.id] },
 								},

@@ -14,7 +14,7 @@ export type CreateEmployeeQueryType = {
 	dateEmployed: string;
 	department: string;
 	job: string;
-	supervisor: string | null;
+	supervisors?: string[];
 	user: {
 		email: string;
 		firstName: string;
@@ -36,7 +36,7 @@ export type CreateEmployeeErrorResponseType = {
 	dateEmployed?: string;
 	department?: string;
 	job?: string;
-	supervisor?: string;
+	supervisors?: string;
 	email?: string;
 	firstName?: string;
 	lastName?: string;
@@ -76,13 +76,13 @@ export type EmployeeType = {
 		name: string;
 	} | null;
 	user: EmployeeUserType;
-	supervisor: {
+	supervisors: {
 		id: string;
 		department: {
 			name: string;
 		} | null;
 		user: UserDataType;
-	} | null;
+	}[];
 	leaves: {
 		startDate: Date | string;
 		endDate: Date | string;

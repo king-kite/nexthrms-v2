@@ -146,9 +146,9 @@ export type UserType = {
 		job?: {
 			id: string;
 		};
-		supervisor?: {
+		supervisors: {
 			id: string;
-		};
+		}[];
 		leaves: {
 			startDate: Date | string;
 			endDate: Date | string;
@@ -200,7 +200,7 @@ export type CreateUserQueryType = {
 		dateEmployed: string;
 		department: string;
 		job: string;
-		supervisor?: string;
+		supervisors?: string[];
 	};
 
 	// Client Data If Need
@@ -230,7 +230,7 @@ export type CreateUserErrorResponseType = {
 	dateEmployed?: string;
 	department?: string;
 	job?: string;
-	supervisor?: string;
+	supervisors?: string;
 
 	company?: string;
 	position?: string;

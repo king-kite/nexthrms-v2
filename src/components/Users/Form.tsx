@@ -56,14 +56,14 @@ const formStaleData: {
 	image: string;
 	department: string | undefined;
 	job: string | undefined;
-	supervisor: string | undefined;
+	supervisors: string[] | undefined;
 } = {
 	isEmployee: false,
 	isClient: false,
 	image: '',
 	department: undefined,
 	job: undefined,
-	supervisor: undefined,
+	supervisors: undefined,
 };
 
 const Form: FC<FormProps> = ({
@@ -93,7 +93,7 @@ const Form: FC<FormProps> = ({
 				image: '',
 				department: initState.employee?.department?.id,
 				job: initState.employee?.job?.id,
-				supervisor: initState.employee?.supervisor?.id,
+				supervisors: initState.employee?.supervisors.map((item) => item.id),
 			});
 		} else setForm(formStaleData);
 	}, [initState]);
@@ -173,7 +173,7 @@ const Form: FC<FormProps> = ({
 	);
 
 	const handleFormChange = useCallback(
-		(name: string, value: string) => {
+		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
 				[name]: value,
@@ -230,8 +230,10 @@ const Form: FC<FormProps> = ({
 							department:
 								form.department || initState?.employee?.department?.id || '',
 							job: form.job || initState?.employee?.job?.id || '',
-							supervisor:
-								form.supervisor || initState?.employee?.supervisor?.id || '',
+							supervisors:
+								form.supervisors ||
+								initState?.employee?.supervisors.map((item) => item.id) ||
+								[],
 						};
 					}
 					handleSubmit(data);
@@ -625,15 +627,22 @@ const Form: FC<FormProps> = ({
 								}}
 								disabled={employees.isLoading || loading}
 								error={
-									employeesError || formErrors?.supervisor || errors?.supervisor
+									employeesError ||
+									formErrors?.supervisors ||
+									errors?.supervisors
 								}
-								label="Supervisor"
-								name="supervisor"
-								onChange={({ target: { value } }) =>
-									handleFormChange('supervisor', value)
-								}
-								value={form.supervisor}
-								placeholder="Select Supervisor"
+								label="Supervisors"
+								name="supervisors"
+								multiple
+								onChange={({ target: { selectedOptions } }) => {
+									const selectValues = Array.from(
+										selectedOptions,
+										(option) => option.value
+									);
+									handleFormChange('supervisors', selectValues);
+								}}
+								value={form.supervisors}
+								placeholder="Select Supervisors"
 								options={
 									employees.data
 										? employees.data.result.reduce(

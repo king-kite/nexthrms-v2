@@ -388,40 +388,41 @@ const Employee = ({
 							title="Additional information"
 						/>
 
-						{data?.supervisor && (
+						{data?.supervisors.map((supervisor, index) => (
 							<InfoComp
+								key={index}
 								infos={[
 									{
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.supervisor.user.profile?.image || DEFAULT_IMAGE,
+											src: supervisor.user.profile?.image || DEFAULT_IMAGE,
 											alt:
-												data.supervisor.user.firstName +
+												supervisor.user.firstName +
 												' ' +
-												data.supervisor.user.lastName,
+												supervisor.user.lastName,
 										},
 									},
 									{
 										title: 'First Name',
-										value: data.supervisor.user.firstName || '-------',
+										value: supervisor.user.firstName || '-------',
 									},
 									{
 										title: 'Last Name',
-										value: data.supervisor.user.lastName || '-------',
+										value: supervisor.user.lastName || '-------',
 									},
 									{
 										title: 'Email',
-										value: data.supervisor.user.email || '-------',
+										value: supervisor.user.email || '-------',
 									},
 									{
 										title: 'Department',
-										value: data.supervisor.department?.name || '-------',
+										value: supervisor.department?.name || '-------',
 									},
 								]}
-								title="Supervisor Information"
+								title={`Supervisor Information -> ${supervisor.user.firstName} ${supervisor.user.lastName}`}
 							/>
-						)}
+						))}
 
 						{data?.department?.hod && (
 							<InfoComp

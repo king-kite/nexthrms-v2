@@ -63,8 +63,9 @@ export const profileUserSelectQuery: Prisma.UserSelect = {
 					name: true,
 				},
 			},
-			supervisor: {
+			supervisors: {
 				select: {
+					id: true,
 					user: {
 						select: userSelect,
 					},

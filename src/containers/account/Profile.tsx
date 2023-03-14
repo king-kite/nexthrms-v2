@@ -163,43 +163,38 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 					title="Employee information"
 				/>
 			)}
-			{data?.employee?.supervisor && (
+			{data?.employee?.supervisors.map((supervisor, index) => (
 				<InfoComp
+					key={index}
 					infos={[
 						{
 							title: 'Profile Image',
 							type: 'image',
 							value: {
-								src:
-									data.employee.supervisor.user.profile?.image || DEFAULT_IMAGE,
-								alt:
-									data.employee.supervisor.user.firstName +
-									' ' +
-									data.employee.supervisor.user.lastName,
+								src: supervisor.user.profile?.image || DEFAULT_IMAGE,
+								alt: supervisor.user.firstName + ' ' + supervisor.user.lastName,
 							},
 						},
 						{
 							title: 'First Name',
-							value: data.employee.supervisor.user.firstName || '-------',
+							value: supervisor.user.firstName || '-------',
 						},
 						{
 							title: 'Last Name',
-							value: data.employee.supervisor.user.lastName || '-------',
+							value: supervisor.user.lastName || '-------',
 						},
 						{
 							title: 'Email',
-							value: data.employee.supervisor.user.email || '-------',
+							value: supervisor.user.email || '-------',
 						},
 						{
 							title: 'Department',
-							value:
-								data.employee.supervisor.user.employee.department?.name ||
-								'-------',
+							value: supervisor.user.employee.department?.name || '-------',
 						},
 					]}
-					title="Supervisor Information"
+					title={`Supervisor Information - ${supervisor.user.firstName} ${supervisor.user.lastName}`}
 				/>
-			)}
+			))}
 
 			{data?.employee?.department?.hod && (
 				<InfoComp
