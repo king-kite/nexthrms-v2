@@ -76,7 +76,7 @@ export default employee()
 			await addObjectPermissions({
 				model: 'leaves',
 				objectId: leave.id,
-				userId: req.user.id,
+				users: [req.user.id],
 			});
 
 		return res.status(201).json({

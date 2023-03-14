@@ -163,12 +163,12 @@ export async function addObjectPermissions({
 	model: modelName,
 	permissions = ['DELETE', 'EDIT', 'VIEW'],
 	objectId,
-	userId,
+	users,
 }: {
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	userId: string;
+	users: string[];
 }) {
 	return prisma.$transaction(
 		permissions.map((permission) =>
@@ -177,7 +177,9 @@ export async function addObjectPermissions({
 					permission,
 					modelName,
 					objectId,
-					users: { connect: { id: userId } },
+					users: {
+						connect: users.map((user) => ({ id: user })),
+					},
 				},
 				select: { id: true },
 			})

@@ -174,14 +174,14 @@ export default admin()
 				addObjectPermissions({
 					model: 'employees',
 					objectId: employee.id,
-					userId: req.user.id,
+					users: [req.user.id],
 				}),
 
 				// Give the creator all permissions on the user as well
 				addObjectPermissions({
 					model: 'users',
 					objectId: employee.user.id,
-					userId: req.user.id,
+					users: [req.user.id],
 				}),
 			]);
 

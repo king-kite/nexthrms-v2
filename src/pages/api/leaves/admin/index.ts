@@ -93,17 +93,10 @@ export default admin()
 
 		const permPromises = [];
 		permPromises.push(
-			// creator
 			await addObjectPermissions({
 				model: 'leaves',
 				objectId: leave.id,
-				userId: req.user.id,
-			}),
-			// owner
-			await addObjectPermissions({
-				model: 'leaves',
-				objectId: leave.id,
-				userId: leave.employee.user.id,
+				users: [req.user.id, leave.employee.user.id],
 			})
 		);
 

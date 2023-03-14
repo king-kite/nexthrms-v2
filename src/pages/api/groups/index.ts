@@ -95,7 +95,7 @@ export default admin()
 			await addObjectPermissions({
 				model: 'groups',
 				objectId: group.id,
-				userId: req.user.id,
+				users: [req.user.id],
 			});
 
 		return res.status(201).json({
