@@ -138,12 +138,12 @@ export default admin()
 				await addObjectPermissions({
 					model: 'clients',
 					objectId: client.id,
-					userId: req.user.id,
+					users: [req.user.id],
 				}),
 				await addObjectPermissions({
 					model: 'users',
 					objectId: client.contact.id,
-					userId: req.user.id,
+					users: [req.user.id],
 				}),
 			]);
 

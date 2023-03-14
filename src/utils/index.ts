@@ -8,5 +8,6 @@ export { hasModelPermission } from './permission';
 export { default as toCapitalize } from './toCapitalize';
 
 export * from './axios';
+export * from './client';
 export * from './components';
 export * from './getDate';

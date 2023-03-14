@@ -58,7 +58,7 @@ export default admin()
 			await addObjectPermissions({
 				model: 'assets',
 				objectId: data.id,
-				userId: req.user.id,
+				users: [req.user.id],
 			});
 
 		return res.status(201).json({

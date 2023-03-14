@@ -169,7 +169,7 @@ export default admin()
 				addObjectPermissions({
 					model: 'users',
 					objectId: user.id,
-					userId: req.user.id,
+					users: [req.user.id],
 				}),
 			];
 			if (user.employee)
@@ -177,7 +177,7 @@ export default admin()
 					addObjectPermissions({
 						model: 'employees',
 						objectId: user.employee.id,
-						userId: req.user.id,
+						users: [req.user.id],
 					})
 				);
 			if (user.client)
@@ -185,7 +185,7 @@ export default admin()
 					addObjectPermissions({
 						model: 'clients',
 						objectId: user.client.id,
-						userId: req.user.id,
+						users: [req.user.id],
 					})
 				);
 			await Promise.all(permissionPromises);

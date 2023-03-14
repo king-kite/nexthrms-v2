@@ -85,9 +85,11 @@ export default admin()
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.
+		// If request user is a super user, then bypass the restriction
 		if (
-			currentDate.getTime() <= startDate.getTime() &&
-			leave.status === 'PENDING'
+			req.user.isSuperUser ||
+			(currentDate.getTime() <= startDate.getTime() &&
+				leave.status === 'PENDING')
 		) {
 			const updated = await prisma.leave.update({
 				where: {
@@ -167,9 +169,11 @@ export default admin()
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.
+		// If the request user is a superuser, then bypass the restriction
 		if (
-			currentDate.getTime() <= startDate.getTime() &&
-			leave.status === 'PENDING'
+			req.user.isSuperUser ||
+			(currentDate.getTime() <= startDate.getTime() &&
+				leave.status === 'PENDING')
 		) {
 			const { employee, ...data }: CreateLeaveQueryType =
 				await leaveCreateSchema.validateAsync({
@@ -268,9 +272,11 @@ export default admin()
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.
+		// If the request user is a superuser, then bypass the restriction
 		if (
-			currentDate.getTime() <= startDate.getTime() &&
-			leave.status === 'PENDING'
+			req.user.isSuperUser ||
+			(currentDate.getTime() <= startDate.getTime() &&
+				leave.status === 'PENDING')
 		) {
 			await prisma.leave.delete({ where: { id: req.query.id as string } });
 
