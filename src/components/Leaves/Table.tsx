@@ -44,7 +44,10 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value: leave.expired ? 'EXPIRED' : leave.status,
+					value:
+						leave.status === 'PENDING' && leave.expired
+							? 'EXPIRED'
+							: leave.status,
 				},
 				{
 					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',

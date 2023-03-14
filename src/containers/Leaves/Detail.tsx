@@ -378,7 +378,10 @@ const Detail = ({
 												: 'warning',
 									},
 									title: 'Status',
-									value: data.expired ? 'EXPIRED' : data.status,
+									value:
+										data.status === 'PENDING' && data.expired
+											? 'EXPIRED'
+											: data.status,
 									type: 'badge',
 								},
 								{

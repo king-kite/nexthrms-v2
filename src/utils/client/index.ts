@@ -13,8 +13,11 @@ export function serializeLeave(leave: LeaveType): LeaveType & {
 	return {
 		...leave,
 		expired:
-			currentDate.getTime() <= startDate.getTime() && leave.status === 'PENDING'
-				? false
-				: true,
+			leave.status === 'PENDING'
+				? currentDate.getTime() <= startDate.getTime() &&
+				  leave.status === 'PENDING'
+					? false
+					: true
+				: false,
 	};
 }
