@@ -172,13 +172,25 @@ export async function addObjectPermissions({
 }) {
 	return prisma.$transaction(
 		permissions.map((permission) =>
-			prisma.permissionObject.create({
-				data: {
+			prisma.permissionObject.upsert({
+				create: {
 					permission,
 					modelName,
 					objectId,
 					users: {
 						connect: users.map((user) => ({ id: user })),
+					},
+				},
+				update: {
+					users: {
+						connect: users.map((user) => ({ id: user })),
+					},
+				},
+				where: {
+					modelName_objectId_permission: {
+						modelName,
+						permission,
+						objectId,
 					},
 				},
 				select: { id: true },
