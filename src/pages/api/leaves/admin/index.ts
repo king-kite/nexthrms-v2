@@ -4,7 +4,11 @@ import {
 	prisma,
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
-import { addObjectPermissions, getRecords } from '../../../../db/utils';
+import {
+	addObjectPermissions,
+	getRecords,
+	updateObjectPermissions,
+} from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import {
 	CreateLeaveQueryType,
@@ -91,16 +95,54 @@ export default admin()
 			select: selectQuery,
 		})) as unknown as LeaveType;
 
-		const permPromises = [];
-		permPromises.push(
-			await addObjectPermissions({
-				model: 'leaves',
-				objectId: leave.id,
-				users: [req.user.id, leave.employee.user.id],
-			})
-		);
+		// Get the employees admin related officers
+		const officers = await prisma.user.findMany({
+			where: {
+				isActive: true,
+				OR: [
+					// Super users
+					{
+						isSuperUser: true,
+					},
+					// Get the employee's supervisor
+					{
+						isAdmin: true,
+						employee: {
+							employees: {
+								some: {
+									id: { in: [leave.employee.id] },
+								},
+							},
+						},
+					},
+					// Get the employee's department HOD
+					{
+						isAdmin: true,
+						employee: leave.employee.department
+							? {
+									hod: {
+										name: leave.employee.department.name,
+									},
+							  }
+							: undefined,
+					},
+				],
+			},
+			select: { id: true },
+		});
 
-		await Promise.all(permPromises);
+		await addObjectPermissions({
+			model: 'leaves',
+			objectId: leave.id,
+			users: [req.user.id, leave.employee.user.id],
+		});
+		// add the admin officers for the user to edit and view
+		await updateObjectPermissions({
+			model: 'leaves',
+			permissions: ['VIEW', 'EDIT'],
+			objectId: leave.id,
+			users: officers.map((officer) => officer.id),
+		});
 
 		return res.status(201).json({
 			status: 'success',

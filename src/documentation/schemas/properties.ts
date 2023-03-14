@@ -1,94 +1,93 @@
 export const profileProperties = {
 	profile: {
-		type: "object",
+		type: 'object',
 		nullable: true,
-		required: ["image"],
-		description:
-			"An object containing the user's profile information",
+		required: ['image'],
+		description: "An object containing the user's profile information",
 		properties: {
 			image: {
-				type: "string",
+				type: 'string',
 				description: "The user's profile image",
 			},
 			dob: {
-				type: "string",
+				type: 'string',
 				nullable: true,
-				format: "date-time",
+				format: 'date-time',
 				description: "The user's date of birth",
 			},
 			gender: {
-				type: "string",
+				type: 'string',
 				nullable: true,
-				format: "MALE | FEMALE",
+				format: 'MALE | FEMALE',
 				description: "The user's date of birth",
 			},
 			address: {
-				type: "string",
+				type: 'string',
 				nullable: true,
 				description: "The user's contact address",
 			},
 			phone: {
-				type: "string",
+				type: 'string',
 				nullable: true,
 				description: "The user's contact phone number",
 			},
 			state: {
-				type: "string",
+				type: 'string',
 				nullable: true,
 				description: "The user's contact state",
 			},
 			city: {
-				type: "string",
+				type: 'string',
 				nullable: true,
 				description: "The user's contact city",
 			},
 		},
 	},
-}
+};
 
 export const userProperties = {
 	email: {
-		type: "string",
-		format: "email",
+		type: 'string',
+		format: 'email',
 	},
 	firstName: {
-		type: "string",
+		type: 'string',
 	},
 	lastName: {
-		type: "string",
+		type: 'string',
 	},
-}
+};
 
 export const userProfileEmployeeProperties = {
 	user: {
-		type: "object",
+		type: 'object',
 		properties: {
 			...userProperties,
 			profile: {
-				type: "object",
+				type: 'object',
 				nullable: true,
-				required: ["image"],
+				required: ['image'],
 				properties: {
 					image: {
-						type: "string",
+						type: 'string',
 					},
 				},
 			},
 			employee: {
-				type: "object",
+				type: 'object',
 				nullable: true,
 				properties: {
 					department: {
-						type: "object",
+						type: 'object',
 						nullable: true,
-						required: ["id", "name"],
+						required: ['id', 'name'],
 						properties: {
 							id: {
-								type: "string",
-								format: "uuid",
+								type: 'string',
+								format: 'uuid',
 							},
 							name: {
-								type: "string",
+								type: 'string',
 							},
 						},
 					},
@@ -99,83 +98,84 @@ export const userProfileEmployeeProperties = {
 };
 
 export const userEmployeeLeavesProperties = {
-	type: "array",
+	type: 'array',
 	items: {
-		type: "object",
+		type: 'object',
 		properties: {
 			startDate: {
-				type: "string",
-				format: "date-time",
+				type: 'string',
+				format: 'date-time',
 			},
 			endDate: {
-				type: "string",
-				format: "date-time",
+				type: 'string',
+				format: 'date-time',
 			},
 			reason: {
-				type: "string",
+				type: 'string',
 			},
 			type: {
-				type: "string",
+				type: 'string',
 			},
 			approved: {
-				type: "boolean",
+				type: 'boolean',
 			},
 		},
 	},
-}
+};
 
 export const userEmployeeProperties = {
 	id: {
-		type: "string",
-		format: "uuid",
+		type: 'string',
+		format: 'uuid',
 	},
 	dateEmployed: {
-		type: "string",
-		format: "date-time",
+		type: 'string',
+		format: 'date-time',
 	},
 	department: {
-		type: "object",
+		type: 'object',
 		nullable: true,
-		required: ["name"],
-		description: "Information about the employee department.",
+		required: ['name'],
+		description: 'Information about the employee department.',
 		properties: {
 			name: {
-				type: "string",
+				type: 'string',
 				description: "The name of the employee's department",
 			},
 			hod: {
-				type: "object",
+				type: 'object',
 				nullable: true,
-				description:
-					"Information about the employee's department HOD",
+				description: "Information about the employee's department HOD",
 				properties: userProfileEmployeeProperties,
 			},
 		},
 	},
 	supervisor: {
-		type: "object",
+		type: 'object',
 		nullable: true,
-		description:
-			"Information about the employee's supervisor",
+		description: "Information about the employee's supervisor",
 		properties: userProfileEmployeeProperties,
 	},
 	job: {
-		type: "object",
+		type: 'object',
 		nullable: true,
-		required: ["name"],
-		description: "Information about the employee job.",
+		required: ['name'],
+		description: 'Information about the employee job.',
 		properties: {
 			name: {
-				type: "string",
-				description: "The name of the employee job",
+				type: 'string',
+				description: 'The name of the employee job',
 			},
 		},
 	},
 	leaves: userEmployeeLeavesProperties,
-}
+};
 
 export const userProfileProperties = {
+	id: {
+		type: 'string',
+		format: 'uuid',
+	},
 	...userProperties,
-	...profileProperties
-}
-
+	...profileProperties,
+};

@@ -172,8 +172,8 @@ export async function addObjectPermissions({
 }) {
 	return prisma.$transaction(
 		permissions.map((permission) =>
-			prisma.permissionObject.upsert({
-				create: {
+			prisma.permissionObject.create({
+				data: {
 					permission,
 					modelName,
 					objectId,
@@ -181,7 +181,27 @@ export async function addObjectPermissions({
 						connect: users.map((user) => ({ id: user })),
 					},
 				},
-				update: {
+				select: { id: true },
+			})
+		)
+	);
+}
+
+export async function updateObjectPermissions({
+	model: modelName,
+	permissions = ['DELETE', 'EDIT', 'VIEW'],
+	objectId,
+	users,
+}: {
+	model: PermissionModelChoices;
+	permissions?: PermissionObjectChoices[];
+	objectId: string;
+	users: string[];
+}) {
+	return prisma.$transaction(
+		permissions.map((permission) =>
+			prisma.permissionObject.update({
+				data: {
 					users: {
 						connect: users.map((user) => ({ id: user })),
 					},
@@ -197,22 +217,4 @@ export async function addObjectPermissions({
 			})
 		)
 	);
-	// return prisma.permissionObject.upsert({
-	// 	create: {
-	// 		permission,
-	// 		modelName,
-	// 		objectId,
-	// 		users: { connect: [{ id: userId }] },
-	// 	},
-	// 	where: {
-	// 		modelName_objectId_permission: {
-	// 			modelName,
-	// 			objectId,
-	// 			permission,
-	// 		},
-	// 	},
-	// 	update: {
-	// 		users: { connect: [{ id: userId }] },
-	// 	},
-	// });
 }

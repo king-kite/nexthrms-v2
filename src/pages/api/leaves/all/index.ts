@@ -4,9 +4,13 @@ import {
 	prisma,
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
-import { addObjectPermissions, getUserObjects } from '../../../../db/utils';
+import {
+	addObjectPermissions,
+	getUserObjects,
+	updateObjectPermissions,
+} from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { CreateLeaveQueryType } from '../../../../types';
+import { CreateLeaveQueryType, LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { leaveCreateSchema, validateParams } from '../../../../validators';
@@ -58,7 +62,7 @@ export default employee()
 		const endDate = new Date(data.endDate);
 		endDate.setHours(0, 0, 0, 0);
 
-		const leave = await prisma.leave.create({
+		const leave = (await prisma.leave.create({
 			data: {
 				...data,
 				startDate,
@@ -70,14 +74,57 @@ export default employee()
 				},
 			},
 			select: selectQuery,
+		})) as unknown as LeaveType;
+
+		// Get the employees admin related officers
+		const officers = await prisma.user.findMany({
+			where: {
+				isActive: true,
+				OR: [
+					// Super users
+					{
+						isSuperUser: true,
+					},
+					// Get the employee's supervisor
+					{
+						isAdmin: true,
+						employee: {
+							employees: {
+								some: {
+									id: { in: [leave.employee.id] },
+								},
+							},
+						},
+					},
+					// Get the employee's department HOD
+					{
+						isAdmin: true,
+						employee: leave.employee.department
+							? {
+									hod: {
+										name: leave.employee.department.name,
+									},
+							  }
+							: undefined,
+					},
+				],
+			},
+			select: { id: true },
 		});
 
-		if (leave.id)
-			await addObjectPermissions({
-				model: 'leaves',
-				objectId: leave.id,
-				users: [req.user.id],
-			});
+		await addObjectPermissions({
+			model: 'leaves',
+			objectId: leave.id,
+			users: [req.user.id],
+		});
+
+		// add the admin officers for the user to edit and view
+		await updateObjectPermissions({
+			model: 'leaves',
+			permissions: ['VIEW', 'EDIT'],
+			objectId: leave.id,
+			users: officers.map((officer) => officer.id),
+		});
 
 		return res.status(201).json({
 			status: 'success',
