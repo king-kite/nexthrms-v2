@@ -153,6 +153,7 @@ const Detail = ({
 			},
 		});
 	const { deleteLeave } = useDeleteLeaveMutation({
+		admin,
 		onSuccess() {
 			router.back();
 		},

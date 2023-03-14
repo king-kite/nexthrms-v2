@@ -226,6 +226,7 @@ export function useRequestLeaveUpdateMutation(
 // delete leave
 export function useDeleteLeaveMutation(
 	options?: {
+		admin?: boolean;
 		onSuccess?: () => void;
 		onError?: (err: { message: string }) => void;
 	},
@@ -243,7 +244,7 @@ export function useDeleteLeaveMutation(
 	const { mutate, ...mutation } = useMutation(
 		(id: string) =>
 			axiosInstance
-				.delete(LEAVE_URL(id))
+				.delete(options?.admin ? LEAVE_ADMIN_URL(id) : LEAVE_URL(id))
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess() {
