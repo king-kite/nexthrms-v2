@@ -35,6 +35,7 @@ import {
 	getNextDate,
 	getNoOfDays,
 	hasModelPermission,
+	serializeLeave,
 } from '../../utils';
 
 type ErrorType = CreateLeaveErrorResponseType & {
@@ -64,7 +65,13 @@ const Detail = ({
 
 	const { open } = useAlertContext();
 
-	const { data, error, isFetching, isLoading, refetch } = useGetLeaveQuery(
+	const {
+		data: leaveData,
+		error,
+		isFetching,
+		isLoading,
+		refetch,
+	} = useGetLeaveQuery(
 		{ id, admin },
 		{
 			initialData() {
@@ -72,6 +79,12 @@ const Detail = ({
 			},
 		}
 	);
+
+	const data = useMemo(() => {
+		if (leaveData) return serializeLeave(leaveData);
+		return undefined;
+	}, [leaveData]);
+
 	// Get user's object level permissions for the users table
 	const { data: objPermData, refetch: objPermRefetch } =
 		useGetUserObjectPermissionsQuery(
@@ -220,9 +233,11 @@ const Detail = ({
 			// If the leave start date is today or next date i.e the current date or days after today
 			//  and it is still pending then it can be approved/denied and also updated and deleted.
 			// Means that the leave has yet to commence.
+			// If the user is a superuser, then bypass the restriction
 			if (
-				currentDate.getTime() <= startDate.getTime() &&
-				data.status === 'PENDING'
+				authData?.isSuperUser ||
+				(currentDate.getTime() <= startDate.getTime() &&
+					data.status === 'PENDING')
 			) {
 				if (canEdit)
 					buttons.push({
@@ -278,6 +293,7 @@ const Detail = ({
 		admin,
 		appLoading,
 		approveLeave,
+		authData,
 		canDelete,
 		canEdit,
 		canViewPermissions,
@@ -356,12 +372,12 @@ const Detail = ({
 												? 'success'
 												: data.status === 'DENIED'
 												? 'error'
-												: data.status === 'PENDING'
-												? 'warning'
-												: 'info',
+												: data.expired
+												? 'info'
+												: 'warning',
 									},
 									title: 'Status',
-									value: data.status,
+									value: data.expired ? 'EXPIRED' : data.status,
 									type: 'badge',
 								},
 								{

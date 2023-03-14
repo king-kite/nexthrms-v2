@@ -112,6 +112,8 @@ export const getLeaves = async (
 	result: LeaveType[];
 }> => {
 	const query = getLeavesQuery({ ...params });
+	const currentDate = new Date();
+	currentDate.setHours(0, 0, 0, 0);
 
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.leave.count({ where: query.where }),
@@ -120,7 +122,16 @@ export const getLeaves = async (
 			where: { ...query.where, employeeId: params.id, status: 'APPROVED' },
 		}),
 		prisma.leave.count({
-			where: { ...query.where, employeeId: params.id, status: 'PENDING' },
+			where: {
+				...query.where,
+				employeeId: params.id,
+				status: 'PENDING',
+				// If the startDate is greater or equal to the current date
+				// then it's still pending else it's expired.
+				startDate: {
+					gte: currentDate,
+				},
+			},
 		}),
 		prisma.leave.count({
 			where: { ...query.where, employeeId: params.id, status: 'DENIED' },
@@ -245,11 +256,24 @@ export const getLeavesAdmin = async (
 }> => {
 	const query = getLeavesAdminQuery({ ...params });
 
+	const currentDate = new Date();
+	currentDate.setHours(0, 0, 0, 0);
+
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.leave.count({ where: query.where }),
 		prisma.leave.findMany(query),
 		prisma.leave.count({ where: { ...query.where, status: 'APPROVED' } }),
-		prisma.leave.count({ where: { ...query.where, status: 'PENDING' } }),
+		prisma.leave.count({
+			where: {
+				...query.where,
+				status: 'PENDING',
+				// If the startDate is greater or equal to the current date
+				// then it's still pending else it's expired.
+				startDate: {
+					gte: currentDate,
+				},
+			},
+		}),
 		prisma.leave.count({ where: { ...query.where, status: 'DENIED' } }),
 	]);
 

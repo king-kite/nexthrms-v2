@@ -5,7 +5,7 @@ import { FaEye } from 'react-icons/fa';
 
 import { LEAVE_DETAIL_PAGE_URL } from '../../config/routes';
 import { LeaveType } from '../../types';
-import { getDate, getNextDate, getNoOfDays } from '../../utils';
+import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'type' },
@@ -19,46 +19,49 @@ const heads: TableHeadType = [
 ];
 
 const getRows = (data: LeaveType[]): TableRowType[] =>
-	data.map((leave) => ({
-		id: leave.id,
-		rows: [
-			{
-				link: LEAVE_DETAIL_PAGE_URL(leave.id),
-				value: leave.type,
-			},
-			{ value: getDate(leave.startDate, true) },
-			{ value: getDate(leave.endDate, true) },
-			{ value: getNextDate(leave.endDate, 1, true) },
-			{ value: getNoOfDays(leave.startDate, leave.endDate) },
-			{
-				options: {
-					bg:
-						leave.status === 'APPROVED'
-							? 'success'
-							: leave.status === 'DENIED'
-							? 'error'
-							: // : leave.status === 'EXPIRED'
-							  // ? 'info'
-							  'warning',
+	data.map((lve) => {
+		const leave = serializeLeave(lve);
+		return {
+			id: leave.id,
+			rows: [
+				{
+					link: LEAVE_DETAIL_PAGE_URL(leave.id),
+					value: leave.type,
 				},
-				type: 'badge',
-				value: leave.status,
-			},
-			{
-				value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
-			},
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaEye,
-						link: LEAVE_DETAIL_PAGE_URL(leave.id),
+				{ value: getDate(leave.startDate, true) },
+				{ value: getDate(leave.endDate, true) },
+				{ value: getNextDate(leave.endDate, 1, true) },
+				{ value: getNoOfDays(leave.startDate, leave.endDate) },
+				{
+					options: {
+						bg:
+							leave.status === 'APPROVED'
+								? 'success'
+								: leave.status === 'DENIED'
+								? 'error'
+								: leave.expired
+								? 'info'
+								: 'warning',
 					},
-				],
-			},
-		],
-	}));
+					type: 'badge',
+					value: leave.expired ? 'EXPIRED' : leave.status,
+				},
+				{
+					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
+				},
+				{
+					type: 'actions',
+					value: [
+						{
+							color: 'primary',
+							icon: FaEye,
+							link: LEAVE_DETAIL_PAGE_URL(leave.id),
+						},
+					],
+				},
+			],
+		};
+	});
 
 type TableType = {
 	leaves: LeaveType[];
