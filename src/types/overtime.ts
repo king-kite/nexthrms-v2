@@ -25,7 +25,7 @@ export type OvertimeType = {
 	hours: number;
 	reason: string;
 	type: 'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY';
-	status: 'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING';
+	status: 'APPROVED' | 'DENIED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;

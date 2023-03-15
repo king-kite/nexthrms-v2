@@ -361,12 +361,15 @@ const Detail = ({
 												? 'success'
 												: data.status === 'DENIED'
 												? 'error'
-												: data.status === 'PENDING'
-												? 'warning'
-												: 'info',
+												: data.expired
+												? 'info'
+												: 'warning',
 									},
 									title: 'Status',
-									value: data.status,
+									value:
+										data.status === 'PENDING' && data.expired
+											? 'EXPIRED'
+											: data.status,
 									type: 'badge',
 								},
 								{

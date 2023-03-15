@@ -77,7 +77,7 @@ export const OvertimeModel = {
 		},
 		status: {
 			type: 'string',
-			format: "'APPROVED' | 'DENIED' | 'EXPIRED' | 'PENDING'",
+			format: "'APPROVED' | 'DENIED' | 'PENDING'",
 		},
 		updatedAt: {
 			type: 'string',
