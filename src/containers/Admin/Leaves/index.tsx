@@ -53,7 +53,10 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			: false;
 		const canView = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.leave.VIEW])
+			  hasModelPermission(authData.permissions, [permissions.leave.VIEW]) ||
+			  !!authData.objPermissions.find(
+					(perm) => perm.modelName === 'leaves' && perm.permission === 'VIEW'
+			  )
 			: false;
 		return [canCreate, canExport, canView];
 	}, [authData]);
