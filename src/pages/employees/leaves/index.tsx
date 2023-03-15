@@ -80,7 +80,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	return {
 		props: {
 			auth,
-			leaves: undefined,
+			leaves: [],
 		},
 	};
 };

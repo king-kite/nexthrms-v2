@@ -11,10 +11,11 @@ import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
 	overtime,
+	objPerm
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Overtime Request Information" />
-		<Overtime overtime={overtime} />
+		<Overtime overtime={overtime} objPerm={objPerm} />
 	</>
 );
 
