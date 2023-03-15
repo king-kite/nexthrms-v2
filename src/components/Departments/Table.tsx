@@ -28,7 +28,7 @@ import { DepartmentType } from '../../types/departments';
 const getRows = (
 	data: DepartmentType[],
 	disableAction: boolean,
-	canViewPermissions,
+	canViewPermissions: boolean,
 	updateDep?: (data: { id: string; name: string; hod: string | null }) => void,
 	deleteDep?: (id: string) => void
 ): TableRowType[] =>
