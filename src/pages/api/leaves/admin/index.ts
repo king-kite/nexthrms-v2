@@ -9,7 +9,7 @@ import {
 	getRecords,
 	updateObjectPermissions,
 } from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
+import { admin, employee } from '../../../../middlewares';
 import {
 	CreateLeaveQueryType,
 	GetLeavesResponseType,
@@ -42,14 +42,8 @@ export default admin()
 
 		throw new NextApiErrorMessage(403);
 	})
+	.use(employee)
 	.post(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Sorry, this request is reserved for employees only.',
-			});
-		}
-
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
@@ -66,9 +60,6 @@ export default admin()
 				message: 'Employee ID is required',
 			});
 		}
-
-		// TODO: Check if the user has an approved/pending leave
-		// Doesn't really matter now
 
 		const startDate = new Date(data.startDate);
 		startDate.setHours(0, 0, 0, 0);
@@ -88,7 +79,7 @@ export default admin()
 				},
 				createdBy: {
 					connect: {
-						id: req.user.employee.id,
+						id: req.user.employee?.id,
 					},
 				},
 			},

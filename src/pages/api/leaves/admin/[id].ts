@@ -5,7 +5,7 @@ import {
 	leaveSelectQuery as selectQuery,
 } from '../../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
+import { admin, employee } from '../../../../middlewares';
 import { CreateLeaveQueryType, LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
@@ -38,14 +38,8 @@ export default admin()
 			data: record.data,
 		});
 	})
+	.use(employee)
 	.post(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: '403',
-				message: 'Sorry, this request is reserved for employees only.',
-			});
-		}
-
 		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.EDIT]);
@@ -99,7 +93,7 @@ export default admin()
 					status: approval,
 					approvedBy: {
 						connect: {
-							id: req.user.employee.id,
+							id: req.user.employee?.id,
 						},
 					},
 				},
@@ -114,7 +108,7 @@ export default admin()
 				data: updated,
 			});
 		}
-		// 	startDate.getTime() >= currentDate.getTime() &&
+		// 	startDate.getTime() > currentDate.getTime() &&
 		// 	(data.status === 'APPROVED') || data.status === 'DENIED'
 		// ) {
 		// 	// Meaning that the start date for leave is either today or has passed
@@ -129,13 +123,6 @@ export default admin()
 		});
 	})
 	.put(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: '403',
-				message: 'Sorry, this request is reserved for employees only.',
-			});
-		}
-
 		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.EDIT]);
@@ -232,13 +219,6 @@ export default admin()
 		});
 	})
 	.delete(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: '403',
-				message: 'Sorry, this request is reserved for employees only.',
-			});
-		}
-
 		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.DELETE]);
