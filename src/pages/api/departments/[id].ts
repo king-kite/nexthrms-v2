@@ -7,10 +7,10 @@ import {
 	departmentSelectQuery as selectQuery,
 } from '../../../db';
 import {
-	addObjectPermissions,
 	getRecord,
 	getUserObjectPermissions,
 	removeObjectPermissions,
+	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { DepartmentType } from '../../../types';
@@ -104,7 +104,7 @@ export default admin()
 					objectId: department.id,
 					users: [department.hod.user.id],
 				}),
-				addObjectPermissions({
+				updateObjectPermissions({
 					model: 'departments',
 					objectId: updated.id,
 					users: [updated.hod.user.id],
