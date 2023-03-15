@@ -1,18 +1,41 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../config';
 import { getDepartments } from '../../../db';
-import { auth } from '../../../middlewares';
-import { DepartmentType } from '../../../types';
-import { validateParams } from '../../../validators';
+import { getRecords } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [
+			permissions.department.EXPORT,
+		]);
 
-	const data = await getDepartments({ ...params });
+	if (!hasPerm) throw new NextApiErrorMessage(403);
 
-	const departments = data.result.map((dep) => {
-		const department = dep as DepartmentType;
+	const placeholder = {
+		total: 0,
+		result: [],
+	};
+
+	const result = await getRecords({
+		model: 'departments',
+		perm: 'department',
+		user: req.user,
+		query: req.query,
+		placeholder,
+		getData(params) {
+			return getDepartments(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+
+	const departments = data.result.map((department) => {
 		return {
 			id: department.id,
 			name: department.name,
