@@ -1,37 +1,56 @@
+import { permissions } from '../../../../config';
 import {
 	getAllOvertimeAdmin,
 	prisma,
 	overtimeSelectQuery as selectQuery,
 } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { overtimeCreateSchema, validateParams } from '../../../../validators';
-import { CreateOvertimeQueryType } from '../../../../types';
+import {
+	addObjectPermissions,
+	getRecords,
+	updateObjectPermissions,
+} from '../../../../db/utils';
+import { admin, employee } from '../../../../middlewares';
+import {
+	CreateOvertimeQueryType,
+	GetAllOvertimeResponseType,
+	OvertimeType,
+} from '../../../../types';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
+import { overtimeCreateSchema } from '../../../../validators';
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can request overtime',
-			});
-		}
-
-		const params = validateParams(req.query);
-		const overtime = await getAllOvertimeAdmin({ ...params });
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched overtime successfully',
-			data: overtime,
+		const result = await getRecords<GetAllOvertimeResponseType['data']>({
+			model: 'overtime',
+			perm: 'overtime',
+			query: req.query,
+			user: req.user,
+			placeholder: {
+				total: 0,
+				approved: 0,
+				denied: 0,
+				pending: 0,
+				result: [],
+			},
+			getData(params) {
+				return getAllOvertimeAdmin(params);
+			},
 		});
+
+		if (result) return res.status(200).json(result);
+
+		throw new NextApiErrorMessage(403);
 	})
+	.use(employee)
 	.post(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can request overtime',
-			});
-		}
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.overtime.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const data: CreateOvertimeQueryType =
 			await overtimeCreateSchema.validateAsync({
@@ -45,8 +64,6 @@ export default auth()
 			});
 		}
 
-		// TODO: Check if the user has an approved/pending leave
-
 		const date = new Date(data.date);
 		date.setHours(0, 0, 0, 0);
 
@@ -58,13 +75,18 @@ export default auth()
 			select: { id: true },
 		});
 
-		const overtime = await prisma.overtime.create({
+		const overtime = (await prisma.overtime.create({
 			data: {
 				...data,
 				date,
 				employee: {
 					connect: {
 						id: data.employee,
+					},
+				},
+				createdBy: {
+					connect: {
+						id: req.user.employee?.id,
 					},
 				},
 				attendance: attendance
@@ -76,6 +98,55 @@ export default auth()
 					: {},
 			},
 			select: selectQuery,
+		})) as unknown as OvertimeType;
+
+		// Get the employees admin related officers
+		const officers = await prisma.user.findMany({
+			where: {
+				isActive: true,
+				OR: [
+					// Super users
+					{
+						isSuperUser: true,
+					},
+					// Get the employee's supervisors
+					{
+						isAdmin: true,
+						employee: {
+							supervisedEmployees: {
+								some: {
+									id: { in: [overtime.employee.id] },
+								},
+							},
+						},
+					},
+					// Get the employee's department HOD
+					{
+						isAdmin: true,
+						employee: overtime.employee.department
+							? {
+									hod: {
+										name: overtime.employee.department.name,
+									},
+							  }
+							: undefined,
+					},
+				],
+			},
+			select: { id: true },
+		});
+
+		await addObjectPermissions({
+			model: 'overtime',
+			objectId: overtime.id,
+			users: [req.user.id, overtime.employee.user.id],
+		});
+		// add the admin officers for the user to edit and view
+		await updateObjectPermissions({
+			model: 'overtime',
+			permissions: ['VIEW', 'EDIT'],
+			objectId: overtime.id,
+			users: officers.map((officer) => officer.id),
 		});
 
 		return res.status(201).json({
