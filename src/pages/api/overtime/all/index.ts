@@ -106,7 +106,7 @@ export default employee()
 						isAdmin: true,
 						employee: {
 							supervisedEmployees: {
-								some: {
+								every: {
 									id: { in: [overtime.employee.id] },
 								},
 							},
