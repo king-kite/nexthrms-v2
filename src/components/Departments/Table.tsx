@@ -36,7 +36,8 @@ const getRows = (
 			color: string;
 			disabled: boolean;
 			icon: IconType;
-			onClick: () => void;
+			link?: string;
+			onClick?: () => void;
 		}[] = [];
 		if (updateDep)
 			actions.push({
@@ -62,7 +63,7 @@ const getRows = (
 		const canViewPermission = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [
-					permission.permissionobject.VIEW,
+					permissions.permissionobject.VIEW,
 			  ])
 			: false;
 
