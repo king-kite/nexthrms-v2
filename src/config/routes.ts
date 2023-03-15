@@ -53,7 +53,7 @@ export const EMPLOYEES_PAGE_URL = '/employees/all/';
 export const EMPLOYEE_PAGE_URL = (slug: string) => `/employees/all/${slug}/`;
 export const EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/employees/all/${slug}/employees/object-permissions/`;
-export const HOLIDAYS_PAGE_URL = `/employees/holidays/`;
+export const HOLIDAYS_PAGE_URL = `/employees/holiday/`;
 export const HOLIDAY_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/employees/holiday/${slug}/holiday/object-permissions/`;
 
