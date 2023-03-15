@@ -6,9 +6,13 @@ import {
 	FaExclamationCircle,
 	FaPen,
 	FaTrash,
+	FaUserShield,
 } from 'react-icons/fa';
 
-import { permissions } from '../../config';
+import {
+	permissions,
+	DEPARTMENT_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../config';
 import {
 	useAlertContext,
 	useAlertModalContext,
@@ -52,6 +56,21 @@ const getRows = (
 				disabled: disableAction,
 				icon: FaTrash,
 				onClick: () => deleteDep(department.id),
+			});
+		const { data: authData } = useAuthContext();
+
+		const canViewPermission = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [
+					permission.permissionobject.VIEW,
+			  ])
+			: false;
+
+		if (canViewPermission)
+			actions.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: DEPARTMENT_OBJECT_PERMISSIONS_PAGE_URL(department.id),
 			});
 
 		return {
