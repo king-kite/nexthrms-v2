@@ -28,6 +28,7 @@ import { DepartmentType } from '../../types/departments';
 const getRows = (
 	data: DepartmentType[],
 	disableAction: boolean,
+	canViewPermissions,
 	updateDep?: (data: { id: string; name: string; hod: string | null }) => void,
 	deleteDep?: (id: string) => void
 ): TableRowType[] =>
@@ -58,16 +59,8 @@ const getRows = (
 				icon: FaTrash,
 				onClick: () => deleteDep(department.id),
 			});
-		const { data: authData } = useAuthContext();
 
-		const canViewPermission = authData
-			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-			  ])
-			: false;
-
-		if (canViewPermission)
+		if (canViewPermissions)
 			actions.push({
 				color: 'info',
 				icon: FaUserShield,
@@ -115,12 +108,17 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 		showLoader,
 	} = useAlertModalContext();
 
-	const [canDelete] = React.useMemo(() => {
-		if (!authData) return [false];
+	const [canDelete, canViewPermissions] = React.useMemo(() => {
+		if (!authData) return [false, false];
 		const canDelete =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.department.DELETE]);
-		return [canDelete];
+		const canViewPermission =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.permissionobject.VIEW,
+			]);
+		return [canDelete, canViewPermission];
 	}, [authData]);
 
 	const { mutate: deleteDepartment, isLoading: depLoading } =
@@ -243,11 +241,19 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 			getRows(
 				departments,
 				depLoading,
+				canViewPermissions,
 				updateDep,
 				canDelete ? handleDelete : undefined
 			)
 		);
-	}, [departments, updateDep, handleDelete, canDelete, depLoading]);
+	}, [
+		departments,
+		updateDep,
+		canViewPermissions,
+		handleDelete,
+		canDelete,
+		depLoading,
+	]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
