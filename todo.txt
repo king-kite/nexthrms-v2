@@ -12,3 +12,4 @@
 11. Date fields on forms are not inserting default values in production.
 12. rediect after logout and login doesn;t work well on dynamic path.
 13. [id] should return 404 not 500 is not a uuid
+14. Create employee/client using the userID
