@@ -92,7 +92,7 @@ export default admin()
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [
-				permissions.department.CREATE,
+				permissions.department.DELETE,
 			]);
 
 		const valid: { values: string[] } =
