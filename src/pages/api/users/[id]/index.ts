@@ -158,11 +158,6 @@ export default admin()
 							id: valid.employee.job,
 						},
 					},
-					supervisors: valid.employee.supervisors
-						? {
-								set: valid.employee.supervisors.map((id) => ({ id })),
-						  }
-						: undefined,
 			  }
 			: {};
 
@@ -176,8 +171,22 @@ export default admin()
 			employee: valid.employee
 				? {
 						upsert: {
-							create: employee,
-							update: employee,
+							create: {
+								...employee,
+								supervisors: valid.employee.supervisors
+									? {
+											connect: valid.employee.supervisors.map((id) => ({ id })),
+									  }
+									: undefined,
+							},
+							update: {
+								...employee,
+								supervisors: valid.employee.supervisors
+									? {
+											set: valid.employee.supervisors.map((id) => ({ id })),
+									  }
+									: undefined,
+							},
 						},
 				  }
 				: {},
