@@ -1,9 +1,9 @@
-import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import { LOGIN_PAGE_URL } from '../../../config';
+import type { InferGetServerSidePropsType } from 'next';
 
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Departments from '../../../containers/Departments';
 import { getDepartments } from '../../../db';
+import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
@@ -13,10 +13,10 @@ function Page({
 	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
-		<React.Fragment>
+		<>
 			<Title title="Departments" />
 			<Departments departments={data} />
-		</React.Fragment>
+		</>
 	);
 }
 
@@ -41,12 +41,46 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const data = await getDepartments();
+
+	if (!req.user.isSuperUser && !req.user.isAdmin) {
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+	}
+
+	const result = await getRecords({
+		model: 'departments',
+		perm: 'department',
+		placeholder: {
+			total: 0,
+			result: [],
+		},
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		user: req.user,
+		getData(params) {
+			return getDepartments(params);
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				data: result.data,
+			},
+		};
 
 	return {
 		props: {
 			auth,
-			data: JSON.parse(JSON.stringify(data)),
+			errorPage: { statusCode: 403 },
 		},
 	};
 };
