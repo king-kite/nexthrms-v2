@@ -1,4 +1,4 @@
-import { Department, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { DepartmentType, ParamsType } from '../../types';
@@ -11,6 +11,7 @@ export const departmentSelectQuery: Prisma.DepartmentSelect = {
 			id: true,
 			user: {
 				select: {
+					id: true,
 					firstName: true,
 					lastName: true,
 					email: true,
@@ -42,8 +43,11 @@ export const getDepartmentsQuery = ({
 	limit,
 	search = undefined,
 	from,
-	to
-}: ParamsType): Prisma.DepartmentFindManyArgs => {
+	to,
+	where = {},
+}: ParamsType & {
+	where?: Prisma.DepartmentWhereInput;
+}): Prisma.DepartmentFindManyArgs => {
 	const query: Prisma.DepartmentFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -54,8 +58,9 @@ export const getDepartmentsQuery = ({
 						contains: search,
 						mode: 'insensitive',
 					},
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (from && to && query.where) {
@@ -69,9 +74,11 @@ export const getDepartmentsQuery = ({
 };
 
 export const getDepartments = async (
-	params?: ParamsType
-): Promise<{ total: number; result: Department[] | DepartmentType[] }> => {
-	const query = getDepartmentsQuery({...params});
+	params?: ParamsType & {
+		where?: Prisma.DepartmentWhereInput;
+	}
+): Promise<{ total: number; result: DepartmentType[] }> => {
+	const query = getDepartmentsQuery({ ...params });
 	const [total, result] = await prisma.$transaction([
 		prisma.department.count({ where: query.where }),
 		prisma.department.findMany({
@@ -81,5 +88,13 @@ export const getDepartments = async (
 			},
 		}),
 	]);
-	return { total, result };
+	return { total, result: result as unknown as DepartmentType[] };
 };
+
+export async function getDepartment(id: string) {
+	const result = await prisma.department.findUnique({
+		where: { id },
+		select: departmentSelectQuery,
+	});
+	return result as unknown as DepartmentType;
+}
