@@ -5,7 +5,7 @@ import { FaEye } from 'react-icons/fa';
 
 import { OVERTIME_DETAIL_PAGE_URL } from '../../config/routes';
 import { OvertimeType } from '../../types';
-import { getDate } from '../../utils';
+import { getDate, serializeOvertime } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'type' },
@@ -17,44 +17,48 @@ const heads: TableHeadType = [
 ];
 
 const getRows = (data: OvertimeType[]): TableRowType[] =>
-	data.map((item) => ({
-		id: item.id,
-		rows: [
-			{
-				link: OVERTIME_DETAIL_PAGE_URL(item.id),
-				value: item.type,
-			},
-			{ value: getDate(item.date, true) },
-			{ value: item.hours },
-			{
-				options: {
-					bg:
-						item.status === 'APPROVED'
-							? 'success'
-							: item.status === 'DENIED'
-							? 'error'
-							: item.status === 'EXPIRED'
-							? 'info'
-							: 'warning',
+	data.map((overtime) => {
+		const item = serializeOvertime(overtime);
+		return {
+			id: item.id,
+			rows: [
+				{
+					link: OVERTIME_DETAIL_PAGE_URL(item.id),
+					value: item.type,
 				},
-				type: 'badge',
-				value: item.status,
-			},
-			{
-				value: item.updatedAt ? getDate(item.updatedAt, true) : '---',
-			},
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaEye,
-						link: OVERTIME_DETAIL_PAGE_URL(item.id),
+				{ value: getDate(item.date, true) },
+				{ value: item.hours },
+				{
+					options: {
+						bg:
+							item.status === 'APPROVED'
+								? 'success'
+								: item.status === 'DENIED'
+								? 'error'
+								: item.expired
+								? 'info'
+								: 'warning',
 					},
-				],
-			},
-		],
-	}));
+					type: 'badge',
+					value:
+						item.status === 'PENDING' && item.expired ? 'EXPIRED' : item.status,
+				},
+				{
+					value: item.updatedAt ? getDate(item.updatedAt, true) : '---',
+				},
+				{
+					type: 'actions',
+					value: [
+						{
+							color: 'primary',
+							icon: FaEye,
+							link: OVERTIME_DETAIL_PAGE_URL(item.id),
+						},
+					],
+				},
+			],
+		};
+	});
 
 type TableType = {
 	overtime: OvertimeType[];

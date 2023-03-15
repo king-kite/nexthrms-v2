@@ -1,34 +1,23 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
-import { ParsedUrlQuery } from 'querystring';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Overtime from '../../../containers/Overtime/Detail';
 import { getOvertime } from '../../../db';
+import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps, OvertimeType } from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
-	error,
 	overtime,
+	objPerm
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
-		{error ? (
-			<Error title={error.title} statusCode={error.statusCode} />
-		) : (
-			<>
-				<Title title="Overtime Request Information" />
-				<Overtime overtime={overtime} />
-			</>
-		)}
+		<Title title="Overtime Request Information" />
+		<Overtime overtime={overtime} objPerm={objPerm} />
 	</>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	params,
@@ -50,28 +39,43 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	const auth = await serializeUserData(req.user);
 	if (!req.user.employee) {
 		return {
 			props: {
-				error: {
+				auth,
+				errorPage: {
 					statusCode: 403,
-					title: 'Only employees can view this page',
+					title: 'Forbidden. This page is reserved for employees only.',
 				},
 			},
 		};
 	}
 
-	const { id } = params as IParams;
+	// check if the user has a view object permission for this record
+	const objPerm = await getUserObjectPermissions({
+		modelName: 'overtime',
+		objectId: params?.id as string,
+		userId: req.user.id,
+	});
+	if (objPerm.view === true) {
+		const overtime = JSON.parse(
+			JSON.stringify(await getOvertime(params?.id as string))
+		);
 
-	const auth = await serializeUserData(req.user);
-	const overtime: OvertimeType = JSON.parse(
-		JSON.stringify(await getOvertime(id))
-	);
+		return {
+			props: {
+				auth,
+				objPerm,
+				overtime,
+			},
+		};
+	}
 
 	return {
 		props: {
 			auth,
-			overtime,
+			errorPage: { statusCode: 403 },
 		},
 	};
 };

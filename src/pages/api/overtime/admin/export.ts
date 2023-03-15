@@ -1,18 +1,43 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../../config';
 import { getAllOvertimeAdmin } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { OvertimeType } from '../../../../types';
-import { validateParams } from '../../../../validators';
+import { getRecords } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
+import { GetAllOvertimeResponseType } from '../../../../types';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.overtime.EXPORT]);
 
-	const data = await getAllOvertimeAdmin({ ...params });
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	const overtime = data.result.map((ove) => {
-		const overtime = ove as OvertimeType;
+	const placeholder: GetAllOvertimeResponseType['data'] = {
+		approved: 0,
+		denied: 0,
+		pending: 0,
+		result: [],
+		total: 0,
+	};
+
+	const result = await getRecords<GetAllOvertimeResponseType['data']>({
+		model: 'overtime',
+		perm: 'overtime',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getAllOvertimeAdmin(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+
+	const overtime = data.result.map((overtime) => {
 		return {
 			id: overtime.id,
 			employee_id: overtime.employee.id,

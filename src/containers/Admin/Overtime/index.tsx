@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../../components/common';
 import {
@@ -8,10 +8,11 @@ import {
 	OvertimeAdminTable,
 } from '../../../components/Overtime';
 import {
+	permissions,
 	DEFAULT_PAGINATION_SIZE,
 	OVERTIME_ADMIN_EXPORT_URL,
 } from '../../../config';
-import { useAlertContext } from '../../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetAllOvertimeAdminQuery,
 	useCreateOvertimeMutation,
@@ -21,7 +22,7 @@ import {
 	CreateOvertimeErrorResponseType,
 	GetAllOvertimeResponseType,
 } from '../../../types';
-import { downloadFile } from '../../../utils';
+import { downloadFile, hasModelPermission } from '../../../utils';
 
 const Overtime = ({
 	overtime,
@@ -40,6 +41,29 @@ const Overtime = ({
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = useMemo(() => {
+		if (!authData?.isAdmin && !authData?.isSuperUser)
+			return [false, false, false];
+
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.overtime.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.overtime.EXPORT])
+			: false;
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.overtime.VIEW]) ||
+			  !!authData.objPermissions.find(
+					(perm) => perm.modelName === 'overtime' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetAllOvertimeAdminQuery(
 		{
@@ -48,6 +72,12 @@ const Overtime = ({
 			search,
 			from: dateQuery?.from || undefined,
 			to: dateQuery?.to || undefined,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -84,9 +114,9 @@ const Overtime = ({
 					...prevState,
 					employee: 'Employee ID is required',
 				}));
-			} else createOvertime(form);
+			} else if (canCreate) createOvertime(form);
 		},
-		[createOvertime]
+		[canCreate, createOvertime]
 	);
 
 	return (
@@ -97,8 +127,9 @@ const Overtime = ({
 				onClick: refetch,
 			}}
 			loading={isLoading}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -108,11 +139,13 @@ const Overtime = ({
 					: undefined
 			}
 		>
-			<Cards
-				approved={data?.approved || 0}
-				denied={data?.denied || 0}
-				pending={data?.pending || 0}
-			/>
+			{(canCreate || canView) && (
+				<Cards
+					approved={data?.approved || 0}
+					denied={data?.denied || 0}
+					pending={data?.pending || 0}
+				/>
+			)}
 			<Topbar
 				adminView
 				loading={isFetching}
@@ -121,6 +154,7 @@ const Overtime = ({
 				searchSubmit={(value) => setSearch(value)}
 				openModal={() => setModalVisible(true)}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = OVERTIME_ADMIN_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -146,23 +180,27 @@ const Overtime = ({
 				}}
 				exportLoading={exportLoading}
 			/>
-			<OvertimeAdminTable overtime={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						adminView
-						errors={errors}
-						loading={createLoading}
-						success={isSuccess}
-						onSubmit={handleSubmit}
-					/>
-				}
-				description="Fill in the form below to create a overtime"
-				keepVisible
-				title="Create Overtime"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && (
+				<OvertimeAdminTable overtime={data?.result || []} />
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							adminView
+							errors={errors}
+							loading={createLoading}
+							success={isSuccess}
+							onSubmit={handleSubmit}
+						/>
+					}
+					description="Fill in the form below to create a overtime"
+					keepVisible
+					title="Create Overtime"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

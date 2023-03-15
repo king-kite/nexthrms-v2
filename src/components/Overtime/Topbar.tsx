@@ -1,9 +1,12 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useRef } from 'react';
+import React from 'react';
 import { FaCloudDownloadAlt, FaPlus, FaSearch } from 'react-icons/fa';
 
 import FilterDropdownForm from './FilterDropdownForm';
 import { ExportForm } from '../common';
+import { permissions } from '../../config';
+import { useAuthContext } from '../../store/contexts';
+import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	adminView: boolean;
@@ -20,7 +23,7 @@ type TopbarProps = {
 	exportLoading?: boolean;
 };
 
-const Topbar: FC<TopbarProps> = ({
+const Topbar: React.FC<TopbarProps> = ({
 	adminView,
 	loading,
 	openModal,
@@ -29,58 +32,77 @@ const Topbar: FC<TopbarProps> = ({
 	searchSubmit,
 	exportData,
 	exportLoading,
-}) => (
-	<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
-		{adminView && searchSubmit && (
-			<>
-				<Form onSubmit={searchSubmit} loading={loading} />
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
-					<ButtonDropdown
-						component={() => (
-							<ExportForm
-								onSubmit={exportData ? exportData : undefined}
-								loading={exportLoading}
+}) => {
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport] = React.useMemo(() => {
+		if (!authData) return [false, false];
+		const canCreate =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.overtime.CREATE]);
+		const canExport =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.overtime.EXPORT]);
+		return [canCreate, canExport];
+	}, [authData]);
+
+	return (
+		<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
+			{adminView && searchSubmit && (
+				<>
+					<Form onSubmit={searchSubmit} loading={loading} />
+					{canExport && (
+						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
+							<ButtonDropdown
+								component={() => (
+									<ExportForm
+										onSubmit={exportData ? exportData : undefined}
+										loading={exportLoading}
+									/>
+								)}
+								props={{
+									caps: true,
+									iconLeft: FaCloudDownloadAlt,
+									margin: 'lg:mr-6',
+									padding: 'px-3 py-2 md:px-6',
+									rounded: 'rounded-xl',
+									title: 'export',
+								}}
 							/>
-						)}
-						props={{
-							caps: true,
-							iconLeft: FaCloudDownloadAlt,
-							margin: 'lg:mr-6',
-							padding: 'px-3 py-2 md:px-6',
-							rounded: 'rounded-xl',
-							title: 'export',
-						}}
+						</div>
+					)}
+				</>
+			)}
+			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+				<ButtonDropdown
+					component={() => (
+						<FilterDropdownForm
+							loading={loading}
+							form={dateForm}
+							setForm={setDateForm}
+						/>
+					)}
+					props={{
+						title: 'Filter by Date',
+					}}
+				/>
+			</div>
+			{canCreate && (
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
+					<Button
+						caps
+						iconLeft={FaPlus}
+						margin="lg:mr-6"
+						onClick={openModal}
+						padding="px-3 py-2 md:px-6"
+						rounded="rounded-xl"
+						title={adminView ? 'Add Overtime' : 'Request Overtime'}
 					/>
 				</div>
-			</>
-		)}
-		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
-			<ButtonDropdown
-				component={() => (
-					<FilterDropdownForm
-						loading={loading}
-						form={dateForm}
-						setForm={setDateForm}
-					/>
-				)}
-				props={{
-					title: 'Filter by Date',
-				}}
-			/>
+			)}
 		</div>
-		<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
-			<Button
-				caps
-				iconLeft={FaPlus}
-				margin="lg:mr-6"
-				onClick={openModal}
-				padding="px-3 py-2 md:px-6"
-				rounded="rounded-xl"
-				title={adminView ? 'Add Overtime' : 'Request Overtime'}
-			/>
-		</div>
-	</div>
-);
+	);
+};
 
 const Form = ({
 	loading,
@@ -89,7 +111,7 @@ const Form = ({
 	loading: boolean;
 	onSubmit: (search: string) => void;
 }) => {
-	const search = useRef<HTMLInputElement | null>(null);
+	const search = React.useRef<HTMLInputElement | null>(null);
 
 	return (
 		<form

@@ -45,7 +45,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				auth,
 				errorPage: {
 					statusCode: 403,
-					title: 'Request Forbidden. Only employees can view this Page!',
+					title: 'Forbidden. This page is reserved for employees only.',
 				},
 			},
 		};
@@ -80,7 +80,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	return {
 		props: {
 			auth,
-			leaves: undefined,
+			leaves: [],
 		},
 	};
 };

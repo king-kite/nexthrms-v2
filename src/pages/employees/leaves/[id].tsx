@@ -40,14 +40,13 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-
 	if (!req.user.employee) {
 		return {
 			props: {
 				auth,
 				errorPage: {
 					statusCode: 403,
-					title: 'Only employees can view this page',
+					title: 'Forbidden. This page is reserved for employees only.',
 				},
 			},
 		};

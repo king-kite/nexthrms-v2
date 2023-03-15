@@ -67,6 +67,8 @@ export const LEAVE_DETAIL_PAGE_URL = (slug: string) =>
 export const ADMIN_OVERTIME_PAGE_URL = '/employees/overtime/admin/';
 export const ADMIN_OVERTIME_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/overtime/admin/${slug}/`;
+export const ADMIN_OVERTIME_OBJECT_PERMISSION_PAGE_URL = (id: string) =>
+	`/employees/overtime/admin/${id}/overtime/object-permissions/`;
 export const OVERTIME_PAGE_URL = '/employees/overtime/';
 export const OVERTIME_DETAIL_PAGE_URL = (slug: string) =>
 	`/employees/overtime/${slug}/`;

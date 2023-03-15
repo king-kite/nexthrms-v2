@@ -1,4 +1,4 @@
-import { Overtime, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
 import { OvertimeType, ParamsType } from '../../types';
@@ -7,6 +7,7 @@ const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,
 	user: {
 		select: {
+			id: true,
 			firstName: true,
 			lastName: true,
 			email: true,
@@ -57,8 +58,10 @@ export const getAllOvertimeQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.OvertimeWhereInput;
 }): Prisma.OvertimeFindManyArgs => {
 	const query: Prisma.OvertimeFindManyArgs = {
 		skip: offset,
@@ -68,6 +71,7 @@ export const getAllOvertimeQuery = ({
 		},
 		where: {
 			employee: { id },
+			...where,
 		},
 		select: overtimeSelectQuery,
 	};
@@ -88,15 +92,19 @@ export const getAllOvertimeQuery = ({
 export const getAllOvertime = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.OvertimeWhereInput;
 	}
 ): Promise<{
 	approved: number;
 	pending: number;
 	denied: number;
 	total: number;
-	result: Overtime[] | OvertimeType[];
+	result: OvertimeType[];
 }> => {
-	const query = getAllOvertimeQuery({ ...params });
+	const query = getAllOvertimeQuery(params);
+
+	const currentDate = new Date();
+	currentDate.setHours(0, 0, 0, 0);
 
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
@@ -105,14 +113,27 @@ export const getAllOvertime = async (
 			where: { ...query.where, employeeId: params.id, status: 'APPROVED' },
 		}),
 		prisma.overtime.count({
-			where: { ...query.where, employeeId: params.id, status: 'PENDING' },
+			where: {
+				...query.where,
+				employeeId: params.id,
+				status: 'PENDING',
+				date: {
+					gte: currentDate,
+				},
+			},
 		}),
 		prisma.overtime.count({
 			where: { ...query.where, employeeId: params.id, status: 'DENIED' },
 		}),
 	]);
 
-	return { total, approved, pending, denied, result };
+	return {
+		total,
+		approved,
+		pending,
+		denied,
+		result: result as unknown as OvertimeType[],
+	};
 };
 
 export const getOvertime = async (id: string) => {
@@ -120,7 +141,7 @@ export const getOvertime = async (id: string) => {
 		where: { id },
 		select: overtimeSelectQuery,
 	});
-	return overtime;
+	return overtime as unknown as OvertimeType | null;
 };
 
 // ****** Personal Overtime Stop ******
@@ -134,7 +155,10 @@ export const getAllOvertimeAdminQuery = ({
 	search = '',
 	from,
 	to,
-}: ParamsType): Prisma.OvertimeFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.OvertimeWhereInput;
+}): Prisma.OvertimeFindManyArgs => {
 	const query: Prisma.OvertimeFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -187,8 +211,9 @@ export const getAllOvertimeAdminQuery = ({
 										},
 								  }
 								: undefined,
+						...where,
 				  }
-				: {},
+				: where,
 		select: overtimeSelectQuery,
 	};
 
@@ -196,7 +221,9 @@ export const getAllOvertimeAdminQuery = ({
 };
 
 export const getAllOvertimeAdmin = async (
-	params: ParamsType = {
+	params: ParamsType & {
+		where?: Prisma.OvertimeWhereInput;
+	} = {
 		search: '',
 	}
 ): Promise<{
@@ -204,19 +231,36 @@ export const getAllOvertimeAdmin = async (
 	pending: number;
 	denied: number;
 	total: number;
-	result: Overtime[] | OvertimeType[];
+	result: OvertimeType[];
 }> => {
 	const query = getAllOvertimeAdminQuery({ ...params });
+
+	const currentDate = new Date();
+	currentDate.setHours(0, 0, 0, 0);
 
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
 		prisma.overtime.findMany(query),
 		prisma.overtime.count({ where: { ...query.where, status: 'APPROVED' } }),
-		prisma.overtime.count({ where: { ...query.where, status: 'PENDING' } }),
+		prisma.overtime.count({
+			where: {
+				...query.where,
+				status: 'PENDING',
+				date: {
+					gte: currentDate,
+				},
+			},
+		}),
 		prisma.overtime.count({ where: { ...query.where, status: 'DENIED' } }),
 	]);
 
-	return { total, approved, pending, denied, result };
+	return {
+		total,
+		approved,
+		pending,
+		denied,
+		result: result as unknown as OvertimeType[],
+	};
 };
 
 // ****** Admin Overtime Stop ******

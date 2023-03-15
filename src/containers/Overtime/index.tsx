@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, Form, Topbar, OvertimeTable } from '../../components/Overtime';
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetAllOvertimeQuery,
 	useRequestOvertimeMutation,
@@ -13,6 +13,7 @@ import {
 	CreateOvertimeErrorResponseType,
 	GetAllOvertimeResponseType,
 } from '../../types';
+import { hasModelPermission } from '../../utils';
 
 const Overtime = ({
 	overtime,
@@ -29,6 +30,18 @@ const Overtime = ({
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.overtime.CREATE])
+			: false;
+		const canView = authData
+			? authData.isSuperUser || (authData.employee && true)
+			: false;
+		return [canCreate, canView];
+	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetAllOvertimeQuery(
 		{
@@ -36,6 +49,12 @@ const Overtime = ({
 			offset,
 			from: dateQuery?.from || undefined,
 			to: dateQuery?.to || undefined,
+			onError(error) {
+				open({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -66,10 +85,12 @@ const Overtime = ({
 
 	const handleSubmit = useCallback(
 		(form: CreateOvertimeQueryType) => {
-			setErrors(undefined);
-			requestOvertime(form);
+			if (canCreate) {
+				setErrors(undefined);
+				requestOvertime(form);
+			}
 		},
-		[requestOvertime]
+		[canCreate, requestOvertime]
 	);
 
 	return (
@@ -79,9 +100,10 @@ const Overtime = ({
 				loading: isFetching,
 				onClick: refetch,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -91,11 +113,13 @@ const Overtime = ({
 					: undefined
 			}
 		>
-			<Cards
-				approved={data?.approved || 0}
-				denied={data?.denied || 0}
-				pending={data?.pending || 0}
-			/>
+			{(canCreate || canView) && (
+				<Cards
+					approved={data?.approved || 0}
+					denied={data?.denied || 0}
+					pending={data?.pending || 0}
+				/>
+			)}
 			<Topbar
 				adminView={false}
 				loading={isFetching}
@@ -103,22 +127,26 @@ const Overtime = ({
 				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
-			<OvertimeTable overtime={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						errors={errors}
-						loading={createLoading}
-						success={isSuccess}
-						onSubmit={handleSubmit}
-					/>
-				}
-				description="Fill in the form below to request a overtime"
-				keepVisible
-				title="Request Overtime"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && (
+				<OvertimeTable overtime={data?.result || []} />
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							errors={errors}
+							loading={createLoading}
+							success={isSuccess}
+							onSubmit={handleSubmit}
+						/>
+					}
+					description="Fill in the form below to request a overtime"
+					keepVisible
+					title="Request Overtime"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

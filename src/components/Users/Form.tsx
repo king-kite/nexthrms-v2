@@ -5,11 +5,12 @@ import {
 	File,
 	Input,
 	Select,
+	Select2,
 	Textarea,
 } from 'kite-react-tailwind';
 import { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import {
 	useGetDepartmentsQuery,
@@ -56,14 +57,14 @@ const formStaleData: {
 	image: string;
 	department: string | undefined;
 	job: string | undefined;
-	supervisors: string[] | undefined;
+	supervisors: string[];
 } = {
 	isEmployee: false,
 	isClient: false,
 	image: '',
 	department: undefined,
 	job: undefined,
-	supervisors: undefined,
+	supervisors: [],
 };
 
 const Form: FC<FormProps> = ({
@@ -93,7 +94,8 @@ const Form: FC<FormProps> = ({
 				image: '',
 				department: initState.employee?.department?.id,
 				job: initState.employee?.job?.id,
-				supervisors: initState.employee?.supervisors.map((item) => item.id),
+				supervisors:
+					initState.employee?.supervisors.map((item) => item.id) || [],
 			});
 		} else setForm(formStaleData);
 	}, [initState]);
@@ -601,7 +603,14 @@ const Form: FC<FormProps> = ({
 							/>
 						</div>
 						<div className="w-full">
-							<Select
+							<Select2
+								bdrColor={
+									employeesError ||
+									formErrors?.supervisors ||
+									errors?.supervisors
+										? 'border-red-600'
+										: 'border-gray-300'
+								}
 								btn={{
 									caps: true,
 									disabled:
@@ -626,14 +635,78 @@ const Form: FC<FormProps> = ({
 										: 'load more',
 								}}
 								disabled={employees.isLoading || loading}
+								onSelect={({ value }) => {
+									// Check if the employee with this value as id is selected
+									const selected = form.supervisors.find(
+										(item) => item === value
+									);
+									if (selected) {
+										// Remove from selection
+										setForm((prevState) => ({
+											...prevState,
+											supervisors: prevState.supervisors.filter(
+												(item) => item !== value
+											),
+										}));
+									} else {
+										// Add to selection
+										setForm((prevState) => ({
+											...prevState,
+											supervisors: [...prevState.supervisors, value],
+										}));
+									}
+								}}
 								error={
 									employeesError ||
 									formErrors?.supervisors ||
 									errors?.supervisors
 								}
-								label="Supervisors"
-								name="supervisors"
+								options={
+									employees.data
+										? employees.data.result
+												.reduce(
+													(
+														total: {
+															title: string;
+															value: string;
+														}[],
+														employee
+													) => {
+														if (employee.user.isActive)
+															return [
+																...total,
+																{
+																	image:
+																		employee.user.profile?.image ||
+																		DEFAULT_IMAGE,
+																	title:
+																		employee.user.firstName +
+																		' ' +
+																		employee.user.lastName,
+																	value: employee.id,
+																},
+															];
+														return total;
+													},
+													[]
+												)
+												.sort((a, b) => {
+													const aName = a.title.toLowerCase();
+													const bName = b.title.toLowerCase();
+													return aName < bName ? -1 : aName > bName ? 1 : 0;
+												})
+										: []
+								}
 								multiple
+								value={form.supervisors}
+								required={false}
+								label="Supervisors"
+								placeholder="Select Supervisors"
+								shadow="shadow-lg"
+							/>
+							{/* <Select
+								
+								
 								onChange={({ target: { selectedOptions } }) => {
 									const selectValues = Array.from(
 										selectedOptions,
@@ -641,38 +714,8 @@ const Form: FC<FormProps> = ({
 									);
 									handleFormChange('supervisors', selectValues);
 								}}
-								value={form.supervisors}
-								placeholder="Select Supervisors"
-								options={
-									employees.data
-										? employees.data.result.reduce(
-												(
-													total: {
-														title: string;
-														value: string;
-													}[],
-													employee
-												) => {
-													if (employee.user.isActive)
-														return [
-															...total,
-															{
-																title: toCapitalize(
-																	employee.user.firstName +
-																		' ' +
-																		employee.user.lastName
-																),
-																value: employee.id,
-															},
-														];
-													return total;
-												},
-												[]
-										  )
-										: []
-								}
-								required={false}
-							/>
+								
+							/> */}
 						</div>
 						<div className="w-full">
 							<Input

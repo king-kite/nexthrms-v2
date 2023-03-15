@@ -1,28 +1,20 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Overtime from '../../../containers/Overtime';
 import { getAllOvertime } from '../../../db';
+import { getUserObjects } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetAllOvertimeResponseType,
-} from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
-	error,
 	overtime,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="My Overtime Requests" />
-		{error ? (
-			<Error statusCode={error.statusCode} title={error.title} />
-		) : (
-			<Overtime overtime={overtime} />
-		)}
+		<Overtime overtime={overtime} />
 	</>
 );
 
@@ -46,26 +38,49 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	const auth = await serializeUserData(req.user);
 	if (!req.user.employee) {
 		return {
 			props: {
-				error: {
+				auth,
+				errorPage: {
 					statusCode: 403,
-					title: 'Request Forbidden. Only employees can view this Page!',
+					title: 'Forbidden. This page is reserved for employees only.',
 				},
 			},
 		};
 	}
 
-	const auth = await serializeUserData(req.user);
-	const overtime: GetAllOvertimeResponseType['data'] = JSON.parse(
-		JSON.stringify(await getAllOvertime({ id: req.user.employee.id }))
-	);
+	const records = await getUserObjects({
+		modelName: 'overtime',
+		permission: 'VIEW',
+		userId: req.user.id,
+	});
+	if (records.length > 0) {
+		const data = await getAllOvertime({
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			id: req.user.employee.id,
+			where: {
+				id: {
+					in: records.map((obj) => obj.objectId),
+				},
+			},
+		});
+		if (data.total > 0) {
+			return {
+				props: {
+					auth,
+					overtime: JSON.parse(JSON.stringify(data)),
+				},
+			};
+		}
+	}
 
 	return {
 		props: {
 			auth,
-			overtime,
+			overtime: [],
 		},
 	};
 };

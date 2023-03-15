@@ -43,7 +43,7 @@ export function useGetOvertimeQuery(
 		admin ? [tags.OVERTIME_ADMIN, { id }] : [tags.OVERTIME, { id }],
 		() =>
 			axiosInstance
-				.get(OVERTIME_DETAIL_URL(id))
+				.get(admin ? OVERTIME_ADMIN_DETAIL_URL(id) : OVERTIME_DETAIL_URL(id))
 				.then(
 					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
 						response.data.data
@@ -229,6 +229,7 @@ export function useRequestOvertimeUpdateMutation(
 // delete overtime
 export function useDeleteOvertimeMutation(
 	options?: {
+		admin?: boolean;
 		onSuccess?: () => void;
 		onError?: (err: { message: string }) => void;
 	},
@@ -246,11 +247,16 @@ export function useDeleteOvertimeMutation(
 	const { mutate, ...mutation } = useMutation(
 		(id: string) =>
 			axiosInstance
-				.delete(OVERTIME_DETAIL_URL(id))
+				.delete(
+					options?.admin
+						? OVERTIME_ADMIN_DETAIL_URL(id)
+						: OVERTIME_DETAIL_URL(id)
+				)
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.OVERTIME]);
+				queryClient.invalidateQueries([tags.OVERTIME_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
@@ -432,6 +438,7 @@ export function useApproveOvertimeMutation(
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
+				queryClient.invalidateQueries([tags.OVERTIME]);
 				queryClient.invalidateQueries([tags.OVERTIME_ADMIN]);
 
 				if (options?.onSuccess) options.onSuccess();

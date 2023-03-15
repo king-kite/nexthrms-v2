@@ -54,16 +54,17 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			},
 		};
 
-	if (!req.user.employee) {
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-	}
+	// Some users can still view but can't create
+	// if (!req.user.employee) {
+	// 	return {
+	// 		props: {
+	// 			auth,
+	// 			errorPage: {
+	// 				statusCode: 403,
+	// 			},
+	// 		},
+	// 	};
+	// }
 
 	const result = await getRecords<GetLeavesResponseType['data']>({
 		model: 'leaves',
