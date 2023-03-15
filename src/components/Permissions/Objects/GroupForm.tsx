@@ -122,8 +122,11 @@ function GroupForm({
 					</div>
 					<div className="my-2 py-2 w-full md:w-1/2">
 						<Select2
-							bdrColor={groupsError ? 'border-red-600' : 'border-primary-600'}
+							bdrColor={groupsError ? 'border-red-600' : 'border-gray-300'}
 							disabled={groups.isFetching}
+							height="min-h-[36px]"
+							rounded="rounded-md"
+							padding="pl-3 pr-10 py-2"
 							onSelect={({ value }) => {
 								// Check if the group with this value as id is selected
 								const selected = selectedGroups.find(
@@ -178,6 +181,7 @@ function GroupForm({
 							value={form.groups}
 							label="Select Groups"
 							placeholder="Select Groups"
+							shadow="shadow-lg"
 						/>
 					</div>
 				</div>

@@ -4,11 +4,12 @@ import {
 	File,
 	Input,
 	Select,
+	Select2,
 	Textarea,
 } from 'kite-react-tailwind';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, DEFAULT_IMAGE } from '../../config';
 import {
 	useGetDepartmentsQuery,
 	useGetEmployeesQuery,
@@ -337,7 +338,12 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 				<div className="w-full">
-					<Select
+					<Select2
+						bdrColor={
+							employeesError || formErrors?.supervisors || errors?.supervisors
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -362,50 +368,69 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={employees.isLoading || loading}
+						onSelect={({ value }) => {
+							// Check if the employee with this value as id is selected
+							const selected = form.supervisors.find((item) => item === value);
+							if (selected) {
+								// Remove from selection
+								setForm((prevState) => ({
+									...prevState,
+									supervisors: prevState.supervisors.filter(
+										(item) => item !== value
+									),
+								}));
+							} else {
+								// Add to selection
+								setForm((prevState) => ({
+									...prevState,
+									supervisors: [...prevState.supervisors, value],
+								}));
+							}
+						}}
 						error={
 							employeesError || formErrors?.supervisors || errors?.supervisors
 						}
-						multiple
-						label="Supervisors"
-						name="supervisors"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('supervisors', selectValues);
-						}}
-						placeholder="Select Supervisors"
 						options={
 							employees.data
-								? employees.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											employee
-										) => {
-											if (employee.user.isActive)
-												return [
-													...total,
-													{
-														title: toCapitalize(
-															employee.user.firstName +
+								? employees.data.result
+										.reduce(
+											(
+												total: {
+													title: string;
+													value: string;
+												}[],
+												employee
+											) => {
+												if (employee.user.isActive)
+													return [
+														...total,
+														{
+															image:
+																employee.user.profile?.image || DEFAULT_IMAGE,
+															title:
+																employee.user.firstName +
 																' ' +
-																employee.user.lastName
-														),
-														value: employee.id,
-													},
-												];
-											return total;
-										},
-										[]
-								  )
+																employee.user.lastName,
+															value: employee.id,
+														},
+													];
+												return total;
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
-						required={false}
+						multiple
 						value={form.supervisors}
+						required={false}
+						label="Supervisors"
+						placeholder="Select Supervisors"
+						shadow="shadow-lg"
 					/>
 				</div>
 				<div className="w-full">
