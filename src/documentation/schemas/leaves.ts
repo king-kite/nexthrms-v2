@@ -1,54 +1,58 @@
 const employeeModel = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            format: 'uuid'
-        },
-        department: {
-            type: 'object',
-            nullable: true,
-            properties: {
-                name: {
-                    type: 'string',
-                }
-            }
-        },
-        job: {
-            type: 'object',
-            nullable: true,
-            properties: {
-                name: {
-                    type: 'string'
-                }
-            }
-        },
+	type: 'object',
+	properties: {
+		id: {
+			type: 'string',
+			format: 'uuid',
+		},
+		department: {
+			type: 'object',
+			nullable: true,
+			properties: {
+				name: {
+					type: 'string',
+				},
+			},
+		},
+		job: {
+			type: 'object',
+			nullable: true,
+			properties: {
+				name: {
+					type: 'string',
+				},
+			},
+		},
 		user: {
 			type: 'object',
 			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid',
+				},
 				firstName: {
-					type: 'string'
+					type: 'string',
 				},
 				lastName: {
-					type: 'string'
+					type: 'string',
 				},
 				email: {
 					type: 'string',
-					format: 'email'
+					format: 'email',
 				},
 				profile: {
 					type: 'object',
 					nullable: true,
 					properties: {
 						image: {
-							type: 'string'
-						}
-					}
-				}
-			}
-		}
-    }
-}
+							type: 'string',
+						},
+					},
+				},
+			},
+		},
+	},
+};
 
 export const LeaveModel = {
 	type: 'object',
@@ -71,7 +75,7 @@ export const LeaveModel = {
 			foramt: 'date-time',
 		},
 		reason: {
-			type: 'string'
+			type: 'string',
 		},
 		status: {
 			type: 'string',

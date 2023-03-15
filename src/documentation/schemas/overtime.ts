@@ -26,6 +26,10 @@ const employeeModel = {
 		user: {
 			type: 'object',
 			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid',
+				},
 				firstName: {
 					type: 'string',
 				},
@@ -59,8 +63,7 @@ export const OvertimeModel = {
 		},
 		type: {
 			type: 'string',
-			format:
-				"'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY'",
+			format: "'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY'",
 		},
 		date: {
 			type: 'string',
