@@ -85,11 +85,11 @@ const Detail = ({
 		return undefined;
 	}, [leaveData]);
 
-	// Get user's object level permissions for the users table
+	// Get user's object level permissions for the leaves table
 	const { data: objPermData, refetch: objPermRefetch } =
 		useGetUserObjectPermissionsQuery(
 			{
-				modelName: 'users',
+				modelName: 'leaves',
 				objectId: id,
 			},
 			{
