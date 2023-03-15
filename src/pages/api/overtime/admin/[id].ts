@@ -5,7 +5,8 @@ import {
 	overtimeSelectQuery as selectQuery,
 } from '../../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
-import { admin, employee } from '../../../../middlewares';
+import { admin } from '../../../../middlewares';
+import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { CreateOvertimeQueryType, OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
