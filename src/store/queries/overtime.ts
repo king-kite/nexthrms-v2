@@ -43,7 +43,7 @@ export function useGetOvertimeQuery(
 		admin ? [tags.OVERTIME_ADMIN, { id }] : [tags.OVERTIME, { id }],
 		() =>
 			axiosInstance
-				.get(OVERTIME_DETAIL_URL(id))
+				.get(admin ? OVERTIME_ADMIN_DETAIL_URL(id) : OVERTIME_DETAIL_URL(id))
 				.then(
 					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
 						response.data.data
