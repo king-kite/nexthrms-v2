@@ -1,9 +1,9 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../../config';
 import Overtime from '../../../../containers/Admin/Overtime';
 import { getAllOvertimeAdmin } from '../../../../db';
+import { getRecords } from '../../../../db/utils';
 import { authPage } from '../../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
@@ -13,16 +13,11 @@ import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
 
 const Page = ({
-	error,
-	overtime,
+	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Employees Overtime Requests" />
-		{error ? (
-			<Error statusCode={error.statusCode} title={error.title} />
-		) : (
-			<Overtime overtime={overtime} />
-		)}
+		<Overtime overtime={data} />
 	</>
 );
 
@@ -46,26 +41,65 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	if (!req.user.employee) {
+	const auth = await serializeUserData(req.user);
+
+	// Check is admin
+	if (!req.user.isAdmin && !req.user.isSuperUser)
 		return {
 			props: {
-				error: {
+				auth,
+				errorPage: {
 					statusCode: 403,
-					title: 'Request Forbidden. Only employees can view this Page!',
 				},
 			},
 		};
-	}
 
-	const auth = await serializeUserData(req.user);
-	const overtime: GetAllOvertimeResponseType['data'] = JSON.parse(
-		JSON.stringify(await getAllOvertimeAdmin())
-	);
+	// Some users can still view but can't create
+	// if (!req.user.employee) {
+	// 	return {
+	// 		props: {
+	// 			auth,
+	// 			errorPage: {
+	// 				statusCode: 403,
+	// 			},
+	// 		},
+	// 	};
+	// }
+	const result = await getRecords<GetAllOvertimeResponseType['data']>({
+		model: 'overtime',
+		perm: 'overtime',
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		user: req.user,
+		placeholder: {
+			total: 0,
+			approved: 0,
+			denied: 0,
+			pending: 0,
+			result: [],
+		},
+		getData(params) {
+			return getAllOvertimeAdmin(params);
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				data: result.data,
+			},
+		};
 
 	return {
 		props: {
 			auth,
-			overtime,
+			errorPage: {
+				statusCode: 403,
+			},
 		},
 	};
 };

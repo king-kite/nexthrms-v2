@@ -41,13 +41,17 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	const auth = await serializeUserData(req.user);
 
-	if (!req.user.employee)
-		return {
-			props: {
-				auth,
-				error: { statusCode: 403 },
-			},
-		};
+	// Some users can still view but can't edit
+	// if (!req.user.employee) {
+	// 	return {
+	// 		props: {
+	// 			auth,
+	// 			errorPage: {
+	// 				statusCode: 403,
+	// 			},
+	// 		},
+	// 	};
+	// }
 
 	const record = await getRecord<LeaveType | null>({
 		model: 'leaves',
