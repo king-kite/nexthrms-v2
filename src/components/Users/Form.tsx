@@ -255,7 +255,7 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 			)}
-			<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
+			<div className="gap-2 grid grid-cols-1 items-end md:grid-cols-2 md:gap-4 lg:gap-6">
 				<div className="w-full md:col-span-2">
 					<div className="w-full md:w-1/2 lg:w-1/3">
 						<File
