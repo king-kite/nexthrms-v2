@@ -88,7 +88,7 @@ export default admin()
 
 		// update permissions
 		// The HOD was removed. Remove view and edit permissions
-		if (department.hod && !updated.hod) {
+		if (department?.hod && !updated.hod) {
 			await removeObjectPermissions({
 				model: 'departments',
 				objectId: updated.id,
@@ -97,7 +97,11 @@ export default admin()
 		}
 
 		// The HOD was changed. Add permission to new one, remove permission from old one
-		if (department.hod && updated.hod && department.hod.id !== updated.hod.id) {
+		if (
+			department?.hod &&
+			updated.hod &&
+			department.hod.id !== updated.hod.id
+		) {
 			await Promise.all([
 				removeObjectPermissions({
 					model: 'departments',

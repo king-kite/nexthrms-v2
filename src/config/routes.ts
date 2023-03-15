@@ -55,7 +55,7 @@ export const EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/employees/all/${slug}/employees/object-permissions/`;
 export const HOLIDAYS_PAGE_URL = `/employees/holidays/`;
 export const HOLIDAY_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
-	`/employees/holidays/${slug}/holidays/object-permissions/`;
+	`/employees/holiday/${slug}/holiday/object-permissions/`;
 
 // Leaves Section
 export const ADMIN_LEAVES_PAGE_URL = '/employees/leaves/admin/';
