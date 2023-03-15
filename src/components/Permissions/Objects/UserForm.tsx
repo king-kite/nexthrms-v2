@@ -121,7 +121,11 @@ function UserForm({
 					</div>
 					<div className="my-2 py-2 w-full md:w-1/2">
 						<Select2
-							bdrColor={usersError ? 'border-red-600' : 'border-primary-600'}
+							bdrColor={usersError ? 'border-red-600' : 'border-gray-300'}
+							height="min-h-[36px]"
+							padding="pl-3 pr-10 py-2"
+							rounded="rounded-md"
+							shadow="shadow-lg"
 							disabled={users.isFetching}
 							onSelect={({ value }) => {
 								// Check if the user with this value as id is selected
