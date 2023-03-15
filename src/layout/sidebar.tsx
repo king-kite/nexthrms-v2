@@ -217,12 +217,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaCalendarAlt,
 									title: 'holiday',
 									href: routes.HOLIDAYS_PAGE_URL,
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'holiday',
-											model: 'holiday',
-										}),
+									// Must be an employee
+									showRoute: () => checkEmployeeRoute(data),
 								},
 								{
 									icon: FaClock,
@@ -385,7 +381,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 				);
 				return [...acc, { ...route, links: showLinked }];
 			}, []);
-			return routes.filter(route => route.links.length > 0);
+			return routes.filter((route) => route.links.length > 0);
 		}, [links]);
 
 		return (
