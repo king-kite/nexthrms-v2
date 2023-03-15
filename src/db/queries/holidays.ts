@@ -14,8 +14,11 @@ export const getHolidaysQuery = ({
 	limit,
 	search = undefined,
 	from,
-	to
-}: ParamsType): Prisma.HolidayFindManyArgs => {
+	to,
+	where = {},
+}: ParamsType & {
+	where?: Prisma.HolidayWhereInput;
+}): Prisma.HolidayFindManyArgs => {
 	const query: Prisma.HolidayFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -29,8 +32,9 @@ export const getHolidaysQuery = ({
 						contains: search,
 						mode: 'insensitive',
 					},
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (from && to && query.where) {
@@ -44,10 +48,8 @@ export const getHolidaysQuery = ({
 };
 
 export const getHolidays = async (
-	params: {
-		offset?: number;
-		limit?: number;
-		search?: string;
+	params: ParamsType & {
+		where?: Prisma.HolidayWhereInput;
 	} = {
 		search: undefined,
 	}
@@ -58,5 +60,14 @@ export const getHolidays = async (
 		prisma.holiday.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as HolidayType[] };
 };
+
+export async function getHoliday(id: string) {
+	const result = await prisma.holiday.findUnique({
+		where: { id },
+		select: holidaySelectQuery,
+	});
+
+	return result as unknown as HolidayType | null;
+}

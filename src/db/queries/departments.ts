@@ -96,5 +96,5 @@ export async function getDepartment(id: string) {
 		where: { id },
 		select: departmentSelectQuery,
 	});
-	return result as unknown as DepartmentType;
+	return result as unknown as (DepartmentType | null);
 }
