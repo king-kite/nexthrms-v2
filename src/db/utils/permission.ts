@@ -200,8 +200,8 @@ export async function updateObjectPermissions({
 }) {
 	return prisma.$transaction(
 		permissions.map((permission) =>
-			prisma.permissionObject.update({
-				data: {
+			prisma.permissionObject.upsert({
+				update: {
 					users: {
 						connect: users.map((user) => ({ id: user })),
 					},
@@ -213,11 +213,17 @@ export async function updateObjectPermissions({
 						objectId,
 					},
 				},
+				create: {
+					modelName,
+					permission,
+					objectId,
+				},
 				select: { id: true },
 			})
 		)
 	);
 }
+
 export async function removeObjectPermissions({
 	model: modelName,
 	permissions = ['DELETE', 'EDIT', 'VIEW'],
@@ -231,8 +237,8 @@ export async function removeObjectPermissions({
 }) {
 	return prisma.$transaction(
 		permissions.map((permission) =>
-			prisma.permissionObject.update({
-				data: {
+			prisma.permissionObject.upsert({
+				update: {
 					users: {
 						disconnect: users.map((user) => ({ id: user })),
 					},
@@ -244,8 +250,77 @@ export async function removeObjectPermissions({
 						objectId,
 					},
 				},
+				create: {
+					modelName,
+					permission,
+					objectId,
+				},
 				select: { id: true },
 			})
 		)
 	);
 }
+
+// export async function updateObjectPermissions({
+// 	model: modelName,
+// 	permissions = ['DELETE', 'EDIT', 'VIEW'],
+// 	objectId,
+// 	users,
+// }: {
+// 	model: PermissionModelChoices;
+// 	permissions?: PermissionObjectChoices[];
+// 	objectId: string;
+// 	users: string[];
+// }) {
+// 	return prisma.$transaction(
+// 		permissions.map((permission) =>
+// 			prisma.permissionObject.update({
+// 				data: {
+// 					users: {
+// 						connect: users.map((user) => ({ id: user })),
+// 					},
+// 				},
+// 				where: {
+// 					modelName_objectId_permission: {
+// 						modelName,
+// 						permission,
+// 						objectId,
+// 					},
+// 				},
+// 				select: { id: true },
+// 			})
+// 		)
+// 	);
+// }
+
+// export async function removeObjectPermissions({
+// 	model: modelName,
+// 	permissions = ['DELETE', 'EDIT', 'VIEW'],
+// 	objectId,
+// 	users,
+// }: {
+// 	model: PermissionModelChoices;
+// 	permissions?: PermissionObjectChoices[];
+// 	objectId: string;
+// 	users: string[];
+// }) {
+// 	return prisma.$transaction(
+// 		permissions.map((permission) =>
+// 			prisma.permissionObject.update({
+// 				data: {
+// 					users: {
+// 						disconnect: users.map((user) => ({ id: user })),
+// 					},
+// 				},
+// 				where: {
+// 					modelName_objectId_permission: {
+// 						modelName,
+// 						permission,
+// 						objectId,
+// 					},
+// 				},
+// 				select: { id: true },
+// 			})
+// 		)
+// 	);
+// }
