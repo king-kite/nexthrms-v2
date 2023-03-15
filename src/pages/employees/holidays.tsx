@@ -1,9 +1,9 @@
 import type { InferGetServerSidePropsType } from 'next';
-import React from 'react';
 
-import { LOGIN_PAGE_URL } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../config';
 import Holidays from '../../containers/Holidays';
 import { getHolidays } from '../../db';
+import { getRecords } from '../../db/utils';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps } from '../../types';
 import { Title } from '../../utils';
@@ -12,10 +12,10 @@ import { serializeUserData } from '../../utils/serializers';
 const Page = ({
 	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Holidays" />
 		<Holidays holidays={data} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -39,12 +39,45 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const data = await getHolidays();
+	if (!req.user.employee) {
+		return {
+			props: {
+				auth,
+				errorPage: {
+					statusCode: 403,
+					title: 'Sorry, this page is reserverd for employees only.',
+				},
+			},
+		};
+	}
+
+	const result = await getRecords({
+		model: 'holiday',
+		perm: 'holiday',
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		user: req.user,
+		placeholder: {
+			total: 0,
+			result: [],
+		},
+		getData(params) {
+			return getHolidays(params);
+		},
+	});
 
 	return {
 		props: {
 			auth,
-			data: JSON.parse(JSON.stringify(data)),
+			data: result
+				? result.data
+				: {
+						total: 0,
+						result: [],
+				  },
 		},
 	};
 };

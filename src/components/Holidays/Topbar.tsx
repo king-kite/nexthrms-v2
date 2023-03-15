@@ -1,8 +1,11 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useRef } from 'react';
+import { FC, useRef, useMemo } from 'react';
 import { FaSearch, FaPlus, FaCloudDownloadAlt } from 'react-icons/fa';
 
 import { ExportForm } from '../common';
+import { permissions } from '../../config';
+import { useAuthContext } from '../../store/contexts';
+import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	openModal: () => void;
@@ -20,6 +23,19 @@ const Topbar: FC<TopbarProps> = ({
 	exportLoading,
 }) => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
+
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport] = useMemo(() => {
+		if (!authData) return [false, false];
+		const canCreate =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.holiday.CREATE]);
+		const canExport =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.holiday.EXPORT]);
+		return [canCreate, canExport];
+	}, [authData]);
 
 	return (
 		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
@@ -52,32 +68,36 @@ const Topbar: FC<TopbarProps> = ({
 					ref={searchRef}
 				/>
 			</form>
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
-				<Button
-					caps
-					iconLeft={FaPlus}
-					onClick={openModal}
-					margin="lg:mr-6"
-					padding="px-3 py-2 md:px-6"
-					rounded="rounded-xl"
-					title="add holiday"
-				/>
-			</div>
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
-				<ButtonDropdown
-					component={() => (
-						<ExportForm loading={exportLoading} onSubmit={exportData} />
-					)}
-					props={{
-						caps: true,
-						iconLeft: FaCloudDownloadAlt,
-						margin: 'lg:mr-6',
-						padding: 'px-3 py-2 md:px-6',
-						rounded: 'rounded-xl',
-						title: 'export',
-					}}
-				/>
-			</div>
+			{canCreate && (
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+					<Button
+						caps
+						iconLeft={FaPlus}
+						onClick={openModal}
+						margin="lg:mr-6"
+						padding="px-3 py-2 md:px-6"
+						rounded="rounded-xl"
+						title="add holiday"
+					/>
+				</div>
+			)}
+			{canExport && (
+				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
+					<ButtonDropdown
+						component={() => (
+							<ExportForm loading={exportLoading} onSubmit={exportData} />
+						)}
+						props={{
+							caps: true,
+							iconLeft: FaCloudDownloadAlt,
+							margin: 'lg:mr-6',
+							padding: 'px-3 py-2 md:px-6',
+							rounded: 'rounded-xl',
+							title: 'export',
+						}}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

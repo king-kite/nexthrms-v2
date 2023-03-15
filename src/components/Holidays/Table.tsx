@@ -1,14 +1,16 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
-import { useEffect, useState } from 'react';
-import { FaPen, FaTrash } from 'react-icons/fa';
+import { useEffect, useMemo, useState } from 'react';
+import { IconType } from 'react-icons';
+import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
-import { useAlertContext } from '../../store/contexts';
+import { permissions, HOLIDAY_OBJECT_PERMISSIONS_PAGE_URL } from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteHolidayMutation,
 	useDeleteHolidaysMutation,
 } from '../../store/queries';
 import { HolidayType } from '../../types';
-import { getStringedDate } from '../../utils';
+import { hasModelPermission, getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -20,45 +22,72 @@ type HolidayCreateType = { name: string; date: string };
 
 const getRows = (
 	data: HolidayType[],
-	onEdit: (id: string, initState: HolidayCreateType) => void,
-	onDelete: (id: string) => void
+	canViewPermissions: boolean,
+	onEdit?: (id: string, initState: HolidayCreateType) => void,
+	onDelete?: (id: string) => void
 ): TableRowType[] =>
-	data.map((holiday) => ({
-		id: holiday.id,
-		rows: [
-			{ value: holiday.name || '---' },
-			{ value: new Date(holiday.date).toDateString() || '---' },
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaPen,
-						onClick: () =>
-							onEdit(holiday.id, {
-								name: holiday.name,
-								date: getStringedDate(holiday.date),
-							}),
-					},
-					{
-						color: 'danger',
-						icon: FaTrash,
-						onClick: () => onDelete(holiday.id),
-					},
-				],
-			},
-		],
-	}));
+	data.map((holiday) => {
+		const actions: {
+			color: string;
+			icon: IconType;
+			onClick?: () => void;
+			link?: string;
+		}[] = [];
+		if (onEdit)
+			actions.push({
+				color: 'primary',
+				icon: FaPen,
+				onClick: () =>
+					onEdit(holiday.id, {
+						name: holiday.name,
+						date: getStringedDate(holiday.date),
+					}),
+			});
+		if (onDelete)
+			actions.push({
+				color: 'danger',
+				icon: FaTrash,
+				onClick: () => onDelete(holiday.id),
+			});
+		if (canViewPermissions)
+			actions.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: HOLIDAY_OBJECT_PERMISSIONS_PAGE_URL(holiday.id),
+			});
+		return {
+			id: holiday.id,
+			rows: [
+				{ value: holiday.name || '---' },
+				{ value: new Date(holiday.date).toDateString() || '---' },
+				{
+					type: 'actions',
+					value: actions,
+				},
+			],
+		};
+	});
 
 type TableType = {
 	holidays: HolidayType[];
-	onEdit: (id: string, initState: HolidayCreateType) => void;
+	onEdit?: (id: string, initState: HolidayCreateType) => void;
 };
 
 const HolidayTable = ({ holidays, onEdit }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canViewPermissions] = useMemo(() => {
+		if (!authData) return [false];
+		const canViewPermissions =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.permissionobject.VIEW,
+			]);
+		return [canViewPermissions];
+	}, [authData]);
 
 	const { deleteHoliday } = useDeleteHolidayMutation({
 		onSuccess() {
@@ -91,8 +120,10 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 	});
 
 	useEffect(() => {
-		setRows(getRows(holidays, onEdit, deleteHoliday));
-	}, [holidays, onEdit, deleteHoliday]);
+		setRows(
+			getRows(holidays, canViewPermissions, onEdit || undefined, deleteHoliday)
+		);
+	}, [holidays, onEdit, canViewPermissions, deleteHoliday]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
