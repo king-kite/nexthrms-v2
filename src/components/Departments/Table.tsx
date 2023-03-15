@@ -34,7 +34,7 @@ const getRows = (
 	data.map((department) => {
 		const actions: {
 			color: string;
-			disabled: boolean;
+			disabled?: boolean;
 			icon: IconType;
 			link?: string;
 			onClick?: () => void;
