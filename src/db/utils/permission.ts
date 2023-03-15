@@ -218,3 +218,34 @@ export async function updateObjectPermissions({
 		)
 	);
 }
+export async function removeObjectPermissions({
+	model: modelName,
+	permissions = ['DELETE', 'EDIT', 'VIEW'],
+	objectId,
+	users,
+}: {
+	model: PermissionModelChoices;
+	permissions?: PermissionObjectChoices[];
+	objectId: string;
+	users: string[];
+}) {
+	return prisma.$transaction(
+		permissions.map((permission) =>
+			prisma.permissionObject.update({
+				data: {
+					users: {
+						disconnect: users.map((user) => ({ id: user })),
+					},
+				},
+				where: {
+					modelName_objectId_permission: {
+						modelName,
+						permission,
+						objectId,
+					},
+				},
+				select: { id: true },
+			})
+		)
+	);
+}
