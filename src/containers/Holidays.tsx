@@ -40,6 +40,7 @@ const Holidays = ({
 			hasModelPermission(authData.permissions, [permissions.holiday.CREATE]);
 		const canView =
 			authData.isSuperUser ||
+			!!authData.employee ||
 			hasModelPermission(authData.permissions, [permissions.holiday.VIEW]) ||
 			!!authData.objPermissions.find(
 				(perm) => perm.modelName === 'holiday' && perm.permission === 'VIEW'
