@@ -165,20 +165,59 @@ export const getUsers = async (
 }> => {
 	const query = getUsersQuery({ ...params });
 
-	const [total, result, inactive, on_leave, employees, clients] =
+	const [total, result, inactive, active, on_leave, employees, clients] =
 		await prisma.$transaction([
 			prisma.user.count({ where: query.where }),
 			prisma.user.findMany(query),
+			// old inactive query
+			// prisma.user.count({
+			// 	where: {
+			// 		OR: [
+			// 			{
+			// 				isActive: false,
+			// 			},
+			// 			{
+			// 				employee: {
+			// 					leaves: {
+			// 						some: {
+			// 							status: {
+			// 								equals: 'APPROVED',
+			// 							},
+			// 							startDate: {
+			// 								lte: date,
+			// 							},
+			// 							endDate: {
+			// 								gte: date,
+			// 							},
+			// 						},
+			// 					},
+			// 				},
+			// 			},
+			// 		],
+			// 		...query.where,
+			// 	},
+			// }),
 			prisma.user.count({
 				where: {
+					isActive: false,
+					...query.where,
+				},
+			}),
+			prisma.user.count({
+				where: {
+					isActive: true,
 					OR: [
 						{
-							isActive: false,
+							// clients
+							employee: {
+								is: null,
+							},
 						},
 						{
+							// is employee and is not on leave
 							employee: {
 								leaves: {
-									some: {
+									none: {
 										status: {
 											equals: 'APPROVED',
 										},
@@ -238,7 +277,8 @@ export const getUsers = async (
 		clients,
 		employees,
 		total,
-		active: total - inactive,
+		active,
+		// active: total - inactive,
 		// active: active + clients,
 		// subtract the active from the total and add clients
 		// remember active also checks employees leave and clients don't take leave
