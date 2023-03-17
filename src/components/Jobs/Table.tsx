@@ -1,16 +1,23 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
+import { IconType } from 'react-icons';
 import {
 	FaCheckCircle,
 	FaExclamationCircle,
 	FaPen,
 	FaTrash,
+	FaUserShield,
 } from 'react-icons/fa';
 
-import { useAlertContext, useAlertModalContext } from '../../store/contexts';
+import { permissions, JOB_OBJECT_PERMISSIONS_PAGE_URL } from '../../config';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../../store/contexts';
 import { useDeleteJobMutation } from '../../store/queries';
 import { JobType } from '../../types/jobs';
-import { toCapitalize } from '../../utils';
+import { hasModelPermission, toCapitalize } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -19,51 +26,84 @@ const heads: TableHeadType = [
 
 const getRows = (
 	data: JobType[],
-	updateJob: (id: string, data: { name: string }) => void,
-	deleteJob: (id: string) => void,
-	disableAction: boolean
+	disableAction: boolean,
+	canViewPermissions: boolean,
+	updateJob?: (id: string, data: { name: string }) => void,
+	deleteJob?: (id: string) => void
 ): TableRowType[] =>
-	data.map((job) => ({
-		id: job.id,
-		rows: [
-			{ value: toCapitalize(job.name) || '---' },
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						disabled: disableAction,
-						icon: FaPen,
-						onClick: () =>
-							updateJob(job.id, {
-								name: job.name,
-							}),
-					},
-					{
-						color: 'danger',
-						disabled: disableAction,
-						icon: FaTrash,
-						onClick: () => deleteJob(job.id),
-					},
-				],
-			},
-		],
-	}));
+	data.map((job) => {
+		const actions: {
+			color: string;
+			disabled?: boolean;
+			icon: IconType;
+			link?: string;
+			onClick?: () => void;
+		}[] = [];
+		if (updateJob)
+			actions.push({
+				color: 'primary',
+				disabled: disableAction,
+				icon: FaPen,
+				onClick: () =>
+					updateJob(job.id, {
+						name: job.name,
+					}),
+			});
+		if (deleteJob)
+			actions.push({
+				color: 'danger',
+				disabled: disableAction,
+				icon: FaTrash,
+				onClick: () => deleteJob(job.id),
+			});
+
+		if (canViewPermissions)
+			actions.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: JOB_OBJECT_PERMISSIONS_PAGE_URL(job.id),
+			});
+
+		return {
+			id: job.id,
+			rows: [
+				{ value: job.name },
+				{
+					type: 'actions',
+					value: actions,
+				},
+			],
+		};
+	});
 
 type TableType = {
 	jobs: JobType[];
-	updateJob: (id: string, data: { name: string }) => void;
+	updateJob?: (id: string, data: { name: string }) => void;
 };
 
 const JobTable = ({ jobs = [], updateJob }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: openAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
 	const {
 		close: closeModal,
 		open: openModal,
 		showLoader,
 	} = useAlertModalContext();
+
+	const [canDelete, canViewPermissions] = React.useMemo(() => {
+		if (!authData) return [false, false];
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.job.DELETE]);
+		const canViewPermission =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.permissionobject.VIEW,
+			]);
+		return [canDelete, canViewPermission];
+	}, [authData]);
 
 	const { mutate: deleteJob, isLoading } = useDeleteJobMutation({
 		onSuccess() {
@@ -91,6 +131,7 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 
 	const handleDelete = React.useCallback(
 		(id: string) => {
+			if (!canDelete) return;
 			openModal({
 				closeOnButtonClick: true,
 				color: 'warning',
@@ -116,16 +157,18 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 				message: 'Do you want to delete this Job?.',
 			});
 		},
-		[closeModal, isLoading, openModal, showLoader, deleteJob]
+		[closeModal, canDelete, isLoading, openModal, showLoader, deleteJob]
 	);
 
 	React.useEffect(() => {
-		setRows(getRows(jobs, updateJob, handleDelete, isLoading));
-	}, [jobs, updateJob, handleDelete, isLoading]);
+		setRows(
+			getRows(jobs, isLoading, canViewPermissions, updateJob, handleDelete)
+		);
+	}, [jobs, updateJob, canViewPermissions, handleDelete, isLoading]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table heads={heads} rows={rows} tick />
+			<Table heads={heads} rows={rows} />
 		</div>
 	);
 };

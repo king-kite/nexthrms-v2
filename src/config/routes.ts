@@ -1,7 +1,10 @@
 // Administration Section
 export const DOCS_PAGE_URL = '/docs/';
 export const HOME_PAGE_URL = '/';
+
 export const JOBS_PAGE_URL = '/jobs/';
+export const JOB_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/jobs/${slug}/jobs/object-permissions/`;
 
 // Assets Section
 export const ASSETS_PAGE_URL = '/assets/';
