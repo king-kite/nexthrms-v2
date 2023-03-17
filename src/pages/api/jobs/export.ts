@@ -1,18 +1,41 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../config';
 import { getJobs } from '../../../db';
-import { auth } from '../../../middlewares';
-import { validateParams } from '../../../validators';
+import { getRecords } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.job.EXPORT]);
 
-	const data = await getJobs({ ...params });
+	if (!hasPerm) throw new NextApiErrorMessage(403);
+
+	const placeholder = {
+		total: 0,
+		result: [],
+	};
+
+	const result = await getRecords({
+		query: req.query,
+		user: req.user,
+		model: 'jobs',
+		perm: 'job',
+		placeholder,
+		getData(params) {
+			return getJobs(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
 
 	const jobs = data.result.map((job) => ({
 		id: job.id,
-		name: job.name
+		name: job.name,
 	}));
 
 	if (req.query.type === 'csv') {
@@ -42,10 +65,7 @@ export default auth().get(async (req, res) => {
 			'Content-Type',
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 		);
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="jobs.xlsx"'
-		);
+		res.setHeader('Content-Disposition', 'attachment; filename="jobs.xlsx"');
 
 		return workbook.xlsx.write(res).then(function () {
 			res.status(200).end();

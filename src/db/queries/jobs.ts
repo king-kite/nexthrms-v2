@@ -3,20 +3,25 @@ import { Prisma } from '@prisma/client';
 import prisma from '../client';
 import { JobType, ParamsType } from '../../types';
 
+export const jobSelectQuery: Prisma.JobSelect = {
+	id: true,
+	name: true,
+};
+
 export const getJobsQuery = ({
 	offset,
 	limit,
 	search = undefined,
 	from,
-	to
-}: ParamsType): Prisma.JobFindManyArgs => {
+	to,
+	where = {},
+}: ParamsType & {
+	where?: Prisma.JobWhereInput;
+}): Prisma.JobFindManyArgs => {
 	const query: Prisma.JobFindManyArgs = {
 		skip: offset,
 		take: limit,
-		select: {
-			id: true,
-			name: true,
-		},
+		select: jobSelectQuery,
 		orderBy: {
 			name: 'asc' as const,
 		},
@@ -26,8 +31,9 @@ export const getJobsQuery = ({
 						contains: search,
 						mode: 'insensitive',
 					},
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (from && to && query.where) {
@@ -41,10 +47,8 @@ export const getJobsQuery = ({
 };
 
 export const getJobs = async (
-	params: {
-		offset?: number;
-		limit?: number;
-		search?: string;
+	params: ParamsType & {
+		where?: Prisma.JobWhereInput;
 	} = {
 		search: undefined,
 	}
@@ -55,5 +59,14 @@ export const getJobs = async (
 		prisma.job.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as JobType[] };
 };
+
+export async function getJob(id: string) {
+	const result = await prisma.job.findUnique({
+		where: { id },
+		select: jobSelectQuery,
+	});
+
+	return result as unknown as JobType | null;
+}
