@@ -2,7 +2,6 @@ import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
 import { IconType } from 'react-icons';
 import {
-	FaCheckCircle,
 	FaExclamationCircle,
 	FaPen,
 	FaTrash,
@@ -107,16 +106,9 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 
 	const { mutate: deleteJob, isLoading } = useDeleteJobMutation({
 		onSuccess() {
-			openModal({
-				color: 'success',
-				decisions: [
-					{
-						color: 'success',
-						title: 'OK',
-					},
-				],
-				Icon: FaCheckCircle,
-				header: 'Job Deleted',
+			closeModal();
+			openAlert({
+				type: 'success',
 				message: 'Job Deleted Successfully.',
 			});
 		},
@@ -133,9 +125,15 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 		(id: string) => {
 			if (!canDelete) return;
 			openModal({
-				closeOnButtonClick: true,
-				color: 'warning',
+				closeOnButtonClick: false,
+				color: 'danger',
 				decisions: [
+					{
+						color: 'info',
+						disabled: isLoading,
+						onClick: closeModal,
+						title: 'Cancel',
+					},
 					{
 						color: 'danger',
 						disabled: isLoading,
@@ -144,12 +142,6 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 							deleteJob(id);
 						},
 						title: 'Confirm',
-					},
-					{
-						color: 'info',
-						disabled: isLoading,
-						onClick: closeModal,
-						title: 'Cancel',
 					},
 				],
 				Icon: FaExclamationCircle,

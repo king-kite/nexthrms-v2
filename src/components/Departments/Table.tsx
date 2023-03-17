@@ -178,8 +178,14 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 			if (!canDelete) return;
 			openModal({
 				closeOnButtonClick: false,
-				color: 'warning',
+				color: 'danger',
 				decisions: [
+					{
+						color: 'info',
+						disabled: depLoading,
+						onClick: closeModal,
+						title: 'Cancel',
+					},
 					{
 						color: 'danger',
 						disabled: depLoading,
@@ -188,12 +194,6 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 							deleteDepartment(id);
 						},
 						title: 'Confirm',
-					},
-					{
-						color: 'info',
-						disabled: depLoading,
-						onClick: closeModal,
-						title: 'Cancel',
 					},
 				],
 				Icon: FaExclamationCircle,
@@ -208,9 +208,15 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 		(ids: string[]) => {
 			if (ids.length > 0) {
 				openModal({
-					color: 'warning',
+					color: 'danger',
 					closeOnButtonClick: false,
 					decisions: [
+						{
+							color: 'info',
+							disabled: depsLoading,
+							onClick: closeModal,
+							title: 'Cancel',
+						},
 						{
 							color: 'danger',
 							disabled: depsLoading,
@@ -219,12 +225,6 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 								deleteDepartments(ids);
 							},
 							title: 'Confirm',
-						},
-						{
-							color: 'info',
-							disabled: depsLoading,
-							onClick: closeModal,
-							title: 'Cancel',
 						},
 					],
 					Icon: FaExclamationCircle,
