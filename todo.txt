@@ -12,3 +12,6 @@
 11. Date fields on forms are not inserting default values in production.
 12. rediect after logout and login doesn;t work well on dynamic path.
 13. [id] should return 404 not 500 is not a uuid
+14. Create employee/client using the userID.
+15. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+-- Do be mindful of smaller screen.

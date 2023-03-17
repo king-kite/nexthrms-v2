@@ -1,26 +1,55 @@
 import { Prisma } from '@prisma/client';
 
-import { getDepartments, prisma } from '../../../db';
-import { auth } from '../../../middlewares';
+import { permissions } from '../../../config';
+import {
+	departmentSelectQuery as selectQuery,
+	getDepartments,
+	prisma,
+} from '../../../db';
+import {
+	addObjectPermissions,
+	getRecords,
+	getUserObjects,
+	updateObjectPermissions,
+} from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { GetDepartmentsResponseType, DepartmentType } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 import {
 	createDepartmentSchema,
 	multipleDeleteSchema,
-	validateParams,
 } from '../../../validators';
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		const params = validateParams(req.query);
-
-		const data = await getDepartments({ ...params });
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched departments successfully. A total of ' + data.total,
-			data,
+		const result = await getRecords<GetDepartmentsResponseType['data']>({
+			model: 'departments',
+			perm: 'department',
+			placeholder: {
+				total: 0,
+				result: [],
+			},
+			query: req.query,
+			user: req.user,
+			getData(params) {
+				return getDepartments(params);
+			},
 		});
+
+		if (result) return res.status(200).json(result);
+
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.department.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const valid: {
 			name: string;
 			hod: string | null;
@@ -32,10 +61,26 @@ export default auth()
 			data = { ...data, hod: { connect: { id: valid.hod } } };
 		}
 
-		const department = await prisma.department.create({
+		const department = (await prisma.department.create({
 			data,
 			select: selectQuery,
+		})) as unknown as DepartmentType;
+
+		await addObjectPermissions({
+			model: 'departments',
+			objectId: department.id,
+			users: [req.user.id],
 		});
+
+		// Get the departments hod if available
+		if (department.hod) {
+			await updateObjectPermissions({
+				model: 'departments',
+				permissions: ['VIEW', 'EDIT'],
+				objectId: department.id,
+				users: [department.hod.user.id],
+			});
+		}
 
 		return res.status(201).json({
 			status: 'success',
@@ -44,10 +89,35 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.department.DELETE,
+			]);
+
 		const valid: { values: string[] } =
 			await multipleDeleteSchema.validateAsync({
 				...req.body,
 			});
+
+		if (!hasPerm) {
+			const userObjects = await getUserObjects({
+				modelName: 'departments',
+				userId: req.user.id,
+				permission: 'DELETE',
+			});
+			const everyId = userObjects.every((obj) =>
+				valid.values.includes(obj.objectId)
+			);
+			if (!everyId)
+				return res.status(403).json({
+					status: 'error',
+					message:
+						'Sorry, you are not authorized to delete some of the departments requested.',
+				});
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		await prisma.department.deleteMany({
 			where: {
@@ -62,37 +132,3 @@ export default auth()
 			message: 'Deleted departments successfully',
 		});
 	});
-
-const selectQuery = {
-	id: true,
-	name: true,
-	hod: {
-		select: {
-			id: true,
-			user: {
-				select: {
-					firstName: true,
-					lastName: true,
-					email: true,
-					profile: {
-						select: {
-							image: true,
-						},
-					},
-					employee: {
-						select: {
-							job: {
-								select: {
-									name: true,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-	_count: {
-		select: { employees: true },
-	},
-};

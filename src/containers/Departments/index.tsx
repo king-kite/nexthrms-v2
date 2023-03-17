@@ -1,5 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
 	FaCheckCircle,
 	FaCloudDownloadAlt,
@@ -9,11 +9,19 @@ import {
 
 import { Container, ExportForm, Modal } from '../../components/common';
 import { Form, DepartmentTable } from '../../components/Departments';
-import { DEFAULT_PAGINATION_SIZE, DEPARTMENTS_EXPORT_URL } from '../../config';
-import { useAlertContext, useAlertModalContext } from '../../store/contexts';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	DEPARTMENTS_EXPORT_URL,
+	permissions,
+} from '../../config';
+import {
+	useAlertContext,
+	useAlertModalContext,
+	useAuthContext,
+} from '../../store/contexts';
 import { useGetDepartmentsQuery } from '../../store/queries';
 import { GetDepartmentsResponseType } from '../../types';
-import { downloadFile } from '../../utils';
+import { downloadFile, hasModelPermission } from '../../utils';
 
 const Departments = ({
 	departments,
@@ -29,6 +37,7 @@ const Departments = ({
 
 	const { open } = useAlertContext();
 	const { open: openModal } = useAlertModalContext();
+	const { data: authData } = useAuthContext();
 
 	const [offset, setOffset] = useState(0);
 	const [nameSearch, setNameSearch] = useState('');
@@ -36,11 +45,37 @@ const Departments = ({
 
 	const searchRef = useRef<HTMLInputElement>(null);
 
-	const { data, isFetching, refetch } = useGetDepartmentsQuery(
+	const [canCreate, canExport, canView, canEdit] = useMemo(() => {
+		if (!authData) return [false, false, false, false];
+		const canCreate =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.department.CREATE]);
+		const canExport =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.department.EXPORT]);
+		const canView =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.department.VIEW]) ||
+			!!authData.objPermissions.find(
+				(perm) => perm.modelName === 'departments' && perm.permission === 'VIEW'
+			);
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.department.EDIT]);
+		return [canCreate, canExport, canView, canEdit];
+	}, [authData]);
+
+	const { data, isFetching, isLoading, refetch } = useGetDepartmentsQuery(
 		{
-			limit: 50,
+			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search: nameSearch,
+			onError(error) {
+				open({
+					type: 'danger',
+					message: error.message,
+				});
+			},
 		},
 		{
 			initialData() {
@@ -56,12 +91,14 @@ const Departments = ({
 	return (
 		<Container
 			heading="Departments"
+			disabledLoading={isLoading}
+			error={!canCreate && !canView ? { statusCode: 403 } : undefined}
 			refresh={{
 				loading: isFetching,
 				onClick: refetch,
 			}}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							loading: isFetching,
 							offset,
@@ -102,109 +139,122 @@ const Departments = ({
 						ref={searchRef}
 					/>
 				</form>
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
-					<Button
-						caps
-						iconLeft={FaPlus}
-						onClick={() => {
-							setForm({ name: '', hod: null });
-							setEditId(undefined);
-							setModalVisible(true);
-						}}
-						margin="lg:mr-6"
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title="add department"
-					/>
-				</div>
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
-					<ButtonDropdown
-						component={() => (
-							<ExportForm
-								loading={exportLoading}
-								onSubmit={async (type: 'csv' | 'excel', filtered: boolean) => {
-									let url = DEPARTMENTS_EXPORT_URL + '?type=' + type;
-									if (filtered) {
-										url =
-											url +
-											`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${nameSearch}`;
-									}
-									const result = await downloadFile({
-										url,
-										name:
-											type === 'csv' ? 'departments.csv' : 'departments.xlsx',
-										setLoading: setExportLoading,
-									});
-									if (result?.status !== 200) {
-										open({
-											type: 'danger',
-											message: 'An error occurred. Unable to export file!',
+				{canCreate && (
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<Button
+							caps
+							iconLeft={FaPlus}
+							onClick={() => {
+								setForm({ name: '', hod: null });
+								setEditId(undefined);
+								setModalVisible(true);
+							}}
+							margin="lg:mr-6"
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title="add department"
+						/>
+					</div>
+				)}
+				{canExport && (
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
+						<ButtonDropdown
+							component={() => (
+								<ExportForm
+									loading={exportLoading}
+									onSubmit={async (
+										type: 'csv' | 'excel',
+										filtered: boolean
+									) => {
+										let url = DEPARTMENTS_EXPORT_URL + '?type=' + type;
+										if (filtered) {
+											url =
+												url +
+												`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${nameSearch}`;
+										}
+										const result = await downloadFile({
+											url,
+											name:
+												type === 'csv' ? 'departments.csv' : 'departments.xlsx',
+											setLoading: setExportLoading,
 										});
-									}
-								}}
-							/>
-						)}
-						props={{
-							caps: true,
-							iconLeft: FaCloudDownloadAlt,
-							margin: 'lg:mr-6',
-							padding: 'px-3 py-2 md:px-6',
-							rounded: 'rounded-xl',
-							title: 'export',
-						}}
-					/>
-				</div>
+										if (result?.status !== 200) {
+											open({
+												type: 'danger',
+												message: 'An error occurred. Unable to export file!',
+											});
+										}
+									}}
+								/>
+							)}
+							props={{
+								caps: true,
+								iconLeft: FaCloudDownloadAlt,
+								margin: 'lg:mr-6',
+								padding: 'px-3 py-2 md:px-6',
+								rounded: 'rounded-xl',
+								title: 'export',
+							}}
+						/>
+					</div>
+				)}
 			</div>
 			<DepartmentTable
 				departments={data?.result || []}
-				updateDep={(form: { id: string; name: string; hod: string | null }) => {
-					setEditId(form.id);
-					setForm({ name: form.name, hod: form.hod });
-					setModalVisible(true);
-				}}
-			/>
-			<Modal
-				close={() => {
-					setModalVisible(false);
-					setEditId(undefined);
-					setForm({ name: '', hod: null });
-				}}
-				component={
-					<Form
-						form={form}
-						editId={editId}
-						onChange={handleChange}
-						onSuccess={() => {
-							setModalVisible(false);
-							openModal({
-								closeOnButtonClick: true,
-								color: 'success',
-								decisions: [
-									{
-										color: 'success',
-										title: 'OK',
-									},
-								],
-								Icon: FaCheckCircle,
-								header: editId ? 'Department Edited' : 'Department Created',
-								message: editId
-									? 'Department Edited Successfully'
-									: 'Department Created Successfully.',
-							});
-							setEditId(undefined);
-							setForm({ name: '', hod: null });
-						}}
-					/>
+				updateDep={
+					canEdit
+						? (form: { id: string; name: string; hod: string | null }) => {
+								setEditId(form.id);
+								setForm({ name: form.name, hod: form.hod });
+								setModalVisible(true);
+						  }
+						: undefined
 				}
-				description={
-					editId
-						? 'Update Department'
-						: 'Fill in the form below to add a department'
-				}
-				keepVisible
-				title={editId ? 'Update Department' : 'Add Department'}
-				visible={modalVisible}
 			/>
+			{(canCreate || canEdit) && (
+				<Modal
+					close={() => {
+						setModalVisible(false);
+						setEditId(undefined);
+						setForm({ name: '', hod: null });
+					}}
+					component={
+						<Form
+							form={form}
+							editId={editId}
+							onChange={handleChange}
+							onSuccess={() => {
+								setModalVisible(false);
+								openModal({
+									closeOnButtonClick: true,
+									color: 'success',
+									decisions: [
+										{
+											color: 'success',
+											title: 'OK',
+										},
+									],
+									Icon: FaCheckCircle,
+									header: editId ? 'Department Edited' : 'Department Created',
+									message: editId
+										? 'Department Edited Successfully'
+										: 'Department Created Successfully.',
+								});
+								setEditId(undefined);
+								setForm({ name: '', hod: null });
+							}}
+						/>
+					}
+					description={
+						editId
+							? 'Update Department'
+							: 'Fill in the form below to add a department'
+					}
+					keepVisible
+					title={editId ? 'Update Department' : 'Add Department'}
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

@@ -19,6 +19,10 @@ export const DepartmentModel = {
 				user: {
 					type: 'object',
 					properties: {
+						id: {
+							type: 'string',
+							format: 'uuid',
+						},
 						firstName: {
 							type: 'string',
 						},

@@ -233,7 +233,7 @@ export const getPermissionCategory = async (id: string) => {
 		select: permissionCategorySelectQuery,
 	});
 
-	return category as unknown as PermissionCategoryType;
+	return category as unknown as PermissionCategoryType | null;
 };
 
 export const getPermissions = async (

@@ -120,8 +120,8 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 					/>
 				</div>
 			)}
-			<div className="gap-2 grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-6">
-				<div className="w-full md:col-span-2">
+			<div className="gap-2 grid grid-cols-1 items-end md:grid-cols-2 md:gap-4 lg:gap-6">
+				<div className="w-full">
 					<Input
 						bg={error?.name ? 'bg-red-100' : undefined}
 						color="text-gray-800"
@@ -141,7 +141,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						value={form.name}
 					/>
 				</div>
-				<div className="w-full md:col-span-2">
+				<div className="w-full">
 					<Select
 						bg={error?.hod ? 'bg-red-100' : undefined}
 						btn={{

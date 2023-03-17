@@ -1,21 +1,21 @@
-import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import { LOGIN_PAGE_URL } from '../../config';
+import type { InferGetServerSidePropsType } from 'next';
 
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../config';
 import Jobs from '../../containers/Jobs';
 import { getJobs } from '../../db';
+import { getRecords } from '../../db/utils';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps } from '../../types';
 import { Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 
 const Page = ({
-	jobs,
+	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Jobs" />
-		<Jobs jobs={jobs} />
-	</React.Fragment>
+		<Jobs jobs={data} />
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -38,12 +38,45 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const jobs = await getJobs();
+
+	if (!req.user.isAdmin && !req.user.isSuperUser)
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+
+	const result = await getRecords({
+		model: 'jobs',
+		perm: 'job',
+		user: req.user,
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		placeholder: {
+			total: 0,
+			result: [],
+		},
+		getData(params) {
+			return getJobs(params);
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				data: result.data,
+			},
+		};
 
 	return {
 		props: {
 			auth,
-			jobs,
+			errorPage: { statusCode: 403 },
 		},
 	};
 };

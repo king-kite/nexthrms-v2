@@ -1,7 +1,10 @@
 // Administration Section
 export const DOCS_PAGE_URL = '/docs/';
 export const HOME_PAGE_URL = '/';
+
 export const JOBS_PAGE_URL = '/jobs/';
+export const JOB_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/jobs/${slug}/jobs/object-permissions/`;
 
 // Assets Section
 export const ASSETS_PAGE_URL = '/assets/';
@@ -47,11 +50,15 @@ export const CLIENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
 export const ATTENDANCE_ADMIN_PAGE_URL = '/employees/attendance/admin/';
 export const DEPARTMENTS_PAGE_URL = '/employees/departments/';
+export const DEPARTMENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/employees/departments/${slug}/departments/object-permissions/`;
 export const EMPLOYEES_PAGE_URL = '/employees/all/';
 export const EMPLOYEE_PAGE_URL = (slug: string) => `/employees/all/${slug}/`;
 export const EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/employees/all/${slug}/employees/object-permissions/`;
-export const HOLIDAYS_PAGE_URL = `/employees/holidays/`;
+export const HOLIDAYS_PAGE_URL = `/employees/holiday/`;
+export const HOLIDAY_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/employees/holiday/${slug}/holiday/object-permissions/`;
 
 // Leaves Section
 export const ADMIN_LEAVES_PAGE_URL = '/employees/leaves/admin/';

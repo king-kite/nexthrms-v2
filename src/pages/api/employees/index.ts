@@ -6,7 +6,11 @@ import {
 	getEmployees,
 	prisma,
 } from '../../../db';
-import { addObjectPermissions, getRecords } from '../../../db/utils';
+import {
+	addObjectPermissions,
+	getRecords,
+	updateObjectPermissions,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { CreateEmployeeQueryType, EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -167,23 +171,74 @@ export default admin()
 			select: selectQuery,
 		})) as unknown as EmployeeType;
 
-		if (employee)
-			// Set the object permissions
-			await Promise.all([
-				// Give the creator all permissions on the employee
-				addObjectPermissions({
-					model: 'employees',
-					objectId: employee.id,
-					users: [req.user.id],
-				}),
+		// Set the object permissions
+		await Promise.all([
+			// Give the creator all permissions on the employee
+			addObjectPermissions({
+				model: 'employees',
+				objectId: employee.id,
+				users: [req.user.id],
+			}),
 
-				// Give the creator all permissions on the user as well
-				addObjectPermissions({
-					model: 'users',
-					objectId: employee.user.id,
-					users: [req.user.id],
-				}),
-			]);
+			// Give the creator all permissions on the user as well
+			addObjectPermissions({
+				model: 'users',
+				objectId: employee.user.id,
+				users: [req.user.id],
+			}),
+		]);
+
+		// Get the employees admin related officers
+		const officers = await prisma.user.findMany({
+			where: {
+				isActive: true,
+				OR: [
+					// Super users
+					{
+						isSuperUser: true,
+					},
+					// Get the employee's supervisor
+					{
+						isAdmin: true,
+						employee: {
+							supervisedEmployees: {
+								some: {
+									id: { in: [employee.id] },
+								},
+							},
+						},
+					},
+					// Get the employee's department HOD
+					{
+						isAdmin: true,
+						employee: employee.department
+							? {
+									hod: {
+										name: employee.department.name,
+									},
+							  }
+							: undefined,
+					},
+				],
+			},
+			select: { id: true },
+		});
+
+		// add the admin officers for the user to view
+		await Promise.all([
+			updateObjectPermissions({
+				model: 'employees',
+				permissions: ['VIEW'],
+				objectId: employee.id,
+				users: officers.map((officer) => officer.id),
+			}),
+			updateObjectPermissions({
+				model: 'users',
+				permissions: ['VIEW'],
+				objectId: employee.user.id,
+				users: officers.map((officer) => officer.id),
+			}),
+		]);
 
 		return res.status(201).json({
 			status: 'success',
