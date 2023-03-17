@@ -22,8 +22,8 @@ import {
 	useDeleteDepartmentMutation,
 	useDeleteDepartmentsMutation,
 } from '../../store/queries';
-import { hasModelPermission, toCapitalize } from '../../utils';
 import { DepartmentType } from '../../types/departments';
+import { hasModelPermission, toCapitalize } from '../../utils';
 
 const getRows = (
 	data: DepartmentType[],
