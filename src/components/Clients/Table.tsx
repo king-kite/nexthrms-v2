@@ -8,7 +8,14 @@ import { CLIENT_PAGE_URL, DEFAULT_IMAGE } from '../../config';
 import { ClientType } from '../../types';
 
 const heads: TableHeadType = [
-	{ value: 'contact' },
+	{
+		style: {
+			marginLeft: '3.5rem',
+			minWidth: '70px',
+			textAlign: 'left',
+		},
+		value: 'contact person',
+	},
 	{ value: 'company name' },
 	{ value: 'phone' },
 	{ value: 'status' },
