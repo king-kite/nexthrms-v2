@@ -70,15 +70,9 @@ const ClientTable = ({ clients }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({
-					link,
-					props: { className, style },
-					children,
-				}) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={className} style={style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

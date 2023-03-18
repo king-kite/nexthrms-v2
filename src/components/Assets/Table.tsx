@@ -216,11 +216,9 @@ const AssetTable = ({
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

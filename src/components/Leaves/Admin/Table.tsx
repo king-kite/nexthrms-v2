@@ -52,7 +52,10 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value: leave.status === 'PENDING' && leave.expired ? 'EXPIRED' : leave.status,
+					value:
+						leave.status === 'PENDING' && leave.expired
+							? 'EXPIRED'
+							: leave.status,
 				},
 				{
 					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
@@ -100,11 +103,9 @@ const LeaveTable = ({ leaves }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (
