@@ -1,7 +1,7 @@
-import { Attendance, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { AttendanceType, ParamsType } from '../../types';
+import { AttendanceType, AttendanceInfoType, ParamsType } from '../../types';
 import { getFirstDateOfMonth, getWeekDate } from '../../utils';
 
 export const attendanceSelectQuery = {
@@ -42,8 +42,10 @@ export const getAttendanceQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.AttendanceWhereInput;
 }): Prisma.AttendanceFindManyArgs => {
 	const query: Prisma.AttendanceFindManyArgs = {
 		skip: offset,
@@ -51,7 +53,10 @@ export const getAttendanceQuery = ({
 		orderBy: {
 			date: 'desc' as const,
 		},
-		where: { employeeId: id },
+		where: {
+			employeeId: id,
+			...where,
+		},
 		select: attendanceSelectQuery,
 	};
 	if (from && to && query.where) {
@@ -67,10 +72,11 @@ export const getAttendanceQuery = ({
 export const getAttendance = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.AttendanceWhereInput;
 	}
 ): Promise<{
 	total: number;
-	result: AttendanceType[] | Attendance[];
+	result: AttendanceType[];
 }> => {
 	const query = getAttendanceQuery(params);
 
@@ -79,7 +85,7 @@ export const getAttendance = async (
 		prisma.attendance.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as AttendanceType[] };
 };
 
 // ****** Attendance Info/Statistics ******
@@ -129,7 +135,11 @@ export const getAttendanceInfo = async (id: string) => {
 		}),
 	]);
 
-	return { timesheet, timeline, statistics };
+	return {
+		timesheet: timesheet as unknown as AttendanceInfoType | null,
+		timeline: timeline as unknown as AttendanceInfoType[],
+		statistics: statistics as unknown as AttendanceInfoType[],
+	};
 };
 
 // ****** Attendance Admin ******
@@ -139,8 +149,11 @@ export const getAttendanceAdminQuery = ({
 	search,
 	from,
 	to = new Date(),
-}: ParamsType): Prisma.AttendanceFindManyArgs => {
-	const whereQuery: Prisma.AttendanceWhereInput = {};
+	where = {},
+}: ParamsType & {
+	where?: Prisma.AttendanceWhereInput;
+}): Prisma.AttendanceFindManyArgs => {
+	const whereQuery: Prisma.AttendanceWhereInput = where;
 
 	if (search)
 		whereQuery.employee = {
@@ -180,17 +193,19 @@ export const getAttendanceAdminQuery = ({
 			date: 'desc' as const,
 		},
 		select: attendanceSelectQuery,
-		where: search || (from && to) ? whereQuery : undefined,
+		where: search || (from && to) ? whereQuery : where,
 	};
 
 	return query;
 };
 
 export const getAttendanceAdmin = async (
-	params?: ParamsType
+	params?: ParamsType & {
+		where?: Prisma.AttendanceWhereInput;
+	}
 ): Promise<{
 	total: number;
-	result: AttendanceType[] | Attendance[];
+	result: AttendanceType[];
 }> => {
 	const query = getAttendanceAdminQuery({ ...params });
 
@@ -199,5 +214,5 @@ export const getAttendanceAdmin = async (
 		prisma.attendance.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as AttendanceType[] };
 };

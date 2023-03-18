@@ -49,6 +49,8 @@ export const CLIENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 // Employees Section
 export const ATTENDANCE_PAGE_URL = '/employees/attendance/';
 export const ATTENDANCE_ADMIN_PAGE_URL = '/employees/attendance/admin/';
+export const ATTENDANCE_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/employees/attendance/admin/${slug}/attendance/object-permissions/`;
 export const DEPARTMENTS_PAGE_URL = '/employees/departments/';
 export const DEPARTMENT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
 	`/employees/departments/${slug}/departments/object-permissions/`;
