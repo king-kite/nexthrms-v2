@@ -1,7 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import React from 'react';
-import { FaCheckCircle, FaEye, FaTimesCircle } from 'react-icons/fa';
+import { FaArrowRight, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { GROUP_PAGE_URL } from '../../config';
 import { GroupType } from '../../types';
@@ -11,7 +11,7 @@ const heads: TableHeadType = [
 	{ value: 'name' },
 	{ value: 'description' },
 	{ value: 'active' },
-	{ value: 'actions' },
+	{ type: 'actions', value: 'view' },
 ];
 
 const getRows = (data: GroupType[]): TableRowType[] =>
@@ -37,7 +37,7 @@ const getRows = (data: GroupType[]): TableRowType[] =>
 				value: [
 					{
 						color: 'primary',
-						icon: FaEye,
+						icon: FaArrowRight,
 						link: GROUP_PAGE_URL(group.id),
 					},
 				],
@@ -61,11 +61,9 @@ const GroupTable = ({ groups = [] }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

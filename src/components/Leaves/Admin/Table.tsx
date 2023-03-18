@@ -1,9 +1,11 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
+import { TableAvatarEmailNameCell } from '../../common';
 import { ADMIN_LEAVE_DETAIL_PAGE_URL } from '../../../config/routes';
+import { DEFAULT_IMAGE } from '../../../config/static';
 import { LeaveType } from '../../../types';
 import {
 	getDate,
@@ -13,12 +15,18 @@ import {
 } from '../../../utils';
 
 const heads: TableHeadType = [
-	{ value: 'employee name' },
+	{ 
+		style: {
+			marginLeft: '3.5rem',
+			minWidth: '70px',
+			textAlign: 'left'
+		},
+		value: 'employee' 
+	},
 	{ value: 'type' },
 	{ value: 'start date' },
-	{ value: 'end date' },
-	{ value: 'days' },
 	{ value: 'resumption' },
+	{ value: 'days' },
 	{ value: 'status' },
 	{ value: 'date' },
 	{ type: 'actions', value: 'view' },
@@ -31,15 +39,22 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 			id: leave.id,
 			rows: [
 				{
-					link: ADMIN_LEAVE_DETAIL_PAGE_URL(leave.id),
-					value:
-						leave.employee.user.firstName + ' ' + leave.employee.user.lastName,
+					component: () => (
+						<Link href={ADMIN_LEAVE_DETAIL_PAGE_URL(leave.id)}>
+							<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
+								<TableAvatarEmailNameCell
+									email={leave.employee.user.email}
+									image={leave.employee.user.profile?.image || DEFAULT_IMAGE}
+									name={`${leave.employee.user.firstName} ${leave.employee.user.lastName}`}
+								/>
+							</a>
+						</Link>
+					),
 				},
 				{ value: leave.type },
 				{ value: getDate(leave.startDate, true) },
 				{ value: getDate(leave.endDate, true) },
 				{ value: getNoOfDays(leave.startDate, leave.endDate) },
-				{ value: getNextDate(leave.endDate, 1, true) },
 				{
 					options: {
 						bg:
@@ -52,7 +67,10 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value: leave.status === 'PENDING' && leave.expired ? 'EXPIRED' : leave.status,
+					value:
+						leave.status === 'PENDING' && leave.expired
+							? 'EXPIRED'
+							: leave.status,
 				},
 				{
 					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
@@ -62,7 +80,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 					value: [
 						{
 							color: 'primary',
-							icon: FaEye,
+							icon: FaArrowRight,
 							link: ADMIN_LEAVE_DETAIL_PAGE_URL(leave.id),
 						},
 					],
@@ -100,11 +118,9 @@ const LeaveTable = ({ leaves }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

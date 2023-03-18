@@ -1,7 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
 import { OVERTIME_DETAIL_PAGE_URL } from '../../config/routes';
 import { OvertimeType } from '../../types';
@@ -51,7 +51,7 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 					value: [
 						{
 							color: 'primary',
-							icon: FaEye,
+							icon: FaArrowRight,
 							link: OVERTIME_DETAIL_PAGE_URL(item.id),
 						},
 					],
@@ -89,11 +89,9 @@ const OvertimeTable = ({ overtime }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

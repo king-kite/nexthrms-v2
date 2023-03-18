@@ -1,7 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
 import { LEAVE_DETAIL_PAGE_URL } from '../../config/routes';
 import { LeaveType } from '../../types';
@@ -10,7 +10,6 @@ import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
 const heads: TableHeadType = [
 	{ value: 'type' },
 	{ value: 'start date' },
-	{ value: 'end date' },
 	{ value: 'resumption' },
 	{ value: 'days' },
 	{ value: 'status' },
@@ -30,7 +29,6 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 				},
 				{ value: getDate(leave.startDate, true) },
 				{ value: getDate(leave.endDate, true) },
-				{ value: getNextDate(leave.endDate, 1, true) },
 				{ value: getNoOfDays(leave.startDate, leave.endDate) },
 				{
 					options: {
@@ -57,7 +55,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 					value: [
 						{
 							color: 'primary',
-							icon: FaEye,
+							icon: FaArrowRight,
 							link: LEAVE_DETAIL_PAGE_URL(leave.id),
 						},
 					],
@@ -95,11 +93,9 @@ const LeaveTable = ({ leaves }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
-				renderActionLinkAs={({ link, props, children }) => (
+				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
-						<a className={props.className} style={props.style}>
-							{children}
-						</a>
+						<a {...props}>{children}</a>
 					</Link>
 				)}
 				renderContainerLinkAs={(props) => (

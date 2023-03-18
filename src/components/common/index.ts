@@ -11,3 +11,5 @@ export { default as Pagination } from './Pagination';
 export { default as PersonCard } from './PersonCard';
 export { default as SplashScreen } from './SplashScreen';
 export { default as StatusProgressBar } from './StatusProgressBar';
+
+export * from './table';
