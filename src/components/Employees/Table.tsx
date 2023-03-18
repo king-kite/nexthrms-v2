@@ -1,16 +1,23 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
+import { TableAvatarEmailNameCell } from '../common';
 import { EMPLOYEE_PAGE_URL } from '../../config/routes';
+import { DEFAULT_IMAGE } from '../../config/static';
 import { EmployeeType } from '../../types';
 import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
-	{ value: 'first name' },
-	{ value: 'last name' },
-	{ value: 'email' },
+	{
+		style: {
+			marginLeft: '3.5rem',
+			minWidth: '70px',
+			textAlign: 'left',
+		},
+		value: 'employee',
+	},
 	{ value: 'department' },
 	{ value: 'status' },
 	{ value: 'date employed' },
@@ -22,11 +29,18 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 		id: employee.id,
 		rows: [
 			{
-				link: EMPLOYEE_PAGE_URL(employee.id),
-				value: employee.user.firstName || '---',
+				component: () => (
+					<Link href={EMPLOYEE_PAGE_URL(employee.id)}>
+						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
+							<TableAvatarEmailNameCell
+								email={employee.user.email}
+								image={employee.user.profile?.image || DEFAULT_IMAGE}
+								name={`${employee.user.firstName} ${employee.user.lastName}`}
+							/>
+						</a>
+					</Link>
+				),
 			},
-			{ value: employee.user.lastName || '---' },
-			{ value: employee.user.email || '---' },
 			{ value: employee.department?.name || '---' },
 			{
 				options: {
@@ -55,7 +69,7 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 				value: [
 					{
 						color: 'primary',
-						icon: FaEye,
+						icon: FaArrowRight,
 						link: EMPLOYEE_PAGE_URL(employee.id),
 					},
 				],
