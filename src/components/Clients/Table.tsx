@@ -1,15 +1,15 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
-import { CLIENT_PAGE_URL } from '../../config';
+import { TableAvatarEmailNameCell } from '../common';
+import { CLIENT_PAGE_URL, DEFAULT_IMAGE } from '../../config';
 import { ClientType } from '../../types';
 
 const heads: TableHeadType = [
+	{ value: 'contact' },
 	{ value: 'company name' },
-	{ value: 'contact person' },
-	{ value: 'email' },
 	{ value: 'phone' },
 	{ value: 'status' },
 	{ type: 'actions', value: 'view' },
@@ -19,9 +19,20 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 	data.map((client) => ({
 		id: client.id,
 		rows: [
+			{
+				component: () => (
+					<Link href={CLIENT_PAGE_URL(client.id)}>
+						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
+							<TableAvatarEmailNameCell
+								email={client.contact.email}
+								image={client.contact.profile?.image || DEFAULT_IMAGE}
+								name={`${client.contact.firstName} ${client.contact.lastName}`}
+							/>
+						</a>
+					</Link>
+				),
+			},
 			{ link: CLIENT_PAGE_URL(client.id), value: client.company || '---' },
-			{ value: client.contact.firstName + ' ' + client.contact.lastName },
-			{ value: client.contact.email || '---' },
 			{ value: client.contact.profile?.phone || '---' },
 			{
 				options: {
@@ -35,7 +46,7 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 				value: [
 					{
 						color: 'primary',
-						icon: FaEye,
+						icon: FaArrowRight,
 						link: CLIENT_PAGE_URL(client.id),
 					},
 				],
