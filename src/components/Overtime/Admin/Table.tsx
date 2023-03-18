@@ -1,14 +1,23 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaEye } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
+import { TableAvatarEmailNameCell } from '../../common';
 import { ADMIN_OVERTIME_DETAIL_PAGE_URL } from '../../../config/routes';
+import { DEFAULT_IMAGE } from '../../../config/static';
 import { OvertimeType } from '../../../types';
 import { getDate, serializeOvertime } from '../../../utils';
 
 const heads: TableHeadType = [
-	{ value: 'employee name' },
+	{ 
+		style: {
+			marginLeft: '3.5rem',
+			minWidth: '70px',
+			textAlign: 'left'
+		},
+		value: 'employee' 
+	},
 	{ value: 'type' },
 	{ value: 'date' },
 	{ value: 'hours' },
@@ -24,9 +33,17 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 			id: item.id,
 			rows: [
 				{
-					link: ADMIN_OVERTIME_DETAIL_PAGE_URL(item.id),
-					value:
-						item.employee.user.firstName + ' ' + item.employee.user.lastName,
+					component: () => (
+						<Link href={ADMIN_OVERTIME_DETAIL_PAGE_URL(item.id)}>
+							<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
+								<TableAvatarEmailNameCell
+									email={item.employee.user.email}
+									image={item.employee.user.profile?.image || DEFAULT_IMAGE}
+									name={`${item.employee.user.firstName} ${item.employee.user.lastName}`}
+								/>
+							</a>
+						</Link>
+					),
 				},
 				{
 					value: item.type,
@@ -56,7 +73,7 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 					value: [
 						{
 							color: 'primary',
-							icon: FaEye,
+							icon: FaArrowRight,
 							link: ADMIN_OVERTIME_DETAIL_PAGE_URL(item.id),
 						},
 					],
