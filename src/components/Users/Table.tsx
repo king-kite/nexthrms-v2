@@ -1,21 +1,28 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaCheckCircle, FaEye, FaTimesCircle } from 'react-icons/fa';
+import { FaArrowRight, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
+import { TableAvatarEmailNameCell } from '../common';
 import { USER_PAGE_URL } from '../../config/routes';
+import { DEFAULT_IMAGE } from '../../config/static';
 import { UserType } from '../../types';
 import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
-	{ value: 'first name' },
-	{ value: 'last name' },
-	{ value: 'email' },
+	{ 
+		style: {
+			marginLeft: '3.5rem',
+			minWidth: '70px',
+			textAlign: 'left',
+		},
+		value: 'user' 
+	},
 	{ value: 'role' },
 	{ value: 'status' },
 	{ value: 'email verified ' },
 	{ value: 'admin' },
-	{ value: 'superuser ' },
+	{ value: 'superuser' },
 	{ value: 'last update' },
 	{ value: 'date joined' },
 	{ type: 'actions', value: 'view' },
@@ -26,11 +33,18 @@ const getRows = (data: UserType[]): TableRowType[] =>
 		id: user.id,
 		rows: [
 			{
-				link: USER_PAGE_URL(user.id),
-				value: user.firstName || '---',
+				component: () => (
+					<Link href={USER_PAGE_URL(user.id)}>
+						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
+							<TableAvatarEmailNameCell
+								email={user.email}
+								image={user.profile?.image || DEFAULT_IMAGE}
+								name={`${user.firstName} ${user.lastName}`}
+							/>
+						</a>
+					</Link>
+				),
 			},
-			{ value: user.lastName || '---' },
-			{ value: user.email || '---' },
 			{
 				options: {
 					bg:
@@ -106,7 +120,7 @@ const getRows = (data: UserType[]): TableRowType[] =>
 				value: [
 					{
 						color: 'primary',
-						icon: FaEye,
+						icon: FaArrowRight,
 						link: USER_PAGE_URL(user.id),
 					},
 				],
