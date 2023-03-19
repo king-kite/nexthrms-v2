@@ -144,7 +144,7 @@ export default admin()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'overtime',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: overtime.id,
 			users: officers.map((officer) => officer.id),
 		});

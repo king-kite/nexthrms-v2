@@ -48,7 +48,7 @@ export default employee()
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.REQUEST]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -121,7 +121,7 @@ export default employee()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'leaves',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: leave.id,
 			users: officers.map((officer) => officer.id),
 		});

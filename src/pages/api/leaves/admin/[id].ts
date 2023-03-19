@@ -43,18 +43,7 @@ export default admin()
 	.post(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.leave.EDIT]);
-
-		if (!hasPerm) {
-			// check if the user has a view object permission for this record
-			const objPerm = await getUserObjectPermissions({
-				modelName: 'leaves',
-				objectId: req.query.id as string,
-				permission: 'EDIT',
-				userId: req.user.id,
-			});
-			if (objPerm.edit === true) hasPerm = true;
-		}
+			hasModelPermission(req.user.allPermissions, [permissions.leave.GRANT]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 

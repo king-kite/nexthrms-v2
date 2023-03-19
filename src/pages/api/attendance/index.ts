@@ -49,7 +49,7 @@ export default employee()
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [
-				permissions.attendance.CREATE,
+				permissions.attendance.MARK,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);

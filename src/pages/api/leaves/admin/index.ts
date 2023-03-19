@@ -130,7 +130,7 @@ export default admin()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'leaves',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: leave.id,
 			users: officers.map((officer) => officer.id),
 		});

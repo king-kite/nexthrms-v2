@@ -49,7 +49,7 @@ export default employee()
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [
-				permissions.overtime.CREATE,
+				permissions.overtime.REQUEST,
 			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
@@ -137,7 +137,7 @@ export default employee()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'overtime',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: overtime.id,
 			users: officers.map((officer) => officer.id),
 		});
