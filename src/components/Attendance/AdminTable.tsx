@@ -1,6 +1,12 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
-import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
+import {
+	FaExclamationCircle,
+	FaEye,
+	FaPen,
+	FaTrash,
+	FaUserShield,
+} from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
 import {
@@ -37,6 +43,7 @@ const getRows = (
 	data: AttendanceType[],
 	disableAction: boolean,
 	canViewPermissions: boolean,
+	showAttendance: (attendance: AttendanceType) => void,
 	updateAtd?: (
 		form: AttendanceCreateType & {
 			editId: string;
@@ -51,7 +58,13 @@ const getRows = (
 			icon: (props: any) => JSX.Element;
 			onClick?: () => void;
 			link?: string;
-		}[] = [];
+		}[] = [
+			{
+				color: 'primary',
+				icon: FaEye,
+				onClick: () => showAttendance(attendance),
+			},
+		];
 		if (updateAtd) {
 			const updateAttendance = () => {
 				if (disableAction === false) {
@@ -149,6 +162,7 @@ const getRows = (
 
 type TableType = {
 	attendance: AttendanceType[];
+	showAttendance: (attendance: AttendanceType) => void;
 	updateAtd: (
 		form: AttendanceCreateType & {
 			editId: string;
@@ -159,6 +173,7 @@ type TableType = {
 
 const AttendanceAdminTable = ({
 	attendance = [],
+	showAttendance,
 	loading,
 	updateAtd,
 }: TableType) => {
@@ -198,21 +213,53 @@ const AttendanceAdminTable = ({
 		return [canEdit, canDelete, canViewObjectPermissions];
 	}, [authData]);
 
-	const { deleteAttendance: deleteAtd } = useDeleteAttendanceMutation({
-		onSuccess() {
-			openAlert({
-				type: 'success',
-				message: 'Attendance record was deleted successfully!',
+	const { deleteAttendance: deleteAtd, isLoading: delLoading } =
+		useDeleteAttendanceMutation({
+			onSuccess() {
+				openAlert({
+					type: 'success',
+					message: 'Attendance record was deleted successfully!',
+				});
+			},
+			onError(error) {
+				closeModal();
+				openAlert({
+					message: error.message,
+					type: 'danger',
+				});
+			},
+		});
+
+	const handleDelete = React.useCallback(
+		(id: string) => {
+			if (!canDelete) return;
+			openModal({
+				closeOnButtonClick: false,
+				color: 'danger',
+				decisions: [
+					{
+						color: 'info',
+						disabled: delLoading,
+						onClick: closeModal,
+						title: 'Cancel',
+					},
+					{
+						color: 'danger',
+						disabled: delLoading,
+						onClick: () => {
+							showLoader();
+							deleteAtd(id);
+						},
+						title: 'Confirm',
+					},
+				],
+				Icon: FaExclamationCircle,
+				header: 'Delete Attendance?',
+				message: 'Do you want to delete this attendance record?.',
 			});
 		},
-		onError(error) {
-			closeModal();
-			openAlert({
-				message: error.message,
-				type: 'danger',
-			});
-		},
-	});
+		[closeModal, canDelete, delLoading, openModal, showLoader, deleteAtd]
+	);
 
 	React.useEffect(() => {
 		setRows(
@@ -220,8 +267,9 @@ const AttendanceAdminTable = ({
 				attendance,
 				loading,
 				canViewObjectPermissions || false,
+				showAttendance,
 				canEdit ? updateAtd : undefined,
-				canDelete ? deleteAtd : undefined
+				canDelete ? handleDelete : undefined
 			)
 		);
 	}, [
@@ -230,8 +278,9 @@ const AttendanceAdminTable = ({
 		canEdit,
 		canDelete,
 		canViewObjectPermissions,
+		showAttendance,
 		updateAtd,
-		deleteAtd,
+		handleDelete,
 	]);
 
 	return (

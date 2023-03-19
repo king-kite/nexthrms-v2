@@ -1,8 +1,10 @@
+import { Alert } from 'kite-react-tailwind';
 import React from 'react';
 
 import { Container, Modal } from '../../components/common';
 import {
 	AdminTable as Table,
+	Detail,
 	Form,
 	SearchForm,
 	Topbar,
@@ -14,7 +16,11 @@ import {
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useGetAttendanceAdminQuery } from '../../store/queries';
-import { AttendanceCreateType, GetAttendanceResponseType } from '../../types';
+import {
+	AttendanceCreateType,
+	AttendanceType,
+	GetAttendanceResponseType,
+} from '../../types';
 import { downloadFile, getDate, hasModelPermission } from '../../utils';
 
 const date = new Date();
@@ -35,6 +41,7 @@ function AttendanceAdmin({
 		punchIn: '08:00',
 	});
 
+	const [attendDetail, setAttendDetail] = React.useState<AttendanceType>();
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [searchForm, setSearchForm] = React.useState<{
 		name?: string;
@@ -57,7 +64,9 @@ function AttendanceAdmin({
 		const canView =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.attendance.VIEW]) ||
-			!!authData.objPermissions.find((perm) => perm.modelName === 'attendance' && perm.permission === 'VIEW');
+			!!authData.objPermissions.find(
+				(perm) => perm.modelName === 'attendance' && perm.permission === 'VIEW'
+			);
 		return [canCreate, canExport, canView];
 	}, [authData]);
 
@@ -127,6 +136,7 @@ function AttendanceAdmin({
 		>
 			<Topbar
 				openModal={() => {
+					setAttendDetail(undefined);
 					setForm({
 						employee: '',
 						date: getDate(undefined, true) as string,
@@ -171,15 +181,31 @@ function AttendanceAdmin({
 			<Table
 				attendance={data ? data.result : []}
 				loading={isFetching}
+				showAttendance={(attendance) => {
+					setForm((prevState) => ({ ...prevState, editId: undefined }));
+					setAttendDetail(attendance);
+					setModalVisible(true);
+				}}
 				updateAtd={(form) => {
+					setAttendDetail(undefined);
 					setForm(form);
 					setModalVisible(true);
 				}}
 			/>
-			{(canCreate || form?.editId) && (
-				<Modal
-					close={() => setModalVisible(false)}
-					component={
+
+			<Modal
+				close={() => setModalVisible(false)}
+				component={
+					attendDetail ? (
+						<Detail
+							data={attendDetail}
+							editAttendance={(form) => {
+								setAttendDetail(undefined);
+								setForm(form);
+							}}
+							closePanel={() => setModalVisible(false)}
+						/>
+					) : form ? (
 						<Form
 							editId={form?.editId}
 							form={form}
@@ -204,20 +230,37 @@ function AttendanceAdmin({
 								});
 							}}
 						/>
-					}
-					keepVisible
-					description={
-						'Fill in the form below to ' +
-						(form?.editId
-							? 'update attendance record'
-							: 'add a new attendance record')
-					}
-					title={
-						form?.editId ? 'Update Attendance Record' : 'Add Attendance Record'
-					}
-					visible={modalVisible}
-				/>
-			)}
+					) : (
+						<div className="p-4">
+							<Alert
+								type="info"
+								visible
+								message="Sorry, unable to display any content at the moment."
+								onClose={() => {
+									setModalVisible(false);
+								}}
+							/>
+						</div>
+					)
+				}
+				keepVisible
+				description={
+					attendDetail
+						? 'Below is more information about this attendance record'
+						: 'Fill in the form below to ' +
+						  (form?.editId
+								? 'update attendance record'
+								: 'add a new attendance record')
+				}
+				title={
+					attendDetail
+						? 'Attendance Information'
+						: form?.editId
+						? 'Update Attendance Record'
+						: 'Add Attendance Record'
+				}
+				visible={modalVisible}
+			/>
 		</Container>
 	);
 }

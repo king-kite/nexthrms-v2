@@ -19,11 +19,10 @@ function Details({
 }) {
 	const { data: authData } = useAuthContext();
 
-	const { data: objPermData, isLoading: permLoading } =
-		useGetUserObjectPermissionsQuery({
-			modelName: 'assets',
-			objectId: asset.id,
-		});
+	const { data: objPermData } = useGetUserObjectPermissionsQuery({
+		modelName: 'assets',
+		objectId: asset.id,
+	});
 
 	const [canEdit, canDelete] = React.useMemo(() => {
 		let canDelete = false;
