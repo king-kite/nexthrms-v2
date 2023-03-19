@@ -1,33 +1,47 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../../config';
 import {
 	attendanceSelectQuery as selectQuery,
 	getAttendanceAdmin,
 	prisma,
 } from '../../../../db';
-import { auth } from '../../../../middlewares';
+import { getRecords } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
 import { AttendanceCreateType } from '../../../../types';
-import { attendanceCreateSchema, validateParams } from '../../../../validators';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
+import { attendanceCreateSchema } from '../../../../validators';
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Permission Denied!',
-			});
-		}
-
-		const params = validateParams({ ...req.query });
-		const data = await getAttendanceAdmin(params);
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched all attendance! A total of ' + data.total,
-			data,
+		const result = await getRecords({
+			model: 'attendance',
+			perm: 'attendance',
+			user: req.user,
+			query: req.query,
+			placeholder: {
+				total: 0,
+				result: [],
+			},
+			getData(params) {
+				return getAttendanceAdmin(params);
+			},
 		});
+
+		if (result) return res.status(200).json(result);
+
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.attendance.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const data: AttendanceCreateType =
 			await attendanceCreateSchema.validateAsync({ ...req.body });
 
