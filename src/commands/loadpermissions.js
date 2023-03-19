@@ -131,7 +131,7 @@ const prisma = new PrismaClient();
 		];
 
 		if (
-			model.name.toLowerCase() === 'leaves' ||
+			model.name.toLowerCase() === 'leave' ||
 			model.name.toLowerCase() === 'overtime'
 		) {
 			modelPermissions.push(
