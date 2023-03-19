@@ -39,7 +39,10 @@ function Topbar({
 		if (!authData) return [false, false];
 		const canCreate =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.leave.CREATE]);
+			hasModelPermission(authData.permissions, [
+				permissions.leave.CREATE,
+				permissions.leave.REQUEST,
+			]);
 		const canExport =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.leave.EXPORT]);

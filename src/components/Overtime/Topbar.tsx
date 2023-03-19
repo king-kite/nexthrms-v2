@@ -39,7 +39,7 @@ const Topbar: React.FC<TopbarProps> = ({
 		if (!authData) return [false, false];
 		const canCreate =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.overtime.CREATE]);
+			hasModelPermission(authData.permissions, [permissions.overtime.CREATE, permissions.overtime.REQUEST]);
 		const canExport =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.overtime.EXPORT]);
