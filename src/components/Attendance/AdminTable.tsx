@@ -1,7 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
+import Link from 'next/link';
 import React from 'react';
 import {
-	FaExclamationCircle,
 	FaEye,
 	FaPen,
 	FaTrash,
@@ -244,7 +244,20 @@ const AttendanceAdminTable = ({
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table heads={heads} rows={rows} />
+			<Table
+				heads={heads}
+				rows={rows}
+				renderActionLinkAs={({ link, children, ...props }) => (
+					<Link href={link}>
+						<a {...props}>{children}</a>
+					</Link>
+				)}
+				renderContainerLinkAs={(props) => (
+					<Link href={props.link}>
+						<a className={props.className}>{props.children}</a>
+					</Link>
+				)}
+			/>
 		</div>
 	);
 };
