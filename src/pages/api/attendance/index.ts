@@ -157,6 +157,7 @@ export default employee()
 			await addObjectPermissions({
 				model: 'attendance',
 				objectId: result.id,
+				permissions: ['VIEW', 'DELETE'],
 				users: [req.user.id],
 			});
 			// add the admin officers for the user to edit and view

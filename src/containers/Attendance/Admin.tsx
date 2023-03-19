@@ -10,11 +10,12 @@ import {
 import {
 	ATTENDANCE_ADMIN_EXPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
+	permissions,
 } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useGetAttendanceAdminQuery } from '../../store/queries';
 import { AttendanceCreateType, GetAttendanceResponseType } from '../../types';
-import { downloadFile, getDate } from '../../utils';
+import { downloadFile, getDate, hasModelPermission } from '../../utils';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
@@ -43,6 +44,22 @@ function AttendanceAdmin({
 	const [exportLoading, setExportLoading] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = React.useMemo(() => {
+		if (!authData) return [false, false, false];
+		const canCreate =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.attendance.CREATE]);
+		const canExport =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.attendance.EXPORT]);
+		const canView =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.attendance.VIEW]) ||
+			!!authData.objPermissions.find((perm) => perm.modelName === 'attendance' && perm.permission === 'VIEW');
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const [offset, setOffset] = React.useState(0);
 	const { data, refetch, isLoading, isFetching } = useGetAttendanceAdminQuery(
@@ -57,6 +74,12 @@ function AttendanceAdmin({
 							to: searchForm.endDate,
 					  }
 					: undefined,
+			onError(error) {
+				showAlert({
+					type: 'danger',
+					message: error.message || 'Sorry, unable to fetch data!',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -86,12 +109,13 @@ function AttendanceAdmin({
 		<Container
 			heading="Attendance (Admin)"
 			loading={isLoading}
+			error={!canCreate && !canView ? { statusCode: 403 } : undefined}
 			refresh={{
 				loading: isFetching,
 				onClick: refetch,
 			}}
 			paginate={
-				data
+				(canCreate || canView) && data
 					? {
 							offset,
 							setOffset,
@@ -111,6 +135,7 @@ function AttendanceAdmin({
 					setModalVisible(true);
 				}}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = ATTENDANCE_ADMIN_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -151,46 +176,48 @@ function AttendanceAdmin({
 					setModalVisible(true);
 				}}
 			/>
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						editId={form?.editId}
-						form={form}
-						onChange={handleChange}
-						onSuccess={() => {
-							setModalVisible(false);
-							if (form?.editId) {
-								showAlert({
-									message: 'Attendance record was updated successfully!',
-									type: 'success',
+			{(canCreate || form?.editId) && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							editId={form?.editId}
+							form={form}
+							onChange={handleChange}
+							onSuccess={() => {
+								setModalVisible(false);
+								if (form?.editId) {
+									showAlert({
+										message: 'Attendance record was updated successfully!',
+										type: 'success',
+									});
+								} else {
+									showAlert({
+										message: 'Attendance record was added successfully!',
+										type: 'success',
+									});
+								}
+								setForm({
+									employee: '',
+									date: getDate(undefined, true) as string,
+									punchIn: '08:00',
 								});
-							} else {
-								showAlert({
-									message: 'Attendance record was added successfully!',
-									type: 'success',
-								});
-							}
-							setForm({
-								employee: '',
-								date: getDate(undefined, true) as string,
-								punchIn: '08:00',
-							});
-						}}
-					/>
-				}
-				keepVisible
-				description={
-					'Fill in the form below to ' +
-					(form?.editId
-						? 'update attendance record'
-						: 'add a new attendance record')
-				}
-				title={
-					form?.editId ? 'Update Attendance Record' : 'Add Attendance Record'
-				}
-				visible={modalVisible}
-			/>
+							}}
+						/>
+					}
+					keepVisible
+					description={
+						'Fill in the form below to ' +
+						(form?.editId
+							? 'update attendance record'
+							: 'add a new attendance record')
+					}
+					title={
+						form?.editId ? 'Update Attendance Record' : 'Add Attendance Record'
+					}
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 }
