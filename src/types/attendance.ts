@@ -4,7 +4,11 @@ export type AttendanceType = {
 	id: string;
 	employee: {
 		id: string;
+		department: {
+			name: string;
+		} | null;
 		user: {
+			id: string;
 			firstName: string;
 			lastName: string;
 			email: string;
