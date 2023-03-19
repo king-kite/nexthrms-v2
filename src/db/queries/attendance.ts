@@ -88,6 +88,14 @@ export const getAttendance = async (
 	return { total, result: result as unknown as AttendanceType[] };
 };
 
+export async function getSingleAttendance(id: string) {
+	const data = await prisma.attendance.findUnique({
+		where: { id },
+		select: attendanceSelectQuery,
+	});
+	return data as unknown as AttendanceType | null;
+}
+
 // ****** Attendance Info/Statistics ******
 const selectInfo: Prisma.AttendanceSelect = {
 	date: true,
