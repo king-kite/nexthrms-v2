@@ -6,9 +6,13 @@ import {
 	getAttendanceAdmin,
 	prisma,
 } from '../../../../db';
-import { getRecords } from '../../../../db/utils';
+import {
+	addObjectPermissions,
+	getRecords,
+	updateObjectPermissions,
+} from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
-import { AttendanceCreateType } from '../../../../types';
+import { AttendanceCreateType, AttendanceType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { attendanceCreateSchema } from '../../../../validators';
@@ -81,9 +85,58 @@ export default admin()
 			};
 		}
 
-		const result = await prisma.attendance.create({
+		const result = (await prisma.attendance.create({
 			data: input,
 			select: selectQuery,
+		})) as unknown as AttendanceType;
+
+		// Add object level permissions
+		const officers = await prisma.user.findMany({
+			where: {
+				isActive: true,
+				OR: [
+					// Super users
+					{
+						isSuperUser: true,
+					},
+					// Get the employee's supervisors
+					{
+						isAdmin: true,
+						employee: {
+							supervisedEmployees: {
+								some: {
+									id: { in: [result.employee.id] },
+								},
+							},
+						},
+					},
+					// Get the employee's department HOD
+					{
+						isAdmin: true,
+						employee: result.employee.department
+							? {
+									hod: {
+										name: result.employee.department.name,
+									},
+							  }
+							: undefined,
+					},
+				],
+			},
+			select: { id: true },
+		});
+
+		await addObjectPermissions({
+			model: 'attendance',
+			objectId: result.id,
+			users: [req.user.id, result.employee.user.id],
+		});
+		// add the admin officers for the user to edit and view
+		await updateObjectPermissions({
+			model: 'attendance',
+			permissions: ['VIEW'],
+			objectId: result.id,
+			users: officers.map((officer) => officer.id),
 		});
 
 		return res.status(201).json({
