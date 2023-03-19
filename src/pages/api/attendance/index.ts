@@ -1,40 +1,58 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../config';
 import {
 	getAttendance,
 	prisma,
 	attendanceSelectQuery as selectQuery,
 } from '../../../db';
-import { auth } from '../../../middlewares';
+import {
+	getRecords,
+	addObjectPermissions,
+	updateObjectPermissions,
+} from '../../../db/utils';
+import { employee } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
-import { attendanceActionSchema, validateParams } from '../../../validators';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
+import { attendanceActionSchema } from '../../../validators';
 
-export default auth()
+export default employee()
 	.get(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Only employees can get attendance records.',
-			});
-		}
+		const placeholder = {
+			total: 0,
+			result: [],
+		};
+		const result = await getRecords({
+			model: 'attendance',
+			perm: 'attendance',
+			placeholder,
+			user: req.user,
+			query: req.query,
+			getData(params) {
+				return getAttendance({
+					...params,
+					id: req.user.employee.id,
+				});
+			},
+		});
 
-		const params = validateParams({ ...req.query });
-
-		const result = await getAttendance({ id: req.user.employee.id, ...params });
+		if (result) return res.status(200).json(result);
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Fetched attendance records successfully!',
-			data: result,
+			message: 'Fetched data successfully!',
+			data: placeholder,
 		});
 	})
 	.post(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'Only employee can alter an attendance record.',
-			});
-		}
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.attendance.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const { action }: { action: 'IN' | 'OUT' } =
 			await attendanceActionSchema.validateAsync({ ...req.body });
@@ -95,9 +113,58 @@ export default auth()
 					},
 				};
 			}
-			const result = await prisma.attendance.create({
+			const result = (await prisma.attendance.create({
 				data,
 				select: selectQuery,
+			})) as unknown as AttendanceType;
+
+			// Add object level permissions
+			const officers = await prisma.user.findMany({
+				where: {
+					isActive: true,
+					OR: [
+						// Super users
+						{
+							isSuperUser: true,
+						},
+						// Get the employee's supervisors
+						{
+							isAdmin: true,
+							employee: {
+								supervisedEmployees: {
+									some: {
+										id: { in: [result.employee.id] },
+									},
+								},
+							},
+						},
+						// Get the employee's department HOD
+						{
+							isAdmin: true,
+							employee: result.employee.department
+								? {
+										hod: {
+											name: result.employee.department.name,
+										},
+								  }
+								: undefined,
+						},
+					],
+				},
+				select: { id: true },
+			});
+
+			await addObjectPermissions({
+				model: 'attendance',
+				objectId: result.id,
+				users: [req.user.id],
+			});
+			// add the admin officers for the user to edit and view
+			await updateObjectPermissions({
+				model: 'attendance',
+				permissions: ['VIEW'],
+				objectId: result.id,
+				users: officers.map((officer) => officer.id),
 			});
 
 			return res.status(200).json({
