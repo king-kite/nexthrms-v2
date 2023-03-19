@@ -1,33 +1,22 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
-import React from 'react';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Attendance from '../../../containers/Attendance/Admin';
 import { getAttendanceAdmin } from '../../../db';
+import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetAttendanceResponseType,
-} from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 function Page({
-	error,
 	attendance,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
-		<React.Fragment>
-			{error ? (
-				<Error statusCode={error.statusCode} title={error.title} />
-			) : (
-				<React.Fragment>
-					<Title title="Attendance (Admin)" />
-					<Attendance attendance={attendance} />
-				</React.Fragment>
-			)}
-		</React.Fragment>
+		<>
+			<Title title="Attendance (Admin)" />
+			<Attendance attendance={attendance} />
+		</>
 	);
 }
 
@@ -51,24 +40,47 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	if (!req.user.employee) {
+	const auth = await serializeUserData(req.user);
+	if (!req.user.isAdmin && !req.user.isSuperUser) {
 		return {
 			props: {
-				error: {
-					statusCode: 403,
-					title: 'Only employees can view this page!',
-				},
+				auth,
+				error: { statusCode: 403 },
 			},
 		};
 	}
 
-	const auth = await serializeUserData(req.user);
-	const attendance: GetAttendanceResponseType['data'] = JSON.parse(
-		JSON.stringify(await getAttendanceAdmin())
-	);
+	const result = await getRecords({
+		model: 'attendance',
+		perm: 'attendance',
+		user: req.user,
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		placeholder: {
+			result: [],
+			total: 0,
+		},
+		getData(params) {
+			return getAttendanceAdmin(params);
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				attendance: result.data,
+			},
+		};
 
 	return {
-		props: { auth, attendance },
+		props: {
+			auth,
+			errorPage: { statusCode: 403 },
+		},
 	};
 };
 
