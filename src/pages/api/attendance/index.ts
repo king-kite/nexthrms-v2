@@ -6,11 +6,7 @@ import {
 	prisma,
 	attendanceSelectQuery as selectQuery,
 } from '../../../db';
-import {
-	getRecords,
-	addObjectPermissions,
-	updateObjectPermissions,
-} from '../../../db/utils';
+import { getRecords, addObjectPermissions } from '../../../db/utils';
 import { employee } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -157,15 +153,8 @@ export default employee()
 			await addObjectPermissions({
 				model: 'attendance',
 				objectId: result.id,
-				permissions: ['VIEW', 'DELETE'],
-				users: [req.user.id],
-			});
-			// add the admin officers for the user to edit and view
-			await updateObjectPermissions({
-				model: 'attendance',
 				permissions: ['VIEW'],
-				objectId: result.id,
-				users: officers.map((officer) => officer.id),
+				users: [req.user.id, ...officers.map((officer) => officer.id)],
 			});
 
 			return res.status(200).json({

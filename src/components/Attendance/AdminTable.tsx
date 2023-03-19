@@ -14,11 +14,7 @@ import {
 	DEFAULT_IMAGE,
 	permissions,
 } from '../../config';
-import {
-	useAlertContext,
-	useAlertModalContext,
-	useAuthContext,
-} from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useDeleteAttendanceMutation } from '../../store/queries';
 import { AttendanceCreateType, AttendanceType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
@@ -180,11 +176,6 @@ const AttendanceAdminTable = ({
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: openAlert } = useAlertContext();
-	const {
-		close: closeModal,
-		open: openModal,
-		showLoader,
-	} = useAlertModalContext();
 
 	const { data: authData } = useAuthContext();
 	// has model permission
@@ -222,44 +213,12 @@ const AttendanceAdminTable = ({
 				});
 			},
 			onError(error) {
-				closeModal();
 				openAlert({
 					message: error.message,
 					type: 'danger',
 				});
 			},
 		});
-
-	const handleDelete = React.useCallback(
-		(id: string) => {
-			if (!canDelete) return;
-			openModal({
-				closeOnButtonClick: false,
-				color: 'danger',
-				decisions: [
-					{
-						color: 'info',
-						disabled: delLoading,
-						onClick: closeModal,
-						title: 'Cancel',
-					},
-					{
-						color: 'danger',
-						disabled: delLoading,
-						onClick: () => {
-							showLoader();
-							deleteAtd(id);
-						},
-						title: 'Confirm',
-					},
-				],
-				Icon: FaExclamationCircle,
-				header: 'Delete Attendance?',
-				message: 'Do you want to delete this attendance record?.',
-			});
-		},
-		[closeModal, canDelete, delLoading, openModal, showLoader, deleteAtd]
-	);
 
 	React.useEffect(() => {
 		setRows(
@@ -269,7 +228,7 @@ const AttendanceAdminTable = ({
 				canViewObjectPermissions || false,
 				showAttendance,
 				canEdit ? updateAtd : undefined,
-				canDelete ? handleDelete : undefined
+				canDelete ? deleteAtd : undefined
 			)
 		);
 	}, [
@@ -280,7 +239,7 @@ const AttendanceAdminTable = ({
 		canViewObjectPermissions,
 		showAttendance,
 		updateAtd,
-		handleDelete,
+		deleteAtd,
 	]);
 
 	return (

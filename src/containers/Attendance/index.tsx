@@ -1,15 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Container } from '../../components/common';
 import { StatsCard, AttendanceTable } from '../../components/Attendance';
-import { DEFAULT_PAGINATION_SIZE, permissions } from '../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useGetAttendanceQuery } from '../../store/queries';
 import {
 	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,
 } from '../../types';
-import { hasModelPermission } from '../../utils';
 
 const Attendance = ({
 	attendanceData,
@@ -22,25 +21,6 @@ const Attendance = ({
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
-
-	const [canMark, canView] = useMemo(() => {
-		const canMark = authData
-			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.attendance.MARK])
-			: false;
-		const canView = authData
-			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [
-					permissions.attendance.VIEW,
-			  ]) ||
-			  // check object permission
-			  !!authData?.objPermissions.find(
-					(perm) =>
-						perm.modelName === 'attendance' && perm.permission === 'VIEW'
-			  )
-			: false;
-		return [canMark, canView];
-	}, [authData]);
 
 	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery(
 		{
@@ -68,10 +48,10 @@ const Attendance = ({
 				onClick: refetch,
 				loading: isFetching,
 			}}
-			error={!canView && !canMark ? { statusCode: 403 } : undefined}
+			error={!authData?.employee ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				(canView || canMark) && data
+				authData?.employee && data
 					? {
 							loading: isFetching,
 							offset,

@@ -1,13 +1,9 @@
 import { Button, InfoComp, InfoCompType } from 'kite-react-tailwind';
 import React from 'react';
-import { FaExclamationCircle, FaPen, FaTrash } from 'react-icons/fa';
+import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { permissions, DEFAULT_IMAGE } from '../../config';
-import {
-	useAlertContext,
-	useAlertModalContext,
-	useAuthContext,
-} from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetUserObjectPermissionsQuery,
 	useDeleteAttendanceMutation,
@@ -27,11 +23,6 @@ function Details({
 	const { data: authData } = useAuthContext();
 
 	const { open: openAlert } = useAlertContext();
-	const {
-		open: openModal,
-		close: closeModal,
-		showLoader,
-	} = useAlertModalContext();
 
 	const { data: objPermData } = useGetUserObjectPermissionsQuery({
 		modelName: 'attendance',
@@ -48,7 +39,6 @@ function Details({
 				});
 			},
 			onError(error) {
-				closeModal();
 				openAlert({
 					message: error.message,
 					type: 'danger',
@@ -83,42 +73,6 @@ function Details({
 
 		return [canEdit, canDelete];
 	}, [authData, objPermData]);
-
-	const handleDelete = React.useCallback(() => {
-		if (!canDelete || !data) return;
-		openModal({
-			closeOnButtonClick: false,
-			color: 'danger',
-			decisions: [
-				{
-					color: 'info',
-					disabled: delLoading,
-					onClick: closeModal,
-					title: 'Cancel',
-				},
-				{
-					color: 'danger',
-					disabled: delLoading,
-					onClick: () => {
-						showLoader();
-						deleteAtd(data.id);
-					},
-					title: 'Confirm',
-				},
-			],
-			Icon: FaExclamationCircle,
-			header: 'Delete Attendance?',
-			message: 'Do you want to delete this attendance record?.',
-		});
-	}, [
-		data,
-		closeModal,
-		canDelete,
-		delLoading,
-		openModal,
-		showLoader,
-		deleteAtd,
-	]);
 
 	const infos = React.useMemo(() => {
 		let detail: InfoCompType['infos'] = [
@@ -230,7 +184,7 @@ function Details({
 							<Button
 								bg="bg-red-600 hover:bg-red-500"
 								iconLeft={FaTrash}
-								onClick={handleDelete}
+								onClick={() => deleteAtd(data.id)}
 								padding="px-4 py-2 sm:py-3"
 								title="Delete"
 							/>

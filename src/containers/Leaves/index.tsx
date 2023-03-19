@@ -33,9 +33,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.leave.REQUEST])
 			: false;
-		const canView = authData
-			? authData.isSuperUser || (authData.employee && true)
-			: false;
+		const canView = !!authData?.employee;
 		return [canRequest, canView];
 	}, [authData]);
 

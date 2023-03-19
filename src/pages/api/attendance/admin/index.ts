@@ -129,14 +129,17 @@ export default admin()
 		await addObjectPermissions({
 			model: 'attendance',
 			objectId: result.id,
-			users: [result.employee.user.id],
+			users: [req.user.id],
 		});
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'attendance',
 			permissions: ['VIEW'],
 			objectId: result.id,
-			users: [...officers.map((officer) => officer.id), req.user.id],
+			users: [
+				...officers.map((officer) => officer.id),
+				result.employee.user.id,
+			],
 		});
 
 		return res.status(201).json({
