@@ -1,9 +1,12 @@
 import { Button, Loader } from 'kite-react-tailwind';
+import { useMemo } from 'react';
 import { BiRefresh } from 'react-icons/bi';
 
-import { useAlertContext } from '../../store/contexts';
+import { permissions } from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { usePunchAttendanceMutation } from '../../store/queries';
 import { AttendanceInfoType } from '../../types';
+import { hasModelPermission } from '../../utils';
 
 // time is in minutes
 function getTime(time: number): number | string {
@@ -26,6 +29,15 @@ function TimeSheet({
 	timesheet?: AttendanceInfoType | null;
 }) {
 	const { open } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canMark] = useMemo(() => {
+		if (!authData) return [false];
+		const canMark =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.attendance.MARK]);
+		return [canMark];
+	}, [authData]);
 
 	const { handlePunch, isLoading } = usePunchAttendanceMutation({
 		onSuccess() {
@@ -102,36 +114,38 @@ function TimeSheet({
 					)}
 				</div>
 			</div>
-			<div className="flex justify-center items-center my-1">
-				<div>
-					<Button
-						bg={`${
-							punchIn
-								? 'bg-secondary-500 hover:bg-secondary-600 focus:ring-secondary-300'
-								: 'bg-primary-500 hover:bg-primary-600 focus:ring-primary-300'
-						} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
-						caps
-						disabled={fetching || isLoading || disabled === false}
-						padding="px-4 py-2 md:px-6 md:py-3 lg:px-4 lg:py-2"
-						rounded="rounded-xl"
-						onClick={
-							disabled ? () => handlePunch(punchIn ? 'OUT' : 'IN') : undefined
-						}
-						title={
-							disabled === false
-								? 'Punched Out'
-								: punchIn
-								? isLoading
-									? 'Punching Out...'
-									: 'Punch Out'
-								: isLoading
-								? 'Punching In...'
-								: 'Punch In'
-						}
-						titleSize="text-base sm:tracking-wider md:text-lg"
-					/>
+			{canMark && (
+				<div className="flex justify-center items-center my-1">
+					<div>
+						<Button
+							bg={`${
+								punchIn
+									? 'bg-secondary-500 hover:bg-secondary-600 focus:ring-secondary-300'
+									: 'bg-primary-500 hover:bg-primary-600 focus:ring-primary-300'
+							} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
+							caps
+							disabled={fetching || isLoading || disabled === false}
+							padding="px-4 py-2 md:px-6 md:py-3 lg:px-4 lg:py-2"
+							rounded="rounded-xl"
+							onClick={
+								disabled ? () => handlePunch(punchIn ? 'OUT' : 'IN') : undefined
+							}
+							title={
+								disabled === false
+									? 'Punched Out'
+									: punchIn
+									? isLoading
+										? 'Punching Out...'
+										: 'Punch Out'
+									: isLoading
+									? 'Punching In...'
+									: 'Punch In'
+							}
+							titleSize="text-base sm:tracking-wider md:text-lg"
+						/>
+					</div>
 				</div>
-			</div>
+			)}
 			<div className="grid grid-cols-2 gap-4 my-3 pt-2 lg:my-1">
 				<div className="bg-gray-100 border border-gray-300 px-3 py-2 rounded-lg text-center w-full">
 					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">

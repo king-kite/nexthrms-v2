@@ -70,7 +70,6 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		query: {
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset: 0,
-			search: '',
 		},
 		getData(params) {
 			return getAttendance({
