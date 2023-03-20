@@ -7,6 +7,7 @@ import {
 import {
 	addObjectPermissions,
 	getRecords,
+	getEmployeeOfficersId,
 	updateObjectPermissions,
 } from '../../../../db/utils';
 import { admin, employee } from '../../../../middlewares';
@@ -87,40 +88,7 @@ export default admin()
 		})) as unknown as LeaveType;
 
 		// Get the employees admin related officers
-		const officers = await prisma.user.findMany({
-			where: {
-				isActive: true,
-				OR: [
-					// Super users
-					{
-						isSuperUser: true,
-					},
-					// Get the employee's supervisors
-					{
-						isAdmin: true,
-						employee: {
-							supervisedEmployees: {
-								some: {
-									id: { in: [leave.employee.id] },
-								},
-							},
-						},
-					},
-					// Get the employee's department HOD
-					{
-						isAdmin: true,
-						employee: leave.employee.department
-							? {
-									hod: {
-										name: leave.employee.department.name,
-									},
-							  }
-							: undefined,
-					},
-				],
-			},
-			select: { id: true },
-		});
+		const officers = await getEmployeeOfficersId(leave.employee.id);
 
 		await addObjectPermissions({
 			model: 'leaves',
@@ -132,7 +100,9 @@ export default admin()
 			model: 'leaves',
 			permissions: ['VIEW'],
 			objectId: leave.id,
-			users: officers.map((officer) => officer.id),
+			users: officers.filter(
+				(id) => id !== req.user.id && id !== leave.employee.user.id
+			),
 		});
 
 		return res.status(201).json({

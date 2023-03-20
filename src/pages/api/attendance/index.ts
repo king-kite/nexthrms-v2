@@ -6,7 +6,11 @@ import {
 	prisma,
 	attendanceSelectQuery as selectQuery,
 } from '../../../db';
-import { getRecords, addObjectPermissions } from '../../../db/utils';
+import {
+	getRecords,
+	addObjectPermissions,
+	getEmployeeOfficersId,
+} from '../../../db/utils';
 import { employee } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -115,46 +119,13 @@ export default employee()
 			})) as unknown as AttendanceType;
 
 			// Add object level permissions
-			const officers = await prisma.user.findMany({
-				where: {
-					isActive: true,
-					OR: [
-						// Super users
-						{
-							isSuperUser: true,
-						},
-						// Get the employee's supervisors
-						{
-							isAdmin: true,
-							employee: {
-								supervisedEmployees: {
-									some: {
-										id: { in: [result.employee.id] },
-									},
-								},
-							},
-						},
-						// Get the employee's department HOD
-						{
-							isAdmin: true,
-							employee: result.employee.department
-								? {
-										hod: {
-											name: result.employee.department.name,
-										},
-								  }
-								: undefined,
-						},
-					],
-				},
-				select: { id: true },
-			});
+			const officers = await getEmployeeOfficersId(result.employee.id);
 
 			await addObjectPermissions({
 				model: 'attendance',
 				objectId: result.id,
 				permissions: ['VIEW'],
-				users: [req.user.id, ...officers.map((officer) => officer.id)],
+				users: [req.user.id, ...officers.filter((id) => id !== req.user.id)],
 			});
 
 			return res.status(200).json({

@@ -10,6 +10,7 @@ import {
 	addObjectPermissions,
 	getRecords,
 	updateObjectPermissions,
+	getEmployeeOfficersId,
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { AttendanceCreateType, AttendanceType } from '../../../../types';
@@ -91,40 +92,7 @@ export default admin()
 		})) as unknown as AttendanceType;
 
 		// Add object level permissions
-		const officers = await prisma.user.findMany({
-			where: {
-				isActive: true,
-				OR: [
-					// Super users
-					{
-						isSuperUser: true,
-					},
-					// Get the employee's supervisors
-					{
-						isAdmin: true,
-						employee: {
-							supervisedEmployees: {
-								some: {
-									id: { in: [result.employee.id] },
-								},
-							},
-						},
-					},
-					// Get the employee's department HOD
-					{
-						isAdmin: true,
-						employee: result.employee.department
-							? {
-									hod: {
-										name: result.employee.department.name,
-									},
-							  }
-							: undefined,
-					},
-				],
-			},
-			select: { id: true },
-		});
+		const officers = await getEmployeeOfficersId(result.employee.id);
 
 		await addObjectPermissions({
 			model: 'attendance',
@@ -137,7 +105,7 @@ export default admin()
 			permissions: ['VIEW'],
 			objectId: result.id,
 			users: [
-				...officers.map((officer) => officer.id),
+				...officers.filter((id) => id !== result.employee.user.id),
 				result.employee.user.id,
 			],
 		});
