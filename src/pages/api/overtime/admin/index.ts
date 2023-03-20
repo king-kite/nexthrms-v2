@@ -10,7 +10,8 @@ import {
 	getEmployeeOfficersId,
 	updateObjectPermissions,
 } from '../../../../db/utils';
-import { admin, employee } from '../../../../middlewares';
+import { admin } from '../../../../middlewares';
+import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import {
 	CreateOvertimeQueryType,
 	GetAllOvertimeResponseType,
