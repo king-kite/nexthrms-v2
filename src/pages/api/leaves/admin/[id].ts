@@ -47,6 +47,22 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
+		hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.leave.VIEW]);
+		if (!hasPerm) {
+			// check if the user has a view object permission for this record
+			const objPerm = await getUserObjectPermissions({
+				modelName: 'leaves',
+				objectId: req.query.id as string,
+				permission: 'VIEW',
+				userId: req.user.id,
+			});
+			if (objPerm.delete === true) hasPerm = true;
+		}
+		// Cannot view
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const leave = await getLeave(req.query.id as string);
 		if (!leave)
 			return res.status(404).json({

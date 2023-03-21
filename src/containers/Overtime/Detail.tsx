@@ -205,7 +205,6 @@ const Detail = ({
 			// Also if the date has not yet been reached
 			if (
 				data.status !== 'APPROVED' &&
-				data.status !== 'DENIED' &&
 				date.getTime() >= currentDate.getTime()
 			) {
 				if (canEdit)
@@ -231,12 +230,12 @@ const Detail = ({
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
 			// If the overtime date is today or next date i.e the current date or days after today
-			//  and it is still pending then it can be approved/denied and also updated and deleted.
+			//  and it is not approved then it can be approved/denied and also updated and deleted.
 			// Means that the overtime has yet to commence.
 			// If the user is a superuser, then bypass the restriction
 			if (
 				authData?.isSuperUser ||
-				(currentDate.getTime() <= date.getTime() && data.status === 'PENDING')
+				(currentDate.getTime() <= date.getTime() && data.status !== 'APPROVED')
 			) {
 				if (canEdit)
 					buttons.push({

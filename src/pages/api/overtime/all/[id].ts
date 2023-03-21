@@ -68,30 +68,20 @@ export default employee()
 		// Should have on create
 		if (!objPerm.edit) throw new NextApiErrorMessage(403);
 
-		// check if the overtime has been approved or denied
-		// as long as the overtime is still pending, the user can edit is as he/she likes
-		if (overtime.status === 'APPROVED' || overtime.status === 'DENIED') {
-			return res.status(403).json({
-				status: 'error',
-				message: `This overtime record has already either been ${overtime.status.toLowerCase()} and can no longer be updated!`,
-			});
-		}
-
+		// If the overtime is updated by the user, change the status to 'PENDING'
 		const oldDate =
 			typeof overtime.date === 'string'
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
-		// As long as the leave is still pending, the user can edit as he/she likes
-		// Also if the startDate has not yet been reached
+		// As long as the overtime is the current date or greater than the current date
+		// The user can update it
 		if (oldDate.getTime() >= currentDate.getTime()) {
 			const { employee, ...data }: CreateOvertimeQueryType =
 				await overtimeCreateSchema.validateAsync({
 					...req.body,
 				});
-
-			// TODO: Check if the user has an approved/pending overtime
 
 			const date = new Date(data.date);
 			date.setHours(0, 0, 0, 0);
@@ -110,6 +100,7 @@ export default employee()
 				},
 				data: {
 					...data,
+					status: 'PENDING',
 					date,
 					employee: {
 						connect: {
@@ -164,10 +155,10 @@ export default employee()
 		// Should have on create
 		if (!objPerm.delete) throw new NextApiErrorMessage(403);
 
-		if (overtime.status === 'APPROVED' || overtime.status === 'DENIED') {
+		if (overtime.status === 'APPROVED') {
 			return res.status(403).json({
 				status: 'error',
-				message: `This overtime request has already either been ${overtime.status.toLowerCase()} and can no longer be deleted!`,
+				message: `This overtime request has already been approved and can no longer be deleted!`,
 			});
 		}
 
