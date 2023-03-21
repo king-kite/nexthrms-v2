@@ -203,11 +203,6 @@ export async function updateObjectPermissions({
 		return prisma.$transaction(
 			permissions.map((permission) =>
 				prisma.permissionObject.upsert({
-					update: {
-						users: {
-							connect: users.map((user) => ({ id: user })),
-						},
-					},
 					where: {
 						modelName_objectId_permission: {
 							modelName,
@@ -215,10 +210,18 @@ export async function updateObjectPermissions({
 							objectId,
 						},
 					},
+					update: {
+						users: {
+							connect: users.map((user) => ({ id: user })),
+						},
+					},
 					create: {
 						modelName,
 						permission,
 						objectId,
+						users: {
+							connect: users.map((user) => ({ id: user })),
+						},
 					},
 					select: { id: true },
 				})
@@ -241,16 +244,16 @@ export async function removeObjectPermissions({
 		return prisma.$transaction(
 			permissions.map((permission) =>
 				prisma.permissionObject.upsert({
-					update: {
-						users: {
-							disconnect: users.map((user) => ({ id: user })),
-						},
-					},
 					where: {
 						modelName_objectId_permission: {
 							modelName,
 							permission,
 							objectId,
+						},
+					},
+					update: {
+						users: {
+							disconnect: users.map((user) => ({ id: user })),
 						},
 					},
 					create: {

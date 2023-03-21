@@ -105,7 +105,7 @@ export default admin()
 			permissions: ['VIEW'],
 			objectId: result.id,
 			users: [
-				...officers.filter((id) => id !== result.employee.user.id),
+				...officers.filter((id) => id !== req.user.id),
 				result.employee.user.id,
 			],
 		});
