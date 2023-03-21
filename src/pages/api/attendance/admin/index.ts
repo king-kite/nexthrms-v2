@@ -1,33 +1,52 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../../config';
 import {
 	attendanceSelectQuery as selectQuery,
 	getAttendanceAdmin,
 	prisma,
 } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { AttendanceCreateType } from '../../../../types';
-import { attendanceCreateSchema, validateParams } from '../../../../validators';
+import {
+	addObjectPermissions,
+	getRecords,
+	updateObjectPermissions,
+	getEmployeeOfficersId,
+} from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
+import { AttendanceCreateType, AttendanceType } from '../../../../types';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
+import { attendanceCreateSchema } from '../../../../validators';
 
-export default auth()
+export default admin()
 	.get(async (req, res) => {
-		if (!req.user.employee) {
-			return res.status(403).json({
-				status: 'error',
-				message: 'Permission Denied!',
-			});
-		}
-
-		const params = validateParams({ ...req.query });
-		const data = await getAttendanceAdmin(params);
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched all attendance! A total of ' + data.total,
-			data,
+		const result = await getRecords({
+			model: 'attendance',
+			perm: 'attendance',
+			user: req.user,
+			query: req.query,
+			placeholder: {
+				total: 0,
+				result: [],
+			},
+			getData(params) {
+				return getAttendanceAdmin(params);
+			},
 		});
+
+		if (result) return res.status(200).json(result);
+
+		throw new NextApiErrorMessage(403);
 	})
 	.post(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.attendance.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
 		const data: AttendanceCreateType =
 			await attendanceCreateSchema.validateAsync({ ...req.body });
 
@@ -67,9 +86,28 @@ export default auth()
 			};
 		}
 
-		const result = await prisma.attendance.create({
+		const result = (await prisma.attendance.create({
 			data: input,
 			select: selectQuery,
+		})) as unknown as AttendanceType;
+
+		// Add object level permissions
+		const officers = await getEmployeeOfficersId(result.employee.id);
+
+		await addObjectPermissions({
+			model: 'attendance',
+			objectId: result.id,
+			users: [req.user.id],
+		});
+		// add the admin officers for the user to edit and view
+		await updateObjectPermissions({
+			model: 'attendance',
+			permissions: ['VIEW'],
+			objectId: result.id,
+			users: [
+				...officers.filter((id) => id !== req.user.id),
+				result.employee.user.id,
+			],
 		});
 
 		return res.status(201).json({

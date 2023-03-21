@@ -7,6 +7,7 @@ import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 import {
 	permissions,
 	ASSET_OBJECT_PERMISSIONS_PAGE_URL,
+	USER_PAGE_URL,
 } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { AssetType } from '../../types';
@@ -79,19 +80,21 @@ const getRows = (
 			id: asset.id,
 			onClick(e) {
 				const tagName = (e.target as HTMLElement).tagName.toLowerCase();
-				switch(tagName) {
+				switch (tagName) {
+					case 'a':
 					case 'path':
 					case 'section':
 					case 'span':
 					case 'svg':
 						break;
 					default:
-						showAsset(asset)
+						showAsset(asset);
 				}
 			},
 			rows: [
-				{value: asset.name || '---' },
+				{ value: asset.name || '---' },
 				{
+					link: asset.user ? USER_PAGE_URL(asset.user.id) : undefined,
 					value: asset.user
 						? `${asset.user.firstName} ${asset.user.lastName}`
 						: '---',
@@ -225,8 +228,8 @@ const AssetTable = ({
 				rows={rows}
 				options={{
 					rows: {
-						hover: true
-					}
+						hover: true,
+					},
 				}}
 				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>

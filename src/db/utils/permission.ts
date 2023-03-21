@@ -168,23 +168,25 @@ export async function addObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	return prisma.$transaction(
-		permissions.map((permission) =>
-			prisma.permissionObject.create({
-				data: {
-					permission,
-					modelName,
-					objectId,
-					users: {
-						connect: users.map((user) => ({ id: user })),
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
+		return prisma.$transaction(
+			permissions.map((permission) =>
+				prisma.permissionObject.create({
+					data: {
+						permission,
+						modelName,
+						objectId,
+						users: {
+							connect: filteredUsers.map((user) => ({ id: user })),
+						},
 					},
-				},
-				select: { id: true },
-			})
-		)
-	);
+					select: { id: true },
+				})
+			)
+		);
 }
 
 export async function updateObjectPermissions({
@@ -196,32 +198,37 @@ export async function updateObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	return prisma.$transaction(
-		permissions.map((permission) =>
-			prisma.permissionObject.upsert({
-				update: {
-					users: {
-						connect: users.map((user) => ({ id: user })),
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
+		return prisma.$transaction(
+			permissions.map((permission) =>
+				prisma.permissionObject.upsert({
+					where: {
+						modelName_objectId_permission: {
+							modelName,
+							permission,
+							objectId,
+						},
 					},
-				},
-				where: {
-					modelName_objectId_permission: {
+					update: {
+						users: {
+							connect: filteredUsers.map((user) => ({ id: user })),
+						},
+					},
+					create: {
 						modelName,
 						permission,
 						objectId,
+						users: {
+							connect: filteredUsers.map((user) => ({ id: user })),
+						},
 					},
-				},
-				create: {
-					modelName,
-					permission,
-					objectId,
-				},
-				select: { id: true },
-			})
-		)
-	);
+					select: { id: true },
+				})
+			)
+		);
 }
 
 export async function removeObjectPermissions({
@@ -233,94 +240,96 @@ export async function removeObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	return prisma.$transaction(
-		permissions.map((permission) =>
-			prisma.permissionObject.upsert({
-				update: {
-					users: {
-						disconnect: users.map((user) => ({ id: user })),
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
+		return prisma.$transaction(
+			permissions.map((permission) =>
+				prisma.permissionObject.upsert({
+					where: {
+						modelName_objectId_permission: {
+							modelName,
+							permission,
+							objectId,
+						},
 					},
-				},
-				where: {
-					modelName_objectId_permission: {
+					update: {
+						users: {
+							disconnect: filteredUsers.map((user) => ({ id: user })),
+						},
+					},
+					create: {
 						modelName,
 						permission,
 						objectId,
 					},
-				},
-				create: {
-					modelName,
-					permission,
-					objectId,
-				},
-				select: { id: true },
-			})
-		)
-	);
+					select: { id: true },
+				})
+			)
+		);
 }
 
-// export async function updateObjectPermissions({
-// 	model: modelName,
-// 	permissions = ['DELETE', 'EDIT', 'VIEW'],
-// 	objectId,
-// 	users,
-// }: {
-// 	model: PermissionModelChoices;
-// 	permissions?: PermissionObjectChoices[];
-// 	objectId: string;
-// 	users: string[];
-// }) {
-// 	return prisma.$transaction(
-// 		permissions.map((permission) =>
-// 			prisma.permissionObject.update({
-// 				data: {
-// 					users: {
-// 						connect: users.map((user) => ({ id: user })),
-// 					},
-// 				},
-// 				where: {
-// 					modelName_objectId_permission: {
-// 						modelName,
-// 						permission,
-// 						objectId,
-// 					},
-// 				},
-// 				select: { id: true },
-// 			})
-// 		)
-// 	);
-// }
+export async function getEmployeeOfficersId(id: string) {
+	// simply get the employee and get he's supervisors and hod
+	// get the superusers will be admins
+	const [employee, admins] = await prisma.$transaction([
+		prisma.employee.findUnique({
+			where: { id },
+			select: {
+				department: {
+					select: {
+						hod: {
+							select: {
+								user: {
+									select: {
+										id: true,
+										isActive: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				supervisors: {
+					where: {
+						user: {
+							isActive: true,
+							isAdmin: true,
+						},
+					},
+					select: {
+						user: {
+							select: {
+								id: true,
+							},
+						},
+					},
+				},
+			},
+		}),
+		prisma.user.findMany({
+			where: {
+				isActive: true,
+				isSuperUser: true,
+			},
+			select: { id: true },
+		}),
+	]);
+	const officers = admins.map((admin) => admin.id);
+	if (employee) {
+		if (
+			employee.department?.hod &&
+			employee.department.hod.user.isActive &&
+			!officers.includes(employee.department.hod.user.id)
+		)
+			officers.push(employee.department.hod.user.id);
 
-// export async function removeObjectPermissions({
-// 	model: modelName,
-// 	permissions = ['DELETE', 'EDIT', 'VIEW'],
-// 	objectId,
-// 	users,
-// }: {
-// 	model: PermissionModelChoices;
-// 	permissions?: PermissionObjectChoices[];
-// 	objectId: string;
-// 	users: string[];
-// }) {
-// 	return prisma.$transaction(
-// 		permissions.map((permission) =>
-// 			prisma.permissionObject.update({
-// 				data: {
-// 					users: {
-// 						disconnect: users.map((user) => ({ id: user })),
-// 					},
-// 				},
-// 				where: {
-// 					modelName_objectId_permission: {
-// 						modelName,
-// 						permission,
-// 						objectId,
-// 					},
-// 				},
-// 				select: { id: true },
-// 			})
-// 		)
-// 	);
-// }
+		employee.supervisors.forEach((supervisor) => {
+			if (!officers.includes(supervisor.user.id))
+				officers.push(supervisor.user.id);
+		});
+	}
+
+	return officers;
+}

@@ -46,19 +46,25 @@ export default admin()
 	.post(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.overtime.EDIT]);
+			hasModelPermission(req.user.allPermissions, [permissions.overtime.GRANT]);
 
+		// Cannot grant
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [permissions.overtime.VIEW]);
 		if (!hasPerm) {
 			// check if the user has a view object permission for this record
 			const objPerm = await getUserObjectPermissions({
 				modelName: 'overtime',
 				objectId: req.query.id as string,
-				permission: 'EDIT',
+				permission: 'VIEW',
 				userId: req.user.id,
 			});
-			if (objPerm.edit === true) hasPerm = true;
+			if (objPerm.delete === true) hasPerm = true;
 		}
-
+		// Cannot view
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
 		const overtime = await getOvertime(req.query.id as string);
@@ -81,13 +87,14 @@ export default admin()
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
 		// If the overtime date is today or next date i.e the current date or days after today
-		// and it is still pending then it can be approved/denied and also updated and deleted.
+		// and it is not approved then it can be approved/denied and also updated and deleted.
 		// Means that the overtime has yet to commence.
 		// If request user is a super user, then bypass the restriction
 
 		if (
 			req.user.isSuperUser ||
-			(currentDate.getTime() <= date.getTime() && overtime.status === 'PENDING')
+			(currentDate.getTime() <= date.getTime() &&
+				overtime.status !== 'APPROVED')
 		) {
 			const data = await prisma.overtime.update({
 				where: {
@@ -112,12 +119,6 @@ export default admin()
 				data,
 			});
 		}
-		// 	date.getTime() > currentDate.getTime() &&
-		// 	(data.status === 'APPROVED') || data.status === 'DENIED'
-		// ) {
-		// 	// Meaning that the date for overtime is either today or has passed
-		// 	// and the overtime has either been approved or denied so no updates, deletes, nor approval should be made
-		// }
 		return res.status(403).json({
 			status: 'error',
 			message:
@@ -158,13 +159,14 @@ export default admin()
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
 		// If the overtime date is today or next date i.e the current date or days after today
-		// and it is still pending then it can be approved/denied and also updated and deleted.
+		// and it is still not appoved then it can be approved/denied and also updated and deleted.
 		// Means that the overtime has yet to commence.
 		// If request user is a super user, then bypass the restriction
 
 		if (
 			req.user.isSuperUser ||
-			(currentDate.getTime() <= date.getTime() && overtime.status === 'PENDING')
+			(currentDate.getTime() <= date.getTime() &&
+				overtime.status !== 'APPROVED')
 		) {
 			const { employee, ...data }: CreateOvertimeQueryType =
 				await overtimeCreateSchema.validateAsync({
@@ -194,6 +196,7 @@ export default admin()
 				},
 				data: {
 					...data,
+					status: 'PENDING',
 					employee: {
 						connect: {
 							id: employee,
@@ -216,12 +219,6 @@ export default admin()
 				data: overtime,
 			});
 		}
-		// 	date.getTime() > currentDate.getTime() &&
-		// 	(data.status === 'APPROVED') || data.status === 'DENIED'
-		// ) {
-		// 	// Meaning that the date for overtime is either today or has passed
-		// 	// and the overtime has either been approved or denied so no updates, deletes, nor approval should be made
-		// }
 		return res.status(403).json({
 			status: 'error',
 			message:

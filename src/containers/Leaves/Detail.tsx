@@ -99,14 +99,15 @@ const Detail = ({
 			}
 		);
 
-	const [canEdit, canDelete, canViewPermissions] = useMemo(() => {
-		if (!authData) return [false, false, false];
+	const [canEdit, canDelete, canGrant, canViewPermissions] = useMemo(() => {
+		if (!authData) return [false, false, false, false];
 		// Not Admin Page
 		// Only check object level permissions
-		if (!admin) return [objPermData?.edit, objPermData?.delete, false];
+		if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
 		else {
 			let canEdit = false;
 			let canDelete = false;
+			let canGrant = false;
 			// Check model permissions
 			if (authData.isAdmin || authData.isSuperUser) {
 				canEdit =
@@ -126,6 +127,15 @@ const Detail = ({
 						])) ||
 					false;
 			}
+			if (authData.isAdmin || authData.isSuperUser) {
+				canGrant =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [
+							permissions.leave.GRANT,
+						])) ||
+					false;
+			}
 
 			// If the user doesn't have model edit permissions, then check obj edit permission
 			if (!canEdit && objPermData) canEdit = objPermData.edit;
@@ -139,7 +149,7 @@ const Detail = ({
 					])) ||
 				false;
 
-			return [canEdit, canDelete, canViewPermissions];
+			return [canEdit, canDelete, canGrant, canViewPermissions];
 		}
 	}, [authData, admin, objPermData]);
 
@@ -255,7 +265,7 @@ const Detail = ({
 						onClick: () => deleteLeave(id),
 						title: 'Delete Leave',
 					});
-				if (canEdit)
+				if (canGrant)
 					buttons.push(
 						{
 							bg: 'bg-green-600 hover:bg-green-500',
@@ -297,6 +307,7 @@ const Detail = ({
 		authData,
 		canDelete,
 		canEdit,
+		canGrant,
 		canViewPermissions,
 		data,
 		deleteLeave,

@@ -1,37 +1,28 @@
-import { InferGetServerSidePropsType } from 'next';
-import Error from 'next/error';
-import React from 'react';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import Attendance from '../../../containers/Attendance';
 import { getAttendance, getAttendanceInfo } from '../../../db';
+import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
-	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,
 } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
-	error,
 	attendanceData,
 	attendanceInfo,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
-		{error ? (
-			<Error statusCode={error.statusCode} title={error.title} />
-		) : (
-			<React.Fragment>
-				<Title title="My Attendance" />
-				<Attendance
-					attendanceData={attendanceData}
-					attendanceInfo={attendanceInfo}
-				/>
-			</React.Fragment>
-		)}
-	</React.Fragment>
+	<>
+		<Title title="My Attendance" />
+		<Attendance
+			attendanceData={attendanceData}
+			attendanceInfo={attendanceInfo}
+		/>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -54,21 +45,40 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
+	const auth = await serializeUserData(req.user);
 	if (!req.user.employee) {
 		return {
 			props: {
-				error: {
+				auth,
+				errorPage: {
 					statusCode: 403,
-					title: 'Only employees can view this page!',
+					title: 'Sorry, this paage is reserved for employees only.',
 				},
 			},
 		};
 	}
 
-	const auth = await serializeUserData(req.user);
-	const attendanceData: GetAttendanceResponseType['data'] = JSON.parse(
-		JSON.stringify(await getAttendance({ id: req.user.employee.id }))
-	);
+	const placeholder = {
+		total: 0,
+		result: [],
+	};
+	const result = await getRecords({
+		model: 'attendance',
+		perm: 'attendance',
+		placeholder,
+		user: req.user,
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+		},
+		getData(params) {
+			return getAttendance({
+				...params,
+				id: req.user?.employee?.id || '',
+			});
+		},
+	});
+	const attendanceData = result ? result.data : placeholder;
 	const attendanceInfo: GetAttendanceInfoResponseType['data'] = JSON.parse(
 		JSON.stringify(await getAttendanceInfo(req.user.employee.id))
 	);

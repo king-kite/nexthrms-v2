@@ -32,15 +32,13 @@ const Overtime = ({
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canView] = useMemo(() => {
-		const canCreate = authData
+	const [canRequest, canView] = useMemo(() => {
+		const canRequest = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.overtime.CREATE])
+			  hasModelPermission(authData.permissions, [permissions.overtime.REQUEST])
 			: false;
-		const canView = authData
-			? authData.isSuperUser || (authData.employee && true)
-			: false;
-		return [canCreate, canView];
+		const canView = !!authData?.employee;
+		return [canRequest, canView];
 	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetAllOvertimeQuery(
@@ -85,12 +83,12 @@ const Overtime = ({
 
 	const handleSubmit = useCallback(
 		(form: CreateOvertimeQueryType) => {
-			if (canCreate) {
+			if (canRequest) {
 				setErrors(undefined);
 				requestOvertime(form);
 			}
 		},
-		[canCreate, requestOvertime]
+		[canRequest, requestOvertime]
 	);
 
 	return (
@@ -100,10 +98,10 @@ const Overtime = ({
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
+			error={!canView && !canRequest ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				(canCreate || canView) && data
+				(canRequest || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -113,7 +111,7 @@ const Overtime = ({
 					: undefined
 			}
 		>
-			{(canCreate || canView) && (
+			{(canRequest || canView) && (
 				<Cards
 					approved={data?.approved || 0}
 					denied={data?.denied || 0}
@@ -127,10 +125,10 @@ const Overtime = ({
 				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
-			{(canCreate || canView) && (
+			{(canRequest || canView) && (
 				<OvertimeTable overtime={data?.result || []} />
 			)}
-			{canCreate && (
+			{canRequest && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={

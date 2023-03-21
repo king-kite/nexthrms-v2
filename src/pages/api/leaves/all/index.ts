@@ -6,6 +6,7 @@ import {
 } from '../../../../db';
 import {
 	addObjectPermissions,
+	getEmployeeOfficersId,
 	getUserObjects,
 	updateObjectPermissions,
 } from '../../../../db/utils';
@@ -48,7 +49,7 @@ export default employee()
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
+			hasModelPermission(req.user.allPermissions, [permissions.leave.REQUEST]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
@@ -77,40 +78,7 @@ export default employee()
 		})) as unknown as LeaveType;
 
 		// Get the employees admin related officers
-		const officers = await prisma.user.findMany({
-			where: {
-				isActive: true,
-				OR: [
-					// Super users
-					{
-						isSuperUser: true,
-					},
-					// Get the employee's supervisor
-					{
-						isAdmin: true,
-						employee: {
-							supervisedEmployees: {
-								some: {
-									id: { in: [leave.employee.id] },
-								},
-							},
-						},
-					},
-					// Get the employee's department HOD
-					{
-						isAdmin: true,
-						employee: leave.employee.department
-							? {
-									hod: {
-										name: leave.employee.department.name,
-									},
-							  }
-							: undefined,
-					},
-				],
-			},
-			select: { id: true },
-		});
+		const officers = await getEmployeeOfficersId(leave.employee.id);
 
 		await addObjectPermissions({
 			model: 'leaves',
@@ -121,9 +89,9 @@ export default employee()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'leaves',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: leave.id,
-			users: officers.map((officer) => officer.id),
+			users: officers.filter((id) => id !== req.user.id),
 		});
 
 		return res.status(201).json({

@@ -7,9 +7,11 @@ import {
 import {
 	addObjectPermissions,
 	getRecords,
+	getEmployeeOfficersId,
 	updateObjectPermissions,
 } from '../../../../db/utils';
-import { admin, employee } from '../../../../middlewares';
+import { admin } from '../../../../middlewares';
+import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import {
 	CreateOvertimeQueryType,
 	GetAllOvertimeResponseType,
@@ -101,40 +103,7 @@ export default admin()
 		})) as unknown as OvertimeType;
 
 		// Get the employees admin related officers
-		const officers = await prisma.user.findMany({
-			where: {
-				isActive: true,
-				OR: [
-					// Super users
-					{
-						isSuperUser: true,
-					},
-					// Get the employee's supervisors
-					{
-						isAdmin: true,
-						employee: {
-							supervisedEmployees: {
-								every: {
-									id: { in: [overtime.employee.id] },
-								},
-							},
-						},
-					},
-					// Get the employee's department HOD
-					{
-						isAdmin: true,
-						employee: overtime.employee.department
-							? {
-									hod: {
-										name: overtime.employee.department.name,
-									},
-							  }
-							: undefined,
-					},
-				],
-			},
-			select: { id: true },
-		});
+		const officers = await getEmployeeOfficersId(overtime.employee.id);
 
 		await addObjectPermissions({
 			model: 'overtime',
@@ -144,9 +113,11 @@ export default admin()
 		// add the admin officers for the user to edit and view
 		await updateObjectPermissions({
 			model: 'overtime',
-			permissions: ['VIEW', 'EDIT'],
+			permissions: ['VIEW'],
 			objectId: overtime.id,
-			users: officers.map((officer) => officer.id),
+			users: officers.filter(
+				(id) => id !== req.user.id && id !== overtime.employee.user.id
+			),
 		});
 
 		return res.status(201).json({

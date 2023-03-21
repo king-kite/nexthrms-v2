@@ -28,15 +28,13 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canView] = useMemo(() => {
-		const canCreate = authData
+	const [canRequest, canView] = useMemo(() => {
+		const canRequest = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.leave.CREATE])
+			  hasModelPermission(authData.permissions, [permissions.leave.REQUEST])
 			: false;
-		const canView = authData
-			? authData.isSuperUser || (authData.employee && true)
-			: false;
-		return [canCreate, canView];
+		const canView = !!authData?.employee;
+		return [canRequest, canView];
 	}, [authData]);
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesQuery(
@@ -81,12 +79,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 
 	const handleSubmit = useCallback(
 		(form: CreateLeaveQueryType) => {
-			if (canCreate) {
+			if (canRequest) {
 				setErrors(undefined);
 				requestLeave(form);
 			}
 		},
-		[canCreate, requestLeave]
+		[canRequest, requestLeave]
 	);
 
 	return (
@@ -96,10 +94,10 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
+			error={!canView && !canRequest ? { statusCode: 403 } : undefined}
 			loading={isLoading}
 			paginate={
-				(canCreate || canView) && data
+				(canRequest || canView) && data
 					? {
 							loading: isFetching,
 							setOffset,
@@ -109,7 +107,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 					: undefined
 			}
 		>
-			{(canCreate || canView) && (
+			{(canRequest || canView) && (
 				<Cards
 					approved={data?.approved || 0}
 					denied={data?.denied || 0}
@@ -123,8 +121,8 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
-			{(canCreate || canView) && <LeaveTable leaves={data?.result || []} />}
-			{canCreate && (
+			{(canRequest || canView) && <LeaveTable leaves={data?.result || []} />}
+			{canRequest && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={

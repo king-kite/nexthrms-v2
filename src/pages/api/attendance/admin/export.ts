@@ -1,18 +1,40 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../../config';
 import { getAttendanceAdmin } from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { AttendanceType } from '../../../../types';
-import { validateParams } from '../../../../validators';
+import { getRecords } from '../../../../db/utils';
+import { admin } from '../../../../middlewares';
+import { hasModelPermission } from '../../../../utils';
+import { NextApiErrorMessage } from '../../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [
+			permissions.attendance.EXPORT,
+		]);
 
-	const data = await getAttendanceAdmin({ ...params });
+	if (!hasPerm) throw new NextApiErrorMessage(403);
 
-	const attendance = data.result.map((atd) => {
-		const attend = atd as AttendanceType;
+	const placeholder = {
+		total: 0,
+		result: [],
+	};
+	const result = await getRecords({
+		model: 'attendance',
+		perm: 'attendance',
+		query: req.query,
+		placeholder,
+		user: req.user,
+		getData(params) {
+			return getAttendanceAdmin(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+
+	const attendance = data.result.map((attend) => {
 		return {
 			id: attend.id,
 			employee_id: attend.employee.id,
