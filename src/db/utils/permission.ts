@@ -168,9 +168,10 @@ export async function addObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	if (users.length > 0)
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
 		return prisma.$transaction(
 			permissions.map((permission) =>
 				prisma.permissionObject.create({
@@ -179,7 +180,7 @@ export async function addObjectPermissions({
 						modelName,
 						objectId,
 						users: {
-							connect: users.map((user) => ({ id: user })),
+							connect: filteredUsers.map((user) => ({ id: user })),
 						},
 					},
 					select: { id: true },
@@ -197,9 +198,10 @@ export async function updateObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	if (users.length > 0)
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
 		return prisma.$transaction(
 			permissions.map((permission) =>
 				prisma.permissionObject.upsert({
@@ -212,7 +214,7 @@ export async function updateObjectPermissions({
 					},
 					update: {
 						users: {
-							connect: users.map((user) => ({ id: user })),
+							connect: filteredUsers.map((user) => ({ id: user })),
 						},
 					},
 					create: {
@@ -220,7 +222,7 @@ export async function updateObjectPermissions({
 						permission,
 						objectId,
 						users: {
-							connect: users.map((user) => ({ id: user })),
+							connect: filteredUsers.map((user) => ({ id: user })),
 						},
 					},
 					select: { id: true },
@@ -238,9 +240,10 @@ export async function removeObjectPermissions({
 	model: PermissionModelChoices;
 	permissions?: PermissionObjectChoices[];
 	objectId: string;
-	users: string[];
+	users: (string | undefined)[];
 }) {
-	if (users.length > 0)
+	const filteredUsers = users.filter((id) => id !== undefined);
+	if (filteredUsers.length > 0)
 		return prisma.$transaction(
 			permissions.map((permission) =>
 				prisma.permissionObject.upsert({
@@ -253,7 +256,7 @@ export async function removeObjectPermissions({
 					},
 					update: {
 						users: {
-							disconnect: users.map((user) => ({ id: user })),
+							disconnect: filteredUsers.map((user) => ({ id: user })),
 						},
 					},
 					create: {

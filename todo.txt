@@ -15,3 +15,5 @@
 14. Create employee/client using the userID.
 15. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 -- Do be mindful of smaller screen.
+16. Remove unique overtime with date or allow user to edit overtime from deny to pending.
+-- Latter is preferred
