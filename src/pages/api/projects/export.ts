@@ -1,17 +1,41 @@
 import excelJS from 'exceljs';
 import { parse } from 'json2csv';
 
+import { permissions } from '../../../config';
 import { getProjects } from '../../../db';
-import { auth } from '../../../middlewares';
-import { ProjectType } from '../../../types';
-import { validateParams } from '../../../validators';
+import { getRecords } from '../../../db/utils';
+import { admin } from '../../../middlewares';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
 
-export default auth().get(async (req, res) => {
-	const params = validateParams(req.query);
+export default admin().get(async (req, res) => {
+	const hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.project.EXPORT]);
 
-	const data = await getProjects({ ...params });
+	if (!hasPerm) throw new NextApiErrorMessage();
 
-	const projects = data.result.map((project: ProjectType) => {
+	const placeholder = {
+		total: 0,
+		result: [],
+		ongoing: 0,
+		completed: 0,
+	};
+
+	const records = await getRecords({
+		model: 'projects',
+		perm: 'project',
+		placeholder,
+		user: req.user,
+		query: req.query,
+		getData(params) {
+			return getProjects(params);
+		},
+	});
+
+	const data = records ? records.data : placeholder;
+
+	const projects = data.result.map((project) => {
 		const data = {
 			id: project.id,
 			name: project.name,
@@ -22,7 +46,7 @@ export default auth().get(async (req, res) => {
 			initial_cost: project.initialCost,
 			rate: project.rate,
 			priority: project.priority,
-		}
+		};
 		if (project.client) {
 			Object.assign(data, {
 				client_id: project.client.id,
@@ -31,10 +55,10 @@ export default auth().get(async (req, res) => {
 				client_first_name: project.client.contact.firstName,
 				client_last_name: project.client.contact.lastName,
 				client_email: project.client.contact.email,
-			})
+			});
 		}
 
-		return {...data, updated_at: project.updatedAt};
+		return { ...data, updated_at: project.updatedAt };
 	});
 
 	if (req.query.type === 'csv') {
