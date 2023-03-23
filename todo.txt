@@ -1,4 +1,5 @@
 1. Handle Prisma Errors Better. Especially the unique key errors.
+-- Too Much information or confidential information is been sent.
 2. Attendance Statistics is not calculating properly. Fix it.
 3. Have the alert faded in and out
 4. In Sidebar, Have the links array objects have active keys checking the pathname for their
