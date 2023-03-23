@@ -11,21 +11,16 @@ const { logger } = require('./utils/index.js');
 	logger.success('Removed Old Groups Successfully!');
 	logger.info('Adding Groups...');
 
-	const clientPermissions = [
-		'can_view_project',
+	const employeePermissions = [
+		'can_mark_attendance',
 
-		'can_view_projectfile',
-		'can_create_projectfile',
-		'can_delete_projectfile',
+		'can_request_leave',
 
-		'can_view_projectteam',
-
-		'can_view_projecttask',
-
-		'can_view_projecttaskfollower',
+		'can_request_overtime',
 	];
 
-	const employeePermissions = [
+	const employeeAdminPermissions = [
+		...employeePermissions,
 		'can_view_attendance',
 		'can_create_attendance',
 
@@ -52,47 +47,9 @@ const { logger } = require('./utils/index.js');
 		'can_edit_projecttask',
 
 		'can_view_projecttaskfollower',
-	];
-
-	const employeeAdminPermissions = [
-		...employeePermissions,
 		'can_delete_attendance',
 		'can_edit_attendance',
 	];
-
-	const leadPermissions = [
-		'can_view_project',
-		'can_edit_project',
-
-		'can_view_projectfile',
-		'can_create_projectfile',
-		'can_delete_projectfile',
-		'can_edit_projectfile',
-
-		'can_view_projectteam',
-		'can_create_projectteam',
-		'can_edit_projectteam',
-		'can_delete_projectteam',
-
-		'can_view_projecttask',
-		'can_edit_projecttask',
-		'can_delete_projecttask',
-		'can_create_projecttask',
-
-		'can_view_projecttaskfollower',
-		'can_edit_projecttaskfollower',
-		'can_delete_projecttaskfollower',
-		'can_create_projecttaskfollower',
-	];
-
-	const clientGroup = await prisma.group.create({
-		data: {
-			name: 'client',
-			description: 'This group grants permissions to clients',
-			active: true,
-		},
-		select: { id: true },
-	});
 
 	const employeeGroup = await prisma.group.create({
 		data: {
@@ -111,26 +68,6 @@ const { logger } = require('./utils/index.js');
 			active: true,
 		},
 		select: { id: true },
-	});
-
-	const leadGroup = await prisma.group.create({
-		data: {
-			name: 'lead',
-			description: 'This group grants permissions to project leaders',
-			active: true,
-		},
-		select: { id: true },
-	});
-
-	const clientGroupPromises = clientPermissions.map((codename) => {
-		return prisma.group.update({
-			where: { id: clientGroup.id },
-			data: {
-				permissions: {
-					connect: { codename },
-				},
-			},
-		});
 	});
 
 	const employeeGroupPromises = employeePermissions.map((codename) => {
@@ -157,24 +94,8 @@ const { logger } = require('./utils/index.js');
 		}
 	);
 
-	const leadGroupPromises = leadPermissions.map((codename) => {
-		return prisma.group.update({
-			where: { id: leadGroup.id },
-			data: {
-				permissions: {
-					connect: { codename },
-				},
-			},
-		});
-	});
-
 	// await the promises
-	await Promise.all([
-		...clientGroupPromises,
-		...employeeGroupPromises,
-		...employeeAdminGroupPromises,
-		...leadGroupPromises,
-	]);
+	await Promise.all([...employeeGroupPromises, ...employeeAdminGroupPromises]);
 
 	logger.success('Added Groups Successfully!');
 })()
