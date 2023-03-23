@@ -13,6 +13,7 @@ export type ProjectType = {
 		company: string;
 		position: string;
 		contact: {
+			id: string;
 			firstName: string;
 			lastName: string;
 			email: string;
@@ -77,6 +78,7 @@ export type ProjectTeamType = {
 	employee: {
 		id: string;
 		user: {
+			id: string;
 			firstName: string;
 			lastName: string;
 			email: string;
@@ -120,6 +122,7 @@ export type ProjectFileType = {
 	employee: {
 		id: string;
 		user: {
+			id: string;
 			firstName: string;
 			lastName: string;
 			email: string;

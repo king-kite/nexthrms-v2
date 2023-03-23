@@ -1,7 +1,13 @@
-import { Prisma, ProjectTask } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import prisma from '../client';
-import { ProjectTaskType, ParamsType } from '../../types';
+import {
+	ParamsType,
+	ProjectType,
+	ProjectFileType,
+	ProjectTaskType,
+	ProjectTeamType,
+} from '../../types';
 
 // ******** Project Queries Start ***********
 
@@ -22,6 +28,7 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 			position: true,
 			contact: {
 				select: {
+					id: true,
 					firstName: true,
 					lastName: true,
 					email: true,
@@ -43,6 +50,7 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 					id: true,
 					user: {
 						select: {
+							id: true,
 							firstName: true,
 							lastName: true,
 							email: true,
@@ -71,7 +79,10 @@ export const getProjectsQuery = ({
 	search = undefined,
 	from,
 	to,
-}: ParamsType): Prisma.ProjectFindManyArgs => {
+	where = {},
+}: ParamsType & {
+	where?: Prisma.ProjectWhereInput;
+}): Prisma.ProjectFindManyArgs => {
 	const query: Prisma.ProjectFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -115,8 +126,9 @@ export const getProjectsQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
-			: {},
+			: where,
 	};
 
 	if (from && to && query.where) {
@@ -130,11 +142,13 @@ export const getProjectsQuery = ({
 };
 
 export const getProjects = async (
-	params: ParamsType = {
+	params: ParamsType & {
+		where?: Prisma.ProjectWhereInput;
+	} = {
 		search: undefined,
 	}
 ) => {
-	const query = getProjectsQuery({ ...params });
+	const query = getProjectsQuery(params);
 
 	const [total, result, completed, ongoing] = await prisma.$transaction([
 		prisma.project.count({ where: query.where }),
@@ -151,16 +165,23 @@ export const getProjects = async (
 		}),
 	]);
 
-	return { total, result: result as any, completed, ongoing };
+	return {
+		total,
+		result: result as unknown as ProjectType[],
+		completed,
+		ongoing,
+	};
 };
 
 export const getProject = async (id: string) => {
-	const project = await prisma.project.findUnique({
+	const project = (await prisma.project.findUnique({
 		where: { id },
 		select: projectSelectQuery,
-	});
+	})) as unknown as ProjectType | null;
+	if (!project) return null;
+
 	const tasks = await prisma.projectTask.findMany({
-		where: { projectId: id },
+		where: { projectId: project.id },
 		select: { completed: true },
 	});
 	const completedTasks = tasks.filter((task) => task.completed === true).length;
@@ -191,6 +212,7 @@ export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 			id: true,
 			user: {
 				select: {
+					id: true,
 					firstName: true,
 					lastName: true,
 					email: true,
@@ -203,8 +225,10 @@ export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 
 export const getProjectFilesQuery = ({
 	id,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.ProjectFileWhereInput;
 }): Prisma.ProjectFileFindManyArgs => {
 	const query: Prisma.ProjectFileFindManyArgs = {
 		orderBy: {
@@ -213,6 +237,7 @@ export const getProjectFilesQuery = ({
 		select: projectFileSelectQuery,
 		where: {
 			projectId: id,
+			...where,
 		},
 	};
 
@@ -222,22 +247,23 @@ export const getProjectFilesQuery = ({
 export const getProjectFiles = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.ProjectFileWhereInput;
 	} = {
 		id: '',
 	}
 ) => {
-	const query = getProjectFilesQuery({ ...params });
+	const query = getProjectFilesQuery(params);
 
 	const result = await prisma.projectFile.findMany(query);
 
-	return { result };
+	return { result: result as unknown as ProjectFileType[] };
 };
 
 export const getProjectFile = async (id: string) => {
-	const file = await prisma.projectFile.findUnique({
+	const file = (await prisma.projectFile.findUnique({
 		where: { id },
 		select: projectFileSelectQuery,
-	});
+	})) as unknown as ProjectFileType | null;
 	return file;
 };
 
@@ -252,6 +278,7 @@ export const teamSelectQuery: Prisma.ProjectTeamSelect = {
 			id: true,
 			user: {
 				select: {
+					id: true,
 					firstName: true,
 					lastName: true,
 					email: true,
@@ -278,8 +305,10 @@ export const getProjectTeamQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.ProjectTeamWhereInput;
 }): Prisma.ProjectTeamFindManyArgs => {
 	const query: Prisma.ProjectTeamFindManyArgs = {
 		skip: offset,
@@ -327,9 +356,11 @@ export const getProjectTeamQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
 			: {
 					projectId: id,
+					...where,
 			  },
 	};
 
@@ -346,26 +377,27 @@ export const getProjectTeamQuery = ({
 export const getProjectTeam = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.ProjectTeamWhereInput;
 	} = {
 		search: undefined,
 		id: '',
 	}
 ) => {
-	const query = getProjectTeamQuery({ ...params });
+	const query = getProjectTeamQuery(params);
 
 	const [total, result] = await prisma.$transaction([
 		prisma.projectTeam.count({ where: query.where }),
 		prisma.projectTeam.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as ProjectTeamType[] };
 };
 
 export const getProjectTeamMember = async (id: string) => {
-	const member = await prisma.projectTeam.findUnique({
+	const member = (await prisma.projectTeam.findUnique({
 		where: { id },
 		select: teamSelectQuery,
-	});
+	})) as unknown as ProjectTeamType | null;
 	return member;
 };
 
@@ -395,6 +427,7 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 					id: true,
 					user: {
 						select: {
+							id: true,
 							firstName: true,
 							lastName: true,
 							email: true,
@@ -424,8 +457,10 @@ export const getProjectTasksQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.ProjectTaskWhereInput;
 }): Prisma.ProjectTaskFindManyArgs => {
 	const query: Prisma.ProjectTaskFindManyArgs = {
 		skip: offset,
@@ -453,9 +488,11 @@ export const getProjectTasksQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
 			: {
 					projectId: id,
+					...where,
 			  },
 	};
 
@@ -472,6 +509,7 @@ export const getProjectTasksQuery = ({
 export const getProjectTasks = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.ProjectTaskWhereInput;
 	} = {
 		search: undefined,
 		id: '',
@@ -484,9 +522,9 @@ export const getProjectTasks = async (
 		id: string;
 		name: string;
 	};
-	result: ProjectTask[] | ProjectTaskType[];
+	result: ProjectTaskType[];
 }> => {
-	const query = getProjectTasksQuery({ ...params });
+	const query = getProjectTasksQuery(params);
 
 	const [total, result, completed, ongoing, project] =
 		await prisma.$transaction([
@@ -510,7 +548,13 @@ export const getProjectTasks = async (
 			}),
 		]);
 
-	return { total, result, completed, ongoing, project };
+	return {
+		total,
+		result: result as unknown as ProjectTaskType[],
+		completed,
+		ongoing,
+		project,
+	};
 };
 
 export const getProjectTask = async (id: string) => {
@@ -518,7 +562,7 @@ export const getProjectTask = async (id: string) => {
 		where: { id },
 		select: taskSelectQuery,
 	});
-	return task;
+	return task as unknown as ProjectTaskType | null;
 };
 
 // ******** Task Queries Stop **********
@@ -532,6 +576,7 @@ export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 			id: true,
 			user: {
 				select: {
+					id: true,
 					firstName: true,
 					lastName: true,
 					email: true,
@@ -558,8 +603,10 @@ export const getTaskFollowersQuery = ({
 	id,
 	from,
 	to,
+	where = {},
 }: ParamsType & {
 	id: string;
+	where?: Prisma.ProjectTaskFollowerWhereInput;
 }): Prisma.ProjectTaskFollowerFindManyArgs => {
 	const query: Prisma.ProjectTaskFollowerFindManyArgs = {
 		skip: offset,
@@ -607,9 +654,11 @@ export const getTaskFollowersQuery = ({
 							},
 						},
 					],
+					...where,
 			  }
 			: {
 					taskId: id,
+					...where,
 			  },
 	};
 
@@ -626,19 +675,20 @@ export const getTaskFollowersQuery = ({
 export const getTaskFollowers = async (
 	params: ParamsType & {
 		id: string;
+		where?: Prisma.ProjectTaskFollowerWhereInput;
 	} = {
 		search: undefined,
 		id: '',
 	}
 ) => {
-	const query = getTaskFollowersQuery({ ...params });
+	const query = getTaskFollowersQuery(params);
 
 	const [total, result] = await prisma.$transaction([
 		prisma.projectTaskFollower.count({ where: query.where }),
 		prisma.projectTaskFollower.findMany(query),
 	]);
 
-	return { total, result };
+	return { total, result: result as unknown as ProjectTeamType[] };
 };
 
 export const getTaskFollower = async (id: string) => {
@@ -646,7 +696,7 @@ export const getTaskFollower = async (id: string) => {
 		where: { id },
 		select: taskFollowerSelectQuery,
 	});
-	return follower;
+	return follower as unknown as ProjectTeamType | null;
 };
 
 // ******** Task Followers Queries Stop *********
