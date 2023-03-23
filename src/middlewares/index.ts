@@ -19,6 +19,8 @@ export function auth() {
 					message:
 						err.status === 403
 							? err.message || 'You are not authorized to make this request!'
+							: err.status === 404
+							? err.message || 'The request data does not exist'
 							: err.message,
 				});
 			}

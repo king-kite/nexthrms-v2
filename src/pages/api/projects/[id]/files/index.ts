@@ -1,12 +1,26 @@
 import { Prisma } from '@prisma/client';
 
+import { permissions } from '../../../../../config';
 import {
 	prisma,
+	getProject,
 	getProjectFiles,
 	projectFileSelectQuery as selectQuery,
 } from '../../../../../db';
+import {
+	addObjectPermissions,
+	getRecord,
+	getRecords,
+	hasViewPermission,
+	updateObjectPermissions,
+} from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
-import { CreateProjectFileQueryType } from '../../../../../types';
+import {
+	CreateProjectFileQueryType,
+	ProjectFileType,
+} from '../../../../../types';
+import { hasModelPermission } from '../../../../../utils';
+import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { upload as uploadFile } from '../../../../../utils/files';
 import parseForm from '../../../../../utils/parseForm';
 import { projectFileCreateSchema } from '../../../../../validators';
@@ -18,16 +32,64 @@ export const config = {
 };
 
 export default auth()
-	.get(async (req, res) => {
-		const files = await getProjectFiles({ id: req.query.id as string });
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched project files successfully',
-			data: files,
+	.use(async (req, res, next) => {
+		// Check the user can view the project
+		const canViewProject = await hasViewPermission({
+			model: 'projects',
+			perm: 'project',
+			objectId: req.query.id as string,
+			user: req.user,
 		});
+		if (!canViewProject) throw new NextApiErrorMessage(403);
+		next();
+	})
+	.get(async (req, res) => {
+		const result = await getRecords({
+			model: 'projects_files',
+			perm: 'projectfile',
+			query: req.query,
+			user: req.user,
+			placeholder: {
+				result: [],
+			},
+			getData(params) {
+				return getProjectFiles({
+					...params,
+					id: req.query.id as string,
+				});
+			},
+		});
+
+		if (!result) throw new NextApiErrorMessage(403);
+
+		return res.status(200).json(result);
 	})
 	.post(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.projectfile.CREATE,
+			]);
+
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		const project = await getRecord({
+			model: 'projects',
+			perm: 'project',
+			objectId: req.query.id as string,
+			permission: 'VIEW',
+			user: req.user,
+			getData() {
+				return getProject(req.query.id as string);
+			},
+		});
+
+		if (!project?.data)
+			throw new NextApiErrorMessage(
+				404,
+				'Project with the specified ID was not found'
+			);
+
 		const { fields, files } = (await parseForm(req)) as {
 			fields: any;
 			files: any;
@@ -77,9 +139,29 @@ export default auth()
 				},
 			};
 
-		const finalResult = await prisma.projectFile.create({
+		const finalResult = (await prisma.projectFile.create({
 			data,
 			select: selectQuery,
+		})) as unknown as ProjectFileType;
+
+		await addObjectPermissions({
+			model: 'projects_files',
+			objectId: finalResult.id,
+			users: [req.user.id],
+		});
+
+		const viewers = [];
+		if (project.data.client) viewers.push(project.data.client.contact.id);
+
+		project.data.team.forEach((member) => {
+			viewers.push(member.employee.user.id);
+		});
+
+		await updateObjectPermissions({
+			model: 'projects_files',
+			permissions: ['VIEW'],
+			objectId: finalResult.id,
+			users: viewers,
 		});
 
 		return res.status(201).json({

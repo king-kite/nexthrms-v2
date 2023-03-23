@@ -152,3 +152,60 @@ export async function getRecord<DataType = unknown>({
 
 	return null;
 }
+
+export async function hasObjectPermission({
+	model: modelName,
+	objectId,
+	permission = 'VIEW',
+	userId,
+}: {
+	model: PermissionModelChoices;
+	objectId: string;
+	permission?: PermissionObjectChoices;
+	userId: string;
+}) {
+	const perm = await getUserObjectPermissions({
+		modelName,
+		objectId,
+		permission,
+		userId: userId,
+	});
+	const objPerm = permission.toLowerCase() as 'delete' | 'edit' | 'view';
+	return perm[objPerm] || false;
+}
+
+export async function hasViewPermission({
+	model: modelName,
+	objectId,
+	perm,
+	user,
+}: {
+	model: PermissionModelChoices;
+	objectId?: string;
+	perm: PermissionKeyType;
+	user: Omit<RequestUserType, 'checkPassword'>;
+}): Promise<boolean> {
+	if (user.isSuperUser) return true;
+	// Check if the user has permission to view this
+
+	const hasPerm = hasModelPermission(user.allPermissions, [
+		permissions[perm].VIEW,
+	]);
+
+	if (hasPerm) return true;
+
+	// If not model level then get view level
+	// check if the user has a view object permission for this record
+	if (objectId) {
+		const objPerm = await getUserObjectPermissions({
+			modelName,
+			objectId,
+			permission: 'VIEW',
+			userId: user.id,
+		});
+
+		return objPerm.view;
+	}
+
+	return false;
+}
