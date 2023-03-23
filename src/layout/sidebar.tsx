@@ -256,7 +256,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							href: routes.PROJECTS_PAGE_URL,
 							showRoute: () =>
 								checkRoute(data, {
-									admin: true,
+									admin: false,
 									key: 'project',
 									model: 'projects',
 								}),
