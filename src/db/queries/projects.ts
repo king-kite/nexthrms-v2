@@ -156,11 +156,13 @@ export const getProjects = async (
 		prisma.project.count({
 			where: {
 				completed: true,
+				...query.where,
 			},
 		}),
 		prisma.project.count({
 			where: {
 				completed: false,
+				...query.where,
 			},
 		}),
 	]);
@@ -534,16 +536,20 @@ export const getProjectTasks = async (
 				where: {
 					projectId: query.where?.projectId,
 					completed: true,
+					...query.where,
 				},
 			}),
 			prisma.projectTask.count({
 				where: {
 					projectId: query.where?.projectId,
 					completed: false,
+					...query.where,
 				},
 			}),
 			prisma.project.findUniqueOrThrow({
-				where: { id: params.id },
+				where: {
+					id: params.id,
+				},
 				select: { id: true, name: true },
 			}),
 		]);
