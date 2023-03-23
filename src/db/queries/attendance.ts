@@ -110,8 +110,12 @@ const selectInfo: Prisma.AttendanceSelect = {
 	},
 };
 
-export const getAttendanceInfo = async (id: string) => {
-	const date = new Date();
+export const getAttendanceInfo = async (id: string, _date?: Date | string) => {
+	const date = _date
+		? typeof _date === 'string'
+			? new Date(_date)
+			: _date
+		: new Date();
 	date.setHours(0, 0, 0, 0);
 
 	const [timesheet, timeline, statistics] = await prisma.$transaction([
