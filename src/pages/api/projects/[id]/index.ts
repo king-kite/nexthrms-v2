@@ -195,7 +195,7 @@ export default auth()
 		if (!hasPerm) {
 			const perm = await getUserObjectPermissions({
 				modelName: 'projects',
-				permission: 'VIEW',
+				permission: 'DELETE',
 				objectId: req.query.id as string,
 				userId: req.user.id,
 			});
