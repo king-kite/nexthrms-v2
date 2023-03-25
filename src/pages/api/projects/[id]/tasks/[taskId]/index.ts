@@ -38,7 +38,7 @@ export default auth()
 			model: 'projects_tasks',
 			perm: 'projecttask',
 			permission: 'VIEW',
-			objectId: req.query.id as string,
+			objectId: req.query.taskId as string,
 			user: req.user,
 			getData() {
 				return getProjectTask(req.query.taskId as string);
@@ -71,7 +71,7 @@ export default auth()
 			const perm = await getUserObjectPermissions({
 				modelName: 'projects_tasks',
 				permission: 'EDIT',
-				objectId: req.query.id as string,
+				objectId: req.query.taskId as string,
 				userId: req.user.id,
 			});
 			hasPerm = perm.edit;
@@ -79,7 +79,7 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const previousTask = await getProjectTask(req.query.id as string);
+		const previousTask = await getProjectTask(req.query.taskId as string);
 		if (!previousTask)
 			return res.status(404).json({
 				status: 'error',
@@ -194,7 +194,7 @@ export default auth()
 			const perm = await getUserObjectPermissions({
 				modelName: 'projects_tasks',
 				permission: 'DELETE',
-				objectId: req.query.id as string,
+				objectId: req.query.taskId as string,
 				userId: req.user.id,
 			});
 			hasPerm = perm.delete;
