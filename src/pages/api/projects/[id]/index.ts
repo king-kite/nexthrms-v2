@@ -77,6 +77,34 @@ export default auth()
 
 		// delete old project team in a team array is passed
 		if (team && Array.isArray(team)) {
+			// Check that the employee the user is adding in are ones the user can view
+			// to avoid guessing
+			let hasViewEmployeePerm =
+				req.user.isSuperUser ||
+				hasModelPermission(req.user.allPermissions, [
+					permissions.employee.VIEW,
+				]);
+
+			if (!hasViewEmployeePerm) {
+				const viewEmployeePerms = await Promise.all(
+					team.map((member) => {
+						return hasObjectPermission({
+							model: 'employees',
+							permission: 'VIEW',
+							objectId: member.employeeId,
+							userId: req.user.id,
+						});
+					})
+				);
+				hasViewEmployeePerm = viewEmployeePerms.every((perm) => perm === true);
+			}
+
+			if (!hasViewEmployeePerm)
+				throw new NextApiErrorMessage(
+					403,
+					'You are not authorized to add some team members. Please try again later.'
+				);
+
 			await Promise.all([
 				await prisma.projectTeam.deleteMany({
 					where: { projectId: req.query.id as string },

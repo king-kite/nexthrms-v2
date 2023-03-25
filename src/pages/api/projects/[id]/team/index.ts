@@ -80,9 +80,7 @@ export default auth()
 		// to avoid guessing
 		let hasViewEmployeePerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.employee.CREATE,
-			]);
+			hasModelPermission(req.user.allPermissions, [permissions.employee.VIEW]);
 
 		if (!hasViewEmployeePerm) {
 			const viewEmployeePerms = await Promise.all(
