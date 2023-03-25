@@ -7,6 +7,7 @@ import {
 import {
 	getRecord,
 	getUserObjectPermissions,
+	hasObjectPermission,
 	removeObjectPermissions,
 	updateObjectPermissions,
 } from '../../../../db/utils';
