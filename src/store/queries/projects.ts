@@ -1315,7 +1315,7 @@ export function useAppointProjectTaskLeaderMutation(
 			taskId: string;
 			id: string;
 			data: {
-				employeeId: string;
+				memberId: string;
 				isLeader: boolean;
 			};
 		}) =>
@@ -1367,7 +1367,7 @@ export function useAppointProjectTaskLeaderMutation(
 			taskId: string;
 			id: string;
 			data: {
-				employeeId: string;
+				memberId: string;
 				isLeader: boolean;
 			};
 		}) => {
