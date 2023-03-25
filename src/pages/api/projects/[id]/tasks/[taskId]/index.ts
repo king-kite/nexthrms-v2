@@ -38,8 +38,8 @@ export default auth()
 					followers && followers.length > 0
 						? {
 								createMany: {
-									data: followers.map(({ employeeId, isLeader = false }) => ({
-										employeeId,
+									data: followers.map(({ memberId, isLeader = false }) => ({
+										memberId,
 										isLeader,
 									})),
 									skipDuplicates: true,
