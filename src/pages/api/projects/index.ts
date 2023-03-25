@@ -75,25 +75,66 @@ export default auth()
 			select: selectQuery,
 		})) as unknown as ProjectType;
 
-		await addObjectPermissions({
-			model: 'projects',
-			objectId: project.id,
-			users: [req.user.id],
-		});
+		// Assign all object level permissions for the project and project team to the request user only
+		await Promise.all([
+			addObjectPermissions({
+				model: 'projects',
+				objectId: project.id,
+				users: [req.user.id],
+			}),
+			...project.team.map((member) =>
+				addObjectPermissions({
+					model: 'projects_team',
+					objectId: member.id,
+					users: [req.user.id],
+				})
+			),
+		]);
 
+		// Assign view object level permissions for the project team and client
+		// and also give create project task permissions to the project leaders
 		const viewers: string[] = [];
 		if (project.client) viewers.push(project.client.contact.id);
-
 		project.team.forEach((member) => {
 			viewers.push(member.employee.user.id);
 		});
+		const leaders = project.team
+			.filter((member) => member.isLeader === true)
+			.map((member) => member.employee.user.id);
 
-		await updateObjectPermissions({
-			model: 'projects',
-			permissions: ['VIEW'],
-			objectId: project.id,
-			users: viewers,
-		});
+		await Promise.all([
+			updateObjectPermissions({
+				model: 'projects',
+				permissions: ['VIEW'],
+				objectId: project.id,
+				users: viewers,
+			}),
+			updateObjectPermissions({
+				model: 'projects',
+				permissions: ['EDIT'],
+				objectId: project.id,
+				users: leaders,
+			}),
+			// leaders can create tasks
+			prisma.permission.update({
+				where: {
+					codename: permissions.projecttask.CREATE,
+				},
+				data: {
+					users: {
+						connect: leaders.map((id) => ({ id })),
+					},
+				},
+			}),
+			...project.team.map((member) =>
+				updateObjectPermissions({
+					model: 'projects_team',
+					permissions: ['VIEW'],
+					objectId: member.id,
+					users: viewers,
+				})
+			),
+		]);
 
 		return res.status(201).json({
 			status: 'success',

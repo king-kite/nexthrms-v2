@@ -76,10 +76,19 @@ export default auth()
 		const { team, ...data } = valid;
 
 		// delete old project team in a team array is passed
-		if (team && Array.isArray(team))
-			await prisma.projectTeam.deleteMany({
-				where: { projectId: req.query.id as string },
-			});
+		if (team && Array.isArray(team)) {
+			await Promise.all([
+				await prisma.projectTeam.deleteMany({
+					where: { projectId: req.query.id as string },
+				}),
+				// Also remove their user id from the project object permissions
+				await removeObjectPermissions({
+					model: 'projects',
+					objectId: previousProject.id,
+					users: previousProject.team.map((member) => member.employee.user.id),
+				}),
+			]);
+		}
 
 		// update the project
 		const project = (await prisma.project.update({
@@ -131,17 +140,46 @@ export default auth()
 		if (project.client) {
 			viewers.push(project.client.contact.id);
 		}
-
 		project.team.forEach((member) => {
 			viewers.push(member.employee.user.id);
 		});
+		const leaders = project.team
+			.filter((member) => member.isLeader === true)
+			.map((member) => member.employee.user.id);
 
-		await updateObjectPermissions({
-			model: 'projects',
-			permissions: ['VIEW'],
-			objectId: project.id,
-			users: viewers,
-		});
+		await Promise.all([
+			updateObjectPermissions({
+				model: 'projects',
+				permissions: ['VIEW'],
+				objectId: project.id,
+				users: viewers,
+			}),
+			updateObjectPermissions({
+				model: 'projects',
+				permissions: ['EDIT'],
+				objectId: project.id,
+				users: leaders,
+			}),
+			// leaders can create tasks
+			prisma.permission.update({
+				where: {
+					codename: permissions.projecttask.CREATE,
+				},
+				data: {
+					users: {
+						connect: leaders.map((id) => ({ id })),
+					},
+				},
+			}),
+			...project.team.map((member) =>
+				updateObjectPermissions({
+					model: 'projects_team',
+					permissions: ['VIEW'],
+					objectId: member.id,
+					users: viewers,
+				})
+			),
+		]);
 
 		return res.status(200).json({
 			status: 'success',
