@@ -116,12 +116,55 @@ export default auth()
 			skipDuplicates: true,
 		});
 
-		await updateObjectPermissions({
-			model: 'projects',
-			permissions: ['VIEW'],
-			objectId: project.data.id,
-			users: project.data.team.map((member) => member.employee.user.id),
-		});
+		const updatedProject = await getProject(req.query.id as string);
+
+		if (updatedProject) {
+			// get the team members just add in
+			const dataTeamIds = data.team.map((member) => member.employeeId);
+			const team = updatedProject.team.filter((member) =>
+				dataTeamIds.includes(member.employee.id)
+			);
+
+			await Promise.all([
+				...team.map((member) =>
+					addObjectPermissions({
+						model: 'projects_team',
+						objectId: member.id,
+						users: [req.user.id],
+					})
+				),
+				// leaders can create tasks
+				prisma.permission.update({
+					where: {
+						codename: permissions.projecttask.CREATE,
+					},
+					data: {
+						users: {
+							connect: team
+								.filter((member) => member.isLeader)
+								.map((member) => ({ id: member.employee.user.id })),
+						},
+					},
+				}),
+			]);
+
+			await Promise.all([
+				updateObjectPermissions({
+					model: 'projects',
+					permissions: ['VIEW'],
+					objectId: project.data.id,
+					users: team.map((member) => member.employee.user.id),
+				}),
+				...team.map((member) =>
+					updateObjectPermissions({
+						model: 'projects_team',
+						permissions: ['VIEW'],
+						objectId: member.id,
+						users: team.map((member) => member.employee.user.id),
+					})
+				),
+			]);
+		}
 
 		return res.status(201).json({
 			status: 'success',
