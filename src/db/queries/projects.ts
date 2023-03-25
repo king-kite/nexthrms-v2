@@ -424,25 +424,30 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 	followers: {
 		select: {
 			id: true,
-			employee: {
+			member: {
 				select: {
 					id: true,
-					user: {
+					employee: {
 						select: {
 							id: true,
-							firstName: true,
-							lastName: true,
-							email: true,
-							profile: {
+							user: {
 								select: {
-									image: true,
+									id: true,
+									firstName: true,
+									lastName: true,
+									email: true,
+									profile: {
+										select: {
+											image: true,
+										},
+									},
 								},
 							},
-						},
-					},
-					job: {
-						select: {
-							name: true,
+							job: {
+								select: {
+									name: true,
+								},
+							},
 						},
 					},
 				},
@@ -577,25 +582,30 @@ export const getProjectTask = async (id: string) => {
 export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 	id: true,
 	isLeader: true,
-	employee: {
+	member: {
 		select: {
 			id: true,
-			user: {
+			employee: {
 				select: {
 					id: true,
-					firstName: true,
-					lastName: true,
-					email: true,
-					profile: {
+					user: {
 						select: {
-							image: true,
+							id: true,
+							firstName: true,
+							lastName: true,
+							email: true,
+							profile: {
+								select: {
+									image: true,
+								},
+							},
 						},
 					},
-				},
-			},
-			job: {
-				select: {
-					name: true,
+					job: {
+						select: {
+							name: true,
+						},
+					},
 				},
 			},
 		},
@@ -618,9 +628,11 @@ export const getTaskFollowersQuery = ({
 		skip: offset,
 		take: limit,
 		orderBy: {
-			employee: {
-				user: {
-					firstName: 'asc' as const,
+			member: {
+				employee: {
+					user: {
+						firstName: 'asc' as const,
+					},
 				},
 			},
 		},
@@ -630,31 +642,37 @@ export const getTaskFollowersQuery = ({
 					taskId: id,
 					OR: [
 						{
-							employee: {
-								user: {
-									firstName: {
-										contains: search,
-										mode: 'insensitive',
+							member: {
+								employee: {
+									user: {
+										firstName: {
+											contains: search,
+											mode: 'insensitive',
+										},
 									},
 								},
 							},
 						},
 						{
-							employee: {
-								user: {
-									lastName: {
-										contains: search,
-										mode: 'insensitive',
+							member: {
+								employee: {
+									user: {
+										lastName: {
+											contains: search,
+											mode: 'insensitive',
+										},
 									},
 								},
 							},
 						},
 						{
-							employee: {
-								user: {
-									email: {
-										contains: search,
-										mode: 'insensitive',
+							member: {
+								employee: {
+									user: {
+										email: {
+											contains: search,
+											mode: 'insensitive',
+										},
 									},
 								},
 							},

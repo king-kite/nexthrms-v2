@@ -25,6 +25,7 @@ export const OVERTIME = PATH + 'OvertimeModel';
 export const PROJECT = PATH + 'ProjectModel';
 export const PROJECT_FILE = PATH + 'ProjectFileModel';
 export const PROJECT_TASK = PATH + 'ProjectTaskModel';
+export const PROJECT_TASK_FOLLOWER = PATH + 'ProjectTaskFollowerModel';
 export const PROJECT_TEAM = PATH + 'ProjectTeamModel';
 
 // Administration Section

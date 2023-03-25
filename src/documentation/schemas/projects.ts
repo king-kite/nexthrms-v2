@@ -1,4 +1,4 @@
-import { PROJECT_TEAM } from '../refs';
+import { PROJECT_TEAM, PROJECT_TASK_FOLLOWER } from '../refs';
 
 export const ProjectFileModel = {
 	type: 'object',
@@ -245,7 +245,7 @@ export const ProjectTaskModel = {
 		followers: {
 			type: 'array',
 			items: {
-				$ref: PROJECT_TEAM,
+				$ref: PROJECT_TASK_FOLLOWER,
 			},
 		},
 		project: {
@@ -263,6 +263,73 @@ export const ProjectTaskModel = {
 		updatedAt: {
 			type: 'string',
 			format: 'date-time',
+		},
+	},
+};
+
+export const ProjectTaskFollowerModel = {
+	type: 'object',
+	properties: {
+		id: {
+			type: 'string',
+			format: 'uuid',
+		},
+		isLeader: {
+			type: 'boolean',
+		},
+		member: {
+			type: 'object',
+			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid',
+				},
+				employee: {
+					type: 'object',
+					properties: {
+						id: {
+							type: 'string',
+							format: 'uuid',
+						},
+						user: {
+							type: 'object',
+							properties: {
+								id: {
+									type: 'string',
+									format: 'uuid',
+								},
+								firstName: {
+									type: 'string',
+								},
+								lastName: {
+									type: 'string',
+								},
+								email: {
+									type: 'string',
+									format: 'email',
+								},
+								profile: {
+									type: 'object',
+									properties: {
+										image: {
+											type: 'string',
+										},
+									},
+								},
+							},
+						},
+						job: {
+							type: 'object',
+							nullable: true,
+							properties: {
+								name: {
+									type: 'string',
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 };
