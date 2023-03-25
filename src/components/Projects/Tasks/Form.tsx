@@ -51,11 +51,11 @@ const Form: FC<FormProps> = ({
 		followers:
 			initState?.followers
 				.filter((follower) => !follower.isLeader && follower)
-				.map((follower) => follower.employee.id) || [],
+				.map((follower) => follower.member.id) || [],
 		leaders:
 			initState?.followers
 				.filter((follower) => follower.isLeader && follower)
-				.map((follower) => follower.employee.id) || [],
+				.map((follower) => follower.member.id) || [],
 	});
 	const [formErrors, setErrors] =
 		useState<CreateProjectTaskErrorResponseType>();
@@ -143,12 +143,12 @@ const Form: FC<FormProps> = ({
 						description: formRef.current.description.value,
 						followers: form.followers
 							.map((member) => ({
-								employeeId: member,
+								memberId: member,
 								isLeader: false,
 							}))
 							.concat(
 								form.leaders.map((leader) => ({
-									employeeId: leader,
+									memberId: leader,
 									isLeader: true,
 								}))
 							),

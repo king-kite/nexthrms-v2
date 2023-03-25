@@ -180,14 +180,15 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 											key={index}
 											title="Team Leader"
 											name={
-												leader.employee.user.firstName +
+												leader.member.employee.user.firstName +
 												' ' +
-												leader.employee.user.lastName
+												leader.member.employee.user.lastName
 											}
-											label={leader.employee.job?.name || '-----'}
+											label={leader.member.employee.job?.name || '-----'}
 											image={{
 												src:
-													leader.employee.user.profile?.image || DEFAULT_IMAGE,
+													leader.member.employee.user.profile?.image ||
+													DEFAULT_IMAGE,
 											}}
 											options={[
 												{
@@ -202,7 +203,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 															taskId,
 															id: leader.id,
 															data: {
-																employeeId: leader.employee.id,
+																memberId: leader.member.id,
 																isLeader: false,
 															},
 														}),
@@ -215,7 +216,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 													border:
 														'border border-primary-500 hover:border-primary-600',
 													color: 'text-primary-500',
-													link: EMPLOYEE_PAGE_URL(leader.employee.id),
+													link: EMPLOYEE_PAGE_URL(leader.member.employee.id),
 													title: 'view profile',
 												},
 												{
@@ -249,19 +250,20 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 							</div>
 							{followers.length > 0 ? (
 								<div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-4">
-									{followers.map((member, index) => (
+									{followers.map((follower, index) => (
 										<PersonCard
 											key={index}
 											title="Task follower"
 											name={
-												member.employee.user.firstName +
+												follower.member.employee.user.firstName +
 												' ' +
-												member.employee.user.lastName
+												follower.member.employee.user.lastName
 											}
-											label={member.employee.job?.name || '-----'}
+											label={follower.member.employee.job?.name || '-----'}
 											image={{
 												src:
-													member.employee.user.profile?.image || DEFAULT_IMAGE,
+													follower.member.employee.user.profile?.image ||
+													DEFAULT_IMAGE,
 											}}
 											options={[
 												{
@@ -275,9 +277,9 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 															decision: 'appoint',
 															projectId: id,
 															taskId,
-															id: member.id,
+															id: follower.member.id,
 															data: {
-																employeeId: member.employee.id,
+																memberId: follower.member.id,
 																isLeader: true,
 															},
 														}),
@@ -290,7 +292,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 													border:
 														'border border-primary-500 hover:border-primary-600',
 													color: 'text-primary-500',
-													link: EMPLOYEE_PAGE_URL(member.id),
+													link: EMPLOYEE_PAGE_URL(follower.member.id),
 													title: 'view profile',
 												},
 												{
@@ -300,7 +302,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 													disabled: delFolLoading,
 													onClick: () =>
 														deleteFollower({
-															id: member.id,
+															id: follower.member.id,
 															taskId,
 															projectId: id,
 														}),

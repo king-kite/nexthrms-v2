@@ -38,8 +38,8 @@ export default auth()
 						? {
 								createMany: {
 									data: data.followers.map(
-										({ employeeId, isLeader = false }) => ({
-											employeeId,
+										({ memberId, isLeader = false }) => ({
+											memberId,
 											isLeader,
 										})
 									),

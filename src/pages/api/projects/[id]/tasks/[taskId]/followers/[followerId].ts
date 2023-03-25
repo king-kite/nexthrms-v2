@@ -4,7 +4,7 @@ import {
 	taskFollowerSelectQuery as selectQuery,
 } from '../../../../../../../db';
 import { auth } from '../../../../../../../middlewares';
-import { projectTeamMemberUpdateSchema } from '../../../../../../../validators';
+import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators';
 
 export default auth()
 	.get(async (req, res) => {
@@ -18,9 +18,9 @@ export default auth()
 	})
 	.put(async (req, res) => {
 		const data: {
-			employeeId: string;
+			memberId: string;
 			isLeader?: boolean;
-		} = await projectTeamMemberUpdateSchema.validateAsync({ ...req.body });
+		} = await projectTaskFollowerUpdateSchema.validateAsync({ ...req.body });
 
 		const follower = await prisma.projectTaskFollower.update({
 			where: { id: req.query.followerId as string },

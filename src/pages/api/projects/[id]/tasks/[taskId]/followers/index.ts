@@ -1,8 +1,8 @@
 import { prisma, getTaskFollowers } from '../../../../../../../db';
 import { auth } from '../../../../../../../middlewares';
-import { CreateProjectTeamQueryType } from '../../../../../../../types';
+import { CreateProjectTaskFollowersQueryType } from '../../../../../../../types';
 import {
-	projectTeamCreateSchema,
+	projectTaskFollowersCreateSchema,
 	validateParams,
 } from '../../../../../../../validators';
 
@@ -21,14 +21,14 @@ export default auth()
 		});
 	})
 	.post(async (req, res) => {
-		const data: CreateProjectTeamQueryType =
-			await projectTeamCreateSchema.validateAsync({ ...req.body });
+		const data: CreateProjectTaskFollowersQueryType =
+			await projectTaskFollowersCreateSchema.validateAsync({ ...req.body });
 
 		await prisma.projectTaskFollower.createMany({
-			data: data.team.map((member) => ({
+			data: data.team.map((follower) => ({
 				taskId: req.query.taskId as string,
-				employeeId: member.employeeId,
-				isLeader: member.isLeader,
+				memberId: follower.memberId,
+				isLeader: follower.isLeader,
 			})),
 			skipDuplicates: true,
 		});
