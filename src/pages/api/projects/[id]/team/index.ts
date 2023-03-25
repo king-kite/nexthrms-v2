@@ -10,10 +10,7 @@ import {
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../../middlewares/api';
-import {
-	CreateProjectTeamQueryType,
-	ProjectTeamType,
-} from '../../../../../types';
+import { CreateProjectTeamQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { projectTeamCreateSchema } from '../../../../../validators';
