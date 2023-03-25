@@ -65,7 +65,7 @@ export const taskCreateSchema = Joi.object({
 		.items(
 			Joi.object({
 				// id: Joi.string().uuid().optional().allow('').label('Team Member ID'),
-				employeeId: Joi.string().uuid().required().label('Employee ID'),
+				memberId: Joi.string().uuid().required().label('Team Member ID'),
 				isLeader: Joi.boolean()
 					.optional()
 					.default(false)
@@ -74,4 +74,21 @@ export const taskCreateSchema = Joi.object({
 		)
 		.optional()
 		.label('Followers'),
+});
+
+export const projectTaskFollowersCreateSchema = Joi.object({
+	team: Joi.array()
+		.items(
+			Joi.object({
+				memberId: Joi.string().uuid().required().label('Team Member ID'),
+				isLeader: Joi.boolean().optional().label('Is Team Leader'),
+			})
+		)
+		.required()
+		.label('Team'),
+});
+
+export const projectTaskFollowerUpdateSchema = Joi.object({
+	memberId: Joi.string().uuid().required().label('Team Member ID'),
+	isLeader: Joi.boolean().optional().label('Is Team Leader'),
 });
