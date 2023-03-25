@@ -1,13 +1,13 @@
 import { permissions } from '../../../../../../config';
 import {
 	prisma,
-	getProject,
 	getProjectTask,
 	taskSelectQuery as selectQuery,
 } from '../../../../../../db';
 import {
 	getRecord,
 	getUserObjectPermissions,
+	hasObjectPermission,
 	hasViewPermission,
 	removeObjectPermissions,
 	updateObjectPermissions,
@@ -92,7 +92,34 @@ export default auth()
 		const { followers, ...data } = valid;
 
 		// delete old project task followers in a team array is passed
-		if (followers && Array.isArray(followers))
+		if (followers && Array.isArray(followers)) {
+			// Check that the team member the user is adding in are ones the user can view
+			// to avoid guessing
+			let hasViewMemberPerm =
+				req.user.isSuperUser ||
+				hasModelPermission(req.user.allPermissions, [
+					permissions.projectteam.VIEW,
+				]);
+
+			if (!hasViewMemberPerm) {
+				const viewEmployeePerms = await Promise.all(
+					followers.map((member) => {
+						return hasObjectPermission({
+							model: 'projects_team',
+							permission: 'VIEW',
+							objectId: member.memberId,
+							userId: req.user.id,
+						});
+					})
+				);
+				hasViewMemberPerm = viewEmployeePerms.every((perm) => perm === true);
+			}
+
+			if (!hasViewMemberPerm)
+				throw new NextApiErrorMessage(
+					403,
+					'You are not authorized to add some task followers. Please try again later.'
+				);
 			await Promise.all([
 				prisma.projectTaskFollower.deleteMany({
 					where: { taskId: req.query.taskId as string },
@@ -106,6 +133,7 @@ export default auth()
 					),
 				}),
 			]);
+		}
 
 		// update the project task
 		const task = (await prisma.projectTask.update({
