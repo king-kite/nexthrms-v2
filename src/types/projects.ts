@@ -187,7 +187,7 @@ export type CreateProjectTaskQueryType = {
 	dueDate: Date | string;
 	priority: 'HIGH' | 'MEDIUM' | 'LOW';
 	followers?: {
-		teamId: string; // -> Team Member ID
+		memberId: string; // -> Project Team (Member) ID
 		isLeader?: boolean;
 	}[];
 	completed?: boolean;
@@ -200,5 +200,12 @@ export type CreateProjectTaskErrorResponseType = {
 	dueDate?: string;
 	priority?: string;
 	followers?: string;
+};
+
+export type CreateProjectTaskFollowersQueryType = {
+	team: {
+		memberId: string;
+		isLeader: boolean;
+	}[];
 };
 // ****** Project Tasks ******
