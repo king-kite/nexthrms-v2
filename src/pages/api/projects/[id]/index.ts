@@ -154,12 +154,12 @@ export default auth()
 				objectId: project.id,
 				users: viewers,
 			}),
-			updateObjectPermissions({
-				model: 'projects',
-				permissions: ['EDIT'],
-				objectId: project.id,
-				users: leaders,
-			}),
+			// updateObjectPermissions({
+			// 	model: 'projects',
+			// 	permissions: ['EDIT'],
+			// 	objectId: project.id,
+			// 	users: leaders,
+			// }),
 			// leaders can create tasks
 			prisma.permission.update({
 				where: {
