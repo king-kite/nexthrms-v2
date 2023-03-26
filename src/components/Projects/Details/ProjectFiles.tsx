@@ -6,7 +6,7 @@ import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
 import { EMPLOYEE_PAGE_URL, permissions } from '../../../config';
-import { useAlertModalContext, useAuthContext } from '../../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useDeleteProjectFileMutation } from '../../../store/queries';
 import { ProjectFileType } from '../../../types';
 import { downloadFile, hasModelPermission } from '../../../utils';
@@ -20,7 +20,7 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 	const id = router.query.id as string;
 	const [visible, setVisible] = useState(false);
 
-	const { open } = useAlertModalContext();
+	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const [canCreateFile] = useMemo(() => {
@@ -37,7 +37,7 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 		onError({ message }) {
 			open({
 				message,
-				color: 'danger',
+				type: 'danger',
 			});
 		},
 	});
