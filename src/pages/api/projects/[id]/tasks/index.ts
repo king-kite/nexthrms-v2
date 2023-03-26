@@ -92,6 +92,37 @@ export default auth()
 		const data: CreateProjectTaskQueryType =
 			await taskCreateSchema.validateAsync({ ...req.body });
 
+		// Have Distinct followers.
+		const filteredFollowers = data.followers?.reduce(
+			(
+				acc: {
+					memberId: string;
+					isLeader: boolean;
+				}[],
+				follower
+			) => {
+				// check if the follower is already in the acc
+				const found = acc.find((item) => item.memberId === follower.memberId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						memberId: found.memberId,
+						isLeader: follower.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...follower,
+						isLeader: follower.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		const task = (await prisma.projectTask.create({
 			data: {
 				...data,
@@ -101,10 +132,10 @@ export default auth()
 					},
 				},
 				followers:
-					data.followers && data.followers.length > 0
+					filteredFollowers && filteredFollowers.length > 0
 						? {
 								createMany: {
-									data: data.followers.map(
+									data: filteredFollowers.map(
 										({ memberId, isLeader = false }) => ({
 											memberId,
 											isLeader,

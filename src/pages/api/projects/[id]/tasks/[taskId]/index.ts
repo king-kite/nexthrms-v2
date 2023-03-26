@@ -135,19 +135,52 @@ export default auth()
 			]);
 		}
 
+		// Have Distinct followers.
+		const filteredFollowers = followers?.reduce(
+			(
+				acc: {
+					memberId: string;
+					isLeader: boolean;
+				}[],
+				follower
+			) => {
+				// check if the follower is already in the acc
+				const found = acc.find((item) => item.memberId === follower.memberId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						memberId: found.memberId,
+						isLeader: follower.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...follower,
+						isLeader: follower.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		// update the project task
 		const task = (await prisma.projectTask.update({
 			where: { id: req.query.taskId as string },
 			data: {
 				...data,
 				followers:
-					followers && followers.length > 0
+					filteredFollowers && filteredFollowers.length > 0
 						? {
 								createMany: {
-									data: followers.map(({ memberId, isLeader = false }) => ({
-										memberId,
-										isLeader,
-									})),
+									data: filteredFollowers.map(
+										({ memberId, isLeader = false }) => ({
+											memberId,
+											isLeader,
+										})
+									),
 									skipDuplicates: true,
 								},
 						  }

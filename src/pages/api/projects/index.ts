@@ -49,6 +49,37 @@ export default auth()
 		const data: CreateProjectQueryType =
 			await projectCreateSchema.validateAsync({ ...req.body });
 
+		// Have Distinct Project Team Member.
+		const filteredMembers = data.team?.reduce(
+			(
+				acc: {
+					employeeId: string;
+					isLeader: boolean;
+				}[],
+				member
+			) => {
+				// check if the member is already in the acc
+				const found = acc.find((item) => item.employeeId === member.employeeId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						employeeId: found.employeeId,
+						isLeader: member.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...member,
+						isLeader: member.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		const project = (await prisma.project.create({
 			data: {
 				...data,
@@ -60,13 +91,15 @@ export default auth()
 					  }
 					: undefined,
 				team:
-					data.team && data.team.length > 0
+					filteredMembers && filteredMembers.length > 0
 						? {
 								createMany: {
-									data: data.team.map(({ employeeId, isLeader = false }) => ({
-										employeeId,
-										isLeader,
-									})),
+									data: filteredMembers.map(
+										({ employeeId, isLeader = false }) => ({
+											employeeId,
+											isLeader,
+										})
+									),
 									skipDuplicates: true,
 								},
 						  }

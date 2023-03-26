@@ -107,8 +107,39 @@ export default auth()
 				'You are not authorized to add some team members. Please try again later.'
 			);
 
+		// Have Distinct followers.
+		const filteredFollowers = data.team?.reduce(
+			(
+				acc: {
+					memberId: string;
+					isLeader: boolean;
+				}[],
+				follower
+			) => {
+				// check if the follower is already in the acc
+				const found = acc.find((item) => item.memberId === follower.memberId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						memberId: found.memberId,
+						isLeader: follower.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...follower,
+						isLeader: follower.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		await prisma.projectTaskFollower.createMany({
-			data: data.team.map((follower) => ({
+			data: filteredFollowers.map((follower) => ({
 				taskId: req.query.taskId as string,
 				memberId: follower.memberId,
 				isLeader: follower.isLeader,

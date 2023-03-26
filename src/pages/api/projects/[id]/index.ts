@@ -119,6 +119,37 @@ export default auth()
 			]);
 		}
 
+		// Have Distinct Project Team Member.
+		const filteredMembers = team?.reduce(
+			(
+				acc: {
+					employeeId: string;
+					isLeader: boolean;
+				}[],
+				member
+			) => {
+				// check if the member is already in the acc
+				const found = acc.find((item) => item.employeeId === member.employeeId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						employeeId: found.employeeId,
+						isLeader: member.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...member,
+						isLeader: member.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		// update the project
 		const project = (await prisma.project.update({
 			where: { id: req.query.id as string },
@@ -136,13 +167,15 @@ export default auth()
 					  }
 					: undefined,
 				team:
-					team && team.length > 0
+					filteredMembers && filteredMembers.length > 0
 						? {
 								createMany: {
-									data: team.map(({ employeeId, isLeader = false }) => ({
-										employeeId,
-										isLeader,
-									})),
+									data: filteredMembers.map(
+										({ employeeId, isLeader = false }) => ({
+											employeeId,
+											isLeader,
+										})
+									),
 									skipDuplicates: true,
 								},
 						  }

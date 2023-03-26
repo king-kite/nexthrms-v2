@@ -102,8 +102,39 @@ export default auth()
 				'You are not authorized to add some team members. Please try again later.'
 			);
 
+		// Have Distinct Project Team Member.
+		const filteredMembers = data.team?.reduce(
+			(
+				acc: {
+					employeeId: string;
+					isLeader: boolean;
+				}[],
+				member
+			) => {
+				// check if the member is already in the acc
+				const found = acc.find((item) => item.employeeId === member.employeeId);
+				if (found) {
+					const newAccumulator = acc;
+					const index = newAccumulator.indexOf(found);
+					newAccumulator[index] = {
+						employeeId: found.employeeId,
+						isLeader: member.isLeader || found.isLeader,
+					};
+					return newAccumulator;
+				}
+				return [
+					...acc,
+					{
+						...member,
+						isLeader: member.isLeader || false,
+					},
+				];
+			},
+			[]
+		);
+
 		await prisma.projectTeam.createMany({
-			data: data.team.map((member) => ({
+			data: filteredMembers.map((member) => ({
 				projectId: req.query.id as string,
 				employeeId: member.employeeId,
 				isLeader: member.isLeader,
@@ -115,7 +146,7 @@ export default auth()
 
 		if (updatedProject) {
 			// get the team members just add in
-			const dataTeamIds = data.team.map((member) => member.employeeId);
+			const dataTeamIds = filteredMembers.map((member) => member.employeeId);
 			const team = updatedProject.team.filter((member) =>
 				dataTeamIds.includes(member.employee.id)
 			);
