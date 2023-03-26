@@ -34,9 +34,13 @@ const heads: TableHeadType = [
 
 const getRows = (
 	data: ProjectType[],
-	actions: {
-		deleteProject: ((e: string) => void) | null;
-		markProject: ((e: ProjectType) => void) | null;
+	{
+		objPermLink,
+		deleteProject,
+		markProject,
+	}: {
+		deleteProject?: (e: string) => void;
+		markProject?: (e: ProjectType) => void;
 		objPermLink?: (id: string) => string;
 	}
 ): TableRowType[] =>
@@ -53,29 +57,25 @@ const getRows = (
 				link: PROJECT_PAGE_URL(project.id),
 			},
 		];
-		if (actions.markProject !== null) {
+		if (markProject) {
 			buttons.push({
 				color: project.completed ? 'warning' : 'success',
 				icon: project.completed ? FaExclamationCircle : FaCheckCircle,
-				onClick: () => {
-					actions?.markProject(project);
-				},
+				onClick: () => markProject(project),
 			});
 		}
-		if (actions.deleteProject !== null) {
+		if (deleteProject) {
 			buttons.push({
 				color: 'danger',
 				icon: FaTrash,
-				onClick: () => {
-					actions.deleteProject(project.id);
-				},
+				onClick: () => deleteProject(project.id),
 			});
 		}
-		if (actions.objPermLink !== undefined) {
+		if (objPermLink) {
 			buttons.push({
 				color: 'info',
 				icon: FaUserShield,
-				link: actions.objPermLink(project.id),
+				link: objPermLink(project.id),
 			});
 		}
 		return {
@@ -193,8 +193,8 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 		}
 		setRows(
 			getRows(finalList, {
-				deleteProject: canDelete ? deleteProject : null,
-				markProject: canEdit ? markProject : null,
+				deleteProject: canDelete ? deleteProject : undefined,
+				markProject: canEdit ? markProject : undefined,
 				objPermLink: canViewObjectPermissions
 					? PROJECT_OBJECT_PERMISSIONS_PAGE_URL
 					: undefined,
