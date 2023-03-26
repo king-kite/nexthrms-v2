@@ -40,14 +40,39 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const projects: GetProjectsResponseType['data'] = JSON.parse(
-		JSON.stringify(await getProjects())
-	);
+
+	const result = await getRecords({
+		model: 'projects',
+		perm: 'project',
+		user: req.user,
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		placeholder: {
+			total: 0,
+			result: [],
+			completed: 0,
+			ongoing: 0,
+		},
+		getData(params) {
+			return getProjects(params);
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				projects: result.data,
+			},
+		};
 
 	return {
 		props: {
 			auth,
-			projects,
+			errorPage: { statusCode: 403 },
 		},
 	};
 };

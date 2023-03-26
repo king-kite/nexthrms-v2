@@ -1,21 +1,27 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { IconType } from 'react-icons';
 import {
+	FaArrowRight,
 	FaCheckCircle,
 	FaExclamationCircle,
-	FaEye,
 	FaTrash,
+	FaUserShield,
 } from 'react-icons/fa';
 
-import { PROJECT_PAGE_URL } from '../../config/routes';
-import { useAlertContext } from '../../store/contexts';
+import {
+	permissions,
+	PROJECT_PAGE_URL,
+	PROJECT_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteProjectMutation,
 	useMarkProjectMutation,
 } from '../../store/queries';
 import { ProjectType } from '../../types';
-import { getStringedDate } from '../../utils';
+import { getStringedDate, hasModelPermission } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -29,64 +35,88 @@ const heads: TableHeadType = [
 const getRows = (
 	data: ProjectType[],
 	actions: {
-		deleteProject: (e: string) => void;
-		markProject: (e: ProjectType) => void;
+		deleteProject: ((e: string) => void) | null;
+		markProject: ((e: ProjectType) => void) | null;
+		objPermLink?: (id: string) => string;
 	}
 ): TableRowType[] =>
-	data.map((project) => ({
-		id: project.id,
-		rows: [
+	data.map((project) => {
+		const buttons: {
+			color: string;
+			icon: IconType;
+			onClick?: () => void;
+			link?: string;
+		}[] = [
 			{
+				color: 'primary',
+				icon: FaArrowRight,
 				link: PROJECT_PAGE_URL(project.id),
-				value: project.name || '---',
 			},
-			{
-				options: {
-					bg:
-						project.priority === 'MEDIUM'
-							? 'warning'
-							: project.priority === 'LOW'
-							? 'green'
-							: 'danger',
+		];
+		if (actions.markProject !== null) {
+			buttons.push({
+				color: project.completed ? 'warning' : 'success',
+				icon: project.completed ? FaExclamationCircle : FaCheckCircle,
+				onClick: () => {
+					actions?.markProject(project);
 				},
-				type: 'badge',
-				value: project.priority,
-			},
-			{
-				value: project.startDate ? getStringedDate(project.startDate) : '---',
-			},
-			{
-				value: project.endDate ? getStringedDate(project.endDate) : '---',
-			},
-			{
-				options: {
-					bg: project.completed ? 'green' : 'warning',
+			});
+		}
+		if (actions.deleteProject !== null) {
+			buttons.push({
+				color: 'danger',
+				icon: FaTrash,
+				onClick: () => {
+					actions.deleteProject(project.id);
 				},
-				type: 'badge',
-				value: project.completed ? 'completed' : 'ongoing',
-			},
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaEye,
-						link: PROJECT_PAGE_URL(project.id),
+			});
+		}
+		if (actions.objPermLink !== undefined) {
+			buttons.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: actions.objPermLink(project.id),
+			});
+		}
+		return {
+			id: project.id,
+			rows: [
+				{
+					link: PROJECT_PAGE_URL(project.id),
+					value: project.name || '---',
+				},
+				{
+					options: {
+						bg:
+							project.priority === 'MEDIUM'
+								? 'warning'
+								: project.priority === 'LOW'
+								? 'green'
+								: 'danger',
 					},
-					{
-						color: project.completed ? 'warning' : 'success',
-						icon: project.completed ? FaExclamationCircle : FaCheckCircle,
-						onClick: () => actions.markProject(project),
+					type: 'badge',
+					value: project.priority,
+				},
+				{
+					value: project.startDate ? getStringedDate(project.startDate) : '---',
+				},
+				{
+					value: project.endDate ? getStringedDate(project.endDate) : '---',
+				},
+				{
+					options: {
+						bg: project.completed ? 'green' : 'warning',
 					},
-					{
-						color: 'danger',
-						icon: FaTrash,
-						onClick: () => actions.deleteProject(project.id),
-					},
-				],
-			},
-		],
-	}));
+					type: 'badge',
+					value: project.completed ? 'completed' : 'ongoing',
+				},
+				{
+					type: 'actions',
+					value: buttons,
+				},
+			],
+		};
+	});
 
 type TableType = {
 	projects: ProjectType[];
@@ -100,6 +130,27 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 	);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	// has model permission
+	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+		const canEdit = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.project.EDIT])
+			: false;
+		const canDelete = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.project.DELETE])
+			: false;
+		const canViewObjectPermissions = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]))
+			: false;
+		return [canEdit, canDelete, canViewObjectPermissions];
+	}, [authData]);
 
 	const { deleteProject } = useDeleteProjectMutation({
 		onSuccess() {
@@ -140,8 +191,24 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 		} else {
 			finalList = projects;
 		}
-		setRows(getRows(finalList, { deleteProject, markProject }));
-	}, [activeRow, projects, deleteProject, markProject]);
+		setRows(
+			getRows(finalList, {
+				deleteProject: canDelete ? deleteProject : null,
+				markProject: canEdit ? markProject : null,
+				objPermLink: canViewObjectPermissions
+					? PROJECT_OBJECT_PERMISSIONS_PAGE_URL
+					: undefined,
+			})
+		);
+	}, [
+		activeRow,
+		projects,
+		canEdit,
+		canDelete,
+		canViewObjectPermissions,
+		deleteProject,
+		markProject,
+	]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">

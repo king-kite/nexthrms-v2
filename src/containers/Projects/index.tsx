@@ -1,9 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../components/common';
 import { Cards, Form, ProjectTable, Topbar } from '../../components/Projects';
-import { DEFAULT_PAGINATION_SIZE, PROJECTS_EXPORT_URL } from '../../config';
-import { useAlertContext } from '../../store/contexts';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	PROJECTS_EXPORT_URL,
+} from '../../config';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useCreateProjectMutation,
 	useGetProjectsQuery,
@@ -13,7 +17,7 @@ import {
 	CreateProjectErrorResponseType,
 	GetProjectsResponseType,
 } from '../../types';
-import { downloadFile } from '../../utils';
+import { downloadFile, hasModelPermission } from '../../utils';
 
 interface ErrorType extends CreateProjectErrorResponseType {
 	message?: string;
@@ -31,12 +35,40 @@ const Projects = ({
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport, canView] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.project.CREATE])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.project.EXPORT])
+			: false;
+		// TODO: Add Object Level Permissions As Well
+		const canView = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.project.VIEW]) ||
+			  // check object permission
+			  !!authData?.objPermissions.find(
+					(perm) => perm.modelName === 'projects' && perm.permission === 'VIEW'
+			  )
+			: false;
+		return [canCreate, canExport, canView];
+	}, [authData]);
 
 	const { data, refetch, isLoading, isFetching } = useGetProjectsQuery(
 		{
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				showAlert({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -68,22 +100,22 @@ const Projects = ({
 
 	const handleSubmit = useCallback(
 		(form: CreateProjectQueryType) => {
-			createProject(form);
+			if (canCreate) createProject(form);
 		},
-		[createProject]
+		[canCreate, createProject]
 	);
 
 	return (
 		<Container
-			background="bg-gray-100"
 			heading="Projects"
 			disabledLoading={isLoading}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
 			}}
+			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 			paginate={
-				data && data.total > 0
+				(canCreate || canView) && data && data.total > 0
 					? {
 							loading: isFetching,
 							offset,
@@ -93,11 +125,13 @@ const Projects = ({
 					: undefined
 			}
 		>
-			<Cards
-				total={data?.total || 0}
-				ongoing={data?.ongoing || 0}
-				completed={data?.completed || 0}
-			/>
+			{(canCreate || canView) && (
+				<Cards
+					total={data?.total || 0}
+					ongoing={data?.ongoing || 0}
+					completed={data?.completed || 0}
+				/>
+			)}
 			<Topbar
 				openModal={() => {
 					createReset();
@@ -107,6 +141,7 @@ const Projects = ({
 				onSubmit={(e: string) => setSearch(e)}
 				exportLoading={exportLoading}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = PROJECTS_EXPORT_URL + '?type=' + type;
 					if (filtered) {
 						url =
@@ -126,23 +161,27 @@ const Projects = ({
 					}
 				}}
 			/>
-			<ProjectTable loading={isLoading} projects={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						success={createSuccess}
-						errors={errors}
-						resetErrors={setErrors}
-						loading={createLoading}
-						onSubmit={handleSubmit}
-					/>
-				}
-				keepVisible
-				description="Fill in the form below to add a new project"
-				title="Add a new Project"
-				visible={modalVisible}
-			/>
+			{(canCreate || canView) && (
+				<ProjectTable loading={isLoading} projects={data?.result || []} />
+			)}
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							success={createSuccess}
+							errors={errors}
+							resetErrors={setErrors}
+							loading={createLoading}
+							onSubmit={handleSubmit}
+						/>
+					}
+					keepVisible
+					description="Fill in the form below to add a new project"
+					title="Add a new Project"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

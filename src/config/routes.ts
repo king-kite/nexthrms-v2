@@ -85,6 +85,8 @@ export const OVERTIME_DETAIL_PAGE_URL = (slug: string) =>
 // Projects Section
 export const PROJECTS_PAGE_URL = '/projects/';
 export const PROJECT_PAGE_URL = (slug: string) => `/projects/${slug}/`;
+export const PROJECT_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/projects/${slug}/projects/object-permissions/`;
 export const PROJECT_TASKS_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/tasks/`;
 export const PROJECT_TASK_PAGE_URL = (slug: string, id: string = '') =>
