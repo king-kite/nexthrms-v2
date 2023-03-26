@@ -2,7 +2,7 @@ import { Button } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
-import { FaPen, FaTasks, FaTrash, FaUsers } from 'react-icons/fa';
+import { FaPen, FaTasks, FaTrash, FaUsers, FaUserShield } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
 import {
@@ -248,10 +248,10 @@ const Detail = ({
 						{canViewObjectPermissions && (
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 								<Button
-									bg="bg-gray-600 hover:bg-gray-500"
-									iconLeft={FaTrash}
+									bg="bg-gray-500 hover:bg-gray-400"
+									iconLeft={FaUserShield}
 									rounded="rounded-xl"
-									title="Object Permission"
+									title="Object Permissions"
 									link={PROJECT_OBJECT_PERMISSIONS_PAGE_URL(id)}
 								/>
 							</div>
