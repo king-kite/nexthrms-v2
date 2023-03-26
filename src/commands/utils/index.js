@@ -24,8 +24,6 @@ const models = [
 	'projects',
 	'projects_files',
 	'projects_tasks',
-	'projects_tasks_followers',
-	'projects_team',
 	'users',
 ];
 const logger = require('./logger.js');
