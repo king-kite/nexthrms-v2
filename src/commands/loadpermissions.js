@@ -16,9 +16,7 @@ const models = [
 	// { name: 'Profile', title: 'Profile' },
 	{ name: 'Project', title: 'Project' },
 	{ name: 'ProjectFile', title: 'Project File' },
-	{ name: 'ProjectTeam', title: 'Project Team' },
 	{ name: 'ProjectTask', title: 'Project Task' },
-	{ name: 'ProjectTaskFollower', title: 'Project Task Follower' },
 	{ name: 'User', title: 'User' },
 ];
 

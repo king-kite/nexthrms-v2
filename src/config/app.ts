@@ -46,8 +46,6 @@ export const models: PermissionModelChoices[] = [
 	'projects',
 	'projects_files',
 	'projects_tasks',
-	'projects_tasks_followers',
-	'projects_team',
 	'users',
 ];
 
@@ -107,10 +105,6 @@ export const getPrismaModels = (
 			return 'projectFile';
 		case 'projects_tasks':
 			return 'projectTask';
-		case 'projects_tasks_followers':
-			return 'projectTaskFollower';
-		case 'projects_team':
-			return 'projectTeam';
 		case 'users':
 			return 'user';
 		default:

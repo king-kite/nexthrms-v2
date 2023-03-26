@@ -39,9 +39,7 @@ export const permissionobject = makePermissions('permissionobject');
 // export const profile = makePermissions('profile');
 export const project = makePermissions('project');
 export const projectfile = makePermissions('projectfile');
-export const projectteam = makePermissions('projectteam');
 export const projecttask = makePermissions('projecttask');
-export const projecttaskfollower = makePermissions('projecttaskfollower');
 export const user = makePermissions('user');
 
 const permissions = {
@@ -72,9 +70,7 @@ const permissions = {
 	permissionobject,
 	project,
 	projectfile,
-	projectteam,
 	projecttask,
-	projecttaskfollower,
 	user,
 };
 
@@ -95,9 +91,7 @@ export type PermissionKeyType =
 	| 'permissionobject'
 	| 'project'
 	| 'projectfile'
-	| 'projectteam'
 	| 'projecttask'
-	| 'projecttaskfollower'
 	| 'user';
 
 export default permissions;
