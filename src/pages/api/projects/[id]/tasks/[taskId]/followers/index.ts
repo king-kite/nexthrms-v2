@@ -1,14 +1,10 @@
 import { permissions } from '../../../../../../../config';
 import {
 	prisma,
-	getProject,
 	getProjectTask,
 	getTaskFollowers,
 } from '../../../../../../../db';
 import {
-	addObjectPermissions,
-	getRecord,
-	getRecords,
 	hasObjectPermission,
 	hasViewPermission,
 	updateObjectPermissions,
@@ -17,7 +13,10 @@ import { auth } from '../../../../../../../middlewares';
 import { CreateProjectTaskFollowersQueryType } from '../../../../../../../types';
 import { hasModelPermission } from '../../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
-import { projectTaskFollowersCreateSchema } from '../../../../../../../validators';
+import {
+	projectTaskFollowersCreateSchema,
+	validateParams,
+} from '../../../../../../../validators';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -32,80 +31,38 @@ export default auth()
 		next();
 	})
 	.get(async (req, res) => {
-		const result = await getRecords({
-			model: 'projects_tasks_followers',
-			perm: 'projecttaskfollower',
-			query: req.query,
-			user: req.user,
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			getData(params) {
-				return getTaskFollowers({
-					...params,
-					id: req.query.taskId as string,
-				});
-			},
+		const params = validateParams(req.query);
+
+		const data = getTaskFollowers({
+			...params,
+			id: req.query.taskId as string,
 		});
 
-		if (!result) throw new NextApiErrorMessage(403);
-
-		return res.status(200).json(result);
+		return res.status(200).json({
+			status: 'success',
+			message: 'Fetched data successfully',
+			data,
+		});
 	})
 	.post(async (req, res) => {
-		const hasPerm =
+		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttask.CREATE,
-				permissions.projecttaskfollower.CREATE,
+				permissions.projecttask.EDIT,
 			]);
+		if (!hasPerm) {
+			hasPerm = await hasObjectPermission({
+				model: 'projects_tasks',
+				permission: 'EDIT',
+				objectId: req.query.taskId as string,
+				userId: req.user.id,
+			});
+		}
 
 		if (!hasPerm) throw new NextApiErrorMessage();
 
-		const task = await getRecord({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			permission: 'VIEW',
-			user: req.user,
-			objectId: req.query.taskId as string,
-			getData() {
-				return getProject(req.query.taskId as string);
-			},
-		});
-
-		if (!task?.data) throw new NextApiErrorMessage(404);
-
 		const data: CreateProjectTaskFollowersQueryType =
 			await projectTaskFollowersCreateSchema.validateAsync({ ...req.body });
-
-		// Check that the team member the user is adding in are ones the user can view
-		// to avoid guessing
-		let hasViewMemberPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projectteam.VIEW,
-			]);
-
-		if (!hasViewMemberPerm) {
-			const viewEmployeePerms = await Promise.all(
-				data.team.map((member) => {
-					return hasObjectPermission({
-						model: 'projects_team',
-						permission: 'VIEW',
-						objectId: member.memberId,
-						userId: req.user.id,
-					});
-				})
-			);
-			hasViewMemberPerm = viewEmployeePerms.every((perm) => perm === true);
-		}
-
-		if (!hasViewMemberPerm)
-			throw new NextApiErrorMessage(
-				403,
-				'You are not authorized to add some team members. Please try again later.'
-			);
 
 		// Have Distinct followers.
 		const filteredFollowers = data.team?.reduce(
@@ -155,34 +112,12 @@ export default auth()
 				dataTeamIds.includes(follower.member.employee.id)
 			);
 
-			await Promise.all([
-				...followers.map((member) =>
-					addObjectPermissions({
-						model: 'projects_tasks_followers',
-						objectId: member.id,
-						users: [req.user.id],
-					})
-				),
-			]);
-
-			await Promise.all([
-				updateObjectPermissions({
-					model: 'projects_tasks',
-					permissions: ['VIEW'],
-					objectId: task.data.id,
-					users: followers.map((follower) => follower.member.employee.user.id),
-				}),
-				...followers.map((member) =>
-					updateObjectPermissions({
-						model: 'projects_tasks_followers',
-						permissions: ['VIEW'],
-						objectId: member.id,
-						users: followers.map(
-							(follower) => follower.member.employee.user.id
-						),
-					})
-				),
-			]);
+			await updateObjectPermissions({
+				model: 'projects_tasks',
+				permissions: ['VIEW'],
+				objectId: req.query.taskId as string,
+				users: followers.map((follower) => follower.member.employee.user.id),
+			});
 		}
 
 		return res.status(201).json({

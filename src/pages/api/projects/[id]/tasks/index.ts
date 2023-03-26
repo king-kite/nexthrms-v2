@@ -17,7 +17,7 @@ import {
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import { taskCreateSchema, validateParams } from '../../../../../validators';
+import { taskCreateSchema } from '../../../../../validators';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -150,20 +150,11 @@ export default auth()
 		})) as unknown as ProjectTaskType;
 
 		// Assign all object level permissions for the task and task followers to the request user only
-		await Promise.all([
-			addObjectPermissions({
-				model: 'projects_tasks',
-				objectId: task.id,
-				users: [req.user.id],
-			}),
-			...task.followers.map((follower) =>
-				addObjectPermissions({
-					model: 'projects_tasks_followers',
-					objectId: follower.id,
-					users: [req.user.id],
-				})
-			),
-		]);
+		await addObjectPermissions({
+			model: 'projects_tasks',
+			objectId: task.id,
+			users: [req.user.id],
+		});
 
 		// Assign view object level permissions for the project team and client
 		// and also give create project task permissions to the project leaders
@@ -187,14 +178,6 @@ export default auth()
 				objectId: task.id,
 				users: leaders,
 			}),
-			...task.followers.map((follower) =>
-				updateObjectPermissions({
-					model: 'projects_tasks_followers',
-					permissions: ['VIEW'],
-					objectId: follower.id,
-					users: followers,
-				})
-			),
 		]);
 
 		return res.status(201).json({

@@ -5,13 +5,10 @@ import {
 	taskFollowerSelectQuery as selectQuery,
 } from '../../../../../../../db';
 import {
-	getRecord,
-	getUserObjectPermissions,
+	hasObjectPermission,
 	hasViewPermission,
-	removeObjectPermissions,
 } from '../../../../../../../db/utils';
 import { auth } from '../../../../../../../middlewares';
-import { ProjectTaskType } from '../../../../../../../types';
 import { hasModelPermission } from '../../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
 import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators';
@@ -38,20 +35,9 @@ export default auth()
 		next();
 	})
 	.get(async (req, res) => {
-		const record = await getRecord({
-			model: 'projects_tasks_followers',
-			perm: 'projecttaskfollower',
-			permission: 'VIEW',
-			objectId: req.query.followerId as string,
-			user: req.user,
-			getData() {
-				return getTaskFollower(req.query.followerId as string);
-			},
-		});
+		const data = await getTaskFollower(req.query.followerId as string);
 
-		if (!record) throw new NextApiErrorMessage(403);
-
-		if (!record.data) {
+		if (data) {
 			return res.status(404).json({
 				status: 'error',
 				message: 'Task follower with the specified ID does not exist!',
@@ -61,10 +47,26 @@ export default auth()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched task follower successfully!',
-			data: record.data,
+			data,
 		});
 	})
 	.put(async (req, res) => {
+		let hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.projecttask.EDIT,
+			]);
+		if (!hasPerm) {
+			hasPerm = await hasObjectPermission({
+				model: 'projects_tasks',
+				permission: 'EDIT',
+				objectId: req.query.taskId as string,
+				userId: req.user.id,
+			});
+		}
+
+		if (!hasPerm) throw new NextApiErrorMessage();
+
 		const data: {
 			memberId: string;
 			isLeader?: boolean;
@@ -86,20 +88,18 @@ export default auth()
 		let hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttaskfollower.DELETE,
+				permissions.projecttask.EDIT,
 			]);
-
 		if (!hasPerm) {
-			const perm = await getUserObjectPermissions({
-				modelName: 'projects_tasks_followers',
-				permission: 'DELETE',
-				objectId: req.query.followerId as string,
+			hasPerm = await hasObjectPermission({
+				model: 'projects_tasks',
+				permission: 'EDIT',
+				objectId: req.query.taskId as string,
 				userId: req.user.id,
 			});
-			hasPerm = perm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextApiErrorMessage();
 
 		await prisma.projectTaskFollower.delete({
 			where: { id: req.query.followerId as string },
