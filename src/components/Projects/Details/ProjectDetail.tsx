@@ -130,6 +130,8 @@ const ProjectDetail = ({
 												? 'success'
 												: 'warning'
 										}
+										centered
+										padding="px-4"
 										title={data.priority}
 									/>
 								</div>
