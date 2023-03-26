@@ -60,9 +60,15 @@ export default auth()
 			},
 		});
 
-		if (!result) throw new NextApiErrorMessage(403);
-
-		return res.status(200).json(result);
+		return res.status(200).json(
+			result || {
+				status: 'success',
+				message: 'Fetched data successfully',
+				data: {
+					result: [],
+				},
+			}
+		);
 	})
 	.post(async (req, res) => {
 		let hasPerm =
