@@ -123,7 +123,7 @@ const ProjectDetail = ({
 							) : (
 								<div>
 									<Badge
-										color={
+										bg={
 											data.priority === 'HIGH'
 												? 'danger'
 												: data.priority === 'LOW'
