@@ -6,10 +6,7 @@ import Clients from '../../containers/Clients';
 import { getClients } from '../../db';
 import { getRecords } from '../../db/utils';
 import { authPage } from '../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetClientsResponseType,
-} from '../../types';
+import { ExtendedGetServerSideProps } from '../../types';
 import { Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 
@@ -55,7 +52,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			},
 		};
 
-	const result = await getRecords<GetClientsResponseType['data']>({
+	const result = await getRecords({
 		model: 'clients',
 		perm: 'client',
 		query: {

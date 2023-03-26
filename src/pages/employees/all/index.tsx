@@ -6,11 +6,8 @@ import Employees from '../../../containers/Employees';
 import { getEmployees } from '../../../db';
 import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetEmployeesResponseType,
-} from '../../../types';
-import { hasModelPermission, Title } from '../../../utils';
+import { ExtendedGetServerSideProps } from '../../../types';
+import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
@@ -55,7 +52,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			},
 		};
 
-	const result = await getRecords<GetEmployeesResponseType['data']>({
+	const result = await getRecords({
 		model: 'employees',
 		perm: 'employee',
 		query: {
