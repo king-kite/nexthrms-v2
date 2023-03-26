@@ -28,7 +28,10 @@ const Topbar: FC<TopbarProps> = ({
 	const [canView, canCreate, canExport] = useMemo(() => {
 		const canView = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.VIEW]) ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.VIEW,
+					])) ||
 			  // check object permission
 			  !!authData?.objPermissions.find(
 					(perm) => perm.modelName === 'employees' && perm.permission === 'VIEW'
@@ -36,11 +39,17 @@ const Topbar: FC<TopbarProps> = ({
 			: false;
 		const canCreate = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.CREATE])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.CREATE,
+					]))
 			: false;
 		const canExport = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.EXPORT])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.EXPORT,
+					]))
 			: false;
 		return [canView, canCreate, canExport];
 	}, [authData]);
