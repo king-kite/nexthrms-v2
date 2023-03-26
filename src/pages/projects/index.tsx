@@ -1,14 +1,12 @@
 import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-import { LOGIN_PAGE_URL } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../config';
 import Projects from '../../containers/Projects';
 import { getProjects } from '../../db';
+import { getRecords } from '../../db/utils';
 import { authPage } from '../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetProjectsResponseType,
-} from '../../types';
+import { ExtendedGetServerSideProps } from '../../types';
 import { Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 

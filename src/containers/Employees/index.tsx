@@ -40,20 +40,30 @@ const Employees = ({
 	const [canCreate, canExport, canView] = useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.CREATE])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.CREATE,
+					]))
 			: false;
 		const canExport = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.EXPORT])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.EXPORT,
+					]))
 			: false;
 		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [permissions.employee.VIEW]) ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.employee.VIEW,
+					])) ||
 			  // check object permission
-			  !!authData?.objPermissions.find(
+			  (!!authData?.objPermissions.find(
 					(perm) => perm.modelName === 'employees' && perm.permission === 'VIEW'
-			  )
+			  ) &&
+					authData.isAdmin)
 			: false;
 		return [canCreate, canExport, canView];
 	}, [authData]);
