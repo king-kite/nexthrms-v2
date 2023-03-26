@@ -273,7 +273,7 @@ const Form: FC<FormProps> = ({
 															' ' +
 															member.employee.user.lastName
 													),
-													value: member.employee.id,
+													value: member.id,
 												},
 											];
 										},
@@ -341,7 +341,7 @@ const Form: FC<FormProps> = ({
 															' ' +
 															member.employee.user.lastName
 													),
-													value: member.employee.id,
+													value: member.id,
 												},
 											];
 										},
