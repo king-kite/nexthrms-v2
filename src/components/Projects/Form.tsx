@@ -150,6 +150,7 @@ const Form: FC<FormProps> = ({
 						startDate: formRef.current.startDate.value,
 						endDate: formRef.current.endDate.value,
 						description: formRef.current.description.value,
+						completed: formRef.current.status.value === 'completed',
 						team: form.team
 							.map((member) => ({
 								employeeId: member,
@@ -307,7 +308,7 @@ const Form: FC<FormProps> = ({
 						error={formErrors?.rate || errors?.rate}
 						label="Rate"
 						name="rate"
-						onChange={() => removeErrors('initialCost')}
+						onChange={() => removeErrors('rate')}
 						placeholder="Enter the rate per hour e.g. 20"
 						type="number"
 					/>
@@ -319,7 +320,7 @@ const Form: FC<FormProps> = ({
 						error={formErrors?.priority || errors?.priority}
 						label="Priority"
 						name="priority"
-						onChange={() => removeErrors('initialCost')}
+						onChange={() => removeErrors('priority')}
 						options={[
 							{ title: 'HIGH', value: 'HIGH' },
 							{ title: 'MEDIUM', value: 'MEDIUM' },
@@ -328,7 +329,20 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 
-				<div className="hidden md:flex md:flex-col md:justify-end" />
+				<div className="w-full md:flex md:flex-col md:justify-end">
+					<Select
+						defaultValue={initState?.completed ? 'completed' : 'ongoing'}
+						disabled={loading}
+						error={formErrors?.completed || errors?.completed}
+						label="Status"
+						name="status"
+						onChange={() => removeErrors('status')}
+						options={[
+							{ title: 'Ongoing', value: 'Ongoing' },
+							{ title: 'Completed', value: 'completed' },
+						]}
+					/>
+				</div>
 
 				<div className="w-full md:flex md:flex-col md:justify-end">
 					<Select

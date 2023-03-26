@@ -54,7 +54,7 @@ export type CreateProjectQueryType = {
 export type CreateProjectErrorResponseType = {
 	name?: string;
 	client?: string;
-	completed?: boolean;
+	completed?: string;
 	description?: string;
 	startDate?: string;
 	endDate?: string;
