@@ -1,6 +1,5 @@
 import { Badge, Select } from 'kite-react-tailwind';
 import Image from 'next/image';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { StatusProgressBar } from '../../common';
 import { DEFAULT_IMAGE } from '../../../config';
@@ -138,12 +137,8 @@ const ProjectDetail = ({
 						</li>
 						<li className="odd:bg-gray-100 rounded-sm flex items-center justify-between p-2 capitalize font-medium text-gray-800 text-base md:text-lg lg:text-base">
 							<p>status:</p>
-							<p>
-								{data.completed ? (
-									<FaCheckCircle className="h-4 text-green-600 text-sm w-4" />
-								) : (
-									<FaTimesCircle className="h-4 text-red-600 text-sm w-4" />
-								)}
+							<p className={data.completed ? 'text-green-600' : 'text-red-600'}>
+								{data.completed ? 'Completed' : 'Ongoing'}
 							</p>
 						</li>
 						<li className="rounded-sm flex items-center justify-between capitalize font-medium text-gray-800 text-base md:text-lg lg:text-base">
