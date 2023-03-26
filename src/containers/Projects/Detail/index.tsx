@@ -110,54 +110,36 @@ const Detail = ({
 		},
 	});
 
-	const [
-		canEdit,
-		canDelete,
-		canViewObjectPermissions,
-		canViewTasks,
-		canViewTeam,
-	] = useMemo(() => {
-		if (!authData) return [];
-		const canEdit =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
-			(objPermData && objPermData.edit);
-		const canDelete =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.project.DELETE]) ||
-			(objPermData && objPermData.delete);
-		const canViewObjectPermissions =
-			authData.isSuperUser ||
-			(authData.isAdmin &&
+	const [canEdit, canDelete, canViewObjectPermissions, canViewTasks] =
+		useMemo(() => {
+			if (!authData) return [];
+			const canEdit =
+				authData.isSuperUser ||
+				hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
+				(objPermData && objPermData.edit);
+			const canDelete =
+				authData.isSuperUser ||
 				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
-		const canViewTasks =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projecttask.VIEW,
-			]) ||
-			!!authData.objPermissions.find(
-				(perm) =>
-					perm.modelName === 'projects_tasks' && perm.permission === 'VIEW'
-			);
-		const canViewTeam =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projectteam.VIEW,
-			]) ||
-			!!authData.objPermissions.find(
-				(perm) =>
-					perm.modelName === 'projects_team' && perm.permission === 'VIEW'
-			);
-		return [
-			canEdit,
-			canDelete,
-			canViewObjectPermissions,
-			canViewTasks,
-			canViewTeam,
-		];
-	}, [authData, objPermData]);
+					permissions.project.DELETE,
+				]) ||
+				(objPermData && objPermData.delete);
+			const canViewObjectPermissions =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]));
+			const canViewTasks =
+				authData.isSuperUser ||
+				hasModelPermission(authData.permissions, [
+					permissions.projecttask.VIEW,
+				]) ||
+				!!authData.objPermissions.find(
+					(perm) =>
+						perm.modelName === 'projects_tasks' && perm.permission === 'VIEW'
+				);
+			return [canEdit, canDelete, canViewObjectPermissions, canViewTasks];
+		}, [authData, objPermData]);
 
 	return (
 		<Container
@@ -205,23 +187,21 @@ const Detail = ({
 								/>
 							</div>
 						)}
-						{canViewTeam && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-								<Button
-									iconLeft={FaUsers}
-									rounded="rounded-xl"
-									title="Team"
-									renderLinkAs={(props) => {
-										return (
-											<Link href={props.link || '#'}>
-												<a {...props}>{props.children}</a>
-											</Link>
-										);
-									}}
-									link={PROJECT_TEAM_PAGE_URL(id)}
-								/>
-							</div>
-						)}
+						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+							<Button
+								iconLeft={FaUsers}
+								rounded="rounded-xl"
+								title="Team"
+								renderLinkAs={(props) => {
+									return (
+										<Link href={props.link || '#'}>
+											<a {...props}>{props.children}</a>
+										</Link>
+									);
+								}}
+								link={PROJECT_TEAM_PAGE_URL(id)}
+							/>
+						</div>
 						{canEdit && (
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 								<Button
