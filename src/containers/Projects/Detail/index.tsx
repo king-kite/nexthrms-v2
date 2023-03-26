@@ -233,7 +233,7 @@ const Detail = ({
 									bg="bg-gray-500 hover:bg-gray-400"
 									iconLeft={FaUserShield}
 									rounded="rounded-xl"
-									title="Object Permissions"
+									title="Permissions"
 									link={PROJECT_OBJECT_PERMISSIONS_PAGE_URL(id)}
 								/>
 							</div>
