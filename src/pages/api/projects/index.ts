@@ -7,6 +7,7 @@ import {
 import {
 	addObjectPermissions,
 	getRecords,
+	hasObjectPermission,
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { auth } from '../../../middlewares';
@@ -80,6 +81,36 @@ export default auth()
 			[]
 		);
 
+		if (filteredMembers) {
+			// Check that the employee the user is adding in are ones the user can view
+			// to avoid guessing
+			let hasViewEmployeePerm =
+				req.user.isSuperUser ||
+				hasModelPermission(req.user.allPermissions, [
+					permissions.employee.VIEW,
+				]);
+
+			if (!hasViewEmployeePerm) {
+				const viewEmployeePerms = await Promise.all(
+					filteredMembers.map((member) => {
+						return hasObjectPermission({
+							model: 'employees',
+							permission: 'VIEW',
+							objectId: member.employeeId,
+							userId: req.user.id,
+						});
+					})
+				);
+				hasViewEmployeePerm = viewEmployeePerms.every((perm) => perm === true);
+			}
+
+			if (!hasViewEmployeePerm)
+				throw new NextApiErrorMessage(
+					403,
+					'You are not authorized to add some team members. Please try again later.'
+				);
+		}
+
 		const project = (await prisma.project.create({
 			data: {
 				...data,
@@ -115,13 +146,6 @@ export default auth()
 				objectId: project.id,
 				users: [req.user.id],
 			}),
-			...project.team.map((member) =>
-				addObjectPermissions({
-					model: 'projects_team',
-					objectId: member.id,
-					users: [req.user.id],
-				})
-			),
 		]);
 
 		// Assign view object level permissions for the project team and client
@@ -159,14 +183,6 @@ export default auth()
 					},
 				},
 			}),
-			...project.team.map((member) =>
-				updateObjectPermissions({
-					model: 'projects_team',
-					permissions: ['VIEW'],
-					objectId: member.id,
-					users: viewers,
-				})
-			),
 		]);
 
 		return res.status(201).json({

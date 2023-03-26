@@ -1,9 +1,6 @@
 import { permissions } from '../../../../../config';
 import { prisma, getProject, getProjectTeam } from '../../../../../db';
 import {
-	addObjectPermissions,
-	getRecord,
-	getRecords,
 	hasObjectPermission,
 	hasViewPermission,
 	updateObjectPermissions,
@@ -13,7 +10,10 @@ import { adminMiddleware as admin } from '../../../../../middlewares/api';
 import { CreateProjectTeamQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import { projectTeamCreateSchema } from '../../../../../validators';
+import {
+	projectTeamCreateSchema,
+	validateParams,
+} from '../../../../../validators';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -28,50 +28,38 @@ export default auth()
 		next();
 	})
 	.get(async (req, res) => {
-		const result = await getRecords({
-			model: 'projects_team',
-			perm: 'projectteam',
-			query: req.query,
-			user: req.user,
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			getData(params) {
-				return getProjectTeam({
-					...params,
-					id: req.query.id as string,
-				});
-			},
+		const params = validateParams(req.query);
+
+		const data = await getProjectTeam({
+			...params,
+			id: req.query.id as string,
 		});
 
-		if (!result) throw new NextApiErrorMessage(403);
-
-		return res.status(200).json(result);
+		return res.status(200).json({
+			status: 'success',
+			message: 'Fetched data successfully',
+			data,
+		});
 	})
 	.use(admin)
 	.post(async (req, res) => {
-		const hasPerm =
+		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.project.CREATE,
-				permissions.projectteam.CREATE,
-			]);
+			hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
+		if (!hasPerm) {
+			hasPerm = await hasObjectPermission({
+				model: 'projects',
+				permission: 'EDIT',
+				objectId: req.query.id as string,
+				userId: req.user.id,
+			});
+		}
 
 		if (!hasPerm) throw new NextApiErrorMessage();
 
-		const project = await getRecord({
-			model: 'projects',
-			perm: 'project',
-			permission: 'VIEW',
-			user: req.user,
-			objectId: req.query.id as string,
-			getData() {
-				return getProject(req.query.id as string);
-			},
-		});
+		const project = await getProject(req.query.id as string);
 
-		if (!project?.data) throw new NextApiErrorMessage(404);
+		if (!project) throw new NextApiErrorMessage(404);
 
 		const data: CreateProjectTeamQueryType =
 			await projectTeamCreateSchema.validateAsync({ ...req.body });
@@ -151,45 +139,25 @@ export default auth()
 				dataTeamIds.includes(member.employee.id)
 			);
 
-			await Promise.all([
-				...team.map((member) =>
-					addObjectPermissions({
-						model: 'projects_team',
-						objectId: member.id,
-						users: [req.user.id],
-					})
-				),
-				// leaders can create tasks
-				prisma.permission.update({
-					where: {
-						codename: permissions.projecttask.CREATE,
+			await prisma.permission.update({
+				where: {
+					codename: permissions.projecttask.CREATE,
+				},
+				data: {
+					users: {
+						connect: team
+							.filter((member) => member.isLeader)
+							.map((member) => ({ id: member.employee.user.id })),
 					},
-					data: {
-						users: {
-							connect: team
-								.filter((member) => member.isLeader)
-								.map((member) => ({ id: member.employee.user.id })),
-						},
-					},
-				}),
-			]);
+				},
+			});
 
-			await Promise.all([
-				updateObjectPermissions({
-					model: 'projects',
-					permissions: ['VIEW'],
-					objectId: project.data.id,
-					users: team.map((member) => member.employee.user.id),
-				}),
-				...team.map((member) =>
-					updateObjectPermissions({
-						model: 'projects_team',
-						permissions: ['VIEW'],
-						objectId: member.id,
-						users: team.map((member) => member.employee.user.id),
-					})
-				),
-			]);
+			await updateObjectPermissions({
+				model: 'projects',
+				permissions: ['VIEW'],
+				objectId: project.id,
+				users: team.map((member) => member.employee.user.id),
+			});
 		}
 
 		return res.status(201).json({

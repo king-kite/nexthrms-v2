@@ -233,14 +233,6 @@ export default auth()
 					},
 				},
 			}),
-			...project.team.map((member) =>
-				updateObjectPermissions({
-					model: 'projects_team',
-					permissions: ['VIEW'],
-					objectId: member.id,
-					users: viewers,
-				})
-			),
 		]);
 
 		return res.status(200).json({

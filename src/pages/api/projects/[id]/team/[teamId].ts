@@ -1,14 +1,12 @@
 import { permissions } from '../../../../../config';
 import {
 	prisma,
-	getProjectTeam,
 	getProjectTeamMember,
 	teamSelectQuery as selectQuery,
 } from '../../../../../db';
 import {
-	getRecord,
-	getUserObjectPermissions,
 	hasViewPermission,
+	hasObjectPermission,
 	removeObjectPermissions,
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
@@ -31,20 +29,9 @@ export default auth()
 		next();
 	})
 	.get(async (req, res) => {
-		const record = await getRecord({
-			model: 'projects_team',
-			perm: 'projectteam',
-			permission: 'VIEW',
-			objectId: req.query.teamId as string,
-			user: req.user,
-			getData() {
-				return getProjectTeamMember(req.query.teamId as string);
-			},
-		});
+		const data = await getProjectTeamMember(req.query.teamId as string);
 
-		if (!record) throw new NextApiErrorMessage(403);
-
-		if (!record.data) {
+		if (!data) {
 			return res.status(404).json({
 				status: 'error',
 				message: 'Project team member with the specified ID does not exist!',
@@ -54,28 +41,24 @@ export default auth()
 		return res.status(200).json({
 			status: 'success',
 			message: 'Fetched Team member successfully!',
-			data: record.data,
+			data,
 		});
 	})
 	.use(admin)
 	.put(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projectteam.EDIT,
-			]);
-
+			hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
 		if (!hasPerm) {
-			const perm = await getUserObjectPermissions({
-				modelName: 'projects_team',
+			hasPerm = await hasObjectPermission({
+				model: 'projects',
 				permission: 'EDIT',
-				objectId: req.query.teamId as string,
+				objectId: req.query.id as string,
 				userId: req.user.id,
 			});
-			hasPerm = perm.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextApiErrorMessage();
 
 		const data: {
 			employeeId: string;
@@ -113,21 +96,17 @@ export default auth()
 	.delete(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projectteam.DELETE,
-			]);
-
+			hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
 		if (!hasPerm) {
-			const perm = await getUserObjectPermissions({
-				modelName: 'projects_team',
-				permission: 'DELETE',
-				objectId: req.query.teamId as string,
+			hasPerm = await hasObjectPermission({
+				model: 'projects',
+				permission: 'EDIT',
+				objectId: req.query.id as string,
 				userId: req.user.id,
 			});
-			hasPerm = perm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextApiErrorMessage();
 
 		// Find the team member
 		const member = await getProjectTeamMember(req.query.teamId as string);
@@ -144,36 +123,11 @@ export default auth()
 			where: { id: req.query.teamId as string },
 		});
 
-		// Delete/Remove all task following associated with the team member
-		await prisma.projectTaskFollower.deleteMany({
-			where: {
-				member: {
-					id: member.id,
-				},
-				task: {
-					projectId: req.query.id as string,
-				},
-			},
+		await removeObjectPermissions({
+			model: 'projects',
+			objectId: req.query.id as string,
+			users: [member.employee.user.id],
 		});
-
-		const team = await getProjectTeam({
-			id: req.query.id as string,
-		});
-
-		await Promise.all([
-			removeObjectPermissions({
-				model: 'projects',
-				objectId: req.query.id as string,
-				users: [member.employee.user.id],
-			}),
-			...team.result.map((teamMember) =>
-				removeObjectPermissions({
-					model: 'projects_team',
-					objectId: teamMember.id,
-					users: [member.employee.user.id],
-				})
-			),
-		]);
 
 		return res.status(200).json({
 			status: 'success',
