@@ -1,41 +1,31 @@
-import { InferGetServerSidePropsType } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Team from '../../../containers/Projects/Detail/Team';
-import { getProject, getProjectTeam } from '../../../db';
+import { getProject } from '../../../db';
+import { getRecord } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetProjectTeamResponseType,
-	ProjectType,
-	SuccessResponseType,
-} from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
+import { serializeUserData } from '../../../utils/serializers';
 
 const Page = ({
-	projectData,
-	teamData,
+	project,
+	objPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title
-			title={`Project Team - ${projectData.name} - Project Team Information`}
+			title={`Project Team - ${project.name} - Project Team Information`}
 		/>
-		<Team projectData={projectData} teamData={teamData} />
+		<Team projectData={project} objPerm={objPerm} />
 	</>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	params,
 	req,
 	res,
 }) => {
-	const { id } = params as IParams;
-
 	try {
 		await authPage().run(req, res);
 	} catch (error) {
@@ -52,18 +42,35 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const projectData: SuccessResponseType<ProjectType>['data'] = JSON.parse(
-		JSON.stringify(await getProject(id))
-	);
-	const teamData: GetProjectTeamResponseType['data'] = JSON.parse(
-		JSON.stringify(await getProjectTeam({ id }))
-	);
+	const record = await getRecord({
+		model: 'projects',
+		perm: 'project',
+		objectId: params?.id as string,
+		user: req.user,
+		getData() {
+			return getProject(params?.id as string);
+		},
+	});
+
+	const auth = await serializeUserData(req.user);
+
+	if (!record)
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+	if (!record.data)
+		return {
+			notFound: true,
+		};
 
 	return {
 		props: {
 			auth: req.user,
-			projectData,
-			teamData,
+			objPerm: record.perm,
+			project: record.data,
 		},
 	};
 };
