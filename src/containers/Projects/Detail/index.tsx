@@ -193,7 +193,7 @@ const Detail = ({
 								<Button
 									iconLeft={FaTasks}
 									rounded="rounded-xl"
-									title="Manage Tasks"
+									title="Tasks"
 									renderLinkAs={(props) => {
 										return (
 											<Link href={props.link || '#'}>
@@ -210,7 +210,7 @@ const Detail = ({
 								<Button
 									iconLeft={FaUsers}
 									rounded="rounded-xl"
-									title="Manage Team"
+									title="Team"
 									renderLinkAs={(props) => {
 										return (
 											<Link href={props.link || '#'}>
