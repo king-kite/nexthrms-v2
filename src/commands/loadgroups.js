@@ -41,12 +41,9 @@ const { logger } = require('./utils/index.js');
 		'can_delete_projectfile',
 		'can_edit_projectfile',
 
-		'can_view_projectteam',
-
 		'can_view_projecttask',
 		'can_edit_projecttask',
 
-		'can_view_projecttaskfollower',
 		'can_delete_attendance',
 		'can_edit_attendance',
 	];
