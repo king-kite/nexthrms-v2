@@ -1,5 +1,6 @@
-import { Select } from 'kite-react-tailwind';
+import { Badge, Select } from 'kite-react-tailwind';
 import Image from 'next/image';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { StatusProgressBar } from '../../common';
 import { DEFAULT_IMAGE } from '../../../config';
@@ -11,9 +12,11 @@ import { getStringedDate } from '../../../utils';
 const ProjectDetail = ({
 	data,
 	progress = 0,
+	canEdit = false,
 }: {
 	data: ProjectType;
 	progress?: number;
+	canEdit?: boolean;
 }) => {
 	const start_date = data ? new Date(data.startDate) : undefined;
 	const end_date = data ? new Date(data.endDate) : undefined;
@@ -29,7 +32,7 @@ const ProjectDetail = ({
 	const { open: showAlert } = useAlertContext();
 
 	const { mutate: editProject } = useEditProjectMutation({
-		onError({ message }) {
+		onError({ message = "Sorry, unable to change the project's priority" }) {
 			showAlert({ type: 'danger', message });
 		},
 	});
@@ -70,57 +73,78 @@ const ProjectDetail = ({
 						</li>
 						<li className="odd:bg-gray-100 rounded-sm flex items-center justify-between p-2 capitalize font-medium text-gray-800 text-base md:text-lg lg:text-base">
 							<p>Priority:</p>
-							<div>
-								<Select
-									bg={
-										data.priority === 'HIGH'
-											? 'bg-red-100'
-											: data.priority === 'MEDIUM'
-											? 'bg-yellow-100'
-											: 'bg-green-100'
-									}
-									bdrColor={
-										data.priority === 'HIGH'
-											? 'border-red-600'
-											: data.priority === 'MEDIUM'
-											? 'border-yellow-600'
-											: 'border-green-600'
-									}
-									color={
-										data.priority === 'HIGH'
-											? 'text-red-700'
-											: data.priority === 'MEDIUM'
-											? 'text-yellow-700'
-											: 'text-green-700'
-									}
-									onChange={({ target: { value } }) => {
-										editProject({
-											id: data.id,
-											data: {
-												name: data.name,
-												description: data.description,
-												initialCost: data.initialCost,
-												rate: data.rate,
-												completed: data.completed,
-												startDate: getStringedDate(data.startDate),
-												endDate: getStringedDate(data.endDate),
-												priority: value as 'HIGH' | 'MEDIUM' | 'LOW',
-												client: data.client?.id || '',
-											},
-										});
-									}}
-									value={data.priority}
-									options={[
-										{ title: 'High', value: 'HIGH' },
-										{ title: 'Medium', value: 'MEDIUM' },
-										{ title: 'Low', value: 'LOW' },
-									]}
-								/>
-							</div>
+							{canEdit ? (
+								<div>
+									<Select
+										bg={
+											data.priority === 'HIGH'
+												? 'bg-red-100'
+												: data.priority === 'MEDIUM'
+												? 'bg-yellow-100'
+												: 'bg-green-100'
+										}
+										bdrColor={
+											data.priority === 'HIGH'
+												? 'border-red-600'
+												: data.priority === 'MEDIUM'
+												? 'border-yellow-600'
+												: 'border-green-600'
+										}
+										color={
+											data.priority === 'HIGH'
+												? 'text-red-700'
+												: data.priority === 'MEDIUM'
+												? 'text-yellow-700'
+												: 'text-green-700'
+										}
+										onChange={({ target: { value } }) => {
+											editProject({
+												id: data.id,
+												data: {
+													name: data.name,
+													description: data.description,
+													initialCost: data.initialCost,
+													rate: data.rate,
+													completed: data.completed,
+													startDate: getStringedDate(data.startDate),
+													endDate: getStringedDate(data.endDate),
+													priority: value as 'HIGH' | 'MEDIUM' | 'LOW',
+													client: data.client?.id || '',
+												},
+											});
+										}}
+										value={data.priority}
+										options={[
+											{ title: 'High', value: 'HIGH' },
+											{ title: 'Medium', value: 'MEDIUM' },
+											{ title: 'Low', value: 'LOW' },
+										]}
+									/>
+								</div>
+							) : (
+								<div>
+									<Badge
+										color={
+											data.priority === 'HIGH'
+												? 'danger'
+												: data.priority === 'LOW'
+												? 'success'
+												: 'warning'
+										}
+										title={data.priority}
+									/>
+								</div>
+							)}
 						</li>
 						<li className="odd:bg-gray-100 rounded-sm flex items-center justify-between p-2 capitalize font-medium text-gray-800 text-base md:text-lg lg:text-base">
 							<p>status:</p>
-							<p>{data.completed ? 'completed' : 'ongoing'}</p>
+							<p>
+								{data.completed ? (
+									<FaCheckCircle className="h-4 text-green-600 text-sm w-4" />
+								) : (
+									<FaTimesCircle className="h-4 text-red-600 text-sm w-4" />
+								)}
+							</p>
 						</li>
 						<li className="rounded-sm flex items-center justify-between capitalize font-medium text-gray-800 text-base md:text-lg lg:text-base">
 							<StatusProgressBar

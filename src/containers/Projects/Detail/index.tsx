@@ -1,4 +1,4 @@
-import { Button, TabNavigator } from 'kite-react-tailwind';
+import { Button } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
@@ -12,16 +12,18 @@ import {
 	ProjectImages,
 } from '../../../components/Projects';
 import {
-	DEFAULT_PAGINATION_SIZE,
+	permissions,
 	PROJECT_TASKS_PAGE_URL,
 	PROJECT_TEAM_PAGE_URL,
+	PROJECT_OBJECT_PERMISSIONS_PAGE_URL,
 } from '../../../config';
-import { useAlertContext } from '../../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetProjectQuery,
 	useGetProjectFilesQuery,
 	useEditProjectMutation,
 	useDeleteProjectMutation,
+	useGetUserObjectPermissionsQuery,
 } from '../../../store/queries';
 import {
 	CreateProjectErrorResponseType,
@@ -29,12 +31,16 @@ import {
 	GetProjectFilesResponseType,
 	ProjectType,
 	SuccessResponseType,
+	UserObjPermType,
 } from '../../../types';
+import { hasModelPermission } from '../../../utils';
 
 const Detail = ({
+	objPerm,
 	projectFiles,
 	project,
 }: {
+	objPerm: UserObjPermType;
 	project: SuccessResponseType<ProjectType>['data'];
 	projectFiles: GetProjectFilesResponseType['data'];
 }) => {
@@ -46,8 +52,9 @@ const Detail = ({
 		useState<CreateProjectErrorResponseType>();
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
 
-	const { data, refetch, isLoading, isFetching } = useGetProjectQuery(
+	const { data, error, refetch, isLoading, isFetching } = useGetProjectQuery(
 		{ id },
 		{
 			initialData() {
@@ -55,8 +62,28 @@ const Detail = ({
 			},
 		}
 	);
+	const { data: objPermData, refetch: objPermRefetch } =
+		useGetUserObjectPermissionsQuery(
+			{
+				modelName: 'projects',
+				objectId: id,
+			},
+			{
+				initialData() {
+					return objPerm;
+				},
+			}
+		);
 	const { data: files, refetch: filesRefetch } = useGetProjectFilesQuery(
-		{ id },
+		{
+			id,
+			onError() {
+				showAlert({
+					type: 'danger',
+					message: 'Sorry. Unable to get project files!',
+				});
+			},
+		},
 		{
 			initialData() {
 				return projectFiles;
@@ -83,6 +110,55 @@ const Detail = ({
 		},
 	});
 
+	const [
+		canEdit,
+		canDelete,
+		canViewObjectPermissions,
+		canViewTasks,
+		canViewTeam,
+	] = useMemo(() => {
+		if (!authData) return [];
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
+			(objPermData && objPermData.edit);
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.project.DELETE]) ||
+			(objPermData && objPermData.delete);
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [
+					permissions.permissionobject.VIEW,
+				]));
+		const canViewTasks =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.projecttask.VIEW,
+			]) ||
+			!!authData.objPermissions.find(
+				(perm) =>
+					perm.modelName === 'projects_tasks' && perm.permission === 'VIEW'
+			);
+		const canViewTeam =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.projectteam.VIEW,
+			]) ||
+			!!authData.objPermissions.find(
+				(perm) =>
+					perm.modelName === 'projects_team' && perm.permission === 'VIEW'
+			);
+		return [
+			canEdit,
+			canDelete,
+			canViewObjectPermissions,
+			canViewTasks,
+			canViewTeam,
+		];
+	}, [authData, objPermData]);
+
 	return (
 		<Container
 			background="bg-gray-100 overflow-y-hidden"
@@ -92,64 +168,94 @@ const Detail = ({
 				onClick: () => {
 					refetch();
 					filesRefetch();
+					objPermRefetch();
 				},
 				loading: isFetching,
 			}}
 			icon
+			error={
+				error
+					? {
+							statusCode:
+								(error as any).response?.status || (error as any).status || 500,
+							title:
+								(error as any)?.response?.data?.message ||
+								(error as any).message,
+					  }
+					: undefined
+			}
 		>
 			{data && (
 				<>
 					<div className="flex flex-wrap items-center w-full lg:justify-end">
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								iconLeft={FaTasks}
-								rounded="rounded-xl"
-								title="Manage Tasks"
-								renderLinkAs={(props) => {
-									return (
-										<Link href={props.link || '#'}>
-											<a {...props}>{props.children}</a>
-										</Link>
-									);
-								}}
-								link={PROJECT_TASKS_PAGE_URL(id)}
-							/>
-						</div>
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								iconLeft={FaUsers}
-								rounded="rounded-xl"
-								title="Manage Team"
-								renderLinkAs={(props) => {
-									return (
-										<Link href={props.link || '#'}>
-											<a {...props}>{props.children}</a>
-										</Link>
-									);
-								}}
-								link={PROJECT_TEAM_PAGE_URL(id)}
-							/>
-						</div>
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								iconLeft={FaPen}
-								onClick={() => setModalVisible(true)}
-								rounded="rounded-xl"
-								disabled={editLoading}
-								title={editLoading ? 'Editing Project...' : 'Edit Project'}
-							/>
-						</div>
-						<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-							<Button
-								bg="bg-red-600 hover:bg-red-500"
-								focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-								iconLeft={FaTrash}
-								rounded="rounded-xl"
-								title={delLoading ? 'Deleting Project...' : 'Delete Project'}
-								disabled={delLoading}
-								onClick={() => deleteProject(id)}
-							/>
-						</div>
+						{canViewTasks && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									iconLeft={FaTasks}
+									rounded="rounded-xl"
+									title="Manage Tasks"
+									renderLinkAs={(props) => {
+										return (
+											<Link href={props.link || '#'}>
+												<a {...props}>{props.children}</a>
+											</Link>
+										);
+									}}
+									link={PROJECT_TASKS_PAGE_URL(id)}
+								/>
+							</div>
+						)}
+						{canViewTeam && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									iconLeft={FaUsers}
+									rounded="rounded-xl"
+									title="Manage Team"
+									renderLinkAs={(props) => {
+										return (
+											<Link href={props.link || '#'}>
+												<a {...props}>{props.children}</a>
+											</Link>
+										);
+									}}
+									link={PROJECT_TEAM_PAGE_URL(id)}
+								/>
+							</div>
+						)}
+						{canEdit && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									iconLeft={FaPen}
+									onClick={() => setModalVisible(true)}
+									rounded="rounded-xl"
+									disabled={editLoading}
+									title={editLoading ? 'Editing Project...' : 'Edit Project'}
+								/>
+							</div>
+						)}
+						{canDelete && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									bg="bg-red-600 hover:bg-red-500"
+									iconLeft={FaTrash}
+									rounded="rounded-xl"
+									title={delLoading ? 'Deleting Project...' : 'Delete Project'}
+									disabled={delLoading}
+									onClick={() => deleteProject(id)}
+								/>
+							</div>
+						)}
+						{canViewObjectPermissions && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									bg="bg-gray-600 hover:bg-gray-500"
+									iconLeft={FaTrash}
+									rounded="rounded-xl"
+									title="Object Permission"
+									link={PROJECT_OBJECT_PERMISSIONS_PAGE_URL(id)}
+								/>
+							</div>
+						)}
 					</div>
 					<div className="flex flex-col items-center lg:flex-row lg:items-start">
 						<div className="py-2 w-full sm:px-4 lg:pl-0 lg:w-2/3">
@@ -166,47 +272,49 @@ const Detail = ({
 								</div>
 							</div>
 
-							<ProjectImages
-								files={
-									files
-										? files.result.filter(
-												(file) => file.type.split('/')[0] === 'image'
-										  )
-										: []
-								}
-							/>
+							{files && (
+								<>
+									<ProjectImages
+										files={files.result.filter(
+											(file) => file.type.split('/')[0] === 'image'
+										)}
+									/>
 
-							<ProjectFiles
-								files={
-									files
-										? files.result.filter(
-												(file) => file.type.split('/')[0] !== 'image'
-										  )
-										: []
-								}
-							/>
+									<ProjectFiles
+										files={files.result.filter(
+											(file) => file.type.split('/')[0] !== 'image'
+										)}
+									/>
+								</>
+							)}
 						</div>
 
-						<ProjectDetail data={data} progress={data?.progress || 0} />
+						<ProjectDetail
+							canEdit={canEdit}
+							data={data}
+							progress={data?.progress || 0}
+						/>
 					</div>
-					<Modal
-						close={() => setModalVisible(false)}
-						component={
-							<Form
-								initState={data}
-								editMode
-								errors={formErrors}
-								loading={editLoading}
-								onSubmit={(form: CreateProjectQueryType) => {
-									if (data) updateProject({ id: data.id, data: form });
-								}}
-							/>
-						}
-						keepVisible
-						description="Fill in the form below to edit this project"
-						title="Edit Project"
-						visible={modalVisible}
-					/>
+					{canEdit && (
+						<Modal
+							close={() => setModalVisible(false)}
+							component={
+								<Form
+									initState={data}
+									editMode
+									errors={formErrors}
+									loading={editLoading}
+									onSubmit={(form: CreateProjectQueryType) => {
+										if (data) updateProject({ id: data.id, data: form });
+									}}
+								/>
+							}
+							keepVisible
+							description="Fill in the form below to edit this project"
+							title="Edit Project"
+							visible={modalVisible}
+						/>
+					)}
 				</>
 			)}
 		</Container>

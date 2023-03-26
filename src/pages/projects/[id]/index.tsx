@@ -1,33 +1,29 @@
 import { InferGetServerSidePropsType } from 'next';
-import { ParsedUrlQuery } from 'querystring';
 
 import { LOGIN_PAGE_URL } from '../../../config';
 import Project from '../../../containers/Projects/Detail';
 import { getProject, getProjectFiles } from '../../../db';
+import { getRecord, getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetProjectFilesResponseType,
-	ProjectType,
-	SuccessResponseType,
-} from '../../../types';
+import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
 
 function Page({
+	objPerm,
 	project,
 	projectFiles,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
 		<>
 			<Title title={`${project.name} - Project Information`} />
-			<Project project={project} projectFiles={projectFiles} />
+			<Project
+				objPerm={objPerm}
+				project={project}
+				projectFiles={projectFiles}
+			/>
 		</>
 	);
-}
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
 }
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -51,21 +47,57 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const { id } = params as IParams;
-
 	const auth = await serializeUserData(req.user);
-	const project: SuccessResponseType<ProjectType> = JSON.parse(
-		JSON.stringify(await getProject(id))
-	);
-	const projectFiles: GetProjectFilesResponseType['data'] = JSON.parse(
-		JSON.stringify(await getProjectFiles({ id }))
-	);
+
+	const record = await getRecord({
+		model: 'projects',
+		perm: 'project',
+		objectId: params?.id as string,
+		user: req.user,
+		getData() {
+			return getProject(params?.id as string);
+		},
+	});
+
+	if (!record)
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+
+	if (!record.data)
+		return {
+			notFound: true,
+		};
+
+	const projectFiles = await getRecords({
+		model: 'projects_files',
+		perm: 'projectfile',
+		user: req.user,
+		query: {},
+		placeholder: {
+			result: [],
+		},
+		getData(queryParams) {
+			return getProjectFiles({
+				...queryParams,
+				id: params?.id as string,
+			});
+		},
+	});
 
 	return {
 		props: {
 			auth,
-			project,
-			projectFiles,
+			objPerm: record.perm,
+			project: record.data,
+			projectFiles: projectFiles
+				? projectFiles.data
+				: {
+						result: [],
+				  },
 		},
 	};
 };

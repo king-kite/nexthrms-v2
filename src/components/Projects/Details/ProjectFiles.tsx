@@ -1,15 +1,15 @@
 import { Button } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
-import { EMPLOYEE_PAGE_URL } from '../../../config';
-import { useAlertModalContext } from '../../../store/contexts';
+import { EMPLOYEE_PAGE_URL, permissions } from '../../../config';
+import { useAlertModalContext, useAuthContext } from '../../../store/contexts';
 import { useDeleteProjectFileMutation } from '../../../store/queries';
 import { ProjectFileType } from '../../../types';
-import { downloadFile } from '../../../utils';
+import { downloadFile, hasModelPermission } from '../../../utils';
 
 export type ProjectFilesProps = {
 	files: ProjectFileType[];
@@ -21,6 +21,18 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 	const [visible, setVisible] = useState(false);
 
 	const { open } = useAlertModalContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreateFile] = useMemo(() => {
+		if (!authData) return [];
+		const canCreateFile =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [
+				permissions.projectfile.CREATE,
+			]);
+		return [canCreateFile];
+	}, [authData]);
+
 	const { deleteProjectFile } = useDeleteProjectFileMutation({
 		onError({ message }) {
 			open({
@@ -35,35 +47,39 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 			<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 				uploaded files
 			</h3>
-			{visible ? (
-				<div>
-					<div className="flex justify-end">
-						<div
-							onClick={() => setVisible(false)}
-							className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
-						>
-							<FaTimes className="text-xs sm:text-sm" />
+			{canCreateFile && (
+				<>
+					{visible ? (
+						<div>
+							<div className="flex justify-end">
+								<div
+									onClick={() => setVisible(false)}
+									className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+								>
+									<FaTimes className="text-xs sm:text-sm" />
+								</div>
+							</div>
+							<Form
+								accept=".doc,.docx,.pdf"
+								type="application"
+								label="File"
+								projectId={id}
+								onClose={() => setVisible(false)}
+							/>
 						</div>
-					</div>
-					<Form
-						accept=".doc,.docx,.pdf"
-						type="application"
-						label="File"
-						projectId={id}
-						onClose={() => setVisible(false)}
-					/>
-				</div>
-			) : (
-				<div className="flex justify-start my-2 w-full px-3">
-					<div className="w-2/3 sm:w-1/3 md:w-1/4">
-						<Button
-							onClick={() => setVisible(true)}
-							iconLeft={FaFileUpload}
-							rounded="rounded-lg"
-							title="Add File"
-						/>
-					</div>
-				</div>
+					) : (
+						<div className="flex justify-start my-2 w-full px-3">
+							<div className="w-2/3 sm:w-1/3 md:w-1/4">
+								<Button
+									onClick={() => setVisible(true)}
+									iconLeft={FaFileUpload}
+									rounded="rounded-lg"
+									title="Add File"
+								/>
+							</div>
+						</div>
+					)}
+				</>
 			)}
 			{files.length > 0 ? (
 				<ul className="divide-y divide-gray-500 divide-opacity-50 mt-2">
