@@ -1,5 +1,4 @@
-import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../config';
 import Projects from '../../containers/Projects';
@@ -13,10 +12,10 @@ import { serializeUserData } from '../../utils/serializers';
 const Page = ({
 	projects,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Projects" />
 		<Projects projects={projects} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
