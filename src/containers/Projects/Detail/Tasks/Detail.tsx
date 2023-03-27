@@ -228,7 +228,7 @@ const Detail = ({
 											</Link>
 										);
 									}}
-									link={PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(taskId)}
+									link={PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(id, taskId)}
 								/>
 							</div>
 						)}
