@@ -200,6 +200,7 @@ export type CreateProjectTaskErrorResponseType = {
 	dueDate?: string;
 	priority?: string;
 	followers?: string;
+	completed?: string;
 };
 
 export type CreateProjectTaskFollowersQueryType = {

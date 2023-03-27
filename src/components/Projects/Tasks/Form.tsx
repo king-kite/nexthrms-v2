@@ -141,6 +141,7 @@ const Form: FC<FormProps> = ({
 						priority: formRef.current.priority.value,
 						dueDate: formRef.current.dueDate.value,
 						description: formRef.current.description.value,
+						completed: formRef.current.status.value === 'completed',
 						followers: form.followers
 							.map((member) => ({
 								memberId: member,
@@ -215,7 +216,20 @@ const Form: FC<FormProps> = ({
 					/>
 				</div>
 
-				<div className="hidden md:flex md:flex-col md:justify-end" />
+				<div className="w-full md:flex md:flex-col md:justify-end">
+					<Select
+						defaultValue={initState?.completed ? 'completed' : 'ongoing'}
+						disabled={loading}
+						error={formErrors?.completed || errors?.completed}
+						label="Status"
+						name="status"
+						onChange={() => removeErrors('status')}
+						options={[
+							{ title: 'Ongoing', value: 'Ongoing' },
+							{ title: 'Completed', value: 'completed' },
+						]}
+					/>
+				</div>
 
 				<div className="w-full md:flex md:flex-col md:justify-end">
 					<Select

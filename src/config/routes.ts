@@ -91,5 +91,9 @@ export const PROJECT_TASKS_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/tasks/`;
 export const PROJECT_TASK_PAGE_URL = (slug: string, id: string = '') =>
 	`/projects/${slug}/tasks/${id}/`;
+export const PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL = (
+	slug: string,
+	id: string = ''
+) => `/projects/${slug}/tasks/${id}/projects_tasks/object-permissions/`;
 export const PROJECT_TEAM_PAGE_URL = (slug: string) =>
 	`/projects/${slug}/team/`;

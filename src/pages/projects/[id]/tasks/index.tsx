@@ -1,14 +1,11 @@
-import { InferGetServerSidePropsType } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../../config';
-import { getProjectTasks } from '../../../../db';
+import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../../config';
 import Tasks from '../../../../containers/Projects/Detail/Tasks';
+import { getProjectTasks } from '../../../../db';
+import { getRecords, hasViewPermission } from '../../../../db/utils';
 import { authPage } from '../../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetProjectTasksResponseType,
-} from '../../../../types';
+import { ExtendedGetServerSideProps } from '../../../../types';
 import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
 
@@ -21,17 +18,11 @@ const Page = ({
 	</>
 );
 
-interface IParams extends ParsedUrlQuery {
-	id: string;
-}
-
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	params,
 	req,
 	res,
 }) => {
-	const { id } = params as IParams;
-
 	try {
 		await authPage().run(req, res);
 	} catch (error) {
@@ -49,14 +40,61 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
-	const tasks: GetProjectTasksResponseType['data'] = JSON.parse(
-		JSON.stringify(await getProjectTasks({ id }))
-	);
+	const placeholder = {
+		result: [],
+		total: 0,
+		completed: 0,
+		ongoing: 0,
+		project: {
+			id: params?.id as string,
+			name: '',
+		},
+	};
+
+	const result = await getRecords({
+		model: 'projects_tasks',
+		perm: 'projecttask',
+		user: req.user,
+		query: {
+			limit: DEFAULT_PAGINATION_SIZE,
+			offset: 0,
+			search: '',
+		},
+		placeholder,
+		getData(queryParams) {
+			return getProjectTasks({
+				...queryParams,
+				id: params?.id as string,
+			});
+		},
+	});
+
+	if (result)
+		return {
+			props: {
+				auth,
+				tasks: result.data,
+			},
+		};
+	const canViewProject = await hasViewPermission({
+		model: 'projects',
+		perm: 'project',
+		objectId: params?.id as string,
+		user: req.user,
+	});
+
+	if (canViewProject)
+		return {
+			props: {
+				auth,
+				tasks: placeholder,
+			},
+		};
 
 	return {
 		props: {
 			auth,
-			tasks,
+			errorPage: { statusCode: 403 },
 		},
 	};
 };

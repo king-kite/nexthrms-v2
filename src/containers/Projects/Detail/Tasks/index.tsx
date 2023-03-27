@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Container, Modal } from '../../../../components/common';
 import {
@@ -9,10 +9,11 @@ import {
 	TaskTopbar as Topbar,
 } from '../../../../components/Projects/Tasks';
 import {
+	permissions,
 	DEFAULT_PAGINATION_SIZE,
 	PROJECT_TASKS_EXPORTS_URL,
 } from '../../../../config';
-import { useAlertContext } from '../../../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../../../store/contexts';
 import {
 	useCreateProjectTaskMutation,
 	useGetProjectTasksQuery,
@@ -22,7 +23,7 @@ import {
 	CreateProjectTaskErrorResponseType,
 	GetProjectTasksResponseType,
 } from '../../../../types';
-import { downloadFile } from '../../../../utils';
+import { downloadFile, hasModelPermission } from '../../../../utils';
 
 type ErrorType = CreateProjectTaskErrorResponseType;
 
@@ -41,6 +42,23 @@ const ProjectTasks = ({
 	const id = router.query.id as string;
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	const [canCreate, canExport] = useMemo(() => {
+		const canCreate = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [
+					permissions.projecttask.CREATE,
+			  ])
+			: false;
+		const canExport = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [
+					permissions.projecttask.EXPORT,
+			  ])
+			: false;
+		return [canCreate, canExport];
+	}, [authData]);
 
 	const { data, refetch, isLoading, isFetching } = useGetProjectTasksQuery(
 		{
@@ -48,6 +66,12 @@ const ProjectTasks = ({
 			limit: DEFAULT_PAGINATION_SIZE,
 			offset,
 			search,
+			onError(error) {
+				showAlert({
+					message: error.message || 'Fetch Error. Unable to get data!',
+					type: 'danger',
+				});
+			},
 		},
 		{
 			initialData() {
@@ -80,9 +104,9 @@ const ProjectTasks = ({
 	const handleSubmit = useCallback(
 		(form: CreateProjectTaskQueryType) => {
 			setErrors(undefined);
-			createTask({ projectId: id, data: form });
+			if (canCreate) createTask({ projectId: id, data: form });
 		},
-		[id, createTask]
+		[id, canCreate, createTask]
 	);
 
 	return (
@@ -90,7 +114,7 @@ const ProjectTasks = ({
 			background="bg-gray-100"
 			heading="Tasks"
 			title={data ? data.project.name : ''}
-			loading={isLoading}
+			disabledLoading={isLoading}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
@@ -120,6 +144,7 @@ const ProjectTasks = ({
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
 				exportData={async (type, filtered) => {
+					if (!canExport) return;
 					let url = PROJECT_TASKS_EXPORTS_URL(id) + '?type=' + type;
 					let name = data
 						? `${data.project.name} project team`
@@ -144,22 +169,24 @@ const ProjectTasks = ({
 				exportLoading={exportLoading}
 			/>
 			<TaskTable loading={isLoading} tasks={data?.result || []} />
-			<Modal
-				close={() => setModalVisible(false)}
-				component={
-					<Form
-						success={createSuccess}
-						errors={errors}
-						resetErrors={setErrors}
-						loading={createLoading}
-						onSubmit={handleSubmit}
-					/>
-				}
-				keepVisible
-				description="Fill in the form below to add a new task"
-				title="Add a new Task"
-				visible={modalVisible}
-			/>
+			{canCreate && (
+				<Modal
+					close={() => setModalVisible(false)}
+					component={
+						<Form
+							success={createSuccess}
+							errors={errors}
+							resetErrors={setErrors}
+							loading={createLoading}
+							onSubmit={handleSubmit}
+						/>
+					}
+					keepVisible
+					description="Fill in the form below to add a new task"
+					title="Add a new Task"
+					visible={modalVisible}
+				/>
+			)}
 		</Container>
 	);
 };

@@ -1,21 +1,27 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { IconType } from 'react-icons';
 import {
+	FaArrowRight,
 	FaCheckCircle,
 	FaExclamationCircle,
-	FaEye,
 	FaTrash,
+	FaUserShield,
 } from 'react-icons/fa';
 
-import { PROJECT_TASK_PAGE_URL } from '../../../config/routes';
-import { useAlertContext } from '../../../store/contexts';
+import {
+	permissions,
+	PROJECT_TASK_PAGE_URL,
+	PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../../config';
+import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useDeleteProjectTaskMutation,
 	useMarkProjectTaskMutation,
 } from '../../../store/queries';
 import { ProjectTaskType } from '../../../types';
-import { getStringedDate } from '../../../utils';
+import { getStringedDate, hasModelPermission } from '../../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -27,63 +33,86 @@ const heads: TableHeadType = [
 
 const getRows = (
 	data: ProjectTaskType[],
-	actions: {
-		deleteTask: (q: { projectId: string; id: string }) => void;
-		markTask: (e: ProjectTaskType) => void;
+	{
+		objPermLink,
+		deleteTask,
+		markTask,
+	}: {
+		objPermLink?: (id: string) => string;
+		deleteTask?: (q: { projectId: string; id: string }) => void;
+		markTask?: (e: ProjectTaskType) => void;
 	}
 ): TableRowType[] =>
-	data.map((task) => ({
-		id: task.id,
-		rows: [
+	data.map((task) => {
+		const buttons: {
+			color: string;
+			icon: IconType;
+			onClick?: () => void;
+			link?: string;
+		}[] = [
 			{
+				color: 'primary',
+				icon: FaArrowRight,
 				link: PROJECT_TASK_PAGE_URL(task.project.id, task.id),
-				value: task.name || '---',
 			},
-			{
-				options: {
-					bg:
-						task.priority === 'MEDIUM'
-							? 'warning'
-							: task.priority === 'LOW'
-							? 'green'
-							: 'danger',
+		];
+		if (markTask) {
+			buttons.push({
+				color: task.completed ? 'warning' : 'success',
+				icon: task.completed ? FaExclamationCircle : FaCheckCircle,
+				onClick: () => markTask(task),
+			});
+		}
+		if (deleteTask) {
+			buttons.push({
+				color: 'danger',
+				icon: FaTrash,
+				onClick: () => deleteTask({ projectId: task.project.id, id: task.id }),
+			});
+		}
+		if (objPermLink) {
+			buttons.push({
+				color: 'info',
+				icon: FaUserShield,
+				link: objPermLink(task.id),
+			});
+		}
+		return {
+			id: task.id,
+			rows: [
+				{
+					link: PROJECT_TASK_PAGE_URL(task.project.id, task.id),
+					value: task.name || '---',
 				},
-				type: 'badge',
-				value: task.priority,
-			},
-			{
-				value: task.dueDate ? getStringedDate(task.dueDate) : '---',
-			},
-			{
-				options: {
-					bg: task.completed ? 'green' : 'warning',
+				{
+					options: {
+						bg:
+							task.priority === 'MEDIUM'
+								? 'warning'
+								: task.priority === 'LOW'
+								? 'green'
+								: 'danger',
+					},
+					type: 'badge',
+					value: task.priority,
 				},
-				type: 'badge',
-				value: task.completed ? 'completed' : 'ongoing',
-			},
-			{
-				type: 'actions',
-				value: [
-					{
-						color: 'primary',
-						icon: FaEye,
-						link: PROJECT_TASK_PAGE_URL(task.project.id, task.id),
+				{
+					value: task.dueDate ? getStringedDate(task.dueDate) : '---',
+				},
+				{
+					options: {
+						bg: task.completed ? 'green' : 'warning',
 					},
-					{
-						color: task.completed ? 'warning' : 'success',
-						icon: task.completed ? FaExclamationCircle : FaCheckCircle,
-						onClick: () => actions.markTask(task),
-					},
-					{
-						color: 'danger',
-						icon: FaTrash,
-						onClick: () =>
-							actions.deleteTask({ projectId: task.project.id, id: task.id }),
-					},
-				],
-			},
-		],
-	}));
+					type: 'badge',
+					value: task.completed ? 'completed' : 'ongoing',
+				},
+				{
+					type: 'actions',
+					value: buttons,
+				},
+			],
+		};
+	});
 
 type TableType = {
 	tasks: ProjectTaskType[];
@@ -97,6 +126,29 @@ const ProjectTable = ({ tasks, loading }: TableType) => {
 	);
 
 	const { open: showAlert } = useAlertContext();
+	const { data: authData } = useAuthContext();
+
+	// has model permission
+	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+		const canEdit = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [permissions.projecttask.EDIT])
+			: false;
+		const canDelete = authData
+			? authData.isSuperUser ||
+			  hasModelPermission(authData.permissions, [
+					permissions.projecttask.DELETE,
+			  ])
+			: false;
+		const canViewObjectPermissions = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]))
+			: false;
+		return [canEdit, canDelete, canViewObjectPermissions];
+	}, [authData]);
 
 	const { deleteTask } = useDeleteProjectTaskMutation({
 		onSuccess() {
@@ -137,8 +189,24 @@ const ProjectTable = ({ tasks, loading }: TableType) => {
 		} else {
 			finalList = tasks;
 		}
-		setRows(getRows(finalList, { deleteTask, markTask }));
-	}, [activeRow, tasks, deleteTask, markTask]);
+		setRows(
+			getRows(finalList, {
+				deleteTask: canDelete ? deleteTask : undefined,
+				markTask: canEdit ? markTask : undefined,
+				objPermLink: canViewObjectPermissions
+					? PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL
+					: undefined,
+			})
+		);
+	}, [
+		activeRow,
+		canEdit,
+		canDelete,
+		canViewObjectPermissions,
+		tasks,
+		deleteTask,
+		markTask,
+	]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
