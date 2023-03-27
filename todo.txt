@@ -17,3 +17,6 @@
 15. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 -- Do be mindful of smaller screen.
 16. Attendance form punchOut Input field doesnt' seem to re-render on display.
+17. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
+-- when updating.
+18. Project file design needs a touch up.

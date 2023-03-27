@@ -1,27 +1,23 @@
-import { InferGetServerSidePropsType } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { LOGIN_PAGE_URL } from '../../../../config';
 import TaskDetailPage from '../../../../containers/Projects/Detail/Tasks/Detail';
 import { getProjectTask } from '../../../../db';
+import { getRecord } from '../../../../db/utils';
 import { authPage } from '../../../../middlewares';
-import { ExtendedGetServerSideProps, ProjectTaskType } from '../../../../types';
+import { ExtendedGetServerSideProps } from '../../../../types';
 import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
 
 const Page = ({
+	objPerm,
 	task,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
-		<Title title={task.name + ' Project Task'} />
-		<TaskDetailPage task={task} />
+		<Title title={task.name + ' Task Information'} />
+		<TaskDetailPage task={task} objPerm={objPerm} />
 	</>
 );
-
-interface IParams extends ParsedUrlQuery {
-	id: string;
-	task_id: string;
-}
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	params,
@@ -44,17 +40,36 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const { task_id } = params as IParams;
-
 	const auth = await serializeUserData(req.user);
-	const task: ProjectTaskType = JSON.parse(
-		JSON.stringify(await getProjectTask(task_id))
-	);
+
+	const record = await getRecord({
+		model: 'projects_tasks',
+		perm: 'projecttask',
+		objectId: params?.task_id as string,
+		user: req.user,
+		getData() {
+			return getProjectTask(params?.task_id as string);
+		},
+	});
+
+	if (!record)
+		return {
+			props: {
+				auth,
+				errorPage: { statusCode: 403 },
+			},
+		};
+
+	if (!record.data)
+		return {
+			notFound: true,
+		};
 
 	return {
 		props: {
 			auth,
-			task,
+			objPerm: record.perm,
+			task: record.data,
 		},
 	};
 };
