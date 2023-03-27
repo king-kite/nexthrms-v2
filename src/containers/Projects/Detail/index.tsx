@@ -232,6 +232,13 @@ const Detail = ({
 									iconLeft={FaUserShield}
 									rounded="rounded-xl"
 									title="Permissions"
+									renderLinkAs={(props) => {
+										return (
+											<Link href={props.link || '#'}>
+												<a {...props}>{props.children}</a>
+											</Link>
+										);
+									}}
 									link={PROJECT_OBJECT_PERMISSIONS_PAGE_URL(id)}
 								/>
 							</div>
