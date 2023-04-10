@@ -8,7 +8,7 @@ import { Navigate } from '../../utils';
 const Authenticated = ({ children }: { children: React.ReactNode }) => {
 	const { auth: isAuthenticated, loading: isLoading } = useAuthContext();
 
-	const { pathname } = useRouter();
+	const { asPath } = useRouter();
 
 	return isLoading === false && isAuthenticated ? (
 		<React.Fragment>{children}</React.Fragment>
@@ -16,7 +16,7 @@ const Authenticated = ({ children }: { children: React.ReactNode }) => {
 		<Navigate
 			to={LOGIN_PAGE_URL}
 			query={{
-				next: pathname,
+				next: asPath,
 			}}
 		/>
 	) : (
