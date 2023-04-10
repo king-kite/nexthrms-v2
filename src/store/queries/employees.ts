@@ -112,6 +112,7 @@ export function useGetEmployeeQuery(
 	);
 	return query;
 }
+
 // create employee mutation
 export function useCreateEmployeeMutation(
 	options?: {
@@ -209,7 +210,7 @@ export function useDeleteEmployeeMutation(
 			openModal({
 				closeOnButtonClick: false,
 				header: 'Delete Employee?',
-				color: 'warning',
+				color: 'danger',
 				message: 'Do you want to delete employee?',
 				decisions: [
 					{
