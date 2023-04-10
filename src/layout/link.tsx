@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FC, useEffect, useState } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import { FaArrowRight, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
@@ -17,15 +17,30 @@ type SimpleProps = {
 	classes?: string;
 };
 
-export const SimpleLink: FC<SimpleProps> = ({
+function LinkContainer({
+	children,
+	href,
+	...props
+}: {
+	children: React.ReactNode;
+	className: string;
+	href?: string;
+}): JSX.Element {
+	if (href)
+		<Link href={href || '#'}>
+			<a {...props}>{children}</a>
+		</Link>;
+	return <div {...props}>{children}</div>;
+}
+
+export const SimpleLink = ({
 	disabled = false,
 	icon: Icon,
-	onClick,
 	href,
 	title,
 	classes,
 	...props
-}) => {
+}: SimpleProps) => {
 	const { pathname } = useRouter();
 	const _pathname =
 		pathname !== '/' && pathname.slice(-1) !== '/' ? pathname + '/' : pathname;
@@ -37,43 +52,42 @@ export const SimpleLink: FC<SimpleProps> = ({
 	const active = active1;
 
 	return (
-		<Link key={title} href={href || '#'}>
-			<a
-				onClick={onClick ? onClick : undefined}
-				className="block my-1 lg:my-0"
-				{...props}
+		<LinkContainer
+			key={title}
+			href={href || '#'}
+			className="block my-1 lg:my-0"
+			{...props}
+		>
+			<div
+				className={
+					classes ||
+					containerStyle +
+						` ${
+							disabled
+								? 'bg-gray-600 cursor-not-allowed'
+								: 'hover:bg-primary-300 hover:border-l-4 hover:border-gray-300'
+						}`
+				}
 			>
 				<div
-					className={
-						classes ||
-						containerStyle +
-							` ${
-								disabled
-									? 'bg-gray-600 cursor-not-allowed'
-									: 'hover:bg-primary-300 hover:border-l-4 hover:border-gray-300'
-							}`
-					}
+					className={`${
+						active ? 'text-secondary-500' : 'text-gray-100'
+					} flex items-center`}
 				>
-					<div
-						className={`${
-							active ? 'text-secondary-500' : 'text-gray-100'
-						} flex items-center`}
-					>
-						{Icon && (
-							<span>
-								<Icon
-									className={`${
-										active ? 'text-secondary-500' : 'text-gray-100'
-									} text-tiny sm:text-sm`}
-								/>
-							</span>
-						)}
-						<span className="mx-2">{title}</span>
-					</div>
-					<div />
+					{Icon && (
+						<span>
+							<Icon
+								className={`${
+									active ? 'text-secondary-500' : 'text-gray-100'
+								} text-tiny sm:text-sm`}
+							/>
+						</span>
+					)}
+					<span className="mx-2">{title}</span>
 				</div>
-			</a>
-		</Link>
+				<div />
+			</div>
+		</LinkContainer>
 	);
 };
 
@@ -121,13 +135,13 @@ export const ListLinkItem = ({
 	);
 };
 
-export const ListLink: FC<ListLinkType> = ({
+export const ListLink = ({
 	icon: Icon,
 	onClick,
 	links,
 	title,
-}) => {
-	const [visible, setVisible] = useState(false);
+}: ListLinkType) => {
+	const [visible, setVisible] = React.useState(false);
 	const { pathname } = useRouter();
 
 	const _pathname =
@@ -141,7 +155,7 @@ export const ListLink: FC<ListLinkType> = ({
 
 	const activeLink = active1 || active2;
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (activeLink) setVisible(true);
 		return () => setVisible(false);
 	}, [activeLink]);
