@@ -453,7 +453,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 								else if (!props.links)
 									return (
 										<SimpleLink
-											href={href || '#'}
+											href={href}
 											onClick={() => {
 												if (onClick) onClick();
 												setVisible(false);

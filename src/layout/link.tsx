@@ -11,7 +11,7 @@ const linkStyle = `flex items-center px-9 py-2 hover:bg-primary-300 hover:border
 type SimpleProps = {
 	disabled?: boolean;
 	onClick?: () => void;
-	href: string;
+	href?: string;
 	icon?: IconType;
 	title: string;
 	classes?: string;
@@ -52,7 +52,7 @@ export const SimpleLink = ({
 	return (
 		<LinkContainer
 			key={title}
-			href={href || '#'}
+			href={href}
 			className="block my-1 lg:my-0"
 			{...props}
 		>
