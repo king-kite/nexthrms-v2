@@ -21,16 +21,20 @@ type SimpleProps = {
 function LinkContainer({
 	children,
 	href,
+	showRoute,
 	...props
 }: {
 	children: React.ReactNode;
 	className: string;
 	href?: string;
+	showRoute?: () => void;
 }): JSX.Element {
 	if (href)
-		<Link href={href || '#'}>
-			<a {...props}>{children}</a>
-		</Link>;
+		return (
+			<Link href={href}>
+				<a {...props}>{children}</a>
+			</Link>
+		);
 	return <div {...props}>{children}</div>;
 }
 
@@ -95,6 +99,7 @@ export type ListLinkItemType = {
 	links?: ListLinkItemType[];
 	onClick?: () => void;
 	title: string;
+	showRoute?: () => boolean;
 	classes?: string;
 };
 
@@ -112,6 +117,7 @@ export const ListLinkItem = ({
 	onClick,
 	title,
 	classes,
+	showRoute,
 	...props
 }: ListLinkItemType) => {
 	return links !== undefined ? (
@@ -191,18 +197,20 @@ export const ListLink = ({
 					visible ? 'block opacity-100 visible' : 'hidden invisible opacity-0'
 				} duration-500 transform transition-all`}
 			>
-				{links.map(({ icon, href, links, title, ...props }, index) => (
-					<ListLinkItem
-						classes={linkStyle}
-						onClick={onClick && onClick}
-						key={index}
-						href={href}
-						links={links}
-						icon={icon}
-						title={title}
-						{...props}
-					/>
-				))}
+				{links.map(
+					({ icon, href, links, title, showRoute, ...props }, index) => (
+						<ListLinkItem
+							classes={linkStyle}
+							onClick={onClick && onClick}
+							key={index}
+							href={href}
+							links={links}
+							icon={icon}
+							title={title}
+							{...props}
+						/>
+					)
+				)}
 			</div>
 		</div>
 	);

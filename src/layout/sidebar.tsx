@@ -445,7 +445,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 												if (onClick) onClick();
 												setVisible(false);
 											}}
-											links={props.links}
+											links={props.links.map(({ showRoute, ...link }) => link)}
 											key={index}
 											{...props}
 										/>
