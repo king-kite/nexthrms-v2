@@ -8,12 +8,11 @@
 7. Fix the filtering by dates (Keeps going about 1 day forward).
 8. Add Import External Data functionality.
 9. Have the Multiple Select Input to Custom Input Field With Check Marks.
-10. Date fields on forms are not inserting default values in production.
-11. rediect after logout and login doesn;t work well on dynamic path.
-12. [id] should return 404 not 500 is not a uuid
-13. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+10. rediect after logout and login doesn;t work well on dynamic path.
+11. [id] should return 404 not 500 is not a uuid
+12. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 -- Do be mindful of smaller screen.
-14. Attendance form punchOut Input field doesnt' seem to re-render on display.
-15. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
+13. Attendance form punchOut Input field doesnt' seem to re-render on display.
+14. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 -- when updating.
-16. Project file design needs a touch up.
+15. Project file design needs a touch up.
