@@ -4,14 +4,13 @@
 3. Have the alert faded in and out
 4. In Sidebar, Have the links array objects have active keys checking the pathname for their values
 5. Check the project file delete url to delete files from folders.
-6. Check the tokens to see if they've expired before creating new ones for email verification and password reset.
-7. Fix the filtering by dates (Keeps going about 1 day forward).
-8. Add Import External Data functionality.
-9. Redirect after logout and login doesn;t work well on dynamic path.
-10. [id] should return 404 not 500 is not a uuid
-11. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+6. Fix the filtering by dates (Keeps going about 1 day forward).
+7. Add Import External Data functionality.
+8. Redirect after logout and login doesn;t work well on dynamic path.
+9. [id] should return 404 not 500 is not a uuid
+10. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 --  Do be mindful of smaller screen.
-12. Attendance form punchOut Input field doesnt' seem to re-render on display.
-13. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
+11. Attendance form punchOut Input field doesnt' seem to re-render on display.
+12. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 --  when updating.
-14. Project file design needs a touch up.
+13. Project file design needs a touch up.
