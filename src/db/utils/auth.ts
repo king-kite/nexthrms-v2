@@ -11,6 +11,12 @@ export async function createToken({
 	uid: string;
 }): Promise<Token> {
 	try {
+		const oldToken = await prisma.token.findFirst({
+			where: { uid, type },
+		});
+
+		if (oldToken && oldToken.expires >= new Date()) return oldToken;
+
 		// Delete old tokens with same uid and type
 		await prisma.token.deleteMany({ where: { uid, type } });
 
