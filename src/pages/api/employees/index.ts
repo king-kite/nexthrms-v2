@@ -8,6 +8,7 @@ import {
 } from '../../../db';
 import {
 	addObjectPermissions,
+	getEmployeeOfficersId,
 	getRecords,
 	updateObjectPermissions,
 } from '../../../db/utils';
@@ -172,57 +173,30 @@ export default admin()
 		})) as unknown as EmployeeType;
 
 		// Set the object permissions
-		await Promise.all([
+		const creatorPromises = [
 			// Give the creator all permissions on the employee
 			addObjectPermissions({
 				model: 'employees',
 				objectId: employee.id,
 				users: [req.user.id],
 			}),
+		];
 
-			// Give the creator all permissions on the user as well
-			addObjectPermissions({
-				model: 'users',
-				objectId: employee.user.id,
-				users: [req.user.id],
-			}),
-		]);
+		if (valid.user)
+			creatorPromises.push(
+				// Give the creator all permissions on the user as well
+				addObjectPermissions({
+					model: 'users',
+					objectId: employee.user.id,
+					users: [req.user.id],
+				})
+			);
+
+		await Promise.all(creatorPromises);
 
 		// Get the employees admin related officers
-		const officers = await prisma.user.findMany({
-			where: {
-				isActive: true,
-				OR: [
-					// Super users
-					{
-						isSuperUser: true,
-					},
-					// Get the employee's supervisor
-					{
-						isAdmin: true,
-						employee: {
-							supervisedEmployees: {
-								some: {
-									id: { in: [employee.id] },
-								},
-							},
-						},
-					},
-					// Get the employee's department HOD
-					{
-						isAdmin: true,
-						employee: employee.department
-							? {
-									hod: {
-										name: employee.department.name,
-									},
-							  }
-							: undefined,
-					},
-				],
-			},
-			select: { id: true },
-		});
+		let officers = await getEmployeeOfficersId(employee.id);
+		officers = officers.filter((officer) => officer !== req.user.id);
 
 		// add the admin officers for the user to view
 		await Promise.all([
@@ -230,13 +204,13 @@ export default admin()
 				model: 'employees',
 				permissions: ['VIEW'],
 				objectId: employee.id,
-				users: officers.map((officer) => officer.id),
+				users: officers,
 			}),
 			updateObjectPermissions({
 				model: 'users',
 				permissions: ['VIEW'],
 				objectId: employee.user.id,
-				users: officers.map((officer) => officer.id),
+				users: officers,
 			}),
 		]);
 
