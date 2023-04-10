@@ -22,6 +22,7 @@ type FormProps = {
 };
 
 function Form({ form, editId, onChange, onSuccess }: FormProps) {
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [error, setError] = React.useState<
 		AttendanceCreateErrorType & {
 			message?: string;
@@ -43,7 +44,12 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 
 	const { mutate: createAttendance, isLoading: createLoading } =
 		useCreateAttendanceMutation(
-			{ onSuccess },
+			{
+				onSuccess() {
+					onSuccess();
+					if (formRef.current) formRef.current.reset();
+				},
+			},
 			{
 				onError(error) {
 					const err = handleAxiosErrors<
@@ -62,7 +68,12 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 
 	const { mutate: editAttendance, isLoading: editLoading } =
 		useEditAttendanceMutation(
-			{ onSuccess },
+			{
+				onSuccess() {
+					onSuccess();
+					if (formRef.current) formRef.current.reset();
+				},
+			},
 			{
 				onError(error) {
 					const err = handleAxiosErrors<
@@ -103,6 +114,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 
 	return (
 		<form
+			ref={formRef}
 			onSubmit={(e) => {
 				e.preventDefault();
 				setError(undefined);
