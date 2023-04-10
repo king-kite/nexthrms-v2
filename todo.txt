@@ -6,10 +6,9 @@
 5. Check the project file delete url to delete files from folders.
 6. Fix the filtering by dates (Keeps going about 1 day forward).
 7. Add Import External Data functionality.
-8. Redirect after logout and login doesn;t work well on dynamic path.
-9. [id] should return 404 not 500 is not a uuid
-10. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+8. [id] dynamic path should return 404 not 500 if not a uuid
+9. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 --  Do be mindful of smaller screen.
-11. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
+10. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 --  when updating.
-12. Project file design needs a touch up.
+11. Project file design needs a touch up.
