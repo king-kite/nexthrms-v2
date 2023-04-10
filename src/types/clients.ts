@@ -38,7 +38,7 @@ export type ClientCreateQueryType = {
 			city: string;
 			dob: string;
 		};
-	};
+	} | null;
 	contactId: string | null;
 };
 
