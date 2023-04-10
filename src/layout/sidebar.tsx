@@ -160,6 +160,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaUserFriends,
 									title: 'all employees',
 									href: routes.EMPLOYEES_PAGE_URL,
+									pathnames: [routes.EMPLOYEE_PAGE_URL('[id]')],
 									showRoute: () =>
 										checkRoute(data, {
 											admin: true,
@@ -171,12 +172,14 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaSuitcaseRolling,
 									title: 'leaves',
 									href: routes.LEAVES_PAGE_URL,
+									pathnames: [routes.LEAVE_DETAIL_PAGE_URL('[id]')],
 									// Must be an employee
 									showRoute: () => checkEmployeeRoute(data),
 								},
 								{
 									icon: FaSuitcase,
 									title: 'leaves (admin)',
+									pathnames: [routes.ADMIN_LEAVE_DETAIL_PAGE_URL('[id]')],
 									href: routes.ADMIN_LEAVES_PAGE_URL,
 									showRoute: () =>
 										checkRoute(data, {
@@ -224,12 +227,14 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaClock,
 									title: 'overtime',
 									href: routes.OVERTIME_PAGE_URL,
+									pathnames: [routes.OVERTIME_DETAIL_PAGE_URL('[id]')],
 									showRoute: () => checkEmployeeRoute(data),
 								},
 								{
 									icon: FaUserClock,
 									title: 'overtime (admin)',
 									href: routes.ADMIN_OVERTIME_PAGE_URL,
+									pathnames: [routes.ADMIN_OVERTIME_DETAIL_PAGE_URL('[id]')],
 									showRoute: () =>
 										checkRoute(data, {
 											admin: true,
@@ -243,6 +248,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaHandshake,
 							title: 'clients',
 							href: routes.CLIENTS_PAGE_URL,
+							pathnames: [routes.CLIENT_PAGE_URL('[id]')],
 							showRoute: () =>
 								checkRoute(data, {
 									admin: true,
@@ -254,6 +260,12 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							icon: FaProjectDiagram,
 							title: 'projects',
 							href: routes.PROJECTS_PAGE_URL,
+							pathnames: [
+								routes.PROJECT_PAGE_URL('[id]'),
+								routes.PROJECT_TASKS_PAGE_URL('[id]'),
+								routes.PROJECT_TASK_PAGE_URL('[id]', '[task_id]'),
+								routes.PROJECT_TEAM_PAGE_URL('[id]'),
+							],
 							showRoute: () =>
 								checkRoute(data, {
 									admin: false,
@@ -306,6 +318,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaPeopleArrows,
 									title: 'all users',
 									href: routes.USERS_PAGE_URL,
+									pathnames: [routes.USER_PAGE_URL('[id]')],
 									showRoute: () =>
 										checkRoute(data, {
 											admin: true,
@@ -317,6 +330,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 									icon: FaUserShield,
 									title: 'groups',
 									href: routes.GROUPS_PAGE_URL,
+									pathnames: [routes.GROUP_PAGE_URL('[id]')],
 									showRoute: () =>
 										checkRoute(data, {
 											admin: true,

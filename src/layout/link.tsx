@@ -15,6 +15,7 @@ type SimpleProps = {
 	icon?: IconType;
 	title: string;
 	classes?: string;
+	pathnames?: string[];
 };
 
 function LinkContainer({
@@ -39,17 +40,14 @@ export const SimpleLink = ({
 	href,
 	title,
 	classes,
+	pathnames,
 	...props
 }: SimpleProps) => {
 	const { pathname } = useRouter();
 	const _pathname =
 		pathname !== '/' && pathname.slice(-1) !== '/' ? pathname + '/' : pathname;
 
-	const active1 = href === _pathname;
-	// TODO: Figure out active 2 later
-	const active2 =
-		href !== '/' && _pathname !== '/' && _pathname.startsWith(href);
-	const active = active1;
+	const active = href === _pathname || pathnames?.includes(_pathname);
 
 	return (
 		<LinkContainer
@@ -75,7 +73,7 @@ export const SimpleLink = ({
 					} flex items-center`}
 				>
 					{Icon && (
-						<span>
+						<span className="select-none">
 							<Icon
 								className={`${
 									active ? 'text-secondary-500' : 'text-gray-100'
@@ -83,7 +81,7 @@ export const SimpleLink = ({
 							/>
 						</span>
 					)}
-					<span className="mx-2">{title}</span>
+					<span className="mx-2 select-none">{title}</span>
 				</div>
 				<div />
 			</div>
@@ -114,6 +112,7 @@ export const ListLinkItem = ({
 	onClick,
 	title,
 	classes,
+	...props
 }: ListLinkItemType) => {
 	return links !== undefined ? (
 		<div className="px-2">
@@ -122,6 +121,7 @@ export const ListLinkItem = ({
 				links={links}
 				onClick={onClick && onClick}
 				title={title}
+				{...props}
 			/>
 		</div>
 	) : (
@@ -131,6 +131,7 @@ export const ListLinkItem = ({
 			onClick={onClick}
 			href={href || '#'}
 			title={title}
+			{...props}
 		/>
 	);
 };
@@ -190,7 +191,7 @@ export const ListLink = ({
 					visible ? 'block opacity-100 visible' : 'hidden invisible opacity-0'
 				} duration-500 transform transition-all`}
 			>
-				{links.map(({ icon, href, links, title }, index) => (
+				{links.map(({ icon, href, links, title, ...props }, index) => (
 					<ListLinkItem
 						classes={linkStyle}
 						onClick={onClick && onClick}
@@ -199,6 +200,7 @@ export const ListLink = ({
 						links={links}
 						icon={icon}
 						title={title}
+						{...props}
 					/>
 				))}
 			</div>
