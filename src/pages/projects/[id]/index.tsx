@@ -8,6 +8,7 @@ import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
+import { uuidSchema } from '../../../validators';
 
 function Page({
 	objPerm,
@@ -48,6 +49,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	const auth = await serializeUserData(req.user);
+
+	try {
+		await uuidSchema.validateAsync(params?.id);
+	} catch (error) {
+		return {
+			notFound: true,
+		};
+	}
 
 	const record = await getRecord({
 		model: 'projects',

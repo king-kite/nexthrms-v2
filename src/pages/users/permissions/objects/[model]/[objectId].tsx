@@ -9,6 +9,7 @@ import { authPage } from '../../../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../../../types';
 import { hasModelPermission, Title } from '../../../../../utils';
 import { serializeUserData } from '../../../../../utils/serializers';
+import { uuidSchema } from '../../../../../validators';
 
 const Page = ({
 	data,
@@ -56,6 +57,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 					title: 'You are not authorized to view this page!',
 				},
 			},
+		};
+	}
+
+	try {
+		await uuidSchema.validateAsync(params?.objectId);
+	} catch (error) {
+		return {
+			notFound: true,
 		};
 	}
 

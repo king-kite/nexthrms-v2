@@ -8,6 +8,7 @@ import { authPage } from '../../../../middlewares';
 import { ExtendedGetServerSideProps, LeaveType } from '../../../../types';
 import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
+import { uuidSchema } from '../../../../validators';
 
 const Page = ({
 	objPerm,
@@ -52,6 +53,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	// 		},
 	// 	};
 	// }
+
+	try {
+		await uuidSchema.validateAsync(params?.id);
+	} catch (error) {
+		return {
+			notFound: true,
+		};
+	}
 
 	const record = await getRecord<LeaveType | null>({
 		model: 'leaves',

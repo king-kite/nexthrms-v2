@@ -8,6 +8,7 @@ import { authPage } from '../../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../../types';
 import { Title } from '../../../../utils';
 import { serializeUserData } from '../../../../utils/serializers';
+import { uuidSchema } from '../../../../validators';
 
 const Page = ({
 	tasks,
@@ -36,6 +37,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				destination: LOGIN_PAGE_URL,
 				permanent: true,
 			},
+		};
+	}
+
+	try {
+		await uuidSchema.validateAsync(params?.id);
+	} catch (error) {
+		return {
+			notFound: true,
 		};
 	}
 

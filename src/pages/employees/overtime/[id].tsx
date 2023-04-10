@@ -8,10 +8,11 @@ import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
+import { uuidSchema } from '../../../validators';
 
 const Page = ({
 	overtime,
-	objPerm
+	objPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Overtime Request Information" />
@@ -49,6 +50,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 					title: 'Forbidden. This page is reserved for employees only.',
 				},
 			},
+		};
+	}
+
+	try {
+		await uuidSchema.validateAsync(params?.id);
+	} catch (error) {
+		return {
+			notFound: true,
 		};
 	}
 

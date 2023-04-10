@@ -10,3 +10,5 @@ export const multipleEmailSchema = Joi.object({
 		.required()
 		.label('Emails'),
 });
+
+export const uuidSchema = Joi.string().uuid().required().label('id');

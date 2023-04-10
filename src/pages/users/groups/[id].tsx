@@ -9,6 +9,7 @@ import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, GroupType } from '../../../types';
 import { Title } from '../../../utils';
 import { serializeUserData } from '../../../utils/serializers';
+import { uuidSchema } from '../../../validators';
 
 const Page = ({
 	data,
@@ -50,6 +51,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				errorPage: { statusCode: 403 },
 			},
 		};
+
+	try {
+		await uuidSchema.validateAsync(params?.id);
+	} catch (error) {
+		return {
+			notFound: true,
+		};
+	}
 
 	const record = await getRecord<GroupType | null>({
 		model: 'groups',
