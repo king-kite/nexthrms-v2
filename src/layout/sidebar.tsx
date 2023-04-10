@@ -430,7 +430,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 				<div className="mt-3">
 					{validRoutes.map(({ links, title }, index) => (
 						<div className="mb-2" key={index}>
-							<h6 className="font-bold mb-2 px-2 text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
+							<h6 className="font-bold mb-2 px-2 select-none text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
 								{title}
 							</h6>
 							{links.map(({ href, onClick, showRoute, ...props }, index) => {
