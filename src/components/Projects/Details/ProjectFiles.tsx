@@ -1,7 +1,7 @@
 import { Button } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FC, useMemo, useState } from 'react';
+import React from 'react';
 import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
@@ -15,15 +15,15 @@ export type ProjectFilesProps = {
 	files: ProjectFileType[];
 };
 
-const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
+const ProjectFiles = ({ files }: ProjectFilesProps) => {
 	const router = useRouter();
 	const id = router.query.id as string;
-	const [visible, setVisible] = useState(false);
+	const [visible, setVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreateFile] = useMemo(() => {
+	const [canCreateFile] = React.useMemo(() => {
 		if (!authData) return [];
 		const canCreateFile =
 			authData.isSuperUser ||
@@ -104,12 +104,22 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 												name: file.name,
 											})
 										}
-										className="cursor-pointer text-purple-600 text-base hover:text-purple-500 hover:underline"
+										className="cursor-pointer text-indigo-600 text-base hover:text-indigo-500 hover:underline"
 									>
 										{file.name}
 									</h5>
-									<span>
-										{file.employee && (
+									<p className="text-gray-700 text-sm">
+										{date.toDateString()} {time}
+									</p>
+									<p className="capitalize text-gray-700 text-sm">
+										Size:{' '}
+										<span className="font-medium mx-1 uppercase">
+											{sizeString}MB
+										</span>
+									</p>
+									{file.employee && (
+										<p className="text-gray-700 text-sm">
+											Uploaded by:
 											<Link
 												href={
 													file.employee.id
@@ -117,21 +127,13 @@ const ProjectFiles: FC<ProjectFilesProps> = ({ files }) => {
 														: '#'
 												}
 											>
-												<a className="inline-block capitalize cursor-pointer text-blue-600 text-sm hover:text-blue-500 hover:underline">
-													{file.employee.user.firstName}
+												<a className="capitalize cursor-pointer inline-block mx-1 text-blue-600 text-sm hover:text-blue-500 hover:underline">
+													{file.employee.user.firstName}{' '}
+													{file.employee.user.lastName}
 												</a>
 											</Link>
-										)}
-										<span className="mx-1 text-gray-700 text-sm">
-											{date.toDateString()} {time}
-										</span>
-									</span>
-									<p className="capitalize text-gray-700 text-sm">
-										Size:{' '}
-										<span className="font-medium mx-1 uppercase">
-											{sizeString}MB
-										</span>
-									</p>
+										</p>
+									)}
 									<p
 										onClick={() => deleteProjectFile(id, file.id)}
 										className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"

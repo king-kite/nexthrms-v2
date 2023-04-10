@@ -2,7 +2,7 @@ import { Button } from 'kite-react-tailwind';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FC, useMemo, useState } from 'react';
+import React from 'react';
 import { FaTimes, FaFileUpload } from 'react-icons/fa';
 
 import Form from './AddProjectFileForm';
@@ -16,15 +16,15 @@ export type ProjectImagesProps = {
 	files: ProjectFileType[];
 };
 
-const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
+const ProjectImages = ({ files }: ProjectImagesProps) => {
 	const router = useRouter();
 	const id = router.query.id as string;
-	const [visible, setVisible] = useState(false);
+	const [visible, setVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreateFile] = useMemo(() => {
+	const [canCreateFile] = React.useMemo(() => {
 		if (!authData) return [];
 		const canCreateFile =
 			authData.isSuperUser ||
@@ -111,24 +111,11 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 											name: file.name,
 										})
 									}
-									className="cursor-pointer inline-block text-left text-sm text-gray-700 hover:text-blue-600 hover:underline"
+									className="cursor-pointer inline-block text-left text-sm text-indigo-600 hover:text-indigo-500 hover:underline"
 								>
 									{file.name.slice(0, 40)}
 									{file.name.length > 40 ? '...' : ''}
 								</span>
-								{file.employee && (
-									<Link
-										href={
-											file.employee.id
-												? EMPLOYEE_PAGE_URL(file.employee.id)
-												: '#'
-										}
-									>
-										<a className="block capitalize cursor-pointer text-blue-600 text-sm hover:text-blue-500 hover:underline">
-											{file.employee.user.firstName}
-										</a>
-									</Link>
-								)}
 								<p className="text-gray-700 text-sm">
 									{date.toDateString()} {time}
 								</p>
@@ -138,6 +125,23 @@ const ProjectImages: FC<ProjectImagesProps> = ({ files }) => {
 										{sizeString}MB
 									</span>
 								</p>
+								{file.employee && (
+									<p className="text-gray-700 text-sm">
+										Uploaded by:
+										<Link
+											href={
+												file.employee.id
+													? EMPLOYEE_PAGE_URL(file.employee.id)
+													: '#'
+											}
+										>
+											<a className="capitalize cursor-pointer inline-block mx-1 text-blue-600 text-sm hover:text-blue-500 hover:underline">
+												{file.employee.user.firstName}{' '}
+												{file.employee.user.lastName}
+											</a>
+										</Link>
+									</p>
+								)}
 								<p
 									onClick={() => deleteProjectFile(id, file.id)}
 									className="capitalize cursor-pointer text-red-600 text-sm hover:text-red-500 hover:underline"
