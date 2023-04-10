@@ -9,4 +9,3 @@
 --  Do be mindful of smaller screen.
 8. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 --  when updating.
-9. Project file design needs a touch up.
