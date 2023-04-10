@@ -178,24 +178,32 @@ const Form = ({
 				e.preventDefault();
 				if (formRef.current) {
 					handleSubmit({
-						userId: form.userId,
-						dateEmployed: formRef.current.dateEmployed.value,
-						user: !form.userId
-							? {
-									firstName: formRef.current.firstName.value,
-									lastName: formRef.current.lastName.value,
-									email: formRef.current.email.value,
-									profile: {
-										image: formRef.current.image.files[0] || undefined,
-										address: formRef.current?.address.value,
-										dob: formRef.current?.dob.value,
-										gender: formRef.current?.gender.value,
-										phone: formRef.current?.phone.value,
-										state: formRef.current?.state.value,
-										city: formRef.current?.city.value,
-									},
-							  }
+						userId: form.userId
+							? editMode
+								? initState?.user.id !== form.userId
+									? form.userId
+									: null
+								: form.userId
 							: null,
+						dateEmployed: formRef.current.dateEmployed.value,
+						user:
+							(!editMode && !form.userId) ||
+							(editMode && initState?.user.id === form.userId)
+								? {
+										firstName: formRef.current.firstName.value,
+										lastName: formRef.current.lastName.value,
+										email: formRef.current.email.value,
+										profile: {
+											image: formRef.current.image.files[0] || undefined,
+											address: formRef.current?.address.value,
+											dob: formRef.current?.dob.value,
+											gender: formRef.current?.gender.value,
+											phone: formRef.current?.phone.value,
+											state: formRef.current?.state.value,
+											city: formRef.current?.city.value,
+										},
+								  }
+								: null,
 						department: form.department,
 						job: form.job,
 						supervisors: form.supervisors,
