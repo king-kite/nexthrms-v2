@@ -132,20 +132,24 @@ export default admin()
 			select: clientSelectQuery,
 		})) as unknown as ClientType;
 
-		if (client)
-			await Promise.all([
-				// Set the object permissions
-				await addObjectPermissions({
-					model: 'clients',
-					objectId: client.id,
-					users: [req.user.id],
-				}),
-				await addObjectPermissions({
+		// Set the object permissions
+		const creatorPromises = [
+			addObjectPermissions({
+				model: 'clients',
+				objectId: client.id,
+				users: [req.user.id],
+			}),
+		];
+
+		if (client.contact)
+			creatorPromises.push(
+				addObjectPermissions({
 					model: 'users',
 					objectId: client.contact.id,
 					users: [req.user.id],
-				}),
-			]);
+				})
+			);
+		await Promise.all(creatorPromises);
 
 		return res.status(201).json({
 			status: 'success',
