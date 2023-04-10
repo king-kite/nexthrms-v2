@@ -190,7 +190,7 @@ export function useDeleteClientMutation(
 			openModal({
 				closeOnButtonClick: false,
 				header: 'Delete Client?',
-				color: 'warning',
+				color: 'danger',
 				message: 'Do you want to delete client?',
 				decisions: [
 					{
