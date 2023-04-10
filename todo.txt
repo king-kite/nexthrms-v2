@@ -1,21 +1,19 @@
-1. Handle Prisma Errors Better. Especially the unique key errors.
+1. Handle Prisma Errors Better. Especially the unique key errors. 
 -- Too Much information or confidential information is been sent.
 2. Attendance Statistics is not calculating properly. Fix it.
 3. Have the alert faded in and out
-4. In Sidebar, Have the links array objects have active keys checking the pathname for their
--- values
-6. Check the project file delete url to delete files from folders.
-7. Check the tokens to see if they've expired before creating new ones for email verification and password reset.
-8. Fix the filtering by dates (Keeps going about 1 day forward).
-9. Add Import External Data functionality.
-10. Have the Multiple Select Input to Custom Input Field With Check Marks.
-11. Date fields on forms are not inserting default values in production.
-12. rediect after logout and login doesn;t work well on dynamic path.
-13. [id] should return 404 not 500 is not a uuid
-14. Create employee/client using the userID.
-15. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+4. In Sidebar, Have the links array objects have active keys checking the pathname for their values
+5. Check the project file delete url to delete files from folders.
+6. Check the tokens to see if they've expired before creating new ones for email verification and password reset.
+7. Fix the filtering by dates (Keeps going about 1 day forward).
+8. Add Import External Data functionality.
+9. Have the Multiple Select Input to Custom Input Field With Check Marks.
+10. Date fields on forms are not inserting default values in production.
+11. rediect after logout and login doesn;t work well on dynamic path.
+12. [id] should return 404 not 500 is not a uuid
+13. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 -- Do be mindful of smaller screen.
-16. Attendance form punchOut Input field doesnt' seem to re-render on display.
-17. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
+14. Attendance form punchOut Input field doesnt' seem to re-render on display.
+15. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 -- when updating.
-18. Project file design needs a touch up.
+16. Project file design needs a touch up.
