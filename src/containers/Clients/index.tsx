@@ -8,11 +8,7 @@ import {
 	CLIENTS_EXPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../../config';
-import {
-	useAuthContext,
-	useAlertContext,
-	useAlertModalContext,
-} from '../../store/contexts';
+import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetClientsQuery,
 	useCreateClientMutation,
@@ -32,7 +28,6 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	const [exportLoading, setExportLoading] = useState(false);
 
 	const { open } = useAlertContext();
-	const { open: openModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
 	const [canCreate, canExport, canView] = useMemo(() => {
@@ -78,36 +73,18 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 		{
 			onSuccess() {
 				setModalVisible(false);
-				openModal({
-					closeOnButtonClick: true,
-					color: 'success',
-					decisions: [
-						{
-							color: 'success',
-							title: 'OK',
-						},
-					],
-					Icon: FaCheckCircle,
-					header: 'Client Added',
+				open({
 					message: 'Client was added successfully!',
+					type: 'success',
 				});
 			},
 		},
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
-				openModal({
-					closeOnButtonClick: true,
-					color: 'danger',
-					decisions: [
-						{
-							color: 'danger',
-							title: 'OK',
-						},
-					],
-					Icon: FaTimesCircle,
-					header: 'Create client failed!',
+				open({
 					message: error?.message || 'Failed to create client',
+					type: 'danger',
 				});
 			},
 		}
