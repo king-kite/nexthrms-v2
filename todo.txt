@@ -9,3 +9,4 @@
 --  Do be mindful of smaller screen.
 8. Removing old team ask followers should remove their permissions and old task followers should keep view task permissions
 --  when updating.
+9. Add next redirect route to the previous page in server side page renderering.
