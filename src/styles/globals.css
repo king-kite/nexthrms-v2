@@ -18,7 +18,9 @@ body {
 	scrollbar-color: #cbd5e0 #f1f1f1;
 	scrollbar-width: thin;
 }
-
+.alert-animation {
+	animation: alertAnimation 15s ease-in-out forwards;
+}
 .bg-dark-transparent {
 	background: rgba(0, 0, 0, 0.7);
 }
@@ -57,7 +59,24 @@ body {
 		grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
 	}
 }
-
+@keyframes alertAnimation {
+	0% {
+		transform: translateX(100%);
+	}
+	12.5% {
+		transform: translateX(0%);
+	}
+	50% {
+		transform: translateX(0%);
+	}
+	87.5% {
+		transform: translateX(0%);
+	}
+	100% {
+		display: none;
+		transform: translateX(100%);
+	}
+}
 @keyframes growDown {
 	0% {
 		transform: scaleY(0);
