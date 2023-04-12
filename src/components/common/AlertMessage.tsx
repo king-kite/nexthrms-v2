@@ -16,7 +16,7 @@ function AlertMessage(props: AlertMessageType) {
 				padding={props.padding}
 				rounded={props.rounded}
 				type={props.type}
-				visible={props.visible || true}
+				visible={props.visible}
 			/>
 		</div>
 	);

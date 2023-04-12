@@ -33,7 +33,7 @@ function AlertContextProvider({ children }: { children: React.ReactNode }) {
 			//  remove the last item
 			setState((prevState) => {
 				const newState = [...prevState];
-				newState.pop();
+				newState.shift();
 				return newState;
 			});
 		}
@@ -44,8 +44,8 @@ function AlertContextProvider({ children }: { children: React.ReactNode }) {
 			setState((prevState) => [
 				...prevState,
 				{
-					...payload,
 					id: new Date().getTime() + prevState.length,
+					...payload,
 					message:
 						payload.message || 'An error occurred when displaying alerts.',
 					visible: true,

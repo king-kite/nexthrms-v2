@@ -1,4 +1,4 @@
-import { Alert, Loader } from 'kite-react-tailwind';
+import { Loader } from 'kite-react-tailwind';
 import Link from 'next/link';
 import Error from 'next/error';
 import { useRouter } from 'next/router';
@@ -6,6 +6,7 @@ import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from 'react';
 import { BiRefresh } from 'react-icons/bi';
 import { FaArrowLeft } from 'react-icons/fa';
 
+import AlertMessage from './AlertMessage';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
 	useAlertContext,
@@ -86,7 +87,7 @@ const Container: FC<ContainerProps> = ({
 	refresh,
 	title,
 }) => {
-	const alert = useAlertContext();
+	const { alerts } = useAlertContext();
 
 	const { logout } = useAuthContext();
 
@@ -154,23 +155,13 @@ const Container: FC<ContainerProps> = ({
 				)}
 				<div className={`p-2 md:p-4 ${background}`}>
 					<div className="px-2 relative md:px-3 lg:px-4">
-						<div
-							className={
-								(alert.visible
-									? 'translate-y-0 visible z-[500]'
-									: 'invisible translate-y-full z-[-100]') +
-								' bottom-[10%] duration-1000 fixed px-3 py-1 right-0 transition transform w-full sm:px-4 md:px-7 lg:ml-auto lg:px-8 lg:w-[83%]'
-							}
-						>
-							<Alert
-								message={alert.message}
-								onClose={alert.close}
-								padding={alert.padding}
-								rounded={alert.rounded}
-								type={alert.type}
-								visible={alert.visible}
-							/>
-						</div>
+						{alerts.length > 0 && (
+							<div className="z-[500] fixed top-[30%] right-0 w-full sm:top-[32%] md:top-[35%] lg:ml-auto lg:top-[20%] lg:w-[83%] xl:top-[22%] 2xl:top-[18%]">
+								{alerts.map((alert, index) => (
+									<AlertMessage {...alert} key={index} />
+								))}
+							</div>
+						)}
 						<div className="py-1 md:mt-2 lg:mt-3">{children}</div>
 					</div>
 					{paginate && paginate.totalItems > 0 && (
