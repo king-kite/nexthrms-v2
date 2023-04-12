@@ -1,3 +1,3 @@
 export { default as Authenticated } from './authenticated';
-export { default as CheckAuth } from './checkAuth';
-export { default as NotAuthenticated } from './notAuthenticated';
+export { default as CheckAuth } from './check-auth';
+export { default as NotAuthenticated } from './not-authenticatedd';
