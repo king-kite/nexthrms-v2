@@ -1,6 +1,5 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReactQuery from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
 import Error from 'next/error';
 import ReactIcons from 'react-icons';
 
@@ -18,17 +17,17 @@ type ComponentWithAuthRequiredProp = AppProps & {
 	};
 };
 
-const ReactQueryDevtools = dynamic(
-	() =>
-		import('@tanstack/react-query-devtools').then(
-			(mod) => mod.ReactQueryDevtools
-		),
-	{
-		ssr: false,
-	}
-);
+// const ReactQueryDevtools = dynamic(
+// 	() =>
+// 		import('@tanstack/react-query-devtools').then(
+// 			(mod) => mod.ReactQueryDevtools
+// 		),
+// 	{
+// 		ssr: false,
+// 	}
+// );
 
-const queryClient = new QueryClient({
+const queryClient = new ReactQuery.QueryClient({
 	defaultOptions: {
 		queries: {
 			refetchOnWindowFocus: false,
@@ -54,7 +53,7 @@ function App({
 		<Component {...pageProps} />
 	) : (
 		<GlobalContextProvider>
-			<QueryClientProvider client={queryClient}>
+			<ReactQuery.QueryClientProvider client={queryClient}>
 				<CheckAuth authData={auth}>
 					<ReactIcons.IconContext.Provider value={{ className: 'text-xs' }}>
 						{Component.authRequired === false ? (
@@ -70,8 +69,8 @@ function App({
 						)}
 					</ReactIcons.IconContext.Provider>
 				</CheckAuth>
-				<ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-			</QueryClientProvider>
+				{/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
+			</ReactQuery.QueryClientProvider>
 		</GlobalContextProvider>
 	);
 }
