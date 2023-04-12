@@ -9,7 +9,7 @@ import {
 	RESET_PASSWORD_PAGE_URL,
 	PASSWORD_RESET_CONFIRM_URL,
 } from '../../../../../../config';
-import PasswordConfirm from '../../../../../../containers/account/Password/Confirm';
+import PasswordConfirm from '../../../../../../containers/account/password/confirm';
 import { prisma } from '../../../../../../db';
 import { axiosInstance, Title } from '../../../../../../utils';
 import {

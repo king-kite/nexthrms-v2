@@ -3,7 +3,7 @@ import Router from 'next/router';
 import React from 'react';
 
 import { REQUEST_EMAIL_VERIFY_PAGE_URL, REGISTER_URL } from '../../config';
-import Register from '../../containers/account/Register';
+import Register from '../../containers/account/register';
 import { axiosInstance, Title } from '../../utils';
 import {
 	registerSchema,

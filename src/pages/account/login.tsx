@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { LOGIN_URL } from '../../config';
-import Login from '../../containers/account/Login';
+import Login from '../../containers/account/login';
 import { useAuthContext } from '../../store/contexts';
 import { AuthDataType, SuccessResponseType } from '../../types';
 import { axiosInstance, Title } from '../../utils';

@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { PASSWORD_RESET_URL } from '../../../../config';
-import PasswordReset from '../../../../containers/account/Password/Reset';
+import PasswordReset from '../../../../containers/account/password/reset';
 import { useInterval } from '../../../../hooks';
 import { BaseResponseType } from '../../../../types';
 import { axiosInstance, Title } from '../../../../utils';

@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { EMAIL_RESEND_URL } from '../../../config';
-import VerifyEmail from '../../../containers/account/Email/Verify';
+import VerifyEmail from '../../../containers/account/email/verify';
 import { useInterval } from '../../../hooks';
 import { BaseResponseType } from '../../../types';
 import { axiosInstance, Title } from '../../../utils';
