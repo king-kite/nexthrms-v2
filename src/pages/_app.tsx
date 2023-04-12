@@ -7,7 +7,7 @@ import ReactIcons from 'react-icons';
 import Layout from '../layout';
 import Authenticated from '../layout/protections/authenticated';
 import CheckAuth from '../layout/protections/check-auth';
-import NotAuthenticated from '../layout/protections/not-authenticatedd';
+import NotAuthenticated from '../layout/protections/not-authenticated';
 import GlobalContextProvider from '../store';
 import '../styles/globals.css';
 
