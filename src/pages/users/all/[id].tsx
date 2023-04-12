@@ -1,5 +1,5 @@
 import type { InferGetServerSidePropsType } from 'next';
-import React from 'react';
+import Router from 'next/router';
 
 import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
 import User from '../../../containers/Users/Detail';
@@ -19,7 +19,7 @@ const Page = ({
 	groups,
 	permissions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="User Information" />
 		<User
 			groups={groups}
@@ -29,7 +29,7 @@ const Page = ({
 			permissions={permissions}
 			user={data}
 		/>
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -47,7 +47,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${Router.asPath}`,
 				permanent: false,
 			},
 		};
