@@ -1,8 +1,8 @@
 import type { InferGetServerSidePropsType } from 'next';
-import React from 'react';
+import Router from 'next/router';
 
 import { LOGIN_PAGE_URL } from '../../../config';
-import Employee from '../../../containers/Employees/Detail';
+import Employee from '../../../containers/employees/detail';
 import { getEmployee } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
@@ -16,10 +16,10 @@ const Page = ({
 	objPerm,
 	objUserPerm,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Employee Information" />
 		<Employee employee={data} objPerm={objPerm} objUserPerm={objUserPerm} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -37,7 +37,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${Router.asPath}`,
 				permanent: false,
 			},
 		};
