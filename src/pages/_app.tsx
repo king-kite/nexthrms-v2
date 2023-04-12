@@ -1,7 +1,7 @@
-import ReactQuery from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 import Error from 'next/error';
-import ReactIcons from 'react-icons';
+import { IconContext } from 'react-icons';
 
 import Layout from '../layout';
 import Authenticated from '../layout/protections/authenticated';
@@ -27,7 +27,7 @@ type ComponentWithAuthRequiredProp = AppProps & {
 // 	}
 // );
 
-const queryClient = new ReactQuery.QueryClient({
+const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			refetchOnWindowFocus: false,
@@ -53,9 +53,9 @@ function App({
 		<Component {...pageProps} />
 	) : (
 		<GlobalContextProvider>
-			<ReactQuery.QueryClientProvider client={queryClient}>
+			<QueryClientProvider client={queryClient}>
 				<CheckAuth authData={auth}>
-					<ReactIcons.IconContext.Provider value={{ className: 'text-xs' }}>
+					<IconContext.Provider value={{ className: 'text-xs' }}>
 						{Component.authRequired === false ? (
 							<NotAuthenticated>
 								<Component {...pageProps} />
@@ -67,10 +67,10 @@ function App({
 								</Layout>
 							</Authenticated>
 						)}
-					</ReactIcons.IconContext.Provider>
+					</IconContext.Provider>
 				</CheckAuth>
 				{/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
-			</ReactQuery.QueryClientProvider>
+			</QueryClientProvider>
 		</GlobalContextProvider>
 	);
 }
