@@ -1,6 +1,4 @@
-import React from 'react';
-
-import { LOGIN_PAGE_URL } from '../../config';
+import { LOGIN_PAGE_URL, PROFILE_PAGE_URL } from '../../config';
 import Profile from '../../containers/account/Profile';
 import { getProfile } from '../../db';
 import { authPage } from '../../middlewares';
@@ -9,10 +7,10 @@ import { Title } from '../../utils';
 import { serializeUserData } from '../../utils/serializers';
 
 const Page = ({ profile }: { profile: ProfileType }) => (
-	<React.Fragment>
+	<>
 		<Title title="Account Information" />
 		<Profile profile={profile} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -28,7 +26,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `next=${PROFILE_PAGE_URL}`,
 				permanent: false,
 			},
 		};
