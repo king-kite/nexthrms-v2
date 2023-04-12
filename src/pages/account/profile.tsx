@@ -1,5 +1,5 @@
 import { LOGIN_PAGE_URL, PROFILE_PAGE_URL } from '../../config';
-import Profile from '../../containers/account/Profile';
+import Profile from '../../containers/account/profile';
 import { getProfile } from '../../db';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps, ProfileType } from '../../types';
