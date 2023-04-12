@@ -1,6 +1,6 @@
 import { PermissionModelChoices } from '@prisma/client';
 import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
+import Router from 'next/router';
 
 import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
@@ -14,10 +14,10 @@ import { uuidSchema } from '../../../../../validators';
 const Page = ({
 	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Record Permissions" />
 		<ObjectPermissions permissions={data} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({
@@ -35,7 +35,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${Router.asPath}`,
 				permanent: false,
 			},
 		};
