@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { LOGIN_PAGE_URL } from '../../config';
-import ClientDetail from '../../containers/Clients/Detail';
+import ClientDetail from '../../containers/clients/detail';
 import { getClient } from '../../db';
 import { getRecord, getUserObjectPermissions } from '../../db/utils';
 import { authPage } from '../../middlewares';
