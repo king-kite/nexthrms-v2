@@ -1,5 +1,5 @@
 import React from 'react';
-import HomePage from '../containers/Home';
+import HomePage from '../containers/home';
 import { Title } from '../utils';
 
 const Home = () => (
