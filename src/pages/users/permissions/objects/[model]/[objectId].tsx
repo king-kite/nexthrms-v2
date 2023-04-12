@@ -3,7 +3,7 @@ import { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
-import ObjectPermissions from '../../../../../containers/Users/Permissions/Objects';
+import ObjectPermissions from '../../../../../containers/users/permissions/objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../../../types';

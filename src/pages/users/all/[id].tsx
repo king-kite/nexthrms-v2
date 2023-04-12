@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
-import User from '../../../containers/Users/Detail';
+import User from '../../../containers/users/detail';
 import { getUser, getUserGroups, getUserPermissions } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
