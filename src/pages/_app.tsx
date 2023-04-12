@@ -1,15 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
 import Error from 'next/error';
-import { IconContext } from 'react-icons';
+import ReactIcons from 'react-icons';
 
 import Layout from '../layout';
-import {
-	Authenticated,
-	CheckAuth,
-	NotAuthenticated,
-} from '../layout/protections';
+import Authenticated from '../layout/protections/authenticated';
+import CheckAuth from '../layout/protections/checkAuth';
+import NotAuthenticated from '../layout/protections/notAuthenticated';
 import GlobalContextProvider from '../store';
 import '../styles/globals.css';
 
@@ -19,6 +17,16 @@ type ComponentWithAuthRequiredProp = AppProps & {
 		noWrapper?: boolean; // do not add check auth wrapper. Mainly for documentation and error pages.
 	};
 };
+
+const ReactQueryDevtools = dynamic(
+	() =>
+		import('@tanstack/react-query-devtools').then(
+			(mod) => mod.ReactQueryDevtools
+		),
+	{
+		ssr: false,
+	}
+);
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -48,7 +56,7 @@ function App({
 		<GlobalContextProvider>
 			<QueryClientProvider client={queryClient}>
 				<CheckAuth authData={auth}>
-					<IconContext.Provider value={{ className: 'text-xs' }}>
+					<ReactIcons.IconContext.Provider value={{ className: 'text-xs' }}>
 						{Component.authRequired === false ? (
 							<NotAuthenticated>
 								<Component {...pageProps} />
@@ -60,7 +68,7 @@ function App({
 								</Layout>
 							</Authenticated>
 						)}
-					</IconContext.Provider>
+					</ReactIcons.IconContext.Provider>
 				</CheckAuth>
 				<ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
 			</QueryClientProvider>
