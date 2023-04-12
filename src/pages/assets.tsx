@@ -1,5 +1,4 @@
 import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
 
 import {
 	ASSETS_PAGE_URL,
@@ -17,10 +16,10 @@ import { serializeUserData } from '../utils/serializers';
 const Page = ({
 	data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
-	<React.Fragment>
+	<>
 		<Title title="Assets" />
 		<Assets assets={data} />
-	</React.Fragment>
+	</>
 );
 
 export const getServerSideProps: ExtendedGetServerSideProps = async ({

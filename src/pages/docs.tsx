@@ -1,29 +1,28 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import dynamic from "next/dynamic";
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { createSwaggerSpec } from "next-swagger-doc";
-import { Button } from 'kite-react-tailwind'
-import React from 'react';
-import "swagger-ui-react/swagger-ui.css";
+import { createSwaggerSpec } from 'next-swagger-doc';
+import { Button } from 'kite-react-tailwind';
+import 'swagger-ui-react/swagger-ui.css';
 
-import { HOME_PAGE_URL } from "../config";
-import { paths, schemas } from "../documentation";
-import { Title } from "../utils"
+import { HOME_PAGE_URL } from '../config';
+import { paths, schemas } from '../documentation';
+import { Title } from '../utils';
 
-const SwaggerUI = dynamic<any>(import("swagger-ui-react"), { ssr: false });
+const SwaggerUI = dynamic<any>(import('swagger-ui-react'), { ssr: false });
 
 function ApiDoc({ spec }: InferGetStaticPropsType<typeof getStaticProps>) {
 	return (
-		<React.Fragment>
+		<>
 			<Title title="KiteHRMS Swagger Documentation" />
 			<div className="container mx-auto">
 				<div className="flex justify-end px-2 py-4">
 					<div>
-						<Button 
+						<Button
 							bg="bg-[#7eaf04] hover:bg-[#5a7d03]"
 							link={HOME_PAGE_URL}
 							padding="px-4 py-2 md:px-8 py-4"
-							renderLinkAs={({children, link, ...props}) => (
+							renderLinkAs={({ children, link, ...props }) => (
 								<Link href={link}>
 									<a {...props}>{children}</a>
 								</Link>
@@ -35,25 +34,25 @@ function ApiDoc({ spec }: InferGetStaticPropsType<typeof getStaticProps>) {
 				</div>
 				<SwaggerUI spec={spec} />
 			</div>
-		</React.Fragment>
+		</>
 	);
 }
 
 export const getStaticProps: GetStaticProps = async () => {
 	const spec: Record<string, any> = createSwaggerSpec({
-		apiFolder: "pages/api",
+		apiFolder: 'pages/api',
 		definition: {
-			openapi: "3.0.0",
+			openapi: '3.0.0',
 			info: {
 				description:
-					"Kite Human Resource Management System. A human resource management system built using NextJs and Typescript",
-				title: "Kite HRMS",
-				version: "1.0",
+					'Kite Human Resource Management System. A human resource management system built using NextJs and Typescript',
+				title: 'Kite HRMS',
+				version: '1.0',
 				contact: {
-					name: "Emmanuel (Kite)",
-					email: "emmanuel.kolade1@gmail.com",
-					url: "https://github.com/king-kite"
-				}
+					name: 'Emmanuel (Kite)',
+					email: 'emmanuel.kolade1@gmail.com',
+					url: 'https://github.com/king-kite',
+				},
 			},
 			paths,
 			components: {
