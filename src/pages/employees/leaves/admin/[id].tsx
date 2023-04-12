@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { LOGIN_PAGE_URL } from '../../../../config';
-import Leave from '../../../../containers/Leaves/Detail';
+import Leave from '../../../../containers/leaves/detail';
 import { getLeave } from '../../../../db';
 import { getRecord } from '../../../../db/utils';
 import { authPage } from '../../../../middlewares';

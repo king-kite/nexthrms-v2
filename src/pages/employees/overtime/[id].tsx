@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { LOGIN_PAGE_URL } from '../../../config';
-import Overtime from '../../../containers/Overtime/Detail';
+import Overtime from '../../../containers/overtime/detail';
 import { getOvertime } from '../../../db';
 import { getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
