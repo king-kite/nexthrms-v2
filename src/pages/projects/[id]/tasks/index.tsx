@@ -1,4 +1,5 @@
 import type { InferGetServerSidePropsType } from 'next';
+import Router from 'next/router';
 
 import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../../config';
 import Tasks from '../../../../containers/Projects/Detail/Tasks';
@@ -34,7 +35,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${Router.asPath}`,
 				permanent: true,
 			},
 		};
