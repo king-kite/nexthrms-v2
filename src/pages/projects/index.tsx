@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../config';
-import Projects from '../../containers/Projects';
+import Projects from '../../containers/projects';
 import { getProjects } from '../../db';
 import { getRecords } from '../../db/utils';
 import { authPage } from '../../middlewares';

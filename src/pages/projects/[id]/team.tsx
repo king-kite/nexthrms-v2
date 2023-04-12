@@ -2,7 +2,7 @@ import type { InferGetServerSidePropsType } from 'next';
 import Router from 'next/router';
 
 import { LOGIN_PAGE_URL } from '../../../config';
-import Team from '../../../containers/Projects/Detail/Team';
+import Team from '../../../containers/projects/detail/team';
 import { getProject } from '../../../db';
 import { getRecord } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
