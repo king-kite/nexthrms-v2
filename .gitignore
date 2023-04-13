@@ -50,3 +50,5 @@ notes.txt
 
 src/_commands
 src/_commands/test.ts
+
+/analyze
