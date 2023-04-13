@@ -16,9 +16,9 @@ const nextConfig = {
 	},
 };
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.ANALYZE && +process.env.NODE_ENV === 1) {
 	const withBundleAnalyzer = require('@next/bundle-analyzer')({
-		enabled: +process.env.ANALYZE === 1,
+		enabled: true,
 	});
 	module.exports = withBundleAnalyzer(nextConfig);
 } else {
