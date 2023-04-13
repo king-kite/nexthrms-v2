@@ -1,6 +1,5 @@
 import { PermissionModelChoices } from '@prisma/client';
 import { InferGetServerSidePropsType } from 'next';
-import Router from 'next/router';
 
 import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/users/permissions/objects';
@@ -35,7 +34,9 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL + `?next=${Router.asPath}`,
+				destination: req.url
+					? LOGIN_PAGE_URL + `?next=${req.url}`
+					: LOGIN_PAGE_URL,
 				permanent: false,
 			},
 		};
