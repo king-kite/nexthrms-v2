@@ -39,7 +39,7 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 					</Link>
 				),
 			},
-			{ link: CLIENT_PAGE_URL(client.id), value: client.company || '---' },
+			{ value: client.company || '---' },
 			{ value: client.contact.profile?.phone || '---' },
 			{
 				options: {

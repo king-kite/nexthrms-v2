@@ -26,7 +26,7 @@ export default admin()
 			permission: 'VIEW',
 			user: req.user,
 			getData() {
-				return getClient(req.user.id as string);
+				return getClient(req.query.id as string);
 			},
 		});
 
