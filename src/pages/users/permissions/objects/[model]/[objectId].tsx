@@ -1,7 +1,12 @@
 import { PermissionModelChoices } from '@prisma/client';
 import { InferGetServerSidePropsType } from 'next';
 
-import { models, permissions, LOGIN_PAGE_URL } from '../../../../../config';
+import {
+	models,
+	permissions,
+	LOGIN_PAGE_URL,
+	PERMISSION_OBJECT_PERMISSIONS_PAGE_URL,
+} from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/users/permissions/objects';
 import { getObjectPermissions } from '../../../../../db';
 import { authPage } from '../../../../../middlewares';
@@ -34,9 +39,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
-					: LOGIN_PAGE_URL,
+				destination:
+					params?.model && params?.objectId
+						? LOGIN_PAGE_URL +
+						  `?next=${PERMISSION_OBJECT_PERMISSIONS_PAGE_URL(
+								params.model as string,
+								params.objectId as string
+						  )}`
+						: LOGIN_PAGE_URL,
 				permanent: false,
 			},
 		};
