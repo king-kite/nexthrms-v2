@@ -1,4 +1,4 @@
-import { LOGIN_PAGE_URL } from '../../config';
+import { LOGIN_PAGE_URL, PROFILE_PAGE_URL } from '../../config';
 import Profile from '../../containers/account/profile';
 import { getProfile } from '../../db';
 import { authPage } from '../../middlewares';
@@ -26,9 +26,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
-					: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${PROFILE_PAGE_URL}`,
 				permanent: false,
 			},
 		};

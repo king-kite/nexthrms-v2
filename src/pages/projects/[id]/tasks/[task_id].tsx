@@ -1,6 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../../config';
+import { LOGIN_PAGE_URL, PROJECT_TASK_PAGE_URL } from '../../../../config';
 import TaskDetailPage from '../../../../containers/projects/detail/tasks/detail';
 import { getProjectTask } from '../../../../db';
 import { getRecord } from '../../../../db/utils';
@@ -35,9 +35,14 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
-					: LOGIN_PAGE_URL,
+				destination:
+					params?.id && params?.task_id
+						? LOGIN_PAGE_URL +
+						  `?next=${PROJECT_TASK_PAGE_URL(
+								params.id as string,
+								params.task_id as string
+						  )}`
+						: LOGIN_PAGE_URL,
 				permanent: false,
 			},
 		};

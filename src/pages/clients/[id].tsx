@@ -1,6 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../config';
+import { CLIENT_PAGE_URL, LOGIN_PAGE_URL } from '../../config';
 import ClientDetail from '../../containers/clients/detail';
 import { getClient } from '../../db';
 import { getRecord, getUserObjectPermissions } from '../../db/utils';
@@ -36,8 +36,8 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
+				destination: params?.id
+					? LOGIN_PAGE_URL + `?next=${CLIENT_PAGE_URL(params.id as string)}`
 					: LOGIN_PAGE_URL,
 				permanent: false,
 			},
