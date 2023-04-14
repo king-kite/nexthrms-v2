@@ -1,6 +1,10 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
+import {
+	DEFAULT_PAGINATION_SIZE,
+	EMPLOYEES_PAGE_URL,
+	LOGIN_PAGE_URL,
+} from '../../../config';
 import Employees from '../../../containers/employees';
 import { getEmployees } from '../../../db';
 import { getRecords } from '../../../db/utils';
@@ -32,9 +36,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
-					: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${EMPLOYEES_PAGE_URL}`,
 				permanent: false,
 			},
 		};

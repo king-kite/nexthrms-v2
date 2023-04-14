@@ -1,6 +1,10 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE, LOGIN_PAGE_URL } from '../../../config';
+import {
+	ATTENDANCE_ADMIN_PAGE_URL,
+	DEFAULT_PAGINATION_SIZE,
+	LOGIN_PAGE_URL,
+} from '../../../config';
 import Attendance from '../../../containers/attendance/admin';
 import { getAttendanceAdmin } from '../../../db';
 import { getRecords } from '../../../db/utils';
@@ -34,9 +38,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			redirect: {
-				destination: req.url
-					? LOGIN_PAGE_URL + `?next=${req.url}`
-					: LOGIN_PAGE_URL,
+				destination: LOGIN_PAGE_URL + `?next=${ATTENDANCE_ADMIN_PAGE_URL}`,
 				permanent: false,
 			},
 		};
