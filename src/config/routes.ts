@@ -20,10 +20,8 @@ export const OBJECT_PERMISSIONS_PAGE_URL = (
 	objectId: string = ''
 ) => `/users/permissions/objects/${model}/${objectId}/`;
 export const PERMISSIONS_PAGE_URL = '/users/permissions/';
-export const PERMISSION_OBJECT_PERMISSIONS_PAGE_URL = (
-	model: string,
-	slug: string
-) => `/${model}/permissions/${slug}/permissions/object-permissions/`;
+export const PERMISSION_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>
+	`/users/permissions/${slug}/permissions/object-permissions/`;
 export const USERS_PAGE_URL = '/users/all/';
 export const USER_PAGE_URL = (slug: string) => `/users/all/${slug}/`;
 export const USER_OBJECT_PERMISSIONS_PAGE_URL = (slug: string) =>

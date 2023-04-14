@@ -5,7 +5,7 @@ import {
 	models,
 	permissions,
 	LOGIN_PAGE_URL,
-	PERMISSION_OBJECT_PERMISSIONS_PAGE_URL,
+	OBJECT_PERMISSIONS_PAGE_URL,
 } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/users/permissions/objects';
 import { getObjectPermissions } from '../../../../../db';
@@ -42,7 +42,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 				destination:
 					params?.model && params?.objectId
 						? LOGIN_PAGE_URL +
-						  `?next=${PERMISSION_OBJECT_PERMISSIONS_PAGE_URL(
+						  `?next=${OBJECT_PERMISSIONS_PAGE_URL(
 								params.model as string,
 								params.objectId as string
 						  )}`
