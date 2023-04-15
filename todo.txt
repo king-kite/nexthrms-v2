@@ -2,7 +2,7 @@
 -- Too Much information or confidential information is been sent.
 2. Attendance Statistics is not calculating properly. Fix it.
 3. Check the project file delete url to delete files from folders.
-4. Fix the filtering by dates (Keeps going about 1 day forward).
+4. Make a custom date picker component.
 5. Add Import External Data functionality.
 6. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 --  Do be mindful of smaller screen.
