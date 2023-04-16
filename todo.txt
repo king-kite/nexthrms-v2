@@ -1,9 +1,8 @@
 1. Handle Prisma Errors Better. Especially the unique key errors. 
 -- Too Much information or confidential information is been sent.
 2. Attendance Statistics is not calculating properly. Fix it.
-3. Check the project file delete url to delete files from folders.
-4. Make a custom date picker component.
-5. Add Import External Data functionality.
-6. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
+3. Make a custom date picker component.
+4. Add Import External Data functionality.
+5. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward.
 --  Do be mindful of smaller screen.
-7. Use Dynamic imports.
+6. Use Dynamic imports.
