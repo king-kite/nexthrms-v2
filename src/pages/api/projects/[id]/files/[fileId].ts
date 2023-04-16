@@ -1,18 +1,12 @@
-import { permissions } from '../../../../../config';
-import {
-	prisma,
-	projectFileSelectQuery as selectQuery,
-} from '../../../../../db';
+import { permissions, USE_LOCAL_MEDIA_STORAGE } from '../../../../../config';
+import { prisma } from '../../../../../db';
 import {
 	getUserObjectPermissions,
 	hasViewPermission,
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
-import {
-	CreateProjectFileQueryType,
-	ProjectFileType,
-} from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
+import { deleteFile } from '../../../../../utils/files';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 
 export default auth()
@@ -27,9 +21,6 @@ export default auth()
 		next();
 	})
 	.delete(async (req, res) => {
-		// const file = await prisma.projectFile.findUniqueOrThrow({
-		// 	where: { id: req.query.fileId as string },
-		// });
 		// TODO: Delete the file from Storage
 
 		let hasPerm =
@@ -50,9 +41,32 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		await prisma.projectFile.delete({
+		const projectFile = await prisma.projectFile.findUnique({
 			where: { id: req.query.fileId as string },
 		});
+
+		if (!projectFile)
+			throw new NextApiErrorMessage(
+				404,
+				'Project file with the specified ID was not found!'
+			);
+
+		await prisma.projectFile.delete({
+			where: { id: projectFile.id },
+		});
+
+		if (USE_LOCAL_MEDIA_STORAGE) {
+			deleteFile(projectFile.file).catch((error) => {
+				console.log('DELETE PROJECT FILE ERROR :>>', error);
+			});
+		} else if (
+			projectFile.storageInfo &&
+			(projectFile.storageInfo as any).public_id
+		) {
+			deleteFile((projectFile.storageInfo as any).public_id).catch((error) => {
+				console.log('DELETE PROJECT FILE ERROR :>>', error);
+			});
+		}
 
 		return res.status(200).json({
 			status: 'success',
