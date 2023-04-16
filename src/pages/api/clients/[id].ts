@@ -1,13 +1,13 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions } from '../../../config';
+import { permissions, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
 import { prisma, getClient } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { ClientCreateQueryType, ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { upload as uploadFile } from '../../../utils/files';
+import { deleteFile, upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema } from '../../../validators';
 
@@ -114,6 +114,41 @@ export default admin()
 					name: result.original_filename,
 					type: result.resource_type,
 				};
+
+				// delete the old client user profile image
+				const client = await prisma.client.findUnique({
+					where: {
+						id: req.query.id as string,
+					},
+					select: {
+						contact: {
+							select: {
+								profile: {
+									select: {
+										image: true,
+										imageStorageInfo: true,
+									},
+								},
+							},
+						},
+					},
+				});
+				if (client?.contact.profile?.image) {
+					if (USE_LOCAL_MEDIA_STORAGE) {
+						deleteFile(client.contact.profile.image).catch((error) => {
+							console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
+						});
+					} else if (
+						client.contact.profile.imageStorageInfo &&
+						(client.contact.profile.imageStorageInfo as any).public_id
+					) {
+						deleteFile(
+							(client.contact.profile.imageStorageInfo as any).public_id
+						).catch((error) => {
+							console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
+						});
+					}
+				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
 					console.log('CONTACT UPDATE IMAGE ERROR :>> ', error);
