@@ -1,4 +1,4 @@
-import { USE_LOCAL_MEDIA_STORAGE } from '../../../config';
+import { DEFAULT_IMAGE, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
 import {
 	getProfile,
 	prisma,
@@ -77,7 +77,10 @@ export default auth()
 				};
 
 				// delete the old user profile image
-				if (req.user.profile?.image) {
+				if (
+					req.user.profile?.image &&
+					req.user.profile.image !== DEFAULT_IMAGE
+				) {
 					const profile = await prisma.profile.findUnique({
 						where: {
 							userId: req.user.id,

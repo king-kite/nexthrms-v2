@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
+import {
+	permissions,
+	DEFAULT_IMAGE,
+	USE_LOCAL_MEDIA_STORAGE,
+} from '../../../config';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployee,
@@ -136,7 +140,10 @@ export default admin()
 						},
 					},
 				});
-				if (employee?.user.profile?.image) {
+				if (
+					employee?.user.profile?.image &&
+					employee.user.profile.image !== DEFAULT_IMAGE
+				) {
 					if (USE_LOCAL_MEDIA_STORAGE) {
 						deleteFile(employee.user.profile.image).catch((error) => {
 							console.log('DELETE EMPLOYEE IMAGE FILE ERROR :>>', error);

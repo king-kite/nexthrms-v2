@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
+import {
+	permissions,
+	DEFAULT_IMAGE,
+	USE_LOCAL_MEDIA_STORAGE,
+} from '../../../config';
 import { prisma, getClient } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
@@ -133,7 +137,10 @@ export default admin()
 						},
 					},
 				});
-				if (client?.contact.profile?.image) {
+				if (
+					client?.contact.profile?.image &&
+					client.contact.profile.image !== DEFAULT_IMAGE
+				) {
 					if (USE_LOCAL_MEDIA_STORAGE) {
 						deleteFile(client.contact.profile.image).catch((error) => {
 							console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
