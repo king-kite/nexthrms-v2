@@ -1,15 +1,14 @@
-import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
 import {
-	FC,
-	Dispatch,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+	Alert,
+	Button,
+	Input,
+	Select,
+	Select2,
+	Textarea,
+} from 'kite-react-tailwind';
+import React from 'react';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetClientsQuery, useGetEmployeesQuery } from '../../store/queries';
 import {
 	CreateProjectErrorResponseType,
@@ -26,8 +25,8 @@ interface ErrorType extends CreateProjectErrorResponseType {
 export type FormProps = {
 	editMode?: boolean;
 	errors?: ErrorType;
-	resetErrors?: Dispatch<
-		SetStateAction<CreateProjectErrorResponseType | undefined>
+	resetErrors?: React.Dispatch<
+		React.SetStateAction<CreateProjectErrorResponseType | undefined>
 	>;
 	initState?: ProjectType;
 	loading: boolean;
@@ -35,7 +34,7 @@ export type FormProps = {
 	onSubmit: (form: CreateProjectQueryType) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	editMode,
 	errors,
 	resetErrors,
@@ -43,9 +42,9 @@ const Form: FC<FormProps> = ({
 	loading,
 	onSubmit,
 	success,
-}) => {
+}: FormProps) => {
 	// Use this to manage 'Select' Component state
-	const [form, setForm] = useState<{
+	const [form, setForm] = React.useState<{
 		client: string;
 		team: string[];
 		leaders: string[];
@@ -60,12 +59,13 @@ const Form: FC<FormProps> = ({
 				.filter((member) => member.isLeader && member)
 				.map((member) => member.employee.id) || [],
 	});
-	const [formErrors, setErrors] = useState<CreateProjectErrorResponseType>();
+	const [formErrors, setErrors] =
+		React.useState<CreateProjectErrorResponseType>();
 
-	const [clientLimit, setClientLimit] = useState(DEFAULT_PAGINATION_SIZE);
-	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
+	const [clientLimit, setClientLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const clients = useGetClientsQuery({
 		limit: clientLimit,
@@ -81,7 +81,7 @@ const Form: FC<FormProps> = ({
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 	const clientsError = clients.error ? 'unable to fetch clients' : '';
 
-	const removeErrors = useCallback(
+	const removeErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -98,7 +98,7 @@ const Form: FC<FormProps> = ({
 		[formErrors, resetErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: 'client' | 'team' | 'leaders', value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
@@ -109,14 +109,14 @@ const Form: FC<FormProps> = ({
 		[removeErrors]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success) {
 			if (formRef.current) formRef.current.reset();
 			setForm({ client: '', team: [], leaders: [] });
 		}
 	}, [success]);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: CreateProjectQueryType) => {
 			try {
 				setErrors(undefined);
@@ -345,7 +345,12 @@ const Form: FC<FormProps> = ({
 				</div>
 
 				<div className="w-full md:flex md:flex-col md:justify-end">
-					<Select
+					<Select2
+						bdrColor={
+							employeesError || formErrors?.team || errors?.team
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -370,52 +375,74 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={employees.isLoading || loading}
-						error={employeesError || formErrors?.team || errors?.team}
-						label="Team Leaders"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('leaders', selectValues);
+						onSelect={({ value }) => {
+							// Check if the employee with this value as id is selected
+							const selected = form.leaders.find((item) => item === value);
+							if (selected) {
+								// Remove from selection
+								setForm((prevState) => ({
+									...prevState,
+									leaders: prevState.leaders.filter((item) => item !== value),
+								}));
+							} else {
+								// Add to selection
+								setForm((prevState) => ({
+									...prevState,
+									leaders: [...prevState.leaders, value],
+								}));
+							}
 						}}
-						multiple
-						name="leaders"
-						placeholder="Select Team Leaders"
+						error={employeesError || formErrors?.team || errors?.team}
 						options={
 							employees.data
-								? employees.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											employee
-										) => {
-											if (employee.user.isActive)
-												return [
-													...total,
-													{
-														title: toCapitalize(
-															employee.user.firstName +
+								? employees.data.result
+										.reduce(
+											(
+												total: {
+													title: string;
+													value: string;
+												}[],
+												employee
+											) => {
+												if (employee.user.isActive)
+													return [
+														...total,
+														{
+															image:
+																employee.user.profile?.image || DEFAULT_IMAGE,
+															title:
+																employee.user.firstName +
 																' ' +
-																employee.user.lastName
-														),
-														value: employee.id,
-													},
-												];
-											return total;
-										},
-										[]
-								  )
+																employee.user.lastName,
+															value: employee.id,
+														},
+													];
+												return total;
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
-						required={false}
+						multiple
 						value={form.leaders}
+						required={false}
+						label="Team Leaders"
+						placeholder="Select Team Leaders"
+						shadow="shadow-lg"
 					/>
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end">
-					<Select
+					<Select2
+						bdrColor={
+							employeesError || formErrors?.team || errors?.team
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -440,48 +467,65 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={employees.isLoading || loading}
-						error={employeesError || formErrors?.team || errors?.team}
-						label="Team Members"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('team', selectValues);
+						onSelect={({ value }) => {
+							// Check if the employee with this value as id is selected
+							const selected = form.team.find((item) => item === value);
+							if (selected) {
+								// Remove from selection
+								setForm((prevState) => ({
+									...prevState,
+									team: prevState.team.filter((item) => item !== value),
+								}));
+							} else {
+								// Add to selection
+								setForm((prevState) => ({
+									...prevState,
+									team: [...prevState.team, value],
+								}));
+							}
 						}}
-						multiple
-						name="team"
-						placeholder="Select Team Members"
+						error={employeesError || formErrors?.team || errors?.team}
 						options={
 							employees.data
-								? employees.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											employee
-										) => {
-											if (employee.user.isActive)
-												return [
-													...total,
-													{
-														title: toCapitalize(
-															employee.user.firstName +
+								? employees.data.result
+										.reduce(
+											(
+												total: {
+													title: string;
+													value: string;
+												}[],
+												employee
+											) => {
+												if (employee.user.isActive)
+													return [
+														...total,
+														{
+															image:
+																employee.user.profile?.image || DEFAULT_IMAGE,
+															title:
+																employee.user.firstName +
 																' ' +
-																employee.user.lastName
-														),
-														value: employee.id,
-													},
-												];
-											return total;
-										},
-										[]
-								  )
+																employee.user.lastName,
+															value: employee.id,
+														},
+													];
+												return total;
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
-						required={false}
+						multiple
 						value={form.team}
+						required={false}
+						label="Team Members"
+						placeholder="Select Team Members"
+						shadow="shadow-lg"
 					/>
 				</div>
 
