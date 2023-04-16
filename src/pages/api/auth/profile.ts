@@ -1,3 +1,4 @@
+import { USE_LOCAL_MEDIA_STORAGE } from '../../../config';
 import {
 	getProfile,
 	prisma,
@@ -5,7 +6,7 @@ import {
 } from '../../../db';
 import { auth } from '../../../middlewares';
 import { ProfileUpdateType } from '../../../types';
-import { upload as uploadFile } from '../../../utils/files';
+import { deleteFile, upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { profileUpdateSchema } from '../../../validators';
 
@@ -74,6 +75,32 @@ export default auth()
 					name: result.original_filename,
 					type: result.resource_type,
 				};
+
+				// delete the old user profile image
+				if (req.user.profile?.image) {
+					const profile = await prisma.profile.findUnique({
+						where: {
+							userId: req.user.id,
+						},
+						select: {
+							imageStorageInfo: true,
+						},
+					});
+					if (USE_LOCAL_MEDIA_STORAGE) {
+						deleteFile(req.user.profile?.image).catch((error) => {
+							console.log('DELETE PROFILE IMAGE FILE ERROR :>>', error);
+						});
+					} else if (
+						profile?.imageStorageInfo &&
+						(profile?.imageStorageInfo as any).public_id
+					) {
+						deleteFile((profile?.imageStorageInfo as any).public_id).catch(
+							(error) => {
+								console.log('DELETE PROFILE IMAGE FILE ERROR :>>', error);
+							}
+						);
+					}
+				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
 					console.log('PROFILE IMAGE ERROR :>> ', error);
