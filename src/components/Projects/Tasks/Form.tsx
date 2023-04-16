@@ -1,16 +1,15 @@
-import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
-import { useRouter } from 'next/router';
 import {
-	FC,
-	Dispatch,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+	Alert,
+	Button,
+	Input,
+	Select,
+	Select2,
+	Textarea,
+} from 'kite-react-tailwind';
+import { useRouter } from 'next/router';
+import React from 'react';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetProjectTeamQuery } from '../../../store/queries';
 import {
 	CreateProjectTaskErrorResponseType,
@@ -25,8 +24,8 @@ type ErrorType = CreateProjectTaskErrorResponseType;
 export type FormProps = {
 	editMode?: boolean;
 	errors?: ErrorType;
-	resetErrors?: Dispatch<
-		SetStateAction<CreateProjectTaskErrorResponseType | undefined>
+	resetErrors?: React.Dispatch<
+		React.SetStateAction<CreateProjectTaskErrorResponseType | undefined>
 	>;
 	initState?: ProjectTaskType;
 	loading: boolean;
@@ -34,7 +33,7 @@ export type FormProps = {
 	onSubmit: (form: CreateProjectTaskQueryType) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	editMode,
 	errors,
 	resetErrors,
@@ -42,9 +41,9 @@ const Form: FC<FormProps> = ({
 	loading,
 	onSubmit,
 	success,
-}) => {
+}: FormProps) => {
 	// Use this to manage 'Select' Component state
-	const [form, setForm] = useState<{
+	const [form, setForm] = React.useState<{
 		followers: string[];
 		leaders: string[];
 	}>({
@@ -58,11 +57,11 @@ const Form: FC<FormProps> = ({
 				.map((follower) => follower.member.id) || [],
 	});
 	const [formErrors, setErrors] =
-		useState<CreateProjectTaskErrorResponseType>();
+		React.useState<CreateProjectTaskErrorResponseType>();
 
-	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
+	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -76,7 +75,7 @@ const Form: FC<FormProps> = ({
 
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 
-	const removeErrors = useCallback(
+	const removeErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -93,7 +92,7 @@ const Form: FC<FormProps> = ({
 		[formErrors, resetErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: 'followers' | 'leaders', value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
@@ -104,14 +103,14 @@ const Form: FC<FormProps> = ({
 		[removeErrors]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success) {
 			if (formRef.current) formRef.current.reset();
 			setForm({ followers: [], leaders: [] });
 		}
 	}, [success]);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: CreateProjectTaskQueryType) => {
 			try {
 				setErrors(undefined);
@@ -232,7 +231,12 @@ const Form: FC<FormProps> = ({
 				</div>
 
 				<div className="w-full md:flex md:flex-col md:justify-end">
-					<Select
+					<Select2
+						bdrColor={
+							employeesError || formErrors?.followers || errors?.followers
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -257,50 +261,74 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={employees.isLoading || loading}
-						error={employeesError || formErrors?.followers}
-						label="Task Leaders"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('leaders', selectValues);
+						onSelect={({ value }) => {
+							// Check if the employee with this value as id is selected
+							const selected = form.leaders.find((item) => item === value);
+							if (selected) {
+								// Remove from selection
+								setForm((prevState) => ({
+									...prevState,
+									leaders: prevState.leaders.filter((item) => item !== value),
+								}));
+							} else {
+								// Add to selection
+								setForm((prevState) => ({
+									...prevState,
+									leaders: [...prevState.leaders, value],
+								}));
+							}
 						}}
-						multiple
-						name="leaders"
-						placeholder="Select Task Leaders"
+						error={employeesError || formErrors?.followers || errors?.followers}
 						options={
 							employees.data
-								? employees.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											member
-										) => {
-											return [
-												...total,
-												{
-													title: toCapitalize(
-														member.employee.user.firstName +
-															' ' +
-															member.employee.user.lastName
-													),
-													value: member.id,
-												},
-											];
-										},
-										[]
-								  )
+								? employees.data.result
+										.reduce(
+											(
+												total: {
+													title: string;
+													value: string;
+												}[],
+												member
+											) => {
+												return [
+													...total,
+													{
+														image:
+															member.employee.user.profile?.image ||
+															DEFAULT_IMAGE,
+														title: toCapitalize(
+															member.employee.user.firstName +
+																' ' +
+																member.employee.user.lastName
+														),
+														value: member.id,
+													},
+												];
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
-						required={false}
+						multiple
 						value={form.leaders}
+						required={false}
+						label="Task Leaders"
+						placeholder="Select Task Leaders"
+						shadow="shadow-lg"
 					/>
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end">
-					<Select
+					<Select2
+						bdrColor={
+							employeesError || formErrors?.followers || errors?.followers
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -325,46 +353,67 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={employees.isLoading || loading}
-						error={employeesError || formErrors?.followers || errors?.followers}
-						label="Task Followers"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('followers', selectValues);
+						onSelect={({ value }) => {
+							// Check if the employee with this value as id is selected
+							const selected = form.followers.find((item) => item === value);
+							if (selected) {
+								// Remove from selection
+								setForm((prevState) => ({
+									...prevState,
+									followers: prevState.followers.filter(
+										(item) => item !== value
+									),
+								}));
+							} else {
+								// Add to selection
+								setForm((prevState) => ({
+									...prevState,
+									followers: [...prevState.followers, value],
+								}));
+							}
 						}}
-						multiple
-						name="team"
-						placeholder="Select Task Followers"
+						error={employeesError || formErrors?.followers || errors?.followers}
 						options={
 							employees.data
-								? employees.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											member
-										) => {
-											return [
-												...total,
-												{
-													title: toCapitalize(
-														member.employee.user.firstName +
-															' ' +
-															member.employee.user.lastName
-													),
-													value: member.id,
-												},
-											];
-										},
-										[]
-								  )
+								? employees.data.result
+										.reduce(
+											(
+												total: {
+													title: string;
+													value: string;
+												}[],
+												member
+											) => {
+												return [
+													...total,
+													{
+														image:
+															member.employee.user.profile?.image ||
+															DEFAULT_IMAGE,
+														title: toCapitalize(
+															member.employee.user.firstName +
+																' ' +
+																member.employee.user.lastName
+														),
+														value: member.id,
+													},
+												];
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
+						multiple
 						required={false}
 						value={form.followers}
+						label="Task Followers"
+						placeholder="Select Task Followers"
+						shadow="shadow-lg"
 					/>
 				</div>
 
