@@ -1,11 +1,22 @@
+const message400 = 'Invalid data. Please try again!';
+const message401 =
+	'Authentication credentials were not provided. Please try again!';
+const message404 = 'A requested resource was not foudn!';
+const message500 = 'A server error occurred! Please try again later.';
+
 export class NextApiErrorMessage extends Error {
 	message: string = '';
 	status: number = 500;
 
-	constructor(
-		status: number = 500,
-		message: string = 'A server error occurred! Please try again later.'
-	) {
+	constructor(status: number = 500, msg?: string) {
+		const message =
+			msg || status === 400
+				? message400
+				: status === 401
+				? message401
+				: status === 404
+				? message404
+				: message500;
 		super(message);
 		this.status = status;
 	}
