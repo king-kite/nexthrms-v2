@@ -37,20 +37,20 @@ export default admin().get(async (req, res) => {
 	const assets = data.result.map((asset) => {
 		return {
 			id: asset.id,
-			assetId: asset.assetId,
+			asset_id: asset.assetId,
 			condition: asset.condition,
 			description: asset?.description,
 			model: asset?.model,
 			manufacturer: asset.manufacturer,
 			name: asset.name,
-			purchaseDate: asset.purchaseDate,
-			purchaseFrom: asset.purchaseFrom,
-			serialNo: asset.serialNo,
+			purchase_date: asset.purchaseDate,
+			purchase_from: asset.purchaseFrom,
+			serial_no: asset.serialNo,
 			status: asset.status,
 			supplier: asset.supplier,
 			warranty: asset.warranty,
 			value: asset.value,
-			userId: asset.user?.id,
+			user: asset.user?.email,
 		};
 	});
 
@@ -67,20 +67,20 @@ export default admin().get(async (req, res) => {
 
 		worksheet.columns = [
 			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Asset ID', key: 'assetId', width: 10 },
+			{ header: 'Asset ID', key: 'asset_id', width: 10 },
 			{ header: 'Condition', key: 'condition', width: 10 },
 			{ header: 'Description', key: 'description', width: 10 },
 			{ header: 'Model', key: 'model', width: 10 },
 			{ header: 'Manufacturer', key: 'manufacturer', width: 10 },
 			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'Purchase Date', key: 'purchaseDate', width: 10 },
-			{ header: 'Purchase From', key: 'purchaseFrom', width: 10 },
-			{ header: 'Serial Number', key: 'serialNo', width: 10 },
+			{ header: 'Purchase Date', key: 'purchase_date', width: 10 },
+			{ header: 'Purchase From', key: 'purchase_from', width: 10 },
+			{ header: 'Serial Number', key: 'serial_no', width: 10 },
 			{ header: 'Status', key: 'status', width: 10 },
 			{ header: 'Supplier', key: 'supplier', width: 10 },
 			{ header: 'Warranty', key: 'warranty', width: 10 },
 			{ header: 'Value', key: 'value', width: 10 },
-			{ header: 'User ID', key: 'userId', width: 10 },
+			{ header: 'User', key: 'user', width: 10 },
 		];
 
 		worksheet.addRows(assets);
