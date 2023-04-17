@@ -102,7 +102,7 @@ export const PROJECT_TASK_FOLLOWER_URL = (
 
 export const ASSETS_URL = `${ROOT_URL}/assets/`;
 export const ASSETS_EXPORT_URL = `${ROOT_URL}/assets/export/`;
-// Did not use the below route
+export const ASSETS_IMPORT_URL = `${ROOT_URL}/assets/import/`;
 export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 
 export const GROUPS_URL = `${ROOT_URL}/groups/`;
