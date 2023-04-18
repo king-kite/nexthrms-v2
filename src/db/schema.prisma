@@ -505,8 +505,10 @@ enum LeaveStatus {
 }
 
 enum NotificationChoices {
+  ERROR
   LEAVE
   OVERTIME
+  SUCCESS
 }
 
 enum OvertimeChoices {
