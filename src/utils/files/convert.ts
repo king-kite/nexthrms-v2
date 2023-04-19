@@ -4,6 +4,7 @@ export function csvToJson<DataType = any>(
 	file: string,
 	options: {
 		columnLength?: number; // The expected number of the keys
+		headers?: string[];
 		replaceEmpty?: boolean;
 		replaceEmptyValue?: any;
 	} = {
@@ -56,19 +57,37 @@ export function csvToJson<DataType = any>(
 								return result;
 							});
 
+						const columnLength = options.headers
+							? options.headers.length
+							: options.columnLength;
 						// check all keys are intact
-						if (
-							options?.columnLength &&
-							headers.length !== options.columnLength
-						) {
+						if (columnLength && headers.length !== columnLength) {
 							reject({
 								status: 400,
-								data: `The number of columns is invalid. Expected a total of ${
-									options.columnLength
-								} column${options.columnLength > 1 ? 's' : ''}, found ${
-									headers.length
-								}.`,
+								data: `The number of columns is invalid. Expected a total of ${columnLength} column${
+									columnLength > 1 ? 's' : ''
+								}, found ${headers.length}.`,
 							});
+						}
+
+						// if options.headers is passed in check only required keys are there
+						if (options.headers) {
+							const invalidHeaders: string[] = [];
+							const requiredHeaders = headers.every((header) => {
+								const found = options.headers?.find((item) => item === header);
+								if (found) return true;
+								invalidHeaders.push(header);
+								return false;
+							});
+
+							if (!requiredHeaders) {
+								reject({
+									status: 400,
+									data: `Some columns are invalid. ${invalidHeaders.join(
+										','
+									)} are not valid columns`,
+								});
+							}
 						}
 
 						/**
