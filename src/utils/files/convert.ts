@@ -2,8 +2,13 @@ import fs from 'fs';
 
 export function csvToJson<DataType = any>(
 	file: string,
-	options?: {
+	options: {
 		columnLength?: number; // The expected number of the keys
+		replaceEmpty?: boolean;
+		replaceEmptyValue?: any;
+	} = {
+		replaceEmpty: true,
+		replaceEmptyValue: undefined,
 	}
 ) {
 	return new Promise<DataType[]>((resolve, reject) => {
@@ -110,12 +115,16 @@ export function csvToJson<DataType = any>(
 								(acc: any, currentField, index) => {
 									const field: any = { ...acc };
 									const key = headers[index];
-									field[key] = currentField;
+									field[key] =
+										(!currentField || currentField.trim() === '') &&
+										options.replaceEmpty
+											? options.replaceEmptyValue
+											: currentField;
 									return field;
 								},
 								{}
 							);
-							return obj;
+							return JSON.parse(JSON.stringify(obj));
 						});
 
 						resolve(result);
