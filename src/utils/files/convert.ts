@@ -23,7 +23,8 @@ export function csvToJson<DataType = any>(
 				} else {
 					// All the rows of the CSV will be converted to JSON objects which will be added to
 					// result in an array
-					const info = data.toString().split('\r');
+					// const info = data.toString().split('\r');
+					const info = data.toString().split('\n');
 
 					if (info.length <= 0) {
 						reject({
@@ -45,6 +46,7 @@ export function csvToJson<DataType = any>(
 						 * An example of the result is below
 						 * -> ['id','email','first_name','last_name','dob','gender'].
 						 */
+
 						const headers = info[0]
 							.trim()
 							.split(',')
@@ -52,8 +54,14 @@ export function csvToJson<DataType = any>(
 								// Remove the first and the last '"'
 								const splitItem = item.split('"');
 								const result = splitItem
-									.filter((h, i) => i !== 0 && i !== splitItem.length - 1)
-									.join('');
+									// .filter((h, i) => h !== '"' && i !== 0 && i !== splitItem.length - 1)
+									.filter((h, i) =>
+										h === '"' && (i === 0 || i === splitItem.length - 1)
+											? false
+											: true
+									)
+									.join('')
+									.trim();
 								return result;
 							});
 
@@ -109,7 +117,12 @@ export function csvToJson<DataType = any>(
 									// Remove the first and the last '"'
 									const splitField = field.split('"');
 									const fieldContent = splitField
-										.filter((h, i) => i !== 0 && i !== splitField.length - 1)
+										// .filter((h, i) => h !== '"' && i !== 0 && i !== splitField.length - 1)
+										.filter((h, i) =>
+											h === '"' && (i === 0 || i === splitField.length - 1)
+												? false
+												: true
+										)
 										.join('');
 									return fieldContent;
 								});
@@ -119,6 +132,7 @@ export function csvToJson<DataType = any>(
 
 						const result: DataType[] = rows.map((fields, index) => {
 							if (headers.length !== fields.length) {
+								console.log(fields);
 								reject({
 									status: 400,
 									data: `Error at row ${
