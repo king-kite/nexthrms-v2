@@ -173,20 +173,46 @@ export async function addObjectPermissions({
 	const filteredUsers = users.filter((id) => id !== undefined);
 	if (filteredUsers.length > 0)
 		return prisma.$transaction(
-			permissions.map((permission) =>
-				prisma.permissionObject.create({
-					data: {
-						permission,
-						modelName,
-						objectId,
-						users: {
-							connect: filteredUsers.map((user) => ({ id: user })),
+			permissions.map((permission) => {
+				const data = {
+					permission,
+					modelName,
+					objectId,
+					users: {
+						connect: filteredUsers.map((user) => ({ id: user })),
+					},
+				};
+				return prisma.permissionObject.upsert({
+					where: {
+						modelName_objectId_permission: {
+							permission: data.permission,
+							modelName: data.modelName,
+							objectId: data.objectId,
 						},
 					},
+					update: data,
+					create: data,
 					select: { id: true },
-				})
-			)
+				});
+			})
 		);
+	// const filteredUsers = users.filter((id) => id !== undefined);
+	// if (filteredUsers.length > 0)
+	// 	return prisma.$transaction(
+	// 		permissions.map((permission) =>
+	// 			prisma.permissionObject.create({
+	// 				data: {
+	// 					permission,
+	// 					modelName,
+	// 					objectId,
+	// 					users: {
+	// 						connect: filteredUsers.map((user) => ({ id: user })),
+	// 					},
+	// 				},
+	// 				select: { id: true },
+	// 			})
+	// 		)
+	// 	);
 }
 
 export async function updateObjectPermissions({
