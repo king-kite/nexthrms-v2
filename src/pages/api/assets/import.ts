@@ -13,6 +13,7 @@ import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { csvToJson } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
+import { handlePrismaErrors } from '../../../validators';
 
 export const config = {
 	api: {
@@ -39,12 +40,15 @@ function getAssetInput({
 					},
 			  }
 			: undefined,
+		id: asset.id && asset.id.length > 0 ? asset.id : undefined,
 		assetId: asset_id,
-		purchaseDate: purchase_date,
+		purchaseDate: purchase_date ? new Date(purchase_date) : undefined,
 		purchaseFrom: purchase_from,
 		serialNo: serial_no,
-		updatedAt: updated_at,
-		createdAt: created_at,
+		warranty: +asset.warranty,
+		value: +asset.value,
+		updatedAt: updated_at ? new Date(updated_at) : undefined,
+		createdAt: created_at ? new Date(created_at) : undefined,
 	};
 }
 
@@ -93,50 +97,78 @@ export default admin().post(async (req, res) => {
 			],
 		})
 			.then(async (data) => {
-				const input = data.map(getAssetInput);
-				const result = await prisma.$transaction(
-					input.map((data) =>
-						prisma.asset.create({
-							data,
-							select: {
-								id: true,
-								user: {
-									select: {
-										id: true,
-									},
-								},
-							},
-						})
-					)
-				);
-				await Promise.all(
-					result.map((asset) =>
-						addObjectPermissions({
-							model: 'assets',
-							objectId: asset.id,
-							users: [req.user.id],
-						})
-					)
-				);
-				await Promise.all(
-					result.reduce((acc: Promise<any>[], asset) => {
-						if (!asset.user || asset.user.id !== req.user.id) return acc;
-						return [
-							...acc,
-							updateObjectPermissions({
+				try {
+					const input = data.map(getAssetInput);
+					const result = await prisma.$transaction(
+						input.map((data) =>
+							data.id
+								? prisma.asset.upsert({
+										where: { id: data.id },
+										update: data,
+										create: data,
+										select: {
+											id: true,
+											user: {
+												select: {
+													id: true,
+												},
+											},
+										},
+								  })
+								: prisma.asset.create({
+										data,
+										select: {
+											id: true,
+											user: {
+												select: {
+													id: true,
+												},
+											},
+										},
+								  })
+						)
+					);
+					await Promise.all(
+						result.map((asset) =>
+							addObjectPermissions({
 								model: 'assets',
 								objectId: asset.id,
-								permissions: ['VIEW'],
-								users: [asset.user.id],
-							}),
-						];
-					}, [])
-				);
-				createNotification({
-					message: 'Assets data was imported successfully.',
-					recipient: req.user.id,
-					title: 'Import Asset Data Success.',
-				});
+								users: [req.user.id],
+							})
+						)
+					);
+					await Promise.all(
+						result.reduce((acc: Promise<any>[], asset) => {
+							if (!asset.user || asset.user.id !== req.user.id) return acc;
+							return [
+								...acc,
+								updateObjectPermissions({
+									model: 'assets',
+									objectId: asset.id,
+									permissions: ['VIEW'],
+									users: [asset.user.id],
+								}),
+							];
+						}, [])
+					);
+					createNotification({
+						message: 'Assets data was imported successfully.',
+						recipient: req.user.id,
+						title: 'Import Asset Data Success.',
+					});
+				} catch (error) {
+					const err = handlePrismaErrors(error);
+					createNotification({
+						message:
+							err.code === 400
+								? process.env.NODE_ENV === 'development'
+									? err.message
+									: 'An error occurred. Probable cause: Incorrect Data Type'
+								: err.message,
+						recipient: req.user.id,
+						title: 'Import Asset Data Error.',
+					});
+				}
 			})
 			.catch((error: { status: number; data: string | unknown } | any) => {
 				if (!error.status) throw error;
