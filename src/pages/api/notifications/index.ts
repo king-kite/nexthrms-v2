@@ -11,12 +11,18 @@ export default auth().get(async (req, res) => {
 		prisma.notification.findMany({
 			skip: offset,
 			take: limit,
-			where: { 
+			where: {
 				recipientId: req.user.id,
-				createdAt: from && to ? {
-					gte: from,
-					lte: to,
-				} : undefined
+				createdAt:
+					from && to
+						? {
+								gte: from,
+								lte: to,
+						  }
+						: undefined,
+			},
+			orderBy: {
+				createdAt: 'desc' as const,
 			},
 			select: {
 				createdAt: true,
