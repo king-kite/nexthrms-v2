@@ -96,17 +96,6 @@ export function csvToJson<DataType = any>(
 								const quotes = item.startsWith('"') && item.endsWith('"');
 								if (!quotes) return item.trim();
 								return item.slice(1, item.length - 1).trim();
-								// const splitItem = item.split('"');
-								// const result = splitItem
-								// 	// .filter((h, i) => h !== '"' && i !== 0 && i !== splitItem.length - 1)
-								// 	.filter((h, i) =>
-								// 		h === '"' && (i === 0 || i === splitItem.length - 1)
-								// 			? false
-								// 			: true
-								// 	)
-								// 	.join('')
-								// 	.trim();
-								// return result;
 							});
 
 						const columnLength = options.headers
