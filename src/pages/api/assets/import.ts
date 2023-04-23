@@ -1,3 +1,5 @@
+import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
+
 import { permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
@@ -39,34 +41,33 @@ const headers = [
 	'created_at',
 ];
 
-function getAssetInput({
-	asset_id,
-	purchase_date,
-	purchase_from,
-	serial_no,
-	user,
-	updated_at,
-	created_at,
-	...asset
-}: AssetImportQueryType) {
+function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 	return {
-		...asset,
-		user: user
+		user: asset.user
 			? {
 					connect: {
-						email: user,
+						email: asset.user,
 					},
 			  }
 			: undefined,
 		id: asset.id && asset.id.length > 0 ? asset.id : undefined,
-		assetId: asset_id,
-		purchaseDate: purchase_date ? new Date(purchase_date) : undefined,
-		purchaseFrom: purchase_from,
-		serialNo: serial_no,
+		assetId: asset.asset_id.toString(),
+		condition: asset.condition.toString() as AssetCondition,
+		description: asset.description ? asset.description.toString() : undefined,
+		manufacturer: asset.manufacturer.toString(),
+		model: asset.model ? asset.model.toString() : undefined,
+		name: asset.name.toString(),
+		purchaseDate: asset.purchase_date
+			? new Date(asset.purchase_date)
+			: undefined,
+		purchaseFrom: asset.purchase_from.toString(),
+		serialNo: asset.serial_no.toString(),
+		status: asset.status.toString() as AssetStatus,
+		supplier: asset.supplier.toString(),
 		warranty: +asset.warranty,
 		value: +asset.value,
-		updatedAt: updated_at ? new Date(updated_at) : undefined,
-		createdAt: created_at ? new Date(created_at) : undefined,
+		updatedAt: asset.updated_at ? new Date(asset.updated_at) : undefined,
+		createdAt: asset.created_at ? new Date(asset.created_at) : undefined,
 	};
 }
 
