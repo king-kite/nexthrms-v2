@@ -16,12 +16,12 @@ export default function excelToJson<DataType = any>(
 	return new Promise<DataType[]>((resolve, reject) => {
 		try {
 			fs.readFile(filepath, (err, file) => {
-				if (err) {
+				if (err)
 					reject({
 						status: 500,
 						data: err,
 					});
-				} else {
+				else {
 					const workbook = new excelJS.Workbook();
 					workbook.xlsx.load(file).then((data) => {
 						const worksheet = data.getWorksheet(1);
@@ -55,14 +55,13 @@ export default function excelToJson<DataType = any>(
 							? options.headers.length
 							: options.columnLength;
 						// check all keys are intact
-						if (columnLength && headers.length !== columnLength) {
+						if (columnLength && headers.length !== columnLength)
 							reject({
 								status: 400,
 								data: `The number of columns is invalid. Expected a total of ${columnLength} column${
 									columnLength > 1 ? 's' : ''
 								}, found ${headers.length}.`,
 							});
-						}
 
 						// if options.headers is passed in check only required keys are there
 						if (options.headers) {
@@ -93,44 +92,35 @@ export default function excelToJson<DataType = any>(
 						// Next Get the rows and the fields in them
 
 						const contentRows = worksheet.getRows(2, worksheet.rowCount - 1);
-						if (!contentRows) {
+						if (!contentRows)
 							reject({
 								status: 400,
 								data: 'Invalid excel file. No content data found.',
 							});
-						}
 
 						const rows =
-							contentRows?.reduce((acc: string[][], contentRow, index) => {
+							contentRows?.reduce((acc: string[][], contentRow) => {
 								const row: any[] = [];
-								contentRow.eachCell((cell, columnNumber) => {
-									if (cell.value === undefined && !options.replaceEmpty)
-										reject({
-											status: 400,
-											data: `Error at row ${index} in column ${columnNumber}. Please provide a valid column value.`,
-										});
-									else
-										row.push(
-											cell.value === undefined
-												? options.replaceEmpty
-												: cell.value
-										);
-								});
+								for (let i = 1; i <= contentRow.cellCount; i++) {
+									// eachCell function seems to skip empty cells
+									const cell = contentRow.getCell(i);
+									row.push(
+										cell
+											? cell.value
+											: options.replaceEmpty
+											? options.replaceEmptyValue
+											: undefined
+									);
+								}
 								return [...acc, row];
 							}, []) || [];
-
-						// const rows = workRows.reduce((acc: string[][], row, index) => {
-						// 	if (index === 0) return acc;
-						// 	const data = row.cells.map((cell) => cell.value);
-						// 	return [...acc, data];
-						// }, []);
 
 						const result: DataType[] = rows.map((fields, index) => {
 							if (headers.length !== fields.length) {
 								reject({
 									status: 400,
 									data: `Error at row ${
-										index + 1
+										index + 2
 									}. Number of columns is invalid. Expected a total of ${
 										headers.length
 									} column${headers.length > 1 ? 's' : ''}, found ${
