@@ -65,23 +65,11 @@ export default admin().get(async (req, res) => {
 		const workbook = new excelJS.Workbook(); // Create a new workbook
 		const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
 
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Asset ID', key: 'asset_id', width: 10 },
-			{ header: 'Condition', key: 'condition', width: 10 },
-			{ header: 'Description', key: 'description', width: 10 },
-			{ header: 'Model', key: 'model', width: 10 },
-			{ header: 'Manufacturer', key: 'manufacturer', width: 10 },
-			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'Purchase Date', key: 'purchase_date', width: 10 },
-			{ header: 'Purchase From', key: 'purchase_from', width: 10 },
-			{ header: 'Serial Number', key: 'serial_no', width: 10 },
-			{ header: 'Status', key: 'status', width: 10 },
-			{ header: 'Supplier', key: 'supplier', width: 10 },
-			{ header: 'Warranty', key: 'warranty', width: 10 },
-			{ header: 'Value', key: 'value', width: 10 },
-			{ header: 'User', key: 'user', width: 10 },
-		];
+		worksheet.columns = Object.keys(assets).map((key) => ({
+			header: key,
+			key,
+			width: 10,
+		}));
 
 		worksheet.addRows(assets);
 
