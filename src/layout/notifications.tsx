@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
-import { forwardRef } from 'react';
-import { FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
+import React from 'react';
+import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
 
 import { NOTIFICATIONS_URL, NOTIFICATION_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
@@ -72,16 +72,40 @@ const Notification = ({
 		}
 	);
 
-	const color =
-		type === 'LEAVE'
-			? 'text-red-600'
-			: // : type === 'funding'
-			// ? 'text-green-600'
-			type === 'OVERTIME'
-			? 'text-yellow-600'
-			: 'text-gray-600';
+	const colors = React.useMemo(() => {
+		let background = 'bg-gray-100';
+		let border = 'border-gray-300';
+		let title = 'text-gray-700';
+		let text = 'text-gray-500';
 
-	const Icon = type === 'LEAVE' ? FaSuitcase : FaClock;
+		if (type === 'ERROR') {
+			background = 'bg-red-50';
+			border = 'border-red-300';
+			title = 'text-red-700';
+			text = 'text-red-600';
+		} else if (type === 'SUCCESS') {
+			background = 'bg-green-50';
+			border = 'border-green-300';
+			title = 'text-green-700';
+			text = 'text-green-600';
+		}
+
+		return {
+			background,
+			border,
+			title,
+			text,
+		};
+	}, [type]);
+
+	const Icon =
+		type === 'SUCCESS'
+			? FaCheckCircle
+			: type === 'ERROR'
+			? FaTimes
+			: type === 'LEAVE'
+			? FaSuitcase
+			: FaClock;
 
 	const _date = new Date(date);
 	const minutes = _date.getMinutes().toString();
@@ -90,39 +114,45 @@ const Notification = ({
 	const AM_PM = hours > 12 ? 'PM' : 'AM';
 
 	return (
-		<div className="flex relative w-full">
-			<div className="border-r border-gray-300 flex items-start justify-center pt-2 px-3">
+		<div className={`${colors.background} flex relative w-full`}>
+			<div
+				className={`border-b border-r ${colors.border} flex items-start justify-center pt-2 px-3`}
+			>
 				<span className="flex items-center justify-center">
-					<Icon className={`font-semibold ${color} text-sm`} />
+					<Icon className={`font-semibold ${colors.text} text-sm`} />
 				</span>
 			</div>
 
-			<div className="px-2 py-1 w-full">
-				<p className="font-semibold text-gray-700 text-sm tracking-wide w-full md:text-base">
+			<div className={`${colors.border} border-b px-2 py-1 w-full`}>
+				<p
+					className={`font-semibold ${colors.title} text-sm tracking-wide w-full md:text-base`}
+				>
 					{title}
 				</p>
-				<p className="inline-block text-gray-500 text-xs w-full md:text-sm">
+				<p className={`inline-block ${colors.text} text-xs w-full md:text-sm`}>
 					{message}
 				</p>
-				<p className="italic text-gray-500 text-xs">
+				<p className={`italic ${colors.text} text-xs`}>
 					{_date.toDateString()},{' '}
 					{`${_hour}:${minutes.length < 2 ? `0${minutes}` : minutes} ${AM_PM}`}
 				</p>
 			</div>
 
-			<div className="flex items-start justify-center pt-2 px-3">
+			<div
+				className={`${colors.border} border-b flex items-start justify-center pt-2 px-3`}
+			>
 				<span
 					onClick={() => deleteNote(id)}
 					className="cursor-pointer duration-500 flex items-center justify-center transition transform hover:scale-110"
 				>
-					<FaTimes className="font-normal text-gray-500 text-sm" />
+					<FaTimes className={`font-normal ${colors.text} text-sm`} />
 				</span>
 			</div>
 		</div>
 	);
 };
 
-const Notifications = forwardRef<
+const Notifications = React.forwardRef<
 	HTMLUListElement,
 	{
 		setCount: (e: number) => void;
@@ -145,8 +175,7 @@ const Notifications = forwardRef<
 			},
 			onError(error) {
 				if (isResponseWithMessage(error)) {
-					console.log({ notifications: error.message });
-					// open({ type: 'danger', message: error.message });
+					open({ type: 'danger', message: error.message });
 				}
 			},
 		}
@@ -161,7 +190,7 @@ const Notifications = forwardRef<
 		>
 			{data && data.result.length > 0 ? (
 				data.result.map((note, index) => (
-					<li key={index} className="even:bg-gray-200">
+					<li key={index}>
 						<Notification setCount={setCount} {...note} />
 					</li>
 				))
