@@ -19,6 +19,26 @@ export const config = {
 	},
 };
 
+const headers = [
+	'id',
+	'asset_id',
+	'condition',
+	'description',
+	'model',
+	'manufacturer',
+	'name',
+	'purchase_date',
+	'purchase_from',
+	'serial_no',
+	'status',
+	'supplier',
+	'warranty',
+	'value',
+	'user',
+	'updated_at',
+	'created_at',
+];
+
 function getAssetInput({
 	asset_id,
 	purchase_date,
@@ -152,25 +172,7 @@ export default admin().post(async (req, res) => {
 
 	if (files.data.mimetype === 'text/csv') {
 		csvToJson(files.data.filepath, {
-			headers: [
-				'id',
-				'asset_id',
-				'condition',
-				'description',
-				'model',
-				'manufacturer',
-				'name',
-				'purchase_date',
-				'purchase_from',
-				'serial_no',
-				'status',
-				'supplier',
-				'warranty',
-				'value',
-				'user',
-				'updated_at',
-				'created_at',
-			],
+			headers,
 		})
 			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
 			.catch((error: { status: number; data: string | unknown } | any) => {
@@ -190,7 +192,9 @@ export default admin().post(async (req, res) => {
 				});
 			});
 	} else {
-		excelToJson(files.data.filepath)
+		excelToJson(files.data.filepath, {
+			headers,
+		})
 			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
 			.catch((error: { status: number; data: string | unknown } | any) => {
 				if (!error.status) throw error;
