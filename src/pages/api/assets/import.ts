@@ -1,5 +1,3 @@
-import excelJS from 'exceljs';
-
 import { permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
@@ -8,10 +6,10 @@ import {
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { AssetImportQueryType } from '../../../types';
+import { AssetImportQueryType, NextApiRequestExtendUser } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { csvToJson } from '../../../utils/files';
+import { csvToJson, excelToJson } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { handlePrismaErrors } from '../../../validators';
 
@@ -52,6 +50,84 @@ function getAssetInput({
 	};
 }
 
+async function createAssets(
+	req: NextApiRequestExtendUser,
+	data: AssetImportQueryType[]
+) {
+	try {
+		const input = data.map(getAssetInput);
+		const result = await prisma.$transaction(
+			input.map((data) =>
+				data.id
+					? prisma.asset.upsert({
+							where: { id: data.id },
+							update: data,
+							create: data,
+							select: {
+								id: true,
+								user: {
+									select: {
+										id: true,
+									},
+								},
+							},
+					  })
+					: prisma.asset.create({
+							data,
+							select: {
+								id: true,
+								user: {
+									select: {
+										id: true,
+									},
+								},
+							},
+					  })
+			)
+		);
+		await Promise.all(
+			result.map((asset) =>
+				addObjectPermissions({
+					model: 'assets',
+					objectId: asset.id,
+					users: [req.user.id],
+				})
+			)
+		);
+		await Promise.all(
+			result.reduce((acc: Promise<any>[], asset) => {
+				if (!asset.user || asset.user.id !== req.user.id) return acc;
+				return [
+					...acc,
+					updateObjectPermissions({
+						model: 'assets',
+						objectId: asset.id,
+						permissions: ['VIEW'],
+						users: [asset.user.id],
+					}),
+				];
+			}, [])
+		);
+		createNotification({
+			message: 'Assets data was imported successfully.',
+			recipient: req.user.id,
+			title: 'Import Asset Data Success.',
+		});
+	} catch (error) {
+		const err = handlePrismaErrors(error);
+		createNotification({
+			message:
+				err.code === 400
+					? process.env.NODE_ENV === 'development'
+						? err.message
+						: 'An error occurred. Probable cause: Incorrect Data Type'
+					: err.message,
+			recipient: req.user.id,
+			title: 'Import Asset Data Error.',
+		});
+	}
+}
+
 export default admin().post(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
@@ -75,7 +151,7 @@ export default admin().post(async (req, res) => {
 		);
 
 	if (files.data.mimetype === 'text/csv') {
-		csvToJson<AssetImportQueryType>(files.data.filepath, {
+		csvToJson(files.data.filepath, {
 			headers: [
 				'id',
 				'asset_id',
@@ -96,88 +172,34 @@ export default admin().post(async (req, res) => {
 				'created_at',
 			],
 		})
-			.then(async (data) => {
-				try {
-					const input = data.map(getAssetInput);
-					const result = await prisma.$transaction(
-						input.map((data) =>
-							data.id
-								? prisma.asset.upsert({
-										where: { id: data.id },
-										update: data,
-										create: data,
-										select: {
-											id: true,
-											user: {
-												select: {
-													id: true,
-												},
-											},
-										},
-								  })
-								: prisma.asset.create({
-										data,
-										select: {
-											id: true,
-											user: {
-												select: {
-													id: true,
-												},
-											},
-										},
-								  })
-						)
-					);
-					await Promise.all(
-						result.map((asset) =>
-							addObjectPermissions({
-								model: 'assets',
-								objectId: asset.id,
-								users: [req.user.id],
-							})
-						)
-					);
-					await Promise.all(
-						result.reduce((acc: Promise<any>[], asset) => {
-							if (!asset.user || asset.user.id !== req.user.id) return acc;
-							return [
-								...acc,
-								updateObjectPermissions({
-									model: 'assets',
-									objectId: asset.id,
-									permissions: ['VIEW'],
-									users: [asset.user.id],
-								}),
-							];
-						}, [])
-					);
-					createNotification({
-						message: 'Assets data was imported successfully.',
-						recipient: req.user.id,
-						title: 'Import Asset Data Success.',
-					});
-				} catch (error) {
-					const err = handlePrismaErrors(error);
-					createNotification({
-						message:
-							err.code === 400
-								? process.env.NODE_ENV === 'development'
-									? err.message
-									: 'An error occurred. Probable cause: Incorrect Data Type'
-								: err.message,
-						recipient: req.user.id,
-						title: 'Import Asset Data Error.',
-					});
-				}
-			})
+			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
 			.catch((error: { status: number; data: string | unknown } | any) => {
 				if (!error.status) throw error;
 				const message =
 					typeof error.data !== 'string'
 						? process.env.NODE_ENV === 'development'
-							? 'A server error occurred. Unable to import assets data. ' +
+							? 'A server error occurred. Unable to import assets data from csv file. ' +
 							  (error.data as any)?.message
-							: 'A server error occurred. Unable to import assets data.'
+							: 'A server error occurred. Unable to import assets data from csv file.'
+						: error.data;
+				createNotification({
+					message,
+					recipient: req.user.id,
+					title: 'Import Asset Data Error.',
+					type: 'ERROR',
+				});
+			});
+	} else {
+		excelToJson(files.data.filepath)
+			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
+			.catch((error: { status: number; data: string | unknown } | any) => {
+				if (!error.status) throw error;
+				const message =
+					typeof error.data !== 'string'
+						? process.env.NODE_ENV === 'development'
+							? 'A server error occurred. Unable to import assets data from excel file. ' +
+							  (error.data as any)?.message
+							: 'A server error occurred. Unable to import assets data from excel file.'
 						: error.data;
 				createNotification({
 					message,
