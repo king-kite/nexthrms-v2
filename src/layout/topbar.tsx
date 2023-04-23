@@ -52,12 +52,12 @@ const Topbar = () => {
 					<span
 						className={` ${
 							count > 99
-								? 'p-[3px] right-[-6px]'
+								? 'h-[1.2rem] right-[-6px] w-[1.2rem]'
 								: count > 9
-								? 'pl-[3px] pb-[1px] p-[2px] right-0'
-								: 'px-[5px] pb-[1px] pt-[2px] right-0'
-						} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-center text-gray-100`}
-						style={{ fontSize: '9px' }}
+								? 'h-[1rem] right-0 w-[1rem]'
+								: 'h-[0.9rem] right-0 w-[0.9rem]'
+						} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-[9px] text-center text-gray-100`}
+						// style={{ fontSize: '9px' }}
 					>
 						{count > 99 ? '+99' : count}
 					</span>
