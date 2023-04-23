@@ -1,3 +1,5 @@
+import { NotificationChoices } from '@prisma/client';
+
 import { PaginatedResponseType } from './base';
 
 export type ParticipantType = {
@@ -6,12 +8,12 @@ export type ParticipantType = {
 	email: string;
 	profile: {
 		image: string;
-	},
-}
+	};
+};
 
 export type NotificationType = {
 	id: string;
-	type: 'LEAVE' | 'OVERTIME';
+	type: NotificationChoices;
 	sender: ParticipantType;
 	recipient: ParticipantType;
 	message: string;
