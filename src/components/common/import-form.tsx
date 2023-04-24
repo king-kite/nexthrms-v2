@@ -10,7 +10,7 @@ import { downloadFile } from '../../utils';
 import { axiosFileInstance } from '../../utils/axios';
 
 type ImportFormProps = {
-	onSuccess: () => void;
+	onSuccess: (data: BaseResponseType) => void;
 	requirements: {
 		links?: {
 			href: string;
@@ -50,8 +50,8 @@ function ImportForm({
 			setUploadLoading(true);
 			axiosFileInstance
 				.post(url, data)
-				.then(() => {
-					onSuccess();
+				.then((response) => {
+					onSuccess(response.data);
 				})
 				.catch((err) => {
 					const error = err as AxiosError<BaseResponseType>;
