@@ -12,7 +12,7 @@ export const ACCESS_TOKEN_LIFETIME = process.env
 	: 60 * 5; // time in seconds (result: 5 mins)
 export const REFRESH_TOKEN = process.env
 	.NEXT_PUBLIC_REFRESH_TOKEN 
-	? process.env.NEXT_PUBLICK_REFRESH_TOKEN 
+	? process.env.NEXT_PUBLIC_REFRESH_TOKEN 
 	: 'refresh';
 export const REFRESH_TOKEN_LIFETIME = process.env
 	.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
