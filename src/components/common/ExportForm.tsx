@@ -1,13 +1,13 @@
 import { Button, Select } from 'kite-react-tailwind';
-import { FC, useState } from 'react';
+import React from 'react';
 
 type FormProps = {
 	onSubmit?: (type: any, filter: boolean) => void;
 	loading?: boolean;
 };
 
-const Form: FC<FormProps> = ({ loading, onSubmit }) => {
-	const [form, setForm] = useState({
+const Form = ({ loading, onSubmit }: FormProps) => {
+	const [form, setForm] = React.useState({
 		type: 'csv',
 		filtered: 'all',
 	});
