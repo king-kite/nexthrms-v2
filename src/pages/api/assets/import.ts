@@ -117,7 +117,7 @@ async function createAssets(
 		);
 		await Promise.all(
 			result.reduce((acc: Promise<any>[], asset) => {
-				if (!asset.user || asset.user.id !== req.user.id) return acc;
+				if (!asset.user || asset.user.id === req.user.id) return acc;
 				return [
 					...acc,
 					updateObjectPermissions({
