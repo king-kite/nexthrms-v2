@@ -7,7 +7,7 @@ export async function createNotification({
 	recipient,
 	sender,
 	title,
-	type = 'SUCCESS',
+	type = 'ERROR',
 }: {
 	message: string;
 	recipient: string;

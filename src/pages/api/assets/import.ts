@@ -133,6 +133,7 @@ async function createAssets(
 			message: 'Assets data was imported successfully.',
 			recipient: req.user.id,
 			title: 'Import Asset Data Success.',
+			type: 'SUCCESS',
 		});
 	} catch (error) {
 		const err = handlePrismaErrors(error);
@@ -145,6 +146,7 @@ async function createAssets(
 					: err.message,
 			recipient: req.user.id,
 			title: 'Import Asset Data Error.',
+			type: 'ERROR',
 		});
 	}
 }
