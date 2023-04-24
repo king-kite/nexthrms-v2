@@ -5,6 +5,7 @@ export { default as Container } from './Container';
 export { default as ExportForm } from './ExportForm';
 export { default as FadeIn } from './FadeIn';
 export { default as FilterDateForm } from './FilterDateForm';
+export { default as ImportForm } from './import-form';
 export { default as InfoTopBar } from './InfoTopBar';
 export { default as Modal } from './Modal';
 export { default as Pagination } from './Pagination';
