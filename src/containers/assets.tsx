@@ -363,7 +363,81 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								setModalVisible(false);
 								setBulkForm(false);
 							}}
-							requirements={[]}
+							requirements={[
+								{
+									required: false,
+									title: 'id',
+									value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+								},
+								{
+									title: 'asset_id',
+									value: '564-71-3751',
+								},
+								{
+									title: 'condition',
+									value: 'GOOD',
+								},
+								{
+									required: false,
+									title: 'description',
+									value: 'Nullam varius. Nulla facilisi.',
+								},
+								{
+									title: 'manufacturer',
+									value: 'Daewoo Lacetti',
+								},
+								{
+									required: false,
+									title: 'model',
+									value: 'Suzuki',
+								},
+								{
+									title: 'name',
+									value: 'Steel',
+								},
+								{
+									title: 'purchase_date',
+									value: '2023-03-26T21:49:51.090Z',
+								},
+								{
+									title: 'purchase_from',
+									value: 'Denesik-Bernier',
+								},
+								{
+									title: 'serial_no',
+									value: '872018614-2',
+								},
+								{
+									title: 'status',
+									value: 'APPROVED',
+								},
+								{
+									title: 'supplier',
+									value: 'Mynte',
+								},
+								{
+									title: 'warranty',
+									value: '8',
+								},
+								{
+									title: 'value',
+									value: '1000',
+								},
+								{
+									title: 'user',
+									value: 'jandoe@gmail.com',
+								},
+								{
+									required: false,
+									title: 'updated_at',
+									value: '2023-03-26T21:49:51.090Z',
+								},
+								{
+									required: false,
+									title: 'created_at',
+									value: '2023-03-26T21:49:51.090Z',
+								},
+							]}
 							sample={samples.assets}
 							url={ASSETS_IMPORT_URL}
 						/>

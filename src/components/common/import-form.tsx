@@ -15,6 +15,7 @@ type ImportFormProps = {
 			href: string;
 			title: string;
 		}[];
+		required?: boolean;
 		title: string;
 		value: string;
 	}[];
@@ -73,7 +74,7 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 			)}
 			<div className="bg-yellow-200 border border-yellow-300 my-1 px-4 py-2 rounded-md">
 				<p className="text-gray-500 text-xs md:text-sm">
-					Please note that only csv (.csv) file and excel (.xlsx) file can be
+					Please note that only a csv (.csv) file or excel (.xlsx) file can be
 					uploaded in the below format. The file must have the required
 					headers/keys at the start of the file.
 				</p>
@@ -81,16 +82,17 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 			<div className="mt-4 mx-1">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Below are the list of keywords needed in the file.
+					Do note that required keys are starred red.
 				</p>
 				<ul className="bg-gray-200 divide-y divide-white divide-opacity-100 mt-4 px-3 py-1 rounded-md md:px-6">
-					{requirements.map(({ links, title, value }, index) => (
+					{requirements.map(({ links, required = true, title, value }, index) => (
 						<li key={index} className="py-3">
 							<div className="flex flex-wrap items-center">
 								<span className="mr-1 text-gray-600 text-xs md:text-sm">
 									{index + 1}.
 								</span>
-								<p className="capitalize text-gray-600 text-xs md:text-sm">
-									{title}:
+								<p className="text-gray-600 text-xs md:text-sm">
+									{title}{required && <sup className="text-red-500 text-base">*</sup>}:
 								</p>
 								<p className="bg-primary-500 mx-2 mt-1 rounded px-2 py-1 text-white text-xs tracking-wider sm:my-0">
 									e.g. {value}
