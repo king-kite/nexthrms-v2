@@ -82,32 +82,40 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 			<div className="mt-4 mx-1">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Below are the list of keywords needed in the file.
-					Do note that required keys are starred red.
+					<br />
+					- Do note that required keys are starred red. <br />-
+					Quotes(&ldquo;&rdquo;) are to be used to enclose string values.
 				</p>
 				<ul className="bg-gray-200 divide-y divide-white divide-opacity-100 mt-4 px-3 py-1 rounded-md md:px-6">
-					{requirements.map(({ links, required = true, title, value }, index) => (
-						<li key={index} className="py-3">
-							<div className="flex flex-wrap items-center">
-								<span className="mr-1 text-gray-600 text-xs md:text-sm">
-									{index + 1}.
-								</span>
-								<p className="text-gray-600 text-xs md:text-sm">
-									{title}{required && <sup className="text-red-500 text-base">*</sup>}:
-								</p>
-								<p className="bg-primary-500 mx-2 mt-1 rounded px-2 py-1 text-white text-xs tracking-wider sm:my-0">
-									e.g. {value}
-								</p>
-								{links &&
-									links.map(({ href, title }, index) => (
-										<Link href={href} key={index}>
-											<span className="cursor-pointer text-red-500 text-xs hover:underline md:text-sm">
-												{title}
-											</span>
-										</Link>
-									))}
-							</div>
-						</li>
-					))}
+					{requirements.map(
+						({ links, required = true, title, value }, index) => (
+							<li key={index} className="py-3">
+								<div className="flex flex-wrap items-center">
+									<span className="mr-1 text-gray-600 text-xs md:text-sm">
+										{index + 1}.
+									</span>
+									<p className="text-gray-600 text-xs md:text-sm">
+										{title}
+										{required && (
+											<sup className="text-red-500 text-base">*</sup>
+										)}
+										:
+									</p>
+									<p className="bg-primary-500 mx-2 mt-1 rounded px-2 py-1 text-white text-xs tracking-wider sm:my-0">
+										e.g. {value}
+									</p>
+									{links &&
+										links.map(({ href, title }, index) => (
+											<Link href={href} key={index}>
+												<span className="cursor-pointer text-red-500 text-xs hover:underline md:text-sm">
+													{title}
+												</span>
+											</Link>
+										))}
+								</div>
+							</li>
+						)
+					)}
 				</ul>
 			</div>
 			<form
