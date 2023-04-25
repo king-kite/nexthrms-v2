@@ -1,6 +1,6 @@
 import { Alert, Button, ButtonDropdown } from 'kite-react-tailwind';
 import React from 'react';
-import { FaCloudDownloadAlt } from 'react-icons/fa';
+import { FaCloudDownloadAlt, FaCloudUploadAlt, FaPlus } from 'react-icons/fa';
 
 import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
 import { Container, ExportForm, ImportForm, Modal } from '../components/common';
@@ -8,6 +8,7 @@ import {
 	permissions,
 	samples,
 	ASSETS_EXPORT_URL,
+	ASSETS_IMPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../config';
 import {
@@ -36,6 +37,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	// Use this to show the details of an asset;
 	const [showAsset, setShowAsset] = React.useState<AssetType>();
 
+	const [bulkForm, setBulkForm] = React.useState(false);
 	const [form, setForm] = React.useState<AssetCreateQueryType>(formStaleData);
 	const [editId, setEditId] = React.useState<string>();
 	const [errors, setErrors] = React.useState<
@@ -126,6 +128,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					message: 'Asset was added successfully!',
 					type: 'success',
 				});
+				setBulkForm(false);
 				setModalVisible(false);
 				setForm(formStaleData);
 				setEditId(undefined);
@@ -142,6 +145,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				message: 'Asset was updated successfully!',
 				type: 'success',
 			});
+			setBulkForm(false);
 			setModalVisible(false);
 			setForm(formStaleData);
 			setEditId(undefined);
@@ -255,19 +259,38 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					</div>
 				)}
 				{canCreate && (
-					<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-						<Button
-							onClick={() => {
-								setErrors(undefined);
-								setForm(formStaleData);
-								setEditId(undefined);
-								setShowAsset(undefined);
-								setModalVisible(true);
-							}}
-							rounded="rounded-xl"
-							title="Add new Asset"
-						/>
-					</div>
+					<>
+						<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+							<Button
+								onClick={() => {
+									setBulkForm(false);
+									setErrors(undefined);
+									setForm(formStaleData);
+									setEditId(undefined);
+									setShowAsset(undefined);
+									setModalVisible(true);
+								}}
+								iconLeft={FaPlus}
+								rounded="rounded-xl"
+								title="Add new Asset"
+							/>
+						</div>
+						<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+							<Button
+								onClick={() => {
+									setBulkForm(true);
+									setErrors(undefined);
+									setForm(formStaleData);
+									setEditId(undefined);
+									setShowAsset(undefined);
+									setModalVisible(true);
+								}}
+								iconLeft={FaCloudUploadAlt}
+								rounded="rounded-xl"
+								title="Bulk Import"
+							/>
+						</div>
+					</>
 				)}
 			</div>
 			{(canView || canCreate) && (
@@ -305,6 +328,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 			{/* editId will determine if the user has edit permission */}
 			<Modal
 				close={() => {
+					setBulkForm(false);
 					setModalVisible(false);
 					setEditId(undefined);
 					setForm(formStaleData);
@@ -329,6 +353,20 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							}}
 							deleteAsset={deleteAsset}
 						/>
+					) : canCreate && bulkForm ? (
+						<ImportForm
+							onSuccess={(data) => {
+								open({
+									type: 'success',
+									message: data.message,
+								});
+								setModalVisible(false);
+								setBulkForm(false);
+							}}
+							requirements={[]}
+							sample={samples.assets}
+							url={ASSETS_IMPORT_URL}
+						/>
 					) : canCreate || editId ? (
 						<Form
 							form={form}
@@ -352,11 +390,19 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						? `Description of the ${showAsset.name} asset.`
 						: editId
 						? 'Update Asset'
+						: bulkForm
+						? 'Upload import file below'
 						: 'Fill in the form below to add a new asset'
 				}
 				keepVisible
 				title={
-					showAsset ? 'Asset Details' : editId ? 'Update Asset' : 'Add Asset'
+					showAsset
+						? 'Asset Details'
+						: editId
+						? 'Update Asset'
+						: bulkForm
+						? 'Bulk Import'
+						: 'Add Asset'
 				}
 				visible={modalVisible}
 			/>

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa';
 
-import { useAlertContext } from '../../store/contexts';
 import { BaseResponseType } from '../../types';
 import { downloadFile } from '../../utils';
 import { axiosFileInstance } from '../../utils/axios';
@@ -23,19 +22,10 @@ type ImportFormProps = {
 		link: string;
 		title: string;
 	};
-	submitTitle?: string;
 	url: string;
 };
 
-function ImportForm({
-	onSuccess,
-	requirements,
-	sample,
-	submitTitle = 'Import',
-	url,
-}: ImportFormProps) {
-	const { open } = useAlertContext();
-
+function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 	const ref = React.useRef<HTMLFormElement | null>(null);
 
 	const [error, setError] = React.useState<string>();
@@ -49,7 +39,7 @@ function ImportForm({
 			form.append('data', data);
 			setUploadLoading(true);
 			axiosFileInstance
-				.post(url, data)
+				.post(url, form)
 				.then((response) => {
 					onSuccess(response.data);
 				})
@@ -60,20 +50,27 @@ function ImportForm({
 					if (error.response && error.response.data.message)
 						message = error.response.data.message;
 
-					open({
-						type: 'danger',
-						message,
-					});
+					setError(message);
 				})
 				.finally(() => {
 					setUploadLoading(false);
 				});
 		},
-		[open, onSuccess, url]
+		[onSuccess, url]
 	);
 
 	return (
 		<div className="p-4">
+			{error && (
+				<div className="mb-4">
+					<Alert
+						onClose={() => setError(undefined)}
+						message={error}
+						type="danger"
+						visible={!!error}
+					/>
+				</div>
+			)}
 			<div className="bg-yellow-200 border border-yellow-300 my-1 px-4 py-2 rounded-md">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Please note that only csv (.csv) file and excel (.xlsx) file can be
@@ -81,15 +78,6 @@ function ImportForm({
 					headers/keys at the start of the file.
 				</p>
 			</div>
-			{error && (
-				<div className="mt-2">
-					<Alert
-						onClose={() => setError(undefined)}
-						message={error}
-						visible={!!error}
-					/>
-				</div>
-			)}
 			<div className="mt-4 mx-1">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Below are the list of keywords needed in the file.
@@ -167,10 +155,7 @@ function ImportForm({
 										}).catch((error) => {
 											const message =
 												(error as any)?.data || (error as any)?.message;
-											open({
-												type: 'danger',
-												message,
-											});
+											setError(message);
 										});
 									}}
 									margin="lg:mr-6"
@@ -187,16 +172,12 @@ function ImportForm({
 					</>
 				)}
 				<div className="flex items-center justify-center mt-4 sm:mt-5 md:mt-8">
-					<div
-						className={`w-full sm:w-1/2 ${
-							submitTitle?.length < 12 ? 'md:w-1/3' : ''
-						}`}
-					>
+					<div className="w-full sm:w-1/2 md:w-1/3">
 						<Button
+							disabled={uploadLoading}
 							iconLeft={FaCloudUploadAlt}
-							loader
 							rounded="rounded-md"
-							title={submitTitle}
+							title={uploadLoading ? 'Importing...' : 'Import'}
 						/>
 					</div>
 				</div>
