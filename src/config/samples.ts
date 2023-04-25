@@ -1,8 +1,5 @@
-function getExportFiles(name: string) {
-	return {
-		csv: `${name}_csv.csv`,
-		excel: `${name}_excel.xlsx`,
-	};
+const samples = {
+	assets: 'assets.zip',
 }
 
-export const ASSET_SAMPLES = getExportFiles('assets');
+export default samples;

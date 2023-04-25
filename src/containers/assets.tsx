@@ -6,8 +6,8 @@ import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
 import { Container, ExportForm, ImportForm, Modal } from '../components/common';
 import {
 	permissions,
+	samples,
 	ASSETS_EXPORT_URL,
-	ASSET_SAMPLES,
 	DEFAULT_PAGINATION_SIZE,
 } from '../config';
 import {
