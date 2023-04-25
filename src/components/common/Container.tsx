@@ -156,7 +156,7 @@ const Container: FC<ContainerProps> = ({
 				<div className={`p-2 md:p-4 ${background}`}>
 					<div className="px-2 relative md:px-3 lg:px-4">
 						{alerts.length > 0 && (
-							<div className="z-[500] fixed top-[30%] right-0 w-full sm:top-[32%] md:top-[35%] lg:ml-auto lg:top-[20%] lg:w-[83%] xl:top-[22%] 2xl:top-[18%]">
+							<div className="bottom-[10%] fixed right-0 w-full z-[500] lg:ml-auto lg:w-[83%]">
 								{alerts.map((alert, index) => (
 									<AlertMessage {...alert} key={index} />
 								))}
