@@ -179,7 +179,7 @@ function ImportForm({
 									title={
 										downloadLoading
 											? 'Downloading...'
-											: 'Download a sample format.zip'
+											: 'Download sample format.zip'
 									}
 								/>
 							</div>
