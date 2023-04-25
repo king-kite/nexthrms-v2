@@ -31,7 +31,7 @@ function ImportForm({
 	onSuccess,
 	requirements,
 	sample,
-	submitTitle = 'import',
+	submitTitle = 'Import',
 	url,
 }: ImportFormProps) {
 	const { open } = useAlertContext();
@@ -76,9 +76,9 @@ function ImportForm({
 		<div className="p-4">
 			<div className="bg-yellow-200 border border-yellow-300 my-1 px-4 py-2 rounded-md">
 				<p className="text-gray-500 text-xs md:text-sm">
-					Please note that you can only upload a csv (.csv) file or excel
-					(.xlsx) file in the below format. The file was have the required
-					headers/keys as well at the start.
+					Please note that only csv (.csv) file and excel (.xlsx) file can be
+					uploaded in the below format. The file must have the required
+					headers/keys at the start of the file.
 				</p>
 			</div>
 			{error && (
@@ -140,9 +140,9 @@ function ImportForm({
 							}}
 							icon={FaCloudUploadAlt}
 							iconSize="12"
-							label="upload document"
+							label="Upload Document"
 							name="data"
-							placeholder="upload csv or excel file"
+							placeholder="Upload CSV or Excel File"
 							required
 							value={file}
 						/>
@@ -157,10 +157,7 @@ function ImportForm({
 							<div>
 								<Button
 									bg="bg-secondary-600 hover:bg-secondary-400"
-									caps
 									disabled={downloadLoading}
-									loader
-									loading={downloadLoading}
 									iconRight={FaCloudDownloadAlt}
 									onClick={() => {
 										downloadFile({
@@ -179,7 +176,11 @@ function ImportForm({
 									margin="lg:mr-6"
 									padding="px-3 py-2 md:px-6"
 									rounded="rounded-md"
-									title="download a sample format"
+									title={
+										downloadLoading
+											? 'Downloading...'
+											: 'Download a sample format.zip'
+									}
 								/>
 							</div>
 						</div>
