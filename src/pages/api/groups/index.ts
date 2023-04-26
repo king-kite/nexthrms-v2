@@ -74,7 +74,7 @@ export default admin()
 
 		const group = await prisma.group.create({
 			data: {
-				name: data.name,
+				name: data.name.toLowerCase(),
 				description: data.description,
 				active: data.active,
 				permissions: data.permissions

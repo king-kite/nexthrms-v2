@@ -86,7 +86,7 @@ export default admin()
 				id: req.query.id as string,
 			},
 			data: {
-				name: data.name,
+				name: data.name.toLowerCase(),
 				description: data.description,
 				active: data.active,
 				permissions: data.permissions
