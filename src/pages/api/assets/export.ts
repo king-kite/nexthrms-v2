@@ -176,12 +176,8 @@ function exportData(req: NextApiRequestExtendUser) {
 					cell.font = { bold: true };
 				});
 
-				const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
-				uploadBuffer({
-					buffer,
-					location: 'media/exports/assets_csv.zip',
-					name: 'assets_csv.zip',
-				})
+				workbook.xlsx
+					.writeFile('media/exports/assets_csv.xlsx')
 					.then(() => {
 						return createNotification({
 							message:
