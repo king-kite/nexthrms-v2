@@ -39,6 +39,7 @@
 		"joi-password-complexity": "^5.1.0",
 		"json2csv": "^5.0.7",
 		"jsonwebtoken": "^8.5.1",
+		"jszip": "^3.10.1",
 		"kite-react-tailwind": "^0.3.8",
 		"next": "12.2.2",
 		"next-connect": "^0.13.0",
