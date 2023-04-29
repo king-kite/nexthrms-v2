@@ -2,7 +2,7 @@ import React from 'react';
 
 type DownloadFileType = {
 	url: string;
-	name: string;
+	name?: string;
 	setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -17,10 +17,15 @@ export default async function downloadFile({
 		const data = await response.blob();
 
 		if (response.status === 200 && data) {
-			const url = window.URL.createObjectURL(new Blob([data]));
+			let downloadName = name || '';
+			if (!name || name === '') {
+				const slash = url.split('/');
+				downloadName = slash[slash.length - 1];
+			}
+			const downloadUrl = window.URL.createObjectURL(new Blob([data]));
 			const link = document.createElement('a');
-			link.href = url;
-			link.setAttribute('download', name);
+			link.href = downloadUrl;
+			link.setAttribute('download', downloadName);
 			document.body.appendChild(link);
 			link.click();
 			return {
