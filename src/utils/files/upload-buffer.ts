@@ -18,6 +18,7 @@ function uploadBuffer({
 }: UploadFileType): Promise<
 	| UploadApiResponse
 	| {
+			bytes?: number;
 			original_filename: string;
 			public_id: string;
 			secure_url?: string;
@@ -43,6 +44,7 @@ function uploadBuffer({
 				if (err) reject(err);
 				else {
 					resolve({
+						bytes: buffer.byteLength,
 						original_filename: name,
 						public_id: name.toLowerCase(),
 						resource_type: type || 'file',

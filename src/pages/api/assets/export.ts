@@ -205,6 +205,7 @@ function exportData(req: NextApiRequestExtendUser) {
 					data: {
 						file: upload.secure_url || upload.url,
 						name: uploadInfo.name,
+						size: upload.bytes,
 						storageInfo: {
 							id: upload.public_id,
 							name: upload.original_filename,
