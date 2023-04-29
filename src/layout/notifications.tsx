@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
+import { Button } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
 
@@ -7,7 +8,7 @@ import { NOTIFICATIONS_URL, NOTIFICATION_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
 import * as tags from '../store/tagTypes';
 import { GetNotificationResponseType, NotificationType } from '../types';
-import { axiosInstance } from '../utils';
+import { axiosInstance, downloadFile } from '../utils';
 import { isResponseWithMessage } from '../validators';
 
 interface NotificationPropsType extends NotificationType {
@@ -19,12 +20,15 @@ const Notification = ({
 	createdAt: date,
 	title,
 	message,
+	messageId,
 	type,
 	setCount,
 }: NotificationPropsType) => {
 	const { open } = useAlertContext();
 
 	const queryClient = useQueryClient();
+
+	const [exportLoading, setExportLoading] = React.useState(false);
 
 	const { mutate: deleteNote } = useMutation(
 		(noteId: string) => axiosInstance.delete(NOTIFICATION_URL(noteId)),
@@ -132,6 +136,31 @@ const Notification = ({
 				<p className={`inline-block ${colors.text} text-xs w-full md:text-sm`}>
 					{message}
 				</p>
+				{messageId && type === 'DOWNLOAD' && (
+					<div className="py-1 w-[5rem]">
+						<Button
+							bg="bg-gray-500 hover:bg-gray-700"
+							disabled={exportLoading}
+							loader
+							loading={exportLoading}
+							onClick={async () => {
+								const result = await downloadFile({
+									url: messageId,
+									setLoading: setExportLoading,
+								});
+								if (result?.status !== 200) {
+									open({
+										type: 'danger',
+										message: 'An error occurred. Unable to export file!',
+									});
+								}
+							}}
+							padding="p-2"
+							title="Download"
+							titleSize="text-xs"
+						/>
+					</div>
+				)}
 				<p className={`italic ${colors.text} text-xs`}>
 					{_date.toDateString()},{' '}
 					{`${_hour}:${minutes.length < 2 ? `0${minutes}` : minutes} ${AM_PM}`}
