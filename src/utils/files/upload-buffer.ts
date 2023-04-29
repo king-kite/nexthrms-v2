@@ -27,14 +27,26 @@ function uploadBuffer({
 > {
 	return new Promise((resolve, reject) => {
 		if (USE_LOCAL_MEDIA_STORAGE) {
-			fs.writeFile(location, buffer, (err) => {
+			const splitText = location.split('.');
+			const extension = splitText[splitText.length - 1] || undefined;
+
+			let newName = extension
+				? splitText.filter((text, i) => i !== splitText.length - 1).join('')
+				: location;
+
+			const date = new Date();
+			const date_str = `${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
+
+			let newLocation = newName + `_${date_str}_${new Date().getTime()}`;
+			if (extension) newLocation += `.${extension}`;
+			fs.writeFile(newLocation, buffer, (err) => {
 				if (err) reject(err);
 				else {
 					resolve({
 						original_filename: name,
 						public_id: name.toLowerCase(),
 						resource_type: type || 'file',
-						url: '/' + location,
+						url: '/' + newLocation,
 					});
 				}
 			});
