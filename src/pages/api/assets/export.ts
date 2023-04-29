@@ -217,24 +217,6 @@ function exportData(req: NextApiRequestExtendUser) {
 					.catch((error) => {
 						reject(error);
 					});
-
-				// workbook.xlsx
-				// 	.writeFile('media/exports/assets_csv.xlsx')
-				// 	.then(() => {
-				// 		return createNotification({
-				// 			message:
-				// 				'File exported successfully. Click on the download link to proceed!',
-				// 			recipient: req.user.id,
-				// 			title: 'Assets Data Export Success',
-				// 			type: 'SUCCESS',
-				// 		});
-				// 	})
-				// 	.then(() => {
-				// 		resolve(undefined);
-				// 	})
-				// 	.catch((error) => {
-				// 		reject(error);
-				// 	});
 			}
 		} catch (error) {
 			reject(error);
