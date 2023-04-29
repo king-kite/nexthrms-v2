@@ -61,6 +61,7 @@ const permissions = {
 		GRANT: 'can_grant_leave',
 		REQUEST: 'can_request_leave',
 	},
+	managedfile,
 	overtime: {
 		...overtime,
 		GRANT: 'can_grant_overtime',
