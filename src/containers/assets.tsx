@@ -28,7 +28,7 @@ import {
 	CreateAssetErrorResponseType,
 	GetAssetsResponseType,
 } from '../types';
-import { downloadFile, getStringedDate, hasModelPermission } from '../utils';
+import { getStringedDate, hasModelPermission } from '../utils';
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [exportLoading, setExportLoading] = React.useState(false);
@@ -233,17 +233,30 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 												url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
 											}
 										}
-										const result = await downloadFile({
-											url,
-											name: type === 'csv' ? 'assets.csv' : 'assets.xlsx',
-											setLoading: setExportLoading,
-										});
-										if (result?.status !== 200) {
-											open({
-												type: 'danger',
-												message: 'An error occurred. Unable to export file!',
+										setExportLoading(true);
+										fetch(url, {
+											method: 'GET',
+											headers: {
+												Accept: 'application/json',
+												'Content-Type': 'application/json',
+											},
+										})
+											.then(async (res) => {
+												const data = await res.json();
+												open({
+													message: data.message,
+													type: res.ok ? 'success' : 'danger',
+												});
+											})
+											.catch((error: any) => {
+												open({
+													message: error.message,
+													type: 'danger',
+												});
+											})
+											.finally(() => {
+												setExportLoading(false);
 											});
-										}
 									}}
 								/>
 							)}
