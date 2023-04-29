@@ -140,7 +140,7 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 }
 
 function exportData(req: NextApiRequestExtendUser) {
-	return new Promise<{ file: string; size?: number }>(
+	return new Promise<{ file: string; size: number | null }>(
 		async (resolve, reject) => {
 			try {
 				const { assets, perms } = await getAssetsData(req);
