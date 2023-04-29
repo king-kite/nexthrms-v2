@@ -140,92 +140,94 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 }
 
 function exportData(req: NextApiRequestExtendUser) {
-	return new Promise<{ file: string }>(async (resolve, reject) => {
-		try {
-			const { assets, perms } = await getAssetsData(req);
+	return new Promise<{ file: string; size?: number }>(
+		async (resolve, reject) => {
+			try {
+				const { assets, perms } = await getAssetsData(req);
 
-			let uploadInfo: {
-				buffer: Buffer;
-				location: string;
-				name: string;
-			} | null = null;
+				let uploadInfo: {
+					buffer: Buffer;
+					location: string;
+					name: string;
+				} | null = null;
 
-			if (req.query.type === 'csv') {
-				// Store the files as a zip and upadate the uploadInfo variable
-				const data = parse(assets);
-				const permissions = parse(perms);
+				if (req.query.type === 'csv') {
+					// Store the files as a zip and upadate the uploadInfo variable
+					const data = parse(assets);
+					const permissions = parse(perms);
 
-				const zip = new JSZip();
+					const zip = new JSZip();
 
-				zip.file('assets.csv', data);
-				zip.file('permissions.csv', permissions);
+					zip.file('assets.csv', data);
+					zip.file('permissions.csv', permissions);
 
-				const buffer = Buffer.from(
-					await zip.generateAsync({ type: 'arraybuffer' })
-				);
+					const buffer = Buffer.from(
+						await zip.generateAsync({ type: 'arraybuffer' })
+					);
 
-				uploadInfo = {
-					buffer,
-					location: 'media/exports/assets_csv.zip',
-					name: 'assets_csv.zip',
-				};
-			} else {
-				// Create 2 worksheets for assets and permissions
-				const workbook = new excelJS.Workbook(); // Create a new workbook
+					uploadInfo = {
+						buffer,
+						location: 'media/exports/assets_csv.zip',
+						name: 'assets_csv.zip',
+					};
+				} else {
+					// Create 2 worksheets for assets and permissions
+					const workbook = new excelJS.Workbook(); // Create a new workbook
 
-				const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
-				const permissionWorksheet = workbook.addWorksheet('Permissions'); // New Permission Worksheet
+					const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
+					const permissionWorksheet = workbook.addWorksheet('Permissions'); // New Permission Worksheet
 
-				// Add the headers
-				worksheet.columns = headers.map((key) => ({
-					header: key,
-					key,
-				}));
-				permissionWorksheet.columns = permissionHeaders.map((key) => ({
-					header: key,
-					key,
-				}));
+					// Add the headers
+					worksheet.columns = headers.map((key) => ({
+						header: key,
+						key,
+					}));
+					permissionWorksheet.columns = permissionHeaders.map((key) => ({
+						header: key,
+						key,
+					}));
 
-				// Add the data/content
-				worksheet.addRows(assets);
-				permissionWorksheet.addRows(perms);
+					// Add the data/content
+					worksheet.addRows(assets);
+					permissionWorksheet.addRows(perms);
 
-				const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
-				uploadInfo = {
-					buffer,
-					location: 'media/exports/assets_excel.xlsx',
-					name: 'assets_excel.xlsx',
-				};
-			}
-			// upload the buffer
-			if (uploadInfo) {
-				const upload = await uploadBuffer(uploadInfo);
-				// Create managed file
-				const data = await prisma.managedFile.create({
-					data: {
-						file: upload.secure_url || upload.url,
-						name: uploadInfo.name,
-						size: upload.bytes,
-						storageInfo: {
-							id: upload.public_id,
-							name: upload.original_filename,
-							type: upload.resource_type,
-						},
-						type: 'file',
-						user: {
-							connect: {
-								id: req.user.id,
+					const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+					uploadInfo = {
+						buffer,
+						location: 'media/exports/assets_excel.xlsx',
+						name: 'assets_excel.xlsx',
+					};
+				}
+				// upload the buffer
+				if (uploadInfo) {
+					const upload = await uploadBuffer(uploadInfo);
+					// Create managed file
+					const data = await prisma.managedFile.create({
+						data: {
+							file: upload.secure_url || upload.url,
+							name: uploadInfo.name,
+							size: upload.bytes,
+							storageInfo: {
+								id: upload.public_id,
+								name: upload.original_filename,
+								type: upload.resource_type,
+							},
+							type: 'file',
+							user: {
+								connect: {
+									id: req.user.id,
+								},
 							},
 						},
-					},
-					select: { file: true },
-				});
-				resolve(data);
+						select: { file: true, size: true },
+					});
+					resolve(data);
+				}
+			} catch (error) {
+				reject(error);
 			}
-		} catch (error) {
-			reject(error);
 		}
-	});
+	);
 }
 
 export default admin().get(async (req, res) => {
@@ -237,9 +239,16 @@ export default admin().get(async (req, res) => {
 
 	exportData(req)
 		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
 			createNotification({
-				message:
-					'File exported successfully. Click on the download link to proceed!',
+				message,
 				messageId: data.file,
 				recipient: req.user.id,
 				title: 'Assets Data Export Success',
