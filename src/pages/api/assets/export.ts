@@ -140,7 +140,7 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 }
 
 function exportData(req: NextApiRequestExtendUser) {
-	return new Promise(async (resolve, reject) => {
+	return new Promise<{ file: string }>(async (resolve, reject) => {
 		try {
 			const { assets, perms } = await getAssetsData(req);
 
@@ -199,8 +199,28 @@ function exportData(req: NextApiRequestExtendUser) {
 			}
 			// upload the buffer
 			if (uploadInfo) {
-				const upload = uploadBuffer(uploadInfo);
-				resolve(upload);
+				const upload = await uploadBuffer(uploadInfo);
+				// Create managed file
+				const data = await prisma.managedFile.create({
+					data: {
+						file: upload.secure_url || upload.url,
+						name: uploadInfo.name,
+						size: 0,
+						storageInfo: {
+							id: upload.public_id,
+							name: upload.original_filename,
+							type: upload.resource_type,
+						},
+						type: 'file',
+						user: {
+							connect: {
+								id: req.user.id,
+							},
+						},
+					},
+					select: { file: true },
+				});
+				resolve(data);
 			}
 		} catch (error) {
 			reject(error);
@@ -216,13 +236,13 @@ export default admin().get(async (req, res) => {
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
 	exportData(req)
-		.then(() => {
+		.then((data) => {
 			createNotification({
-				message:
-					'File exported successfully. Click on the download link to proceed!',
+				message: 'File exported successfully. Click on the download link to proceed!',
+				messageId: data.file,
 				recipient: req.user.id,
 				title: 'Assets Data Export Success',
-				type: 'SUCCESS',
+				type: 'DOWNLOAD',
 			});
 		})
 		.catch((error) => {
