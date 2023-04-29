@@ -19,6 +19,7 @@ const models = [
 	'holiday',
 	'jobs',
 	'leaves',
+	'managed_files',
 	'overtime',
 	'permissions',
 	'projects',

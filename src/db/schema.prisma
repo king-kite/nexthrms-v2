@@ -199,6 +199,25 @@ model Leave {
   @@map("leaves")
 }
 
+model ManagedFile {
+  id String @id @default(uuid()) @db.Uuid
+
+  name        String @db.VarChar(255)
+  file        String
+  size        Int
+  storageInfo Json?  @map("storage_info")
+  type        String @default("application") @map("type")
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String? @map("user_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([id], map: "managed_file_id")
+  @@map("managed_files")
+}
+
 model Notification {
   id        String              @id @default(uuid()) @db.Uuid
   title     String              @default("This is a title")
@@ -459,6 +478,7 @@ model User {
   client            Client?
   employee          Employee?
   groups            Group[]            @relation("group_users")
+  managedFiles      ManagedFile[]
   objectPermissions PermissionObject[] @relation("permission_object_users")
   permissions       Permission[]       @relation("permission_users")
   profile           Profile?
@@ -505,6 +525,7 @@ enum LeaveStatus {
 }
 
 enum NotificationChoices {
+  DOWNLOAD
   ERROR
   LEAVE
   OVERTIME
@@ -533,6 +554,7 @@ enum PermissionModelChoices {
   holiday
   jobs
   leaves
+  managed_files
   overtime
   permissions
   permission_categories

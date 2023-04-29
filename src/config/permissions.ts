@@ -29,6 +29,7 @@ export const group = makePermissions('group');
 export const holiday = makePermissions('holiday');
 export const job = makePermissions('job');
 export const leave = makePermissions('leave');
+export const managedfile = makePermissions('managedfile');
 // export const leaveAdmin = makePermissions('admin_leave');
 // export const notification = makePermissions('notification');
 export const overtime = makePermissions('overtime');
@@ -85,6 +86,7 @@ export type PermissionKeyType =
 	| 'holiday'
 	| 'job'
 	| 'leave'
+	| 'managedfile'
 	| 'overtime'
 	| 'permission'
 	| 'permissioncategory'

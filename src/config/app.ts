@@ -2,17 +2,15 @@ import { PermissionModelChoices } from '@prisma/client';
 
 import { PermissionPrismaModelNameType } from '../types';
 
-export const ACCESS_TOKEN = process.env
-	.NEXT_PUBLIC_ACCESS_TOKEN 
-	? process.env.NEXT_PUBLIC_ACCESS_TOKEN 
+export const ACCESS_TOKEN = process.env.NEXT_PUBLIC_ACCESS_TOKEN
+	? process.env.NEXT_PUBLIC_ACCESS_TOKEN
 	: 'access';
 export const ACCESS_TOKEN_LIFETIME = process.env
 	.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
 	? +process.env.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
 	: 60 * 5; // time in seconds (result: 5 mins)
-export const REFRESH_TOKEN = process.env
-	.NEXT_PUBLIC_REFRESH_TOKEN 
-	? process.env.NEXT_PUBLIC_REFRESH_TOKEN 
+export const REFRESH_TOKEN = process.env.NEXT_PUBLIC_REFRESH_TOKEN
+	? process.env.NEXT_PUBLIC_REFRESH_TOKEN
 	: 'refresh';
 export const REFRESH_TOKEN_LIFETIME = process.env
 	.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
@@ -46,6 +44,7 @@ export const models: PermissionModelChoices[] = [
 	'holiday',
 	'jobs',
 	'leaves',
+	'managed_files',
 	'overtime',
 	'permissions',
 	'permission_categories',
@@ -65,6 +64,7 @@ export const prismaModels: PermissionPrismaModelNameType[] = [
 	'holiday',
 	'job',
 	'leave',
+	'managedFile',
 	'overtime',
 	'permission',
 	'permissionCategory',
@@ -99,6 +99,8 @@ export const getPrismaModels = (
 			return 'job';
 		case 'leaves':
 			return 'leave';
+		case 'managed_files':
+			return 'managedFile';
 		case 'overtime':
 			return 'overtime';
 		case 'permissions':

@@ -8,6 +8,7 @@ const models = [
 	{ name: 'Holiday', title: 'Holiday' },
 	{ name: 'Job', title: 'Job' },
 	{ name: 'Leave', title: 'Leave' },
+	{ name: 'ManagedFile', title: 'Managed File' },
 	// { name: 'Notification', title: 'Notification' },
 	{ name: 'Overtime', title: 'Overtime' },
 	{ name: 'Permission', title: 'Permission' },

@@ -107,6 +107,7 @@ export type PermissionPrismaModelNameType =
 	| 'holiday'
 	| 'job'
 	| 'leave'
+	| 'managedFile'
 	| 'overtime'
 	| 'permission'
 	| 'permissionCategory'
