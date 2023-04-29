@@ -34,107 +34,124 @@ const headers = [
 
 const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
 
+// Get the records from the database, including the permissions
+async function getAssetsData(req: NextApiRequestExtendUser) {
+	const placeholder: GetAssetsResponseType['data'] = {
+		total: 0,
+		result: [],
+	};
+
+	const result = await getRecords<GetAssetsResponseType['data']>({
+		model: 'assets',
+		perm: 'asset',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getAssets(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+
+	const assets = data.result.map((asset) => {
+		return {
+			id: asset.id,
+			asset_id: asset.assetId,
+			condition: asset.condition,
+			description: asset?.description,
+			model: asset?.model,
+			manufacturer: asset.manufacturer,
+			name: asset.name,
+			purchase_date: asset.purchaseDate,
+			purchase_from: asset.purchaseFrom,
+			serial_no: asset.serialNo,
+			status: asset.status,
+			supplier: asset.supplier,
+			warranty: asset.warranty,
+			value: asset.value,
+			user: asset.user?.email,
+		};
+	});
+
+	const objectPermissions = await prisma.permissionObject.findMany({
+		where: {
+			modelName: 'assets',
+			objectId: {
+				in: assets.map((asset) => asset.id),
+			},
+		},
+		include: {
+			groups: {
+				select: {
+					name: true,
+				},
+			},
+			users: {
+				select: {
+					email: true,
+				},
+			},
+		},
+	});
+
+	const perms = objectPermissions.reduce(
+		(
+			acc: {
+				is_user: boolean;
+				name: string;
+				object_id: string;
+				permission: 'DELETE' | 'EDIT' | 'VIEW';
+			}[],
+			perm
+		) => {
+			const data: {
+				is_user: boolean;
+				name: string;
+				object_id: string;
+				permission: 'DELETE' | 'EDIT' | 'VIEW';
+			}[] = [];
+			perm.users.forEach((user) => {
+				data.push({
+					name: user.email,
+					object_id: perm.objectId,
+					permission: perm.permission,
+					is_user: true,
+				});
+			});
+			perm.groups.forEach((group) => {
+				data.push({
+					name: group.name,
+					object_id: perm.objectId,
+					permission: perm.permission,
+					is_user: false,
+				});
+			});
+
+			return [...acc, ...data];
+		},
+		[]
+	);
+
+	return {
+		assets,
+		perms,
+	};
+}
+
 function exportData(req: NextApiRequestExtendUser) {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const placeholder: GetAssetsResponseType['data'] = {
-				total: 0,
-				result: [],
-			};
+			const { assets, perms } = await getAssetsData(req);
 
-			const result = await getRecords<GetAssetsResponseType['data']>({
-				model: 'assets',
-				perm: 'asset',
-				query: req.query,
-				user: req.user,
-				placeholder,
-				getData(params) {
-					return getAssets(params);
-				},
-			});
-
-			const data = result ? result.data : placeholder;
-
-			const assets = data.result.map((asset) => {
-				return {
-					id: asset.id,
-					asset_id: asset.assetId,
-					condition: asset.condition,
-					description: asset?.description,
-					model: asset?.model,
-					manufacturer: asset.manufacturer,
-					name: asset.name,
-					purchase_date: asset.purchaseDate,
-					purchase_from: asset.purchaseFrom,
-					serial_no: asset.serialNo,
-					status: asset.status,
-					supplier: asset.supplier,
-					warranty: asset.warranty,
-					value: asset.value,
-					user: asset.user?.email,
-				};
-			});
-
-			const objectPermissions = await prisma.permissionObject.findMany({
-				where: {
-					modelName: 'assets',
-					objectId: {
-						in: assets.map((asset) => asset.id),
-					},
-				},
-				include: {
-					groups: {
-						select: {
-							name: true,
-						},
-					},
-					users: {
-						select: {
-							email: true,
-						},
-					},
-				},
-			});
-
-			const perms = objectPermissions.reduce(
-				(
-					acc: {
-						is_user: boolean;
-						name: string;
-						object_id: string;
-						permission: 'DELETE' | 'EDIT' | 'VIEW';
-					}[],
-					perm
-				) => {
-					const data: {
-						is_user: boolean;
-						name: string;
-						object_id: string;
-						permission: 'DELETE' | 'EDIT' | 'VIEW';
-					}[] = [];
-					perm.users.forEach((user) => {
-						data.push({
-							name: user.email,
-							object_id: perm.objectId,
-							permission: perm.permission,
-							is_user: true,
-						});
-					});
-					perm.groups.forEach((group) => {
-						data.push({
-							name: group.name,
-							object_id: perm.objectId,
-							permission: perm.permission,
-							is_user: false,
-						});
-					});
-
-					return [...acc, ...data];
-				},
-				[]
-			);
+			let uploadInfo: {
+				buffer: Buffer;
+				location: string;
+				name: string;
+			} | null = null;
 
 			if (req.query.type === 'csv') {
+				// Store the files as a zip and upadate the uploadInfo variable
 				const data = parse(assets);
 				const permissions = parse(perms);
 
@@ -147,27 +164,13 @@ function exportData(req: NextApiRequestExtendUser) {
 					await zip.generateAsync({ type: 'arraybuffer' })
 				);
 
-				uploadBuffer({
+				uploadInfo = {
 					buffer,
 					location: 'media/exports/assets_csv.zip',
 					name: 'assets_csv.zip',
-				})
-					.then(() => {
-						return createNotification({
-							message:
-								'File exported successfully. Click on the download link to proceed!',
-							recipient: req.user.id,
-							title: 'Assets Data Export Success',
-							type: 'SUCCESS',
-						});
-					})
-					.then(() => {
-						resolve(undefined);
-					})
-					.catch((error) => {
-						reject(error);
-					});
+				};
 			} else {
+				// Create 2 worksheets for assets and permissions
 				const workbook = new excelJS.Workbook(); // Create a new workbook
 
 				const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
@@ -187,36 +190,17 @@ function exportData(req: NextApiRequestExtendUser) {
 				worksheet.addRows(assets);
 				permissionWorksheet.addRows(perms);
 
-				// Making first line in excel bold
-				worksheet.getRow(1).eachCell((cell) => {
-					cell.font = { bold: true };
-				});
-				permissionWorksheet.getRow(1).eachCell((cell) => {
-					cell.font = { bold: true };
-				});
-
 				const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
-
-				uploadBuffer({
+				uploadInfo = {
 					buffer,
 					location: 'media/exports/assets_excel.xlsx',
 					name: 'assets_excel.xlsx',
-				})
-					.then(() => {
-						return createNotification({
-							message:
-								'File exported successfully. Click on the download link to proceed!',
-							recipient: req.user.id,
-							title: 'Assets Data Export Success',
-							type: 'SUCCESS',
-						});
-					})
-					.then(() => {
-						resolve(undefined);
-					})
-					.catch((error) => {
-						reject(error);
-					});
+				};
+			}
+			// upload the buffer
+			if (uploadInfo) {
+				const upload = uploadBuffer(uploadInfo);
+				resolve(upload);
 			}
 		} catch (error) {
 			reject(error);
@@ -231,21 +215,31 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	exportData(req).catch((error) => {
-		const message =
-			typeof error.data !== 'string'
-				? process.env.NODE_ENV === 'development'
-					? 'A server error occurred. Unable to export assets. ' +
-					  (error.data as any)?.message
-					: 'A server error occurred. Unable to import assets.'
-				: error.data;
-		createNotification({
-			message,
-			recipient: req.user.id,
-			title: 'Assets Data Export Failed',
-			type: 'ERROR',
+	exportData(req)
+		.then(() => {
+			createNotification({
+				message:
+					'File exported successfully. Click on the download link to proceed!',
+				recipient: req.user.id,
+				title: 'Assets Data Export Success',
+				type: 'SUCCESS',
+			});
+		})
+		.catch((error) => {
+			const message =
+				typeof error.data !== 'string'
+					? process.env.NODE_ENV === 'development'
+						? 'A server error occurred. Unable to export assets. ' +
+						  (error.data as any)?.message
+						: 'A server error occurred. Unable to import assets.'
+					: error.data;
+			createNotification({
+				message,
+				recipient: req.user.id,
+				title: 'Assets Data Export Failed',
+				type: 'ERROR',
+			});
 		});
-	});
 
 	return res.status(200).json({
 		status: 'success',
