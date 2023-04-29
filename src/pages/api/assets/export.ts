@@ -1,5 +1,4 @@
 import excelJS from 'exceljs';
-import fs from 'fs';
 import { parse } from 'json2csv';
 import JSZip from 'jszip';
 
@@ -196,8 +195,13 @@ function exportData(req: NextApiRequestExtendUser) {
 					cell.font = { bold: true };
 				});
 
-				workbook.xlsx
-					.writeFile('media/exports/assets_csv.xlsx')
+				const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+
+				uploadBuffer({
+					buffer,
+					location: 'media/exports/assets_excel.xlsx',
+					name: 'assets_excel.xlsx',
+				})
 					.then(() => {
 						return createNotification({
 							message:
@@ -213,6 +217,24 @@ function exportData(req: NextApiRequestExtendUser) {
 					.catch((error) => {
 						reject(error);
 					});
+
+				// workbook.xlsx
+				// 	.writeFile('media/exports/assets_csv.xlsx')
+				// 	.then(() => {
+				// 		return createNotification({
+				// 			message:
+				// 				'File exported successfully. Click on the download link to proceed!',
+				// 			recipient: req.user.id,
+				// 			title: 'Assets Data Export Success',
+				// 			type: 'SUCCESS',
+				// 		});
+				// 	})
+				// 	.then(() => {
+				// 		resolve(undefined);
+				// 	})
+				// 	.catch((error) => {
+				// 		reject(error);
+				// 	});
 			}
 		} catch (error) {
 			reject(error);
@@ -228,9 +250,15 @@ export default admin().get(async (req, res) => {
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
 	exportData(req).catch((error) => {
-		console.log(error);
+		const message =
+			typeof error.data !== 'string'
+				? process.env.NODE_ENV === 'development'
+					? 'A server error occurred. Unable to export assets. ' +
+					  (error.data as any)?.message
+					: 'A server error occurred. Unable to import assets.'
+				: error.data;
 		createNotification({
-			message: 'File exported poorly.',
+			message,
 			recipient: req.user.id,
 			title: 'Assets Data Export Failed',
 			type: 'ERROR',
