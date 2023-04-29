@@ -1,10 +1,11 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { SplashScreen } from '../../components/common';
 import { USER_DATA_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { SuccessResponseType, AuthDataType } from '../../types';
+import { axiosInstance } from '../../utils/axios';
 
 const CheckAuth = ({
 	children,
@@ -27,7 +28,7 @@ const CheckAuth = ({
 	React.useEffect(() => {
 		async function checkAuth() {
 			if (!authData) setLoading(true);
-			await axios
+			await axiosInstance
 				.get(USER_DATA_URL)
 				.then((response: AxiosResponse<SuccessResponseType<AuthDataType>>) =>
 					login(response.data.data)
