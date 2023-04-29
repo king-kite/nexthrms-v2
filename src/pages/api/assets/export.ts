@@ -205,7 +205,6 @@ function exportData(req: NextApiRequestExtendUser) {
 					data: {
 						file: upload.secure_url || upload.url,
 						name: uploadInfo.name,
-						size: 0,
 						storageInfo: {
 							id: upload.public_id,
 							name: upload.original_filename,
@@ -238,7 +237,8 @@ export default admin().get(async (req, res) => {
 	exportData(req)
 		.then((data) => {
 			createNotification({
-				message: 'File exported successfully. Click on the download link to proceed!',
+				message:
+					'File exported successfully. Click on the download link to proceed!',
 				messageId: data.file,
 				recipient: req.user.id,
 				title: 'Assets Data Export Success',

@@ -204,7 +204,7 @@ model ManagedFile {
 
   name        String @db.VarChar(255)
   file        String
-  size        Int
+  size        Int?
   storageInfo Json?  @map("storage_info")
   type        String @default("application") @map("type")
 
