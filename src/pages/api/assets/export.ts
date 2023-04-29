@@ -1,4 +1,5 @@
 import excelJS from 'exceljs';
+import fs from 'fs';
 import { parse } from 'json2csv';
 import JSZip from 'jszip';
 
@@ -13,6 +14,26 @@ import {
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { uploadBuffer } from '../../../utils/files';
+
+const headers = [
+	'id',
+	'asset_id',
+	'condition',
+	'description',
+	'model',
+	'manufacturer',
+	'name',
+	'purchase_date',
+	'purchase_from',
+	'serial_no',
+	'status',
+	'supplier',
+	'warranty',
+	'value',
+	'user',
+];
+
+const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
 
 function exportData(req: NextApiRequestExtendUser) {
 	return new Promise(async (resolve, reject) => {
@@ -94,18 +115,18 @@ function exportData(req: NextApiRequestExtendUser) {
 					}[] = [];
 					perm.users.forEach((user) => {
 						data.push({
-							is_user: true,
 							name: user.email,
 							object_id: perm.objectId,
 							permission: perm.permission,
+							is_user: true,
 						});
 					});
 					perm.groups.forEach((group) => {
 						data.push({
-							is_user: false,
 							name: group.name,
 							object_id: perm.objectId,
 							permission: perm.permission,
+							is_user: false,
 						});
 					});
 
@@ -149,19 +170,18 @@ function exportData(req: NextApiRequestExtendUser) {
 					});
 			} else {
 				const workbook = new excelJS.Workbook(); // Create a new workbook
+
 				const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
 				const permissionWorksheet = workbook.addWorksheet('Permissions'); // New Permission Worksheet
 
 				// Add the headers
-				worksheet.columns = Object.keys(assets).map((key) => ({
+				worksheet.columns = headers.map((key) => ({
 					header: key,
 					key,
-					width: 10,
 				}));
-				permissionWorksheet.columns = Object.keys(perms).map((key) => ({
+				permissionWorksheet.columns = permissionHeaders.map((key) => ({
 					header: key,
 					key,
-					width: 10,
 				}));
 
 				// Add the data/content
