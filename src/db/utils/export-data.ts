@@ -21,7 +21,7 @@ function exportData(
 	options: {
 		permissionTitle?: string;
 		title: string;
-		type: 'csv' | 'excel';
+		type: string; // 'csv' | 'excel';
 		userId?: string;
 	} = {
 		title: 'Sheet 1',

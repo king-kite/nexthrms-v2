@@ -1,10 +1,6 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-import JSZip from 'jszip';
-
 import { permissions } from '../../../config';
 import { getAssets, prisma } from '../../../db';
-import { createNotification, getRecords } from '../../../db/utils';
+import { createNotification, exportData, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import {
 	GetAssetsResponseType,
@@ -12,7 +8,7 @@ import {
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { uploadBuffer } from '../../../utils/files';
+import { handlePrismaErrors } from '../../../validators';
 
 const headers = [
 	'id',
@@ -31,8 +27,6 @@ const headers = [
 	'value',
 	'user',
 ];
-
-const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
 
 // Get the records from the database, including the permissions
 async function getAssetsData(req: NextApiRequestExtendUser) {
@@ -134,100 +128,9 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 	);
 
 	return {
-		assets,
-		perms,
+		data: assets,
+		permissions: perms,
 	};
-}
-
-function exportData(req: NextApiRequestExtendUser) {
-	return new Promise<{ file: string; size: number | null }>(
-		async (resolve, reject) => {
-			try {
-				const { assets, perms } = await getAssetsData(req);
-
-				let uploadInfo: {
-					buffer: Buffer;
-					location: string;
-					name: string;
-				} | null = null;
-
-				if (req.query.type === 'csv') {
-					// Store the files as a zip and upadate the uploadInfo variable
-					const data = parse(assets);
-					const permissions = parse(perms);
-
-					const zip = new JSZip();
-
-					zip.file('assets.csv', data);
-					zip.file('permissions.csv', permissions);
-
-					const buffer = Buffer.from(
-						await zip.generateAsync({ type: 'arraybuffer' })
-					);
-
-					uploadInfo = {
-						buffer,
-						location: 'media/exports/assets_csv.zip',
-						name: 'assets_csv.zip',
-					};
-				} else {
-					// Create 2 worksheets for assets and permissions
-					const workbook = new excelJS.Workbook(); // Create a new workbook
-
-					const worksheet = workbook.addWorksheet('Assets'); // New Worksheet
-					const permissionWorksheet = workbook.addWorksheet('Permissions'); // New Permission Worksheet
-
-					// Add the headers
-					worksheet.columns = headers.map((key) => ({
-						header: key,
-						key,
-					}));
-					permissionWorksheet.columns = permissionHeaders.map((key) => ({
-						header: key,
-						key,
-					}));
-
-					// Add the data/content
-					worksheet.addRows(assets);
-					permissionWorksheet.addRows(perms);
-
-					const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
-					uploadInfo = {
-						buffer,
-						location: 'media/exports/assets_excel.xlsx',
-						name: 'assets_excel.xlsx',
-					};
-				}
-				// upload the buffer
-				if (uploadInfo) {
-					const upload = await uploadBuffer(uploadInfo);
-					// Create managed file
-					const data = await prisma.managedFile.create({
-						data: {
-							file: upload.secure_url || upload.url,
-							name: uploadInfo.name,
-							size: upload.bytes,
-							storageInfo: {
-								id: upload.public_id,
-								name: upload.original_filename,
-								type: upload.resource_type,
-							},
-							type: 'file',
-							user: {
-								connect: {
-									id: req.user.id,
-								},
-							},
-						},
-						select: { file: true, size: true },
-					});
-					resolve(data);
-				}
-			} catch (error) {
-				reject(error);
-			}
-		}
-	);
 }
 
 export default admin().get(async (req, res) => {
@@ -237,7 +140,14 @@ export default admin().get(async (req, res) => {
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-	exportData(req)
+	getAssetsData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				title: 'Assets',
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
 		.then((data) => {
 			let message =
 				'File exported successfully. Click on the download link to proceed!';
@@ -251,22 +161,16 @@ export default admin().get(async (req, res) => {
 				message,
 				messageId: data.file,
 				recipient: req.user.id,
-				title: 'Assets Data Export Success',
+				title: 'Assets data export was successful.',
 				type: 'DOWNLOAD',
 			});
 		})
-		.catch((error) => {
-			const message =
-				typeof error.data !== 'string'
-					? process.env.NODE_ENV === 'development'
-						? 'A server error occurred. Unable to export assets. ' +
-						  (error.data as any)?.message
-						: 'A server error occurred. Unable to import assets.'
-					: error.data;
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
 			createNotification({
-				message,
+				message: error.message,
 				recipient: req.user.id,
-				title: 'Assets Data Export Failed',
+				title: 'Assets data export failed.',
 				type: 'ERROR',
 			});
 		});
