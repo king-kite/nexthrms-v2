@@ -14,6 +14,7 @@ import { downloadFile } from '../utils';
 
 interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;
+	modalVisible: boolean;
 }
 
 const Notification = ({
@@ -23,6 +24,7 @@ const Notification = ({
 	title,
 	message,
 	messageId,
+	modalVisible,
 	type,
 	setCount,
 }: NotificationPropsType) => {
@@ -97,8 +99,8 @@ const Notification = ({
 	const AM_PM = hours > 12 ? 'PM' : 'AM';
 
 	React.useEffect(() => {
-		if (visible && read === false) markNote(id);
-	}, [id, markNote, read, visible]);
+		if (visible && modalVisible && read === false) markNote(id);
+	}, [id, markNote, modalVisible, read, visible]);
 
 	return (
 		<div ref={ref} className={`${colors.background} flex relative w-full`}>
@@ -197,7 +199,11 @@ const Notifications = React.forwardRef<
 			{data && data.result.length > 0 ? (
 				data.result.map((note, index) => (
 					<li key={index}>
-						<Notification setCount={setCount} {...note} />
+						<Notification
+							setCount={setCount}
+							modalVisible={visible}
+							{...note}
+						/>
 					</li>
 				))
 			) : (

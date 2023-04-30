@@ -49,18 +49,24 @@ const Topbar = () => {
 					<span>
 						<FaRegBell className="h-5 w-5 text-gray-700" />
 					</span>
-					<span
-						className={` ${
-							count > 99
-								? 'h-[1.2rem] right-[-6px] w-[1.2rem]'
-								: count > 9
-								? 'h-[1rem] right-0 w-[1rem]'
-								: 'h-[0.9rem] right-0 w-[0.9rem]'
-						} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-[9px] text-center text-gray-100`}
-						// style={{ fontSize: '9px' }}
-					>
-						{count > 99 ? '+99' : count}
-					</span>
+					{count > 0 && (
+						<span
+							className={` ${
+								count > 99
+									? 'h-[1.2rem] right-[-6px] w-[1.2rem]'
+									: count > 9
+									? 'h-[1rem] right-0 w-[1rem]'
+									: 'h-[0.9rem] right-0 w-[0.9rem]'
+							} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-[9px] text-center text-gray-100`}
+							// style={{ fontSize: '9px' }}
+						>
+							{count > 10 && (
+								<span className="relative top-[0.5px]">
+									{count > 99 ? '!' : count}
+								</span>
+							)}
+						</span>
+					)}
 				</div>
 
 				<div className="flex flex-col justify-center text-right mx-1 pt-2 sm:mx-3">
