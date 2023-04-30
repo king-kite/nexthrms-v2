@@ -26,6 +26,7 @@ export function useGetNotificationsQuery(
 	options?: {
 		onSuccess?: (data: GetNotificationResponseType['data']) => void;
 		onError?: (err: unknown) => void;
+		refetchInterval?: number;
 		initialData?: () => GetNotificationResponseType['data'];
 	}
 ) {
@@ -50,7 +51,8 @@ export function useGetNotificationsQuery(
 					onError({
 						status: error?.status || 500,
 						message:
-							error?.message || 'An error occurred. Unable to load notifications.',
+							error?.message ||
+							'An error occurred. Unable to load notifications.',
 					});
 			},
 			...options,
