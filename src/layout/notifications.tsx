@@ -109,7 +109,16 @@ const Notification = ({
 	const AM_PM = hours > 12 ? 'PM' : 'AM';
 
 	React.useEffect(() => {
-		if (visible && modalVisible && read === false) markNote(id);
+		let timeout: NodeJS.Timeout | null = null;
+		if (visible && modalVisible && read === false) {
+			// Remove the notification after 10 seconds
+			timeout = setTimeout(() => {
+				markNote(id);
+			}, 10000);
+		}
+		return () => {
+			if (timeout) clearTimeout(timeout);
+		};
 	}, [id, markNote, modalVisible, read, visible]);
 
 	return (
