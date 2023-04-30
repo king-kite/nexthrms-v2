@@ -10,7 +10,6 @@ body {
 	margin: 0;
 	font-family: Bahnschrift, Arial, Open Sans, Droid Sans, Helvetica Neue,
 		sans-serif, Segoe UI, Roboto;
-	/* overflow: hidden; */
 }
 
 * {
@@ -35,19 +34,9 @@ body {
 .main-container-width {
 	@apply min-h-[75vh] w-full lg:ml-auto lg:w-5/6;
 }
-
 .grid-cols-2 {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-
-/*.bg-indigo-900 {
-	background-color: #312e81 !important;
-}
-
-.hover\:bg-indigo-800:hover {
-	background-color: #3730a3 !important;
-}
-*/
 @media (min-width: 768px) {
 	.md\:grid-cols-4 {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -66,22 +55,6 @@ body {
 	to {
 		transform: translateX(0%);
 	}
-	/* 0% {
-		transform: translateX(100%);
-	}
-	12.5% {
-		transform: translateX(0%);
-	}
-	50% {
-		transform: translateX(0%);
-	}
-	87.5% {
-		transform: translateX(0%);
-	}
-	100% {
-		display: none;
-		transform: translateX(100%);
-	} */
 }
 @keyframes growDown {
 	0% {
