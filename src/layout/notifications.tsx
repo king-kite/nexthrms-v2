@@ -77,6 +77,7 @@ const Notification = ({
 				text = 'text-green-600';
 			} else if (type === 'DOWNLOAD') {
 				background = 'bg-indigo-50';
+				btn = 'bg-indigo-500 hover:bg-indigo-700';
 				border = 'border-indigo-300';
 				title = 'text-indigo-700';
 				text = 'text-indigo-600';
