@@ -1,15 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
 
-import { NOTIFICATIONS_URL, NOTIFICATION_URL } from '../config';
+import { NOTIFICATION_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
+import { useGetNotificationsQuery } from '../store/queries';
 import * as tags from '../store/tagTypes';
-import { GetNotificationResponseType, NotificationType } from '../types';
+import { NotificationType } from '../types';
 import { axiosInstance, downloadFile } from '../utils';
-import { isResponseWithMessage } from '../validators';
 
 interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;
@@ -190,23 +189,17 @@ const Notifications = React.forwardRef<
 >(({ setCount, visible }, ref) => {
 	const { open } = useAlertContext();
 
-	const { data, isLoading } = useQuery(
-		[tags.NOTIFICATIONS],
-		() =>
-			axiosInstance(NOTIFICATIONS_URL).then(
-				(response: AxiosResponse<GetNotificationResponseType>) =>
-					response.data.data
-			),
+	const { data, isLoading } = useGetNotificationsQuery(
 		{
-			refetchInterval: 1000 * 10, // 10 seconds,
+			onError(error) {
+				open({ type: 'danger', message: error.message });
+			},
+		},
+		{
 			onSuccess(data) {
 				setCount(data.result.filter((note) => note.read === false).length);
 			},
-			onError(error) {
-				if (isResponseWithMessage(error)) {
-					open({ type: 'danger', message: error.message });
-				}
-			},
+			refetchInterval: 1000 * 10, // 10 seconds,
 		}
 	);
 
