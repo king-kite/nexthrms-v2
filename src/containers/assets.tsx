@@ -11,6 +11,7 @@ import {
 	ASSETS_IMPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../config';
+import { useAxiosInstance } from '../hooks';
 import {
 	useAlertContext,
 	useAlertModalContext,
@@ -31,7 +32,6 @@ import {
 import { getStringedDate, hasModelPermission } from '../utils';
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
-	const [exportLoading, setExportLoading] = React.useState(false);
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	// Use this to show the details of an asset;
@@ -53,6 +53,16 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	}>();
 
 	const { open } = useAlertContext();
+
+	const { execute, loading: instanceLoading } = useAxiosInstance({
+		onSettled(response) {
+			open({
+				type: response.status === 'success' ? 'success' : 'danger',
+				message: response.message,
+			});
+		},
+	});
+
 	const { visible: alertModalVisible, close: closeModal } =
 		useAlertModalContext();
 	const { data: authData } = useAuthContext();
@@ -217,7 +227,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						<ButtonDropdown
 							component={() => (
 								<ExportForm
-									loading={exportLoading}
+									loading={instanceLoading}
 									onSubmit={async (
 										type: 'csv' | 'excel',
 										filtered: boolean
@@ -233,30 +243,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 												url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
 											}
 										}
-										setExportLoading(true);
-										fetch(url, {
-											method: 'GET',
-											headers: {
-												Accept: 'application/json',
-												'Content-Type': 'application/json',
-											},
-										})
-											.then(async (res) => {
-												const data = await res.json();
-												open({
-													message: data.message,
-													type: res.ok ? 'success' : 'danger',
-												});
-											})
-											.catch((error: any) => {
-												open({
-													message: error.message,
-													type: 'danger',
-												});
-											})
-											.finally(() => {
-												setExportLoading(false);
-											});
+										execute(url);
 									}}
 								/>
 							)}
