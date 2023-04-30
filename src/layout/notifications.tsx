@@ -2,10 +2,12 @@ import { Button } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
 
+import { useFadeIn } from '../hooks';
 import { useAlertContext } from '../store/contexts';
 import {
 	useDeleteNotificationMutation,
 	useGetNotificationsQuery,
+	useMarkNotificationMutation,
 } from '../store/queries';
 import { NotificationType } from '../types';
 import { downloadFile } from '../utils';
@@ -17,6 +19,7 @@ interface NotificationPropsType extends NotificationType {
 const Notification = ({
 	id,
 	createdAt: date,
+	read,
 	title,
 	message,
 	messageId,
@@ -24,10 +27,23 @@ const Notification = ({
 	setCount,
 }: NotificationPropsType) => {
 	const { open } = useAlertContext();
+	const { ref, visible } = useFadeIn<HTMLDivElement>(true);
 
 	const [exportLoading, setExportLoading] = React.useState(false);
 
 	const { mutate: deleteNote } = useDeleteNotificationMutation({
+		onMutate(total) {
+			setCount(total);
+		},
+		onError(message) {
+			open({
+				type: 'danger',
+				message,
+			});
+		},
+	});
+
+	const { mutate: markNote } = useMarkNotificationMutation({
 		onMutate(total) {
 			setCount(total);
 		},
@@ -80,8 +96,12 @@ const Notification = ({
 	const _hour = hours > 12 ? hours - 12 : hours;
 	const AM_PM = hours > 12 ? 'PM' : 'AM';
 
+	React.useEffect(() => {
+		if (visible && read === false) markNote(id);
+	}, [id, markNote, read, visible]);
+
 	return (
-		<div className={`${colors.background} flex relative w-full`}>
+		<div ref={ref} className={`${colors.background} flex relative w-full`}>
 			<div
 				className={`border-b border-r ${colors.border} flex items-start justify-center pt-2 px-3`}
 			>
