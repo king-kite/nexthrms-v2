@@ -39,6 +39,7 @@ function useAxiosInstance<DataType = any, ErrorType = any>({
 	const execute = React.useCallback(
 		async (url: string) => {
 			try {
+				setLoading(true);
 				const response = await axiosInstance({
 					url,
 					method: 'get',
