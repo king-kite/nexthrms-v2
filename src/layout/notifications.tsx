@@ -1,14 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
 
-import { NOTIFICATION_URL } from '../config';
 import { useAlertContext } from '../store/contexts';
-import { useGetNotificationsQuery } from '../store/queries';
-import * as tags from '../store/tagTypes';
+import {
+	useDeleteNotificationMutation,
+	useGetNotificationsQuery,
+} from '../store/queries';
 import { NotificationType } from '../types';
-import { axiosInstance, downloadFile } from '../utils';
+import { downloadFile } from '../utils';
 
 interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;
@@ -25,55 +25,19 @@ const Notification = ({
 }: NotificationPropsType) => {
 	const { open } = useAlertContext();
 
-	const queryClient = useQueryClient();
-
 	const [exportLoading, setExportLoading] = React.useState(false);
 
-	const { mutate: deleteNote } = useMutation(
-		(noteId: string) => axiosInstance.delete(NOTIFICATION_URL(noteId)),
-		{
-			onMutate: async (noteId) => {
-				// cancel any ongoing get notifications query
-				await queryClient.cancelQueries([tags.NOTIFICATIONS]);
-
-				// store the prvious noitifications data
-				const previousData:
-					| { total: number; result: NotificationType[] }
-					| undefined = queryClient.getQueryData([tags.NOTIFICATIONS]);
-
-				// update the query data
-				queryClient.setQueryData<
-					{ total: number; result: NotificationType[] } | undefined
-				>([tags.NOTIFICATIONS], (oldQueryData) => {
-					if (oldQueryData) {
-						const total = oldQueryData.total - 1;
-						const result = oldQueryData.result.filter(
-							(note) => note.id !== noteId
-						);
-						setCount(total);
-						return { total, result };
-					}
-					return previousData;
-				});
-				return { previousData };
-			},
-			onSettled(noteId, err, variables, context) {
-				if (err) {
-					if (context)
-						queryClient.setQueryData(
-							[tags.NOTIFICATIONS],
-							context.previousData
-						);
-					open({
-						type: 'danger',
-						message:
-							(err as any).message ||
-							'An error occurred. Unable to delete notification.',
-					});
-				} else queryClient.invalidateQueries([tags.NOTIFICATIONS]);
-			},
-		}
-	);
+	const { mutate: deleteNote } = useDeleteNotificationMutation({
+		onMutate(total) {
+			setCount(total);
+		},
+		onError(message) {
+			open({
+				type: 'danger',
+				message,
+			});
+		},
+	});
 
 	const colors = React.useMemo(() => {
 		let background = 'bg-gray-100';
