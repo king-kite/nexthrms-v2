@@ -59,29 +59,38 @@ const Notification = ({
 
 	const colors = React.useMemo(() => {
 		let background = 'bg-gray-100';
+		let btn = 'bg-gray-500 hover:bg-gray-700';
 		let border = 'border-gray-300';
 		let title = 'text-gray-700';
 		let text = 'text-gray-500';
 
-		if (type === 'ERROR') {
-			background = 'bg-red-50';
-			border = 'border-red-300';
-			title = 'text-red-700';
-			text = 'text-red-600';
-		} else if (type === 'SUCCESS') {
-			background = 'bg-green-50';
-			border = 'border-green-300';
-			title = 'text-green-700';
-			text = 'text-green-600';
+		if (!read) {
+			if (type === 'ERROR') {
+				background = 'bg-red-50';
+				border = 'border-red-300';
+				title = 'text-red-700';
+				text = 'text-red-600';
+			} else if (type === 'SUCCESS') {
+				background = 'bg-green-50';
+				border = 'border-green-300';
+				title = 'text-green-700';
+				text = 'text-green-600';
+			} else if (type === 'DOWNLOAD') {
+				background = 'bg-indigo-50';
+				border = 'border-indigo-300';
+				title = 'text-indigo-700';
+				text = 'text-indigo-600';
+			}
 		}
 
 		return {
 			background,
 			border,
+			btn,
 			title,
 			text,
 		};
-	}, [type]);
+	}, [read, type]);
 
 	const Icon =
 		type === 'SUCCESS'
@@ -124,7 +133,7 @@ const Notification = ({
 				{messageId && type === 'DOWNLOAD' && (
 					<div className="py-1 w-[5rem]">
 						<Button
-							bg="bg-gray-500 hover:bg-gray-700"
+							bg={colors.btn}
 							disabled={exportLoading}
 							loader
 							loading={exportLoading}
