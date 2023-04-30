@@ -96,7 +96,10 @@ export function useDeleteNotificationMutation(options?: {
 						const result = oldQueryData.result.filter(
 							(note) => note.id !== noteId
 						);
-						if (options?.onMutate) options.onMutate(total);
+						if (options?.onMutate)
+							options.onMutate(
+								result.filter((note) => note.read === false).length
+							);
 						return { total, result };
 					}
 					return previousData;
@@ -123,43 +126,67 @@ export function useDeleteNotificationMutation(options?: {
 	return mutation;
 }
 
-export function useUpdateNotificationMutation(
-	options?: {
-		onSuccess?: () => void;
-		onError?: (err: { message?: string }) => void;
-	},
-	queryOptions?: {
-		onError?: (e: unknown) => void;
-		onMutate?: () => void;
-		onSettled?: () => void;
-		onSuccess?: () => void;
-	}
-) {
+export function useMarkNotificationMutation(options?: {
+	onMutate?: (total: number) => void;
+	onError?: (message: string) => void;
+}) {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		({ id, ...data }: { id: string; read: boolean }) =>
+		(noteId: string) =>
 			axiosInstance
-				.post(NOTIFICATION_URL(id), data)
+				.put(NOTIFICATION_URL(noteId), { read: true })
 				.then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
-			async onSuccess() {
-				queryClient.invalidateQueries([tags.NOTIFICATIONS]);
+			onMutate: async (noteId) => {
+				// cancel any ongoing get notifications query
+				await queryClient.cancelQueries([tags.NOTIFICATIONS]);
 
-				if (options?.onSuccess) options.onSuccess();
+				// store the prvious noitifications data
+				const previousData:
+					| { total: number; result: NotificationType[] }
+					| undefined = queryClient.getQueryData([tags.NOTIFICATIONS]);
+
+				// update the query data
+				queryClient.setQueryData<
+					{ total: number; result: NotificationType[] } | undefined
+				>([tags.NOTIFICATIONS], (oldQueryData) => {
+					if (oldQueryData) {
+						const notification = oldQueryData.result.find(
+							(note) => note.id === noteId
+						);
+						if (!notification) return oldQueryData;
+
+						const result = [...oldQueryData.result];
+						const index = result.indexOf(notification);
+						result[index] = {
+							...notification,
+							read: true,
+						};
+						if (options?.onMutate)
+							options.onMutate(
+								result.filter((note) => note.read === false).length
+							);
+						return { total: oldQueryData.total, result };
+					}
+					return previousData;
+				});
+				return { previousData };
 			},
-			async onError(err) {
-				if (options?.onError) {
-					const error = handleAxiosErrors(err);
-					options.onError({
-						...error?.data,
-						message:
-							error?.message ||
-							'An error occurred. Unable to update notification!',
-					});
-				}
+			onSettled(noteId, err, variables, context) {
+				if (err) {
+					if (context)
+						queryClient.setQueryData(
+							[tags.NOTIFICATIONS],
+							context.previousData
+						);
+					if (options?.onError)
+						options.onError(
+							(err as any).message ||
+								'An error occurred. Unable to update notification.'
+						);
+				} else queryClient.invalidateQueries([tags.NOTIFICATIONS]);
 			},
-			...queryOptions,
 		}
 	);
 
