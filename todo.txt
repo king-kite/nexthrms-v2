@@ -8,3 +8,4 @@
 6. Use Dynamic imports.
 7. Have the export data be asynchronous and should send a notification with a download link instead for faster
 -- responses. P.S.: will have the store the file somewhere after it has been generated
+8. Have the filters send info the database instead. To help with exporting
