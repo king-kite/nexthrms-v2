@@ -5,7 +5,7 @@ import JSZip from 'jszip';
 import prisma from '../client';
 import { uploadBuffer } from '../../utils/files';
 
-const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
+export const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
 
 function exportData(
 	result: {

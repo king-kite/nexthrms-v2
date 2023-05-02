@@ -1,4 +1,7 @@
-import { PermissionObjectChoices } from '@prisma/client';
+import {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+} from '@prisma/client';
 
 import { SuccessResponseType } from './base';
 
@@ -75,6 +78,14 @@ export type ObjectPermissionType = {
 		id: string;
 		name: string;
 	}[];
+};
+
+export type ObjectPermissionImportType = {
+	model_name: PermissionModelChoices;
+	name: string;
+	object_id: string;
+	permission: PermissionObjectChoices;
+	is_user: boolean;
 };
 
 export type GetObjectPermissionsResponseType = SuccessResponseType<{

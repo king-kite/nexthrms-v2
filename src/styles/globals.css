@@ -1,5 +1,17 @@
 @tailwind base;
 
+[type=button],
+[type=reset],
+[type=submit],
+button {
+	--webkit-appearance: button;
+	background-color: initial;
+	background-image: initial;
+	/* --webkit-appearance: button; */
+	/* -background-color: transparent; */
+	/* -background-image: none; */
+}
+
 @tailwind components;
 
 @tailwind utilities;

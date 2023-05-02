@@ -1,4 +1,6 @@
 import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
+import fs from 'fs';
+import JSZip from 'jszip';
 
 import { permissions } from '../../../config';
 import { prisma } from '../../../db';
@@ -8,7 +10,11 @@ import {
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { AssetImportQueryType, NextApiRequestExtendUser } from '../../../types';
+import {
+	AssetImportQueryType,
+	NextApiRequestExtendUser,
+	ObjectPermissionImportType,
+} from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { csvToJson, excelToJson } from '../../../utils/files';
@@ -68,6 +74,28 @@ function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 		value: +asset.value,
 		updatedAt: asset.updated_at ? new Date(asset.updated_at) : undefined,
 		createdAt: asset.created_at ? new Date(asset.created_at) : undefined,
+	};
+}
+
+function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {
+	return {
+		modelName: objPerm.model_name,
+		objectId: objPerm.object_id,
+		permission: objPerm.permission,
+		users: objPerm.is_user
+			? {
+					connect: {
+						email: objPerm.name,
+					},
+			  }
+			: undefined,
+		groups: !objPerm.is_user
+			? {
+					connect: {
+						name: objPerm.name,
+					},
+			  }
+			: undefined,
 	};
 }
 
@@ -151,6 +179,44 @@ async function createAssets(
 	}
 }
 
+async function updateAssetsPermissions(
+	req: NextApiRequestExtendUser,
+	data: ObjectPermissionImportType[]
+) {
+	try {
+		const input = data.map(getObjectPermissionInput);
+		await prisma.$transaction(
+			input.map((data) =>
+				prisma.permissionObject.upsert({
+					where: {
+						modelName_objectId_permission: {
+							modelName: data.modelName,
+							objectId: data.objectId,
+							permission: data.permission,
+						},
+					},
+					update: data,
+					create: data,
+					select: { id: true },
+				})
+			)
+		);
+	} catch (error) {
+		const err = handlePrismaErrors(error);
+		createNotification({
+			message:
+				err.code === 400
+					? process.env.NODE_ENV === 'development'
+						? err.message
+						: 'An error occurred. Probable cause: Incorrect Data Type'
+					: err.message,
+			recipient: req.user.id,
+			title: 'Import Asset Data Permissions Error.',
+			type: 'ERROR',
+		});
+	}
+}
+
 export default admin().post(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
@@ -165,15 +231,37 @@ export default admin().post(async (req, res) => {
 
 	if (
 		files.data.mimetype !== 'text/csv' &&
+		files.data.mimetype !== 'application/zip' &&
 		files.data.mimetype !==
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 	)
 		throw new NextApiErrorMessage(
 			400,
-			'Sorry, only CSVs and Microsoft excel files are allowed!'
+			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 		);
 
-	if (files.data.mimetype === 'text/csv') {
+	if (files.data.mimetype === 'application/zip') {
+		fs.readFile(files.data.filepath, async function (err, data) {
+			if (err) throw err;
+			const zipFile = await JSZip.loadAsync(data);
+			const assets = await zipFile.file('assets.csv')?.async('string');
+			if (!assets) {
+				return res.status(400).json({
+					status: 'error',
+					message: 'zip file does not contain the assets.csv file.',
+				});
+			}
+			const permissions = await zipFile
+				.file('permissions.csv')
+				?.async('string');
+			if (!permissions) {
+				return res.status(400).json({
+					status: 'error',
+					message: 'zip file does not contain the permissions.csv file.',
+				});
+			}
+		});
+	} else if (files.data.mimetype === 'text/csv') {
 		csvToJson(files.data.filepath, {
 			headers,
 		})
