@@ -47,6 +47,31 @@ const headers = [
 	'created_at',
 ];
 
+function handleErrors(
+	userId: string,
+	error: { status: number; data: string | unknown } | any
+) {
+	let message = '';
+	if (error.status) {
+		message =
+			typeof error.data !== 'string'
+				? process.env.NODE_ENV === 'development'
+					? 'A server error occurred. Unable to import assets data from excel file. ' +
+					  (error.data as any)?.message
+					: 'A server error occurred. Unable to import assets data from excel file.'
+				: error.data;
+	} else {
+		const err = handlePrismaErrors(error);
+		message = err.message;
+	}
+	createNotification({
+		message,
+		recipient: userId,
+		title: 'Import Asset Data Error.',
+		type: 'ERROR',
+	});
+}
+
 function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 	return {
 		user: asset.user
@@ -157,12 +182,6 @@ async function createAssets(
 				];
 			}, [])
 		);
-		createNotification({
-			message: 'Assets data was imported successfully.',
-			recipient: req.user.id,
-			title: 'Import Asset Data Success.',
-			type: 'SUCCESS',
-		});
 	} catch (error) {
 		const err = handlePrismaErrors(error);
 		createNotification({
@@ -240,69 +259,77 @@ export default admin().post(async (req, res) => {
 			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 		);
 
-	if (files.data.mimetype === 'application/zip') {
-		fs.readFile(files.data.filepath, async function (err, data) {
-			if (err) throw err;
-			const zipFile = await JSZip.loadAsync(data);
-			const assets = await zipFile.file('assets.csv')?.async('string');
-			if (!assets) {
-				return res.status(400).json({
-					status: 'error',
-					message: 'zip file does not contain the assets.csv file.',
-				});
-			}
-			const permissions = await zipFile
-				.file('permissions.csv')
-				?.async('string');
-			if (!permissions) {
-				return res.status(400).json({
-					status: 'error',
-					message: 'zip file does not contain the permissions.csv file.',
-				});
-			}
-		});
-	} else if (files.data.mimetype === 'text/csv') {
-		csvToJson(files.data.filepath, {
-			headers,
-		})
-			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
-			.catch((error: { status: number; data: string | unknown } | any) => {
-				if (!error.status) throw error;
-				const message =
-					typeof error.data !== 'string'
-						? process.env.NODE_ENV === 'development'
-							? 'A server error occurred. Unable to import assets data from csv file. ' +
-							  (error.data as any)?.message
-							: 'A server error occurred. Unable to import assets data from csv file.'
-						: error.data;
-				createNotification({
-					message,
-					recipient: req.user.id,
-					title: 'Import Asset Data Error.',
-					type: 'ERROR',
-				});
+	try {
+		if (files.data.mimetype === 'application/zip') {
+			fs.readFile(files.data.filepath, async function (err, data) {
+				if (err) throw err;
+				const zipFile = await JSZip.loadAsync(data);
+				const assets = await zipFile.file('assets.csv')?.async('string');
+				if (!assets) {
+					return res.status(400).json({
+						status: 'error',
+						message: 'zip file does not contain the assets.csv file.',
+					});
+				}
+				const permissions = await zipFile
+					.file('permissions.csv')
+					?.async('string');
+				if (!permissions) {
+					return res.status(400).json({
+						status: 'error',
+						message: 'zip file does not contain the permissions.csv file.',
+					});
+				}
+				csvToJson(assets, {
+					headers,
+					isPath: false,
+				})
+					.then((data: AssetImportQueryType[]) => createAssets(req, data))
+					.then(() => csvToJson(permissions))
+					.then((data: ObjectPermissionImportType[]) =>
+						updateAssetsPermissions(req, data)
+					)
+					.then(() =>
+						createNotification({
+							message: 'Assets data was imported successfully.',
+							recipient: req.user.id,
+							title: 'Import Asset Data Success.',
+							type: 'SUCCESS',
+						})
+					)
+					.catch((error) => handleErrors(req.user.id, error));
 			});
-	} else {
-		excelToJson(files.data.filepath, {
-			headers,
-		})
-			.then(async (data: AssetImportQueryType[]) => createAssets(req, data))
-			.catch((error: { status: number; data: string | unknown } | any) => {
-				if (!error.status) throw error;
-				const message =
-					typeof error.data !== 'string'
-						? process.env.NODE_ENV === 'development'
-							? 'A server error occurred. Unable to import assets data from excel file. ' +
-							  (error.data as any)?.message
-							: 'A server error occurred. Unable to import assets data from excel file.'
-						: error.data;
-				createNotification({
-					message,
-					recipient: req.user.id,
-					title: 'Import Asset Data Error.',
-					type: 'ERROR',
-				});
-			});
+		} else if (files.data.mimetype === 'text/csv') {
+			csvToJson(files.data.filepath, {
+				headers,
+			})
+				.then((data: AssetImportQueryType[]) => createAssets(req, data))
+				.then(() =>
+					createNotification({
+						message: 'Assets data was imported successfully.',
+						recipient: req.user.id,
+						title: 'Import Asset Data Success.',
+						type: 'SUCCESS',
+					})
+				)
+				.catch((error) => handleErrors(req.user.id, error));
+		} else {
+			excelToJson(files.data.filepath, {
+				headers,
+			})
+				.then((data: AssetImportQueryType[]) => createAssets(req, data))
+				.then(() =>
+					createNotification({
+						message: 'Assets data was imported successfully.',
+						recipient: req.user.id,
+						title: 'Import Asset Data Success.',
+						type: 'SUCCESS',
+					})
+				)
+				.catch((error) => handleErrors(req.user.id, error));
+		}
+	} catch (error) {
+		handleErrors(req.user.id, error);
 	}
 
 	return res.status(200).json({
