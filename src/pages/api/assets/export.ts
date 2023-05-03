@@ -26,6 +26,8 @@ const headers = [
 	'warranty',
 	'value',
 	'user',
+	'updated_at',
+	'created_at',
 ];
 
 // Get the records from the database, including the permissions
@@ -65,6 +67,8 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 			warranty: asset.warranty,
 			value: asset.value,
 			user: asset.user?.email,
+			updated_at: asset.updatedAt,
+			created_at: asset.createdAt,
 		};
 	});
 

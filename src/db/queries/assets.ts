@@ -19,6 +19,7 @@ export const assetSelectQuery: Prisma.AssetSelect = {
 	warranty: true,
 	value: true,
 	updatedAt: true,
+	createdAt: true,
 	user: {
 		select: {
 			id: true,

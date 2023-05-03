@@ -27,7 +27,8 @@ export type AssetType = {
 		};
 	} | null;
 
-	updatedAt: string;
+	updatedAt: Date | string;
+	createdAt: Date | string;
 };
 
 export type AssetCreateQueryType = {

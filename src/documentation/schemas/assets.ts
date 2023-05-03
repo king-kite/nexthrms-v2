@@ -95,6 +95,10 @@ export const AssetModel = {
 			type: 'string',
 			format: 'date-time',
 		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
 	},
 	example: {
 		id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
