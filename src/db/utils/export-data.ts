@@ -2,16 +2,9 @@ import excelJS from 'exceljs';
 import JSZip from 'jszip';
 
 import prisma from '../client';
+import { exportPermissionHeaders as permissionHeaders } from '../../config';
 import { ObjectPermissionImportType } from '../../types';
 import { uploadBuffer } from '../../utils/files';
-
-export const permissionHeaders = [
-	'model_name',
-	'name',
-	'object_id',
-	'permission',
-	'is_user',
-];
 
 function exportData(
 	result: {

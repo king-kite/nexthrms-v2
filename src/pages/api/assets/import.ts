@@ -2,12 +2,14 @@ import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
 import fs from 'fs';
 import JSZip from 'jszip';
 
-import { permissions } from '../../../config';
+import {
+	permissions,
+	exportPermissionHeaders as permissionHeaders,
+} from '../../../config';
 import { prisma } from '../../../db';
 import {
 	createNotification,
 	addObjectPermissions,
-	exportPermissionHeaders as permissionHeaders,
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';

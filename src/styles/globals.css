@@ -1,10 +1,11 @@
 @tailwind base;
 
-[type=button],
-[type=reset],
-[type=submit],
+/* [type='button'],
+[type='reset'],
+[type='submit'], */
 button {
 	--webkit-appearance: button;
+	background: initial;
 	background-color: initial;
 	background-image: initial;
 	/* --webkit-appearance: button; */

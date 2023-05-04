@@ -1,3 +1,11 @@
+export const exportPermissionHeaders = [
+	'model_name',
+	'name',
+	'object_id',
+	'permission',
+	'is_user',
+];
+
 function makePermissions(name: string): {
 	CREATE: string;
 	DELETE: string;
