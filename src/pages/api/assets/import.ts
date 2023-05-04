@@ -1,11 +1,6 @@
 import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
-import fs from 'fs';
-import JSZip from 'jszip';
 
-import {
-	permissions,
-	exportPermissionHeaders as permissionHeaders,
-} from '../../../config';
+import { permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
 	createNotification,
@@ -20,7 +15,7 @@ import {
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { csvToJson, excelToJson } from '../../../utils/files';
+import { csvToJson, excelToJson, zipCsvToJson } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { handlePrismaErrors } from '../../../validators';
 
@@ -200,10 +195,7 @@ function createAssets(
 	});
 }
 
-function updateAssetsPermissions(
-	req: NextApiRequestExtendUser,
-	data: ObjectPermissionImportType[]
-) {
+function updateAssetsPermissions(data: ObjectPermissionImportType[]) {
 	return new Promise<
 		{
 			id: string;
@@ -259,49 +251,22 @@ export default admin().post(async (req, res) => {
 
 	try {
 		if (files.data.mimetype === 'application/zip') {
-			fs.readFile(files.data.filepath, async function (err, data) {
-				if (err) throw err;
-				const zipFile = await JSZip.loadAsync(data);
-				const assets = await zipFile.file('assets.csv')?.async('string');
-				if (!assets) {
-					return res.status(400).json({
-						status: 'error',
-						message: 'zip file does not contain the assets.csv file.',
-					});
-				}
-				const permissions = await zipFile
-					.file('permissions.csv')
-					?.async('string');
-				if (!permissions) {
-					return res.status(400).json({
-						status: 'error',
-						message: 'zip file does not contain the permissions.csv file.',
-					});
-				}
-				csvToJson(assets, {
-					headers,
-					isPath: false,
-				})
-					.then((data: AssetImportQueryType[]) => createAssets(req, data))
-					.then(() =>
-						csvToJson(permissions, {
-							headers: permissionHeaders,
-							isPath: false,
-						})
-					)
-					.then((data: ObjectPermissionImportType[]) =>
-						updateAssetsPermissions(req, data)
-					)
-					.then(() =>
-						createNotification({
-							message: 'Assets data was imported successfully.',
-							recipient: req.user.id,
-							title: 'Import Asset Data Success.',
-							type: 'SUCCESS',
-						})
-					)
-					.catch((error) => handleErrors(req.user.id, error));
-			});
+			zipCsvToJson(files.data.filepath, {
+				name: 'assets.csv',
+				headers,
+				onLoadData: (data) => createAssets(req, data),
+				onLoadPermissions: (permissions) =>
+					updateAssetsPermissions(permissions),
+			})
+				.then(() =>
+					createNotification({
+						message: 'Assets data was imported successfully.',
+						recipient: req.user.id,
+						title: 'Import Asset Data Success.',
+						type: 'SUCCESS',
+					})
+				)
+				.catch((error) => handleErrors(req.user.id, error));
 		} else if (files.data.mimetype === 'text/csv') {
 			csvToJson(files.data.filepath, {
 				headers,
