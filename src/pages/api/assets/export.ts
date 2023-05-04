@@ -5,6 +5,7 @@ import { admin } from '../../../middlewares';
 import {
 	GetAssetsResponseType,
 	NextApiRequestExtendUser,
+	ObjectPermissionImportType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -94,23 +95,11 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 	});
 
 	const perms = objectPermissions.reduce(
-		(
-			acc: {
-				is_user: boolean;
-				name: string;
-				object_id: string;
-				permission: 'DELETE' | 'EDIT' | 'VIEW';
-			}[],
-			perm
-		) => {
-			const data: {
-				is_user: boolean;
-				name: string;
-				object_id: string;
-				permission: 'DELETE' | 'EDIT' | 'VIEW';
-			}[] = [];
+		(acc: ObjectPermissionImportType[], perm) => {
+			const data: ObjectPermissionImportType[] = [];
 			perm.users.forEach((user) => {
 				data.push({
+					model_name: 'assets',
 					name: user.email,
 					object_id: perm.objectId,
 					permission: perm.permission,
@@ -119,6 +108,7 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 			});
 			perm.groups.forEach((group) => {
 				data.push({
+					model_name: 'assets',
 					name: group.name,
 					object_id: perm.objectId,
 					permission: perm.permission,
