@@ -1,21 +1,22 @@
 import excelJS from 'exceljs';
-import { parse } from 'json2csv';
 import JSZip from 'jszip';
 
 import prisma from '../client';
+import { ObjectPermissionImportType } from '../../types';
 import { uploadBuffer } from '../../utils/files';
 
-export const permissionHeaders = ['name', 'object_id', 'permission', 'is_user'];
+export const permissionHeaders = [
+	'model_name',
+	'name',
+	'object_id',
+	'permission',
+	'is_user',
+];
 
 function exportData(
 	result: {
 		data: any;
-		permissions?: {
-			is_user: boolean;
-			name: string;
-			object_id: string;
-			permission: 'DELETE' | 'EDIT' | 'VIEW';
-		}[];
+		permissions?: ObjectPermissionImportType[];
 	},
 	headers: string[],
 	options: {
@@ -41,11 +42,37 @@ function exportData(
 					name: string;
 				} | null = null;
 
+				const workbook = new excelJS.Workbook(); // Create a new workbook
+				const worksheet = workbook.addWorksheet(options.title); // New Worksheet
+
+				// Add the headers
+				worksheet.columns = headers.map((key) => ({
+					header: key,
+					key,
+				}));
+
+				// Add the data/content
+				worksheet.addRows(result.data);
+
 				if (options.type === 'csv') {
-					const data = parse(result.data);
+					const data = Buffer.from(await workbook.csv.writeBuffer());
 					if (result.permissions) {
 						// Store the files as a zip and update the uploadInfo variable if the permissions are provided
-						const permissions = parse(result.permissions);
+						const permissionWorkbook = new excelJS.Workbook(); // Create a new workbook
+						const permissionWorksheet =
+							permissionWorkbook.addWorksheet('Permissions'); // New Worksheet
+						// Add the headers
+						permissionWorksheet.columns = permissionHeaders.map((key) => ({
+							header: key,
+							key,
+						}));
+						// Add the data/content
+						permissionWorksheet.addRows(result.permissions);
+
+						const permissions = Buffer.from(
+							await permissionWorkbook.csv.writeBuffer()
+						);
+
 						const zip = new JSZip();
 						zip.file(csvTitle, data);
 						zip.file('permissions.csv', permissions);
@@ -60,27 +87,14 @@ function exportData(
 							name: zipTitle,
 						};
 					} else {
-						const buffer = Buffer.from(data, 'utf-8'); // Buffer.alloc(data.length, data)
 						uploadInfo = {
-							buffer,
+							buffer: data,
 							location: 'media/exports/' + csvTitle,
 							name: csvTitle,
 						};
 					}
 				} else {
-					// Create 2 worksheets for data and permissions
-					const workbook = new excelJS.Workbook(); // Create a new workbook
-					const worksheet = workbook.addWorksheet(options.title); // New Worksheet
-
-					// Add the headers
-					worksheet.columns = headers.map((key) => ({
-						header: key,
-						key,
-					}));
-
-					// Add the data/content
-					worksheet.addRows(result.data);
-
+					// Add another worksheet for data and permissions
 					if (result.permissions) {
 						const permissionWorksheet = workbook.addWorksheet('Permissions'); // New Permission Worksheet
 
