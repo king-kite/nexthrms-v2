@@ -1,18 +1,5 @@
 @tailwind base;
 
-/* [type='button'],
-[type='reset'],
-[type='submit'], */
-button {
-	--webkit-appearance: button;
-	background: initial;
-	background-color: initial;
-	background-image: initial;
-	/* --webkit-appearance: button; */
-	/* -background-color: transparent; */
-	/* -background-image: none; */
-}
-
 @tailwind components;
 
 @tailwind utilities;
@@ -30,6 +17,24 @@ body {
 	scrollbar-color: #cbd5e0 #f1f1f1;
 	scrollbar-width: thin;
 }
+/* button {
+	background-color: inherit !important;
+	--webkit-appearance: button;
+	background: initial;
+	background-color: initial;
+	background-image: initial;
+	--webkit-appearance: button;
+	-background-color: transparent;
+	-background-image: none;
+} */
+/*.bg-indigo-900 {
+  background-color: #312e81 !important;
+}
+
+.hover\:bg-indigo-800:hover {
+  background-color: #3730a3 !important;
+}
+*/
 .alert-animation {
 	animation: alertAnimation 1s ease-in;
 }
