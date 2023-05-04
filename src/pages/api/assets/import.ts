@@ -7,6 +7,7 @@ import { prisma } from '../../../db';
 import {
 	createNotification,
 	addObjectPermissions,
+	exportPermissionHeaders as permissionHeaders,
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
@@ -97,8 +98,8 @@ function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 		supplier: asset.supplier.toString(),
 		warranty: +asset.warranty,
 		value: +asset.value,
-		updatedAt: asset.updated_at ? new Date(asset.updated_at) : undefined,
-		createdAt: asset.created_at ? new Date(asset.created_at) : undefined,
+		updatedAt: asset.updated_at ? new Date(asset.updated_at) : new Date(),
+		createdAt: asset.created_at ? new Date(asset.created_at) : new Date(),
 	};
 }
 
@@ -124,116 +125,111 @@ function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {
 	};
 }
 
-async function createAssets(
+function createAssets(
 	req: NextApiRequestExtendUser,
 	data: AssetImportQueryType[]
 ) {
-	try {
-		const input = data.map(getAssetInput);
-		const result = await prisma.$transaction(
-			input.map((data) =>
-				data.id
-					? prisma.asset.upsert({
-							where: { id: data.id },
-							update: data,
-							create: data,
-							select: {
-								id: true,
-								user: {
-									select: {
-										id: true,
+	return new Promise<
+		{
+			id: string;
+			user: {
+				id: string;
+			} | null;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getAssetInput);
+			const result = await prisma.$transaction(
+				input.map((data) =>
+					data.id
+						? prisma.asset.upsert({
+								where: { id: data.id },
+								update: data,
+								create: data,
+								select: {
+									id: true,
+									user: {
+										select: {
+											id: true,
+										},
 									},
 								},
-							},
-					  })
-					: prisma.asset.create({
-							data,
-							select: {
-								id: true,
-								user: {
-									select: {
-										id: true,
+						  })
+						: prisma.asset.create({
+								data,
+								select: {
+									id: true,
+									user: {
+										select: {
+											id: true,
+										},
 									},
 								},
-							},
-					  })
-			)
-		);
-		await Promise.all(
-			result.map((asset) =>
-				addObjectPermissions({
-					model: 'assets',
-					objectId: asset.id,
-					users: [req.user.id],
-				})
-			)
-		);
-		await Promise.all(
-			result.reduce((acc: Promise<any>[], asset) => {
-				if (!asset.user || asset.user.id === req.user.id) return acc;
-				return [
-					...acc,
-					updateObjectPermissions({
+						  })
+				)
+			);
+			await Promise.all(
+				result.map((asset) =>
+					addObjectPermissions({
 						model: 'assets',
 						objectId: asset.id,
-						permissions: ['VIEW'],
-						users: [asset.user.id],
-					}),
-				];
-			}, [])
-		);
-	} catch (error) {
-		const err = handlePrismaErrors(error);
-		createNotification({
-			message:
-				err.code === 400
-					? process.env.NODE_ENV === 'development'
-						? err.message
-						: 'An error occurred. Probable cause: Incorrect Data Type'
-					: err.message,
-			recipient: req.user.id,
-			title: 'Import Asset Data Error.',
-			type: 'ERROR',
-		});
-	}
+						users: [req.user.id],
+					})
+				)
+			);
+			await Promise.all(
+				result.reduce((acc: Promise<any>[], asset) => {
+					if (!asset.user || asset.user.id === req.user.id) return acc;
+					return [
+						...acc,
+						updateObjectPermissions({
+							model: 'assets',
+							objectId: asset.id,
+							permissions: ['VIEW'],
+							users: [asset.user.id],
+						}),
+					];
+				}, [])
+			);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
 }
 
-async function updateAssetsPermissions(
+function updateAssetsPermissions(
 	req: NextApiRequestExtendUser,
 	data: ObjectPermissionImportType[]
 ) {
-	try {
-		const input = data.map(getObjectPermissionInput);
-		await prisma.$transaction(
-			input.map((data) =>
-				prisma.permissionObject.upsert({
-					where: {
-						modelName_objectId_permission: {
-							modelName: data.modelName,
-							objectId: data.objectId,
-							permission: data.permission,
+	return new Promise<
+		{
+			id: string;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getObjectPermissionInput);
+			const result = await prisma.$transaction(
+				input.map((data) =>
+					prisma.permissionObject.upsert({
+						where: {
+							modelName_objectId_permission: {
+								modelName: data.modelName,
+								objectId: data.objectId,
+								permission: data.permission,
+							},
 						},
-					},
-					update: data,
-					create: data,
-					select: { id: true },
-				})
-			)
-		);
-	} catch (error) {
-		const err = handlePrismaErrors(error);
-		createNotification({
-			message:
-				err.code === 400
-					? process.env.NODE_ENV === 'development'
-						? err.message
-						: 'An error occurred. Probable cause: Incorrect Data Type'
-					: err.message,
-			recipient: req.user.id,
-			title: 'Import Asset Data Permissions Error.',
-			type: 'ERROR',
-		});
-	}
+						update: data,
+						create: data,
+						select: { id: true },
+					})
+				)
+			);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
 }
 
 export default admin().post(async (req, res) => {
@@ -285,7 +281,12 @@ export default admin().post(async (req, res) => {
 					isPath: false,
 				})
 					.then((data: AssetImportQueryType[]) => createAssets(req, data))
-					.then(() => csvToJson(permissions))
+					.then(() =>
+						csvToJson(permissions, {
+							headers: permissionHeaders,
+							isPath: false,
+						})
+					)
 					.then((data: ObjectPermissionImportType[]) =>
 						updateAssetsPermissions(req, data)
 					)
