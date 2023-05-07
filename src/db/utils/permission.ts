@@ -4,6 +4,7 @@ import {
 } from '@prisma/client';
 
 import prisma from '../client';
+import { ObjectPermissionImportType } from '../../types';
 
 // A function to check if a user has view, edit or delete
 // permissions concerning an object in a model
@@ -196,23 +197,6 @@ export async function addObjectPermissions({
 				});
 			})
 		);
-	// const filteredUsers = users.filter((id) => id !== undefined);
-	// if (filteredUsers.length > 0)
-	// 	return prisma.$transaction(
-	// 		permissions.map((permission) =>
-	// 			prisma.permissionObject.create({
-	// 				data: {
-	// 					permission,
-	// 					modelName,
-	// 					objectId,
-	// 					users: {
-	// 						connect: filteredUsers.map((user) => ({ id: user })),
-	// 					},
-	// 				},
-	// 				select: { id: true },
-	// 			})
-	// 		)
-	// 	);
 }
 
 export async function updateObjectPermissions({
@@ -358,4 +342,57 @@ export async function getEmployeeOfficersId(id: string) {
 	}
 
 	return officers;
+}
+
+function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {
+	return {
+		modelName: objPerm.model_name,
+		objectId: objPerm.object_id,
+		permission: objPerm.permission,
+		users: objPerm.is_user
+			? {
+					connect: {
+						email: objPerm.name,
+					},
+			  }
+			: undefined,
+		groups: !objPerm.is_user
+			? {
+					connect: {
+						name: objPerm.name,
+					},
+			  }
+			: undefined,
+	};
+}
+
+export function importPermissions(data: ObjectPermissionImportType[]) {
+	return new Promise<
+		{
+			id: string;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getObjectPermissionInput);
+			const result = await prisma.$transaction(
+				input.map((data) =>
+					prisma.permissionObject.upsert({
+						where: {
+							modelName_objectId_permission: {
+								modelName: data.modelName,
+								objectId: data.objectId,
+								permission: data.permission,
+							},
+						},
+						update: data,
+						create: data,
+						select: { id: true },
+					})
+				)
+			);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
 }

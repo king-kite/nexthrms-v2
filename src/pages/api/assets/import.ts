@@ -3,8 +3,9 @@ import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
 import { permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
-	createNotification,
 	addObjectPermissions,
+	createNotification,
+	importPermissions,
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
@@ -100,28 +101,6 @@ function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 	};
 }
 
-function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {
-	return {
-		modelName: objPerm.model_name,
-		objectId: objPerm.object_id,
-		permission: objPerm.permission,
-		users: objPerm.is_user
-			? {
-					connect: {
-						email: objPerm.name,
-					},
-			  }
-			: undefined,
-		groups: !objPerm.is_user
-			? {
-					connect: {
-						name: objPerm.name,
-					},
-			  }
-			: undefined,
-	};
-}
-
 function createAssets(
 	req: NextApiRequestExtendUser,
 	data: AssetImportQueryType[]
@@ -195,37 +174,6 @@ function createAssets(
 	});
 }
 
-function updateAssetsPermissions(data: ObjectPermissionImportType[]) {
-	return new Promise<
-		{
-			id: string;
-		}[]
-	>(async (resolve, reject) => {
-		try {
-			const input = data.map(getObjectPermissionInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.permissionObject.upsert({
-						where: {
-							modelName_objectId_permission: {
-								modelName: data.modelName,
-								objectId: data.objectId,
-								permission: data.permission,
-							},
-						},
-						update: data,
-						create: data,
-						select: { id: true },
-					})
-				)
-			);
-			resolve(result);
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
-
 export default admin().post(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
@@ -255,8 +203,7 @@ export default admin().post(async (req, res) => {
 				name: 'assets.csv',
 				headers,
 				onLoadData: (data) => createAssets(req, data),
-				onLoadPermissions: (permissions) =>
-					updateAssetsPermissions(permissions),
+				onLoadPermissions: (permissions) => importPermissions(permissions),
 			})
 				.then(() =>
 					createNotification({
