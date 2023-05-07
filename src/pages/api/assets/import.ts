@@ -6,6 +6,7 @@ import {
 	addObjectPermissions,
 	createNotification,
 	handleNotificationErrors as handleErrors,
+	importData,
 	importPermissions,
 	updateObjectPermissions,
 } from '../../../db/utils';
@@ -13,9 +14,8 @@ import { admin } from '../../../middlewares';
 import { AssetImportQueryType, NextApiRequestExtendUser } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { csvToJson, excelToJson, zipCsvToJson } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { handlePrismaErrors } from '../../../validators';
+import { ObjectPermissionImportType } from '../../../types';
 
 export const config = {
 	api: {
@@ -75,7 +75,8 @@ function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 
 function createAssets(
 	req: NextApiRequestExtendUser,
-	data: AssetImportQueryType[]
+	data: AssetImportQueryType[],
+	perms?: ObjectPermissionImportType[]
 ) {
 	return new Promise<
 		{
@@ -139,6 +140,7 @@ function createAssets(
 					];
 				}, [])
 			);
+			if (perms) await importPermissions(perms);
 			resolve(result);
 		} catch (error) {
 			reject(error);
@@ -169,58 +171,27 @@ export default admin().post(async (req, res) => {
 			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 		);
 
-	try {
-		if (files.data.mimetype === 'application/zip') {
-			zipCsvToJson(files.data.filepath, {
-				name: 'assets.csv',
-				headers,
-				onLoadData: (data) => createAssets(req, data),
-				onLoadPermissions: (permissions) => importPermissions(permissions),
+	importData<AssetImportQueryType>({
+		headers,
+		path: files.data.filepath,
+		type: files.data.mimetype,
+		zipName: 'assets.csv',
+	})
+		.then((result) => createAssets(req, result.data, result.permissions))
+		.then(() =>
+			createNotification({
+				message: 'Assets data was imported successfully.',
+				recipient: req.user.id,
+				title: 'Import Asset Data Success.',
+				type: 'SUCCESS',
 			})
-				.then(() =>
-					createNotification({
-						message: 'Assets data was imported successfully.',
-						recipient: req.user.id,
-						title: 'Import Asset Data Success.',
-						type: 'SUCCESS',
-					})
-				)
-				.catch((error) => handleErrors(req.user.id, error));
-		} else if (files.data.mimetype === 'text/csv') {
-			csvToJson(files.data.filepath, {
-				headers,
+		)
+		.catch((error) =>
+			handleErrors(error, {
+				recipient: req.user.id,
+				title: 'Import Asset Data Error',
 			})
-				.then((data: AssetImportQueryType[]) => createAssets(req, data))
-				.then(() =>
-					createNotification({
-						message: 'Assets data was imported successfully.',
-						recipient: req.user.id,
-						title: 'Import Asset Data Success.',
-						type: 'SUCCESS',
-					})
-				)
-				.catch((error) => handleErrors(req.user.id, error));
-		} else {
-			excelToJson(files.data.filepath, {
-				headers,
-			})
-				.then((data: AssetImportQueryType[]) => createAssets(req, data))
-				.then(() =>
-					createNotification({
-						message: 'Assets data was imported successfully.',
-						recipient: req.user.id,
-						title: 'Import Asset Data Success.',
-						type: 'SUCCESS',
-					})
-				)
-				.catch((error) => handleErrors(req.user.id, error));
-		}
-	} catch (error) {
-		handleErrors(error, {
-			recipient: req.user.id,
-			title: 'Import Asset Data Error',
-		});
-	}
+		);
 
 	return res.status(200).json({
 		status: 'success',
