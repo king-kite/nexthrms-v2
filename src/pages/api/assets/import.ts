@@ -5,15 +5,12 @@ import { prisma } from '../../../db';
 import {
 	addObjectPermissions,
 	createNotification,
+	handleNotificationErrors as handleErrors,
 	importPermissions,
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import {
-	AssetImportQueryType,
-	NextApiRequestExtendUser,
-	ObjectPermissionImportType,
-} from '../../../types';
+import { AssetImportQueryType, NextApiRequestExtendUser } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { csvToJson, excelToJson, zipCsvToJson } from '../../../utils/files';
@@ -45,31 +42,6 @@ const headers = [
 	'updated_at',
 	'created_at',
 ];
-
-function handleErrors(
-	userId: string,
-	error: { status: number; data: string | unknown } | any
-) {
-	let message = '';
-	if (error.status) {
-		message =
-			typeof error.data !== 'string'
-				? process.env.NODE_ENV === 'development'
-					? 'A server error occurred. Unable to import assets data from excel file. ' +
-					  (error.data as any)?.message
-					: 'A server error occurred. Unable to import assets data from excel file.'
-				: error.data;
-	} else {
-		const err = handlePrismaErrors(error);
-		message = err.message;
-	}
-	createNotification({
-		message,
-		recipient: userId,
-		title: 'Import Asset Data Error.',
-		type: 'ERROR',
-	});
-}
 
 function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 	return {
@@ -244,7 +216,10 @@ export default admin().post(async (req, res) => {
 				.catch((error) => handleErrors(req.user.id, error));
 		}
 	} catch (error) {
-		handleErrors(req.user.id, error);
+		handleErrors(error, {
+			recipient: req.user.id,
+			title: 'Import Asset Data Error',
+		});
 	}
 
 	return res.status(200).json({
