@@ -182,7 +182,7 @@ export default function excelToJson<DataType = any>(
 							if (!worksheet) {
 								resolve({ data });
 							} else {
-								const { data: permissions, error } = getData<DataType>(worksheet, {
+								const { data: permissions, error } = getData<ObjectPermissionImportType>(worksheet, {
 									...options,
 									type: 'data',
 									headers: permissionHeaders,
