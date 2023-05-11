@@ -91,15 +91,15 @@ function createAssets(
 			// check that every asset input has an ID.
 			const invalid = input.filter((asset) => !asset.id);
 			if (invalid.length > 0) {
-				createNotification({
-					message:
-						`An id field is required to avoid duplicate records. The following records do not have an id: ` +
-						input.map((asset) => asset.name).join(','),
-					recipient: req.user.id,
-					title: 'ID field is required.',
-					type: 'ERROR',
+				return reject({
+					data: {
+						message:
+							`An id field is required to avoid duplicate records. The following records do not have an id: ` +
+							input.map((asset) => asset.name).join(','),
+						title: 'ID field is required.',
+					},
+					status: 400,
 				});
-				return reject();
 			}
 			const result = await prisma.$transaction(
 				input.map((data) =>

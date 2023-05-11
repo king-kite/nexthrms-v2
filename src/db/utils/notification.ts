@@ -37,6 +37,7 @@ export function handleNotificationErrors(
 		recipient: string;
 	}
 ) {
+	if (!error) return;
 	let message = '';
 	if (error.status) {
 		message =
@@ -50,10 +51,12 @@ export function handleNotificationErrors(
 		const err = handlePrismaErrors(error);
 		message = err.message;
 	}
+	let title = options.title;
+	if ((error as any).data?.title) title = error.data.title;
 	createNotification({
 		message,
 		recipient: options.recipient,
-		title: options.title,
+		title,
 		type: 'ERROR',
 	});
 }
