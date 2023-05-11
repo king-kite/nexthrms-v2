@@ -27,7 +27,12 @@ export function importData<DataType = any>({
 					.catch((error) => reject(error));
 			} else {
 				excelToJson(path, { headers })
-					.then((data: DataType[]) => resolve({ data }))
+					.then(
+						(result: {
+							data: DataType[];
+							permissions?: ObjectPermissionImportType[];
+						}) => resolve(result)
+					)
 					.catch((error) => reject(error));
 			}
 		} catch (error) {
