@@ -88,33 +88,34 @@ function createAssets(
 	>(async (resolve, reject) => {
 		try {
 			const input = data.map(getAssetInput);
+			// check that every asset input has an ID.
+			const invalid = input.filter((asset) => !asset.id);
+			if (invalid.length > 0) {
+				createNotification({
+					message:
+						`An id field is required to avoid duplicate records. The following records do not have an id: ` +
+						input.map((asset) => asset.name).join(','),
+					recipient: req.user.id,
+					title: 'ID field is required.',
+					type: 'ERROR',
+				});
+				return reject();
+			}
 			const result = await prisma.$transaction(
 				input.map((data) =>
-					data.id
-						? prisma.asset.upsert({
-								where: { id: data.id },
-								update: data,
-								create: data,
+					prisma.asset.upsert({
+						where: { id: data.id },
+						update: data,
+						create: data,
+						select: {
+							id: true,
+							user: {
 								select: {
 									id: true,
-									user: {
-										select: {
-											id: true,
-										},
-									},
 								},
-						  })
-						: prisma.asset.create({
-								data,
-								select: {
-									id: true,
-									user: {
-										select: {
-											id: true,
-										},
-									},
-								},
-						  })
+							},
+						},
+					})
 				)
 			);
 			await Promise.all(
