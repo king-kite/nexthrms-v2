@@ -23,10 +23,17 @@ type ImportFormProps = {
 		link: string;
 		title: string;
 	};
+	title: string;
 	url: string;
 };
 
-function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
+function ImportForm({
+	onSuccess,
+	requirements,
+	sample,
+	title,
+	url,
+}: ImportFormProps) {
 	const ref = React.useRef<HTMLFormElement | null>(null);
 
 	const [error, setError] = React.useState<string>();
@@ -74,17 +81,19 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 			)}
 			<div className="bg-yellow-200 border border-yellow-300 my-1 px-4 py-2 rounded-md">
 				<p className="text-gray-500 text-xs md:text-sm">
-					Please note that only a csv (.csv) file or excel (.xlsx) file can be
-					uploaded in the below format. The file must have the required
-					headers/keys at the start of the file.
+					Please note that only a csv (.csv) file, excel (.xlsx) or zip (.zip)
+					file can be uploaded in the below format. The file must have the
+					required headers/keys at the start of the file.
 				</p>
 			</div>
 			<div className="mt-4 mx-1">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Below are the list of keywords needed in the file.
-					<br />
-					- Do note that required keys are starred red. <br />-
-					Quotes(&ldquo;&rdquo;) are to be used to enclose string values.
+					<br /> - Zip file must contain the {title} and the permissions.csv
+					files.
+					<br /> - Do note that required keys are starred red.
+					<br /> - Quotes(&ldquo;&rdquo;) are to be used to enclose string
+					values.
 				</p>
 				<ul className="bg-gray-200 divide-y divide-white divide-opacity-100 mt-4 px-3 py-1 rounded-md md:px-6">
 					{requirements.map(
