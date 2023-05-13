@@ -188,6 +188,26 @@ export type UserGroupType = {
 	description?: string;
 };
 
+export type UserImportQueryType = {
+	id?: string;
+	email: string;
+	first_name: string;
+	last_name: string;
+	dob?: Date | string | null;
+	gender: 'MALE' | 'FEMALE';
+	image?: string | null;
+	address?: string | null;
+	city?: string | null;
+	state?: string | null;
+	phone?: string | null;
+	is_active?: boolean;
+	is_admin?: boolean;
+	is_superuser?: boolean;
+	email_verified?: boolean;
+	updated_at?: Date | string;
+	created_at?: Date | string;
+};
+
 export type CreateUserQueryType = {
 	email: string;
 	firstName: string;

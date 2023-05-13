@@ -1,4 +1,4 @@
-import { permissions } from '../../../config';
+import { userHeaders as headers, permissions } from '../../../config';
 import { getUsers } from '../../../db';
 import {
 	createNotification,
@@ -21,26 +21,6 @@ type ResponseType = {
 	employees: number;
 	clients: number;
 };
-
-const headers = [
-	'id',
-	'email',
-	'first_name',
-	'last_name',
-	'dob',
-	'gender',
-	'image',
-	'address',
-	'city',
-	'state',
-	'phone',
-	'is_active',
-	'is_admin',
-	'is_superuser',
-	'email_verified',
-	'updated_at',
-	'created_at',
-];
 
 async function getUsersData(req: NextApiRequestExtendUser) {
 	const placeholder: ResponseType = {
