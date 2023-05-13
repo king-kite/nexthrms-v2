@@ -58,10 +58,9 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 	});
 
 	const perms = await getObjectPermissionExportData({
-		ids: assets.map(asset => asset.id),
+		ids: assets.map((asset) => asset.id),
 		model: 'assets',
-		query: 'asset'
-	})
+	});
 
 	return {
 		data: assets,

@@ -350,22 +350,18 @@ export async function getEmployeeOfficersId(id: string) {
 export async function getObjectPermissionExportData({
 	ids,
 	model: modelName,
-	query
 }: {
 	ids: string[];
 	model: PermissionModelChoices;
-	query: PermissionPrismaModelNameType;
 }) {
-	const objectPermissions = await (prisma[query] as any).findMany({
+	const objectPermissions = await prisma.permissionObject.findMany({
 		where: {
 			modelName,
 			objectId: {
 				in: ids,
 			},
 		},
-		select: {
-			objectId: true,
-			permission: true,
+		include: {
 			groups: {
 				select: {
 					name: true,
@@ -377,16 +373,17 @@ export async function getObjectPermissionExportData({
 				},
 			},
 		},
-	}) as any as {
-		objectId: string;
-		permission: PermissionObjectChoices;
-		groups: {
-			name: string;
-		}[]
-		users: {
-			email: string;
-		}[]
-	}[];
+	});
+	// as any as {
+	// 	objectId: string;
+	// 	permission: PermissionObjectChoices;
+	// 	groups: {
+	// 		name: string;
+	// 	}[];
+	// 	users: {
+	// 		email: string;
+	// 	}[];
+	// }[];
 
 	const perms = objectPermissions.reduce(
 		(acc: ObjectPermissionImportType[], perm) => {
@@ -415,7 +412,7 @@ export async function getObjectPermissionExportData({
 		[]
 	);
 
-	return perms
+	return perms;
 }
 
 function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {

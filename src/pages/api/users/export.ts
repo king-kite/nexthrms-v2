@@ -69,7 +69,6 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 	const perms = await getObjectPermissionExportData({
 		ids: users.map((user) => user.id),
 		model: 'users',
-		query: 'user',
 	});
 
 	return {
@@ -115,7 +114,7 @@ export default admin().get(async (req, res) => {
 			createNotification({
 				message: error.message,
 				recipient: req.user.id,
-				title: 'Assets data export failed.',
+				title: 'Users data export failed.',
 				type: 'ERROR',
 			});
 		});

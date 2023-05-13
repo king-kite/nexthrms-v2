@@ -1,4 +1,4 @@
-import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import {
 	DEFAULT_IMAGE,
@@ -13,7 +13,6 @@ import {
 	handleNotificationErrors as handleErrors,
 	importData,
 	importPermissions,
-	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { UserImportQueryType, NextApiRequestExtendUser } from '../../../types';
@@ -69,19 +68,6 @@ function createUsers(
 	>(async (resolve, reject) => {
 		try {
 			const input = data.map(getUserInput);
-			// check that every user input has an ID.
-			const invalid = input.filter((user) => !user.id);
-			if (invalid.length > 0) {
-				return reject({
-					data: {
-						message:
-							`An id field is required to avoid duplicate records. The following records do not have an id: ` +
-							input.map((user) => user.email).join(','),
-						title: 'ID field is required.',
-					},
-					status: 400,
-				});
-			}
 			const result = await prisma.$transaction(
 				input.map((data) =>
 					prisma.user.upsert({
