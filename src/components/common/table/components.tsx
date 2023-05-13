@@ -7,15 +7,19 @@ function classNames(...classes: string[]) {
 export function Button({
 	children,
 	className = '',
+	disabled,
 	...rest
 }: {
 	children: React.ReactNode;
 	className?: string;
+	disabled?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	return (
 		<button
 			className={classNames(
-				'bg-white border border-gray-300 font-medium inline-flex items-center px-4 py-2 relative rounded-md text-gray-700 text-sm hover:bg-gray-50',
+				`${
+					disabled ? 'bg-gray-200 cursor-not-allowed text-gray-500' : ''
+				} bg-white border border-gray-300 font-medium inline-flex items-center px-4 py-2 relative rounded-md text-gray-700 text-sm hover:bg-gray-50`,
 				className
 			)}
 			type="button"
