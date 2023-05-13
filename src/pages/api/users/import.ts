@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import {
 	DEFAULT_IMAGE,
 	DEFAULT_PASSWORD,
@@ -27,25 +25,20 @@ export const config = {
 	},
 };
 
-function getUserInput(
-	user: UserImportQueryType
-): Omit<Prisma.UserCreateInput, 'password'> {
+function getUserInput(user: UserImportQueryType) {
 	return {
 		id: user.id && user.id.length > 0 ? user.id : undefined,
 		email: user.email,
 		firstName: user.first_name,
 		lastName: user.last_name,
-		// password: user.last_name.toUpperCase(),
 		profile: {
-			create: {
-				dob: user.dob ? new Date(user.dob) : undefined,
-				gender: user.gender || 'MALE',
-				image: user.image || DEFAULT_IMAGE,
-				address: user.address,
-				city: user.city,
-				state: user.state,
-				phone: user.phone,
-			},
+			dob: user.dob ? new Date(user.dob) : undefined,
+			gender: user.gender || 'MALE',
+			image: user.image || DEFAULT_IMAGE,
+			address: user.address,
+			city: user.city,
+			state: user.state,
+			phone: user.phone,
 		},
 		isActive: !!user.is_active,
 		isAdmin: !!user.is_admin,
@@ -78,10 +71,18 @@ function createUsers(
 							: {
 									email: data.email,
 							  },
-						update: data,
+						update: {
+							...data,
+							profile: {
+								update: data.profile,
+							},
+						},
 						create: {
 							...data,
 							password: DEFAULT_PASSWORD,
+							profile: {
+								create: data.profile,
+							},
 						},
 						select: {
 							id: true,
