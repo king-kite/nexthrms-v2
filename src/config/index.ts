@@ -1,4 +1,5 @@
 export * from './app';
+export * from './exports';
 export {
 	default as permissions,
 	type PermissionKeyType,

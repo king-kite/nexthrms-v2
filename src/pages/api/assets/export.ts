@@ -1,4 +1,4 @@
-import { permissions } from '../../../config';
+import { assetHeaders as headers, permissions } from '../../../config';
 import { getAssets } from '../../../db';
 import {
 	createNotification,
@@ -14,26 +14,6 @@ import {
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
-
-const headers = [
-	'id',
-	'asset_id',
-	'condition',
-	'description',
-	'model',
-	'manufacturer',
-	'name',
-	'purchase_date',
-	'purchase_from',
-	'serial_no',
-	'status',
-	'supplier',
-	'warranty',
-	'value',
-	'user',
-	'updated_at',
-	'created_at',
-];
 
 // Get the records from the database, including the permissions
 async function getAssetsData(req: NextApiRequestExtendUser) {

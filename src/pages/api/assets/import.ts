@@ -1,6 +1,6 @@
 import { AssetCondition, AssetStatus, Prisma } from '@prisma/client';
 
-import { permissions } from '../../../config';
+import { assetHeaders as headers, permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
 	addObjectPermissions,
@@ -22,26 +22,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
-const headers = [
-	'id',
-	'asset_id',
-	'condition',
-	'description',
-	'model',
-	'manufacturer',
-	'name',
-	'purchase_date',
-	'purchase_from',
-	'serial_no',
-	'status',
-	'supplier',
-	'warranty',
-	'value',
-	'user',
-	'updated_at',
-	'created_at',
-];
 
 function getAssetInput(asset: AssetImportQueryType): Prisma.AssetCreateInput {
 	return {
