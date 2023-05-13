@@ -107,6 +107,8 @@ function createAssets(
 					})
 				)
 			);
+
+			// Asset users can view their assets
 			await Promise.all(
 				result.reduce((acc: Promise<any>[], asset) => {
 					if (!asset.user || asset.user.id === req.user.id) return acc;
