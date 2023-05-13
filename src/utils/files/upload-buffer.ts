@@ -54,19 +54,21 @@ function uploadBuffer({
 					}
 				});
 			} else {
-				const stream = cloudinary.uploader.upload_stream(
-					{
-						public_id: location,
-						resource_type: type,
-					},
-					(error, result) => {
-						if (error) reject(error);
-						else resolve(result)
-					}
-				).end(buffer);
+				const stream = cloudinary.uploader
+					.upload_stream(
+						{
+							public_id: location,
+							resource_type: type,
+						},
+						(error, result) => {
+							if (result) resolve(result);
+							else reject(error);
+						}
+					)
+					.end(buffer);
 			}
 		} catch (error) {
-			reject(error)
+			reject(error);
 		}
 	});
 }
