@@ -7,14 +7,14 @@ type UploadFileType = {
 	buffer: Buffer;
 	location: string;
 	name: string;
-	type?: 'image' | 'video' | 'raw' | 'auto';
+	type?: 'auto' | 'image' | 'video' | 'raw' | 'auto';
 };
 
 function uploadBuffer({
 	buffer,
 	name,
 	location,
-	type,
+	type = 'auto',
 }: UploadFileType): Promise<
 	| UploadApiResponse
 	| {
@@ -27,44 +27,46 @@ function uploadBuffer({
 	  }
 > {
 	return new Promise((resolve, reject) => {
-		if (USE_LOCAL_MEDIA_STORAGE) {
-			const splitText = location.split('.');
-			const extension = splitText[splitText.length - 1] || undefined;
+		try {
+			if (USE_LOCAL_MEDIA_STORAGE) {
+				const splitText = location.split('.');
+				const extension = splitText[splitText.length - 1] || undefined;
 
-			let newName = extension
-				? splitText.filter((text, i) => i !== splitText.length - 1).join('')
-				: location;
+				let newName = extension
+					? splitText.filter((text, i) => i !== splitText.length - 1).join('')
+					: location;
 
-			const date = new Date();
-			const date_str = `${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
+				const date = new Date();
+				const date_str = `${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
 
-			let newLocation = newName + `_${date_str}_${new Date().getTime()}`;
-			if (extension) newLocation += `.${extension}`;
-			fs.writeFile(newLocation, buffer, (err) => {
-				if (err) reject(err);
-				else {
-					resolve({
-						bytes: buffer.byteLength,
-						original_filename: name,
-						public_id: name.toLowerCase(),
-						resource_type: type || 'file',
-						url: '/' + newLocation,
-					});
-				}
-			});
-		} else {
-			const stream = cloudinary.uploader.upload_stream(
-				{
-					folder: location,
-					public_id: location,
-					resource_type: type,
-				},
-				(error, result) => {
-					if (result) resolve(result);
-					else if (error) reject(error);
-				}
-			);
-			fs.createReadStream(buffer).pipe(stream);
+				let newLocation = newName + `_${date_str}_${new Date().getTime()}`;
+				if (extension) newLocation += `.${extension}`;
+				fs.writeFile(newLocation, buffer, (err) => {
+					if (err) reject(err);
+					else {
+						resolve({
+							bytes: buffer.byteLength,
+							original_filename: name,
+							public_id: name.toLowerCase(),
+							resource_type: type || 'file',
+							url: '/' + newLocation,
+						});
+					}
+				});
+			} else {
+				const stream = cloudinary.uploader.upload_stream(
+					{
+						public_id: location,
+						resource_type: type,
+					},
+					(error, result) => {
+						if (error) reject(error);
+						else resolve(result)
+					}
+				).end(buffer);
+			}
+		} catch (error) {
+			reject(error)
 		}
 	});
 }
