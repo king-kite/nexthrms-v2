@@ -149,7 +149,7 @@ function ImportForm({
 							iconSize="12"
 							label="Upload Document"
 							name="data"
-							placeholder="Upload CSV or Excel File"
+							placeholder="Upload a csv, excel or zip file"
 							required
 							value={file}
 						/>
