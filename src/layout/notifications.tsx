@@ -155,7 +155,7 @@ const Notification = ({
 								if (result?.status !== 200) {
 									open({
 										type: 'danger',
-										message: 'An error occurred. Unable to export file!',
+										message: 'An error occurred. Unable to download file!',
 									});
 								}
 							}}
