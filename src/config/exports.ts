@@ -17,3 +17,23 @@ export const assetHeaders = [
 	'updated_at',
 	'created_at',
 ];
+
+export const userHeaders = [
+	'id',
+	'email',
+	'first_name',
+	'last_name',
+	'dob',
+	'gender',
+	'image',
+	'address',
+	'city',
+	'state',
+	'phone',
+	'is_active',
+	'is_admin',
+	'is_superuser',
+	'email_verified',
+	'updated_at',
+	'created_at',
+];

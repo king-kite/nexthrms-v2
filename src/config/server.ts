@@ -153,6 +153,7 @@ export const ACTIVATE_USER_URL = `${ROOT_URL}/users/activate/`;
 export const CHANGE_USER_PASSWORD_URL = `${ROOT_URL}/users/password/change/`;
 export const USERS_URL = `${ROOT_URL}/users/`;
 export const USERS_EXPORT_URL = `${ROOT_URL}/users/export/`;
+export const USERS_IMPORT_URL = `${ROOT_URL}/users/import/`;
 export const USER_URL = (id: string) => `${USERS_URL}${id}/`;
 export const USER_GROUPS_URL = (id: string) => `${USERS_URL}${id}/groups`;
 export const USER_PERMISSIONS_URL = (id: string) =>
