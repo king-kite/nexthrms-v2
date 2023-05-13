@@ -215,16 +215,13 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							component={() => (
 								<ExportForm
 									all={ASSETS_EXPORT_URL}
-									filtered={
-										ASSETS_EXPORT_URL +
-										`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
-											searchForm?.name || ''
-										}${
-											searchForm?.startDate && searchForm?.endDate
-												? `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`
-												: ''
-										}`
-									}
+									filtered={`&offset=${offset}&limit=${limit}&search=${
+										searchForm?.name || ''
+									}${
+										searchForm?.startDate && searchForm?.endDate
+											? `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`
+											: ''
+									}`}
 								/>
 							)}
 							props={{

@@ -35,8 +35,10 @@ const Form = ({ all, filtered }: FormProps) => {
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				if (form.filtered === 'all' && all) execute(all);
-				else if (form.filtered === 'filtered' && filtered) execute(filtered);
+				let url = all + '?type=' + form.type;
+				if (form.filtered === 'all' && all) execute(url);
+				else if (form.filtered === 'filtered' && filtered)
+					execute(url + filtered);
 			}}
 			className="p-2 w-full"
 		>
