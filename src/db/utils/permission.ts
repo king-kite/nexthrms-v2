@@ -4,7 +4,10 @@ import {
 } from '@prisma/client';
 
 import prisma from '../client';
-import { ObjectPermissionImportType } from '../../types';
+import {
+	ObjectPermissionImportType,
+	PermissionPrismaModelNameType,
+} from '../../types';
 
 // A function to check if a user has view, edit or delete
 // permissions concerning an object in a model
@@ -342,6 +345,77 @@ export async function getEmployeeOfficersId(id: string) {
 	}
 
 	return officers;
+}
+
+export async function getObjectPermissionExportData({
+	ids,
+	model: modelName,
+	query
+}: {
+	ids: string[];
+	model: PermissionModelChoices;
+	query: PermissionPrismaModelNameType;
+}) {
+	const objectPermissions = await (prisma[query] as any).findMany({
+		where: {
+			modelName,
+			objectId: {
+				in: ids,
+			},
+		},
+		select: {
+			objectId: true,
+			permission: true,
+			groups: {
+				select: {
+					name: true,
+				},
+			},
+			users: {
+				select: {
+					email: true,
+				},
+			},
+		},
+	}) as any as {
+		objectId: string;
+		permission: PermissionObjectChoices;
+		groups: {
+			name: string;
+		}[]
+		users: {
+			email: string;
+		}[]
+	}[];
+
+	const perms = objectPermissions.reduce(
+		(acc: ObjectPermissionImportType[], perm) => {
+			const data: ObjectPermissionImportType[] = [];
+			perm.users.forEach((user) => {
+				data.push({
+					model_name: modelName,
+					name: user.email,
+					object_id: perm.objectId,
+					permission: perm.permission,
+					is_user: true,
+				});
+			});
+			perm.groups.forEach((group) => {
+				data.push({
+					model_name: modelName,
+					name: group.name,
+					object_id: perm.objectId,
+					permission: perm.permission,
+					is_user: false,
+				});
+			});
+
+			return [...acc, ...data];
+		},
+		[]
+	);
+
+	return perms
 }
 
 function getObjectPermissionInput(objPerm: ObjectPermissionImportType) {
