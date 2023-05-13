@@ -54,7 +54,7 @@ function uploadBuffer({
 					}
 				});
 			} else {
-				const stream = cloudinary.uploader
+				cloudinary.uploader
 					.upload_stream(
 						{
 							public_id: location,
