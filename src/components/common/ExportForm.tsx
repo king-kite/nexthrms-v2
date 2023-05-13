@@ -1,23 +1,42 @@
 import { Button, Select } from 'kite-react-tailwind';
 import React from 'react';
 
+import { useAxiosInstance } from '../../hooks';
+import { useAlertContext } from '../../store/contexts';
+
 type FormProps = {
+	// remove this
 	onSubmit?: (type: any, filter: boolean) => void;
 	loading?: boolean;
+	//
+
+	filtered?: string;
+	all?: string;
 };
 
-const Form = ({ loading, onSubmit }: FormProps) => {
+const Form = ({ all, filtered }: FormProps) => {
 	const [form, setForm] = React.useState({
 		type: 'csv',
 		filtered: 'all',
+	});
+
+	const { open } = useAlertContext();
+
+	const { execute, loading } = useAxiosInstance({
+		onSettled(response) {
+			open({
+				type: response.status === 'success' ? 'success' : 'danger',
+				message: response.message,
+			});
+		},
 	});
 
 	return (
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				if (onSubmit)
-					onSubmit(form.type, form.filtered === 'all' ? false : true);
+				if (form.filtered === 'all' && all) execute(all);
+				else if (form.filtered === 'filtered' && filtered) execute(filtered);
 			}}
 			className="p-2 w-full"
 		>

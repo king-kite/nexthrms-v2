@@ -17,7 +17,6 @@ import {
 	ASSETS_IMPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../config';
-import { useAxiosInstance } from '../hooks';
 import {
 	useAlertContext,
 	useAlertModalContext,
@@ -60,15 +59,6 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	}>();
 
 	const { open } = useAlertContext();
-
-	const { execute, loading: instanceLoading } = useAxiosInstance({
-		onSettled(response) {
-			open({
-				type: response.status === 'success' ? 'success' : 'danger',
-				message: response.message,
-			});
-		},
-	});
 
 	const { visible: alertModalVisible, close: closeModal } =
 		useAlertModalContext();
@@ -224,24 +214,17 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						<ButtonDropdown
 							component={() => (
 								<ExportForm
-									loading={instanceLoading}
-									onSubmit={async (
-										type: 'csv' | 'excel',
-										filtered: boolean
-									) => {
-										let url = ASSETS_EXPORT_URL + '?type=' + type;
-										if (filtered) {
-											url =
-												url +
-												`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
-													searchForm?.name || ''
-												}`;
-											if (searchForm?.startDate && searchForm?.endDate) {
-												url += `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`;
-											}
-										}
-										execute(url);
-									}}
+									all={ASSETS_EXPORT_URL}
+									filtered={
+										ASSETS_EXPORT_URL +
+										`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
+											searchForm?.name || ''
+										}${
+											searchForm?.startDate && searchForm?.endDate
+												? `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`
+												: ''
+										}`
+									}
 								/>
 							)}
 							props={{
