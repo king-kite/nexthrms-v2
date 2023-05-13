@@ -222,56 +222,54 @@ const AssetTable = ({
 	]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				heads={heads}
-				rows={rows}
-				options={{
-					rows: {
-						hover: true,
+		<Table
+			heads={heads}
+			rows={rows}
+			options={{
+				rows: {
+					hover: true,
+				},
+			}}
+			renderActionLinkAs={({ link, children, ...props }) => (
+				<Link href={link}>
+					<a {...props}>{children}</a>
+				</Link>
+			)}
+			renderContainerLinkAs={(props) => (
+				<Link href={props.link}>
+					<a className={props.className}>{props.children}</a>
+				</Link>
+			)}
+			split={{
+				actions: [
+					{
+						active: activeRow === 'all',
+						onClick: () => setActiveRow('all'),
+						title: 'all',
 					},
-				}}
-				renderActionLinkAs={({ link, children, ...props }) => (
-					<Link href={link}>
-						<a {...props}>{children}</a>
-					</Link>
-				)}
-				renderContainerLinkAs={(props) => (
-					<Link href={props.link}>
-						<a className={props.className}>{props.children}</a>
-					</Link>
-				)}
-				split={{
-					actions: [
-						{
-							active: activeRow === 'all',
-							onClick: () => setActiveRow('all'),
-							title: 'all',
-						},
-						{
-							active: activeRow === 'approved',
-							onClick: () => setActiveRow('approved'),
-							title: 'approved',
-						},
-						{
-							active: activeRow === 'denied',
-							onClick: () => setActiveRow('denied'),
-							title: 'denied',
-						},
-						{
-							active: activeRow === 'pending',
-							onClick: () => setActiveRow('pending'),
-							title: 'pending',
-						},
-						{
-							active: activeRow === 'returned',
-							onClick: () => setActiveRow('returned'),
-							title: 'returned',
-						},
-					],
-				}}
-			/>
-		</div>
+					{
+						active: activeRow === 'approved',
+						onClick: () => setActiveRow('approved'),
+						title: 'approved',
+					},
+					{
+						active: activeRow === 'denied',
+						onClick: () => setActiveRow('denied'),
+						title: 'denied',
+					},
+					{
+						active: activeRow === 'pending',
+						onClick: () => setActiveRow('pending'),
+						title: 'pending',
+					},
+					{
+						active: activeRow === 'returned',
+						onClick: () => setActiveRow('returned'),
+						title: 'returned',
+					},
+				],
+			}}
+		/>
 	);
 };
 

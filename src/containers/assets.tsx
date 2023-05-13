@@ -3,7 +3,13 @@ import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt, FaPlus } from 'react-icons/fa';
 
 import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
-import { Container, ExportForm, ImportForm, Modal } from '../components/common';
+import {
+	Container,
+	ExportForm,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../components/common';
 import {
 	permissions,
 	samples,
@@ -46,6 +52,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		}
 	>();
 	const [offset, setOffset] = React.useState(0);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [searchForm, setSearchForm] = React.useState<{
 		name?: string;
 		startDate?: string;
@@ -94,7 +101,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 
 	const { data, isFetching, refetch } = useGetAssetsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search: searchForm?.name,
 			date:
@@ -210,16 +217,6 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				onClick: refetch,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canView || canCreate) && data
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			<div className="flex items-center justify-end gap-4 my-3 w-full">
 				{canExport && (
@@ -302,27 +299,41 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							setForm={setSearchForm}
 						/>
 					</div>
-					<AssetTable
-						assets={data?.result || []}
-						showAsset={(asset) => {
-							setShowAsset(asset);
-							setModalVisible(true);
-						}}
-						deleteAsset={deleteAsset}
-						editAsset={({ id, updatedAt, user, ...asset }) => {
-							setErrors(undefined);
-							setEditId(id);
-							setForm({
-								...asset,
-								description: asset.description || undefined,
-								model: asset.model || undefined,
-								userId: user?.id || '',
-								purchaseDate: getStringedDate(asset.purchaseDate),
-							});
-							setShowAsset(undefined);
-							setModalVisible(true);
-						}}
-					/>
+					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+						<AssetTable
+							assets={data?.result || []}
+							showAsset={(asset) => {
+								setShowAsset(asset);
+								setModalVisible(true);
+							}}
+							deleteAsset={deleteAsset}
+							editAsset={({ id, updatedAt, user, ...asset }) => {
+								setErrors(undefined);
+								setEditId(id);
+								setForm({
+									...asset,
+									description: asset.description || undefined,
+									model: asset.model || undefined,
+									userId: user?.id || '',
+									purchaseDate: getStringedDate(asset.purchaseDate),
+								});
+								setShowAsset(undefined);
+								setModalVisible(true);
+							}}
+						/>
+						{data && data?.total > 0 && (
+							<TablePagination
+								disabled={isFetching}
+								totalItems={data.total}
+								onChange={(pageNo: number) => {
+									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+									offset !== value && setOffset(value * limit);
+								}}
+								onSizeChange={(size) => setLimit(size)}
+								pageSize={limit}
+							/>
+						)}
+					</div>
 				</>
 			)}
 			{/* editId will determine if the user has edit permission */}
