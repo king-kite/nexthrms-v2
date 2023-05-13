@@ -7,10 +7,12 @@ import { ObjectPermissionImportType } from '../../types';
 function getData<DataType>(
 	worksheet: excelJS.Worksheet,
 	{
+		canBeEmpty = false,
 		type = 'data',
 		...options
 	}: OptionsType & {
-		type: 'data' | 'permission';
+		canBeEmpty?: boolean;
+		type?: 'data' | 'permission';
 	}
 ): {
 	data?: DataType[];
@@ -84,7 +86,7 @@ function getData<DataType>(
 	// Next Get the rows and the fields in them
 
 	const contentRows = worksheet.getRows(2, worksheet.rowCount - 1);
-	if (!contentRows)
+	if (!contentRows && !canBeEmpty)
 		return {
 			error: {
 				status: 400,
@@ -182,11 +184,13 @@ export default function excelToJson<DataType = any>(
 							if (!worksheet) {
 								resolve({ data });
 							} else {
-								const { data: permissions, error } = getData<ObjectPermissionImportType>(worksheet, {
-									...options,
-									type: 'data',
-									headers: permissionHeaders,
-								});
+								const { data: permissions, error } =
+									getData<ObjectPermissionImportType>(worksheet, {
+										...options,
+										canBeEmpty: true,
+										type: 'permission',
+										headers: permissionHeaders,
+									});
 								if (error) reject(error);
 								else resolve({ data, permissions });
 							}
