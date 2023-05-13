@@ -1,11 +1,15 @@
 import { permissions } from '../../../config';
-import { getAssets, prisma } from '../../../db';
-import { createNotification, exportData, getRecords } from '../../../db/utils';
+import { getAssets } from '../../../db';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import {
 	GetAssetsResponseType,
 	NextApiRequestExtendUser,
-	ObjectPermissionImportType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -73,53 +77,11 @@ async function getAssetsData(req: NextApiRequestExtendUser) {
 		};
 	});
 
-	const objectPermissions = await prisma.permissionObject.findMany({
-		where: {
-			modelName: 'assets',
-			objectId: {
-				in: assets.map((asset) => asset.id),
-			},
-		},
-		include: {
-			groups: {
-				select: {
-					name: true,
-				},
-			},
-			users: {
-				select: {
-					email: true,
-				},
-			},
-		},
-	});
-
-	const perms = objectPermissions.reduce(
-		(acc: ObjectPermissionImportType[], perm) => {
-			const data: ObjectPermissionImportType[] = [];
-			perm.users.forEach((user) => {
-				data.push({
-					model_name: 'assets',
-					name: user.email,
-					object_id: perm.objectId,
-					permission: perm.permission,
-					is_user: true,
-				});
-			});
-			perm.groups.forEach((group) => {
-				data.push({
-					model_name: 'assets',
-					name: group.name,
-					object_id: perm.objectId,
-					permission: perm.permission,
-					is_user: false,
-				});
-			});
-
-			return [...acc, ...data];
-		},
-		[]
-	);
+	const perms = await getObjectPermissionExportData({
+		ids: assets.map(asset => asset.id),
+		model: 'assets',
+		query: 'asset'
+	})
 
 	return {
 		data: assets,
