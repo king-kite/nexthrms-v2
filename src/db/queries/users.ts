@@ -91,11 +91,16 @@ export const getUsersQuery = ({
 	from,
 	to,
 	where = {},
+	select = {},
 }: ParamsType & {
 	where?: Prisma.UserWhereInput;
+	select?: Prisma.UserSelect;
 }): Prisma.UserFindManyArgs => {
 	const query: Prisma.UserFindManyArgs = {
-		select: userSelectQuery,
+		select: {
+			...userSelectQuery,
+			...select,
+		},
 		orderBy: {
 			firstName: 'asc' as const,
 		},
@@ -148,9 +153,10 @@ export const getUser = async (id: string) => {
 	return user as unknown as UserType | null;
 };
 
-export const getUsers = async (
+export async function getUsers<DataType = UserType>(
 	params: ParamsType & {
 		where?: Prisma.UserWhereInput;
+		select?: Prisma.UserSelect;
 	} = {
 		search: undefined,
 	}
@@ -161,8 +167,8 @@ export const getUsers = async (
 	employees: number;
 	clients: number;
 	total: number;
-	result: UserType[];
-}> => {
+	result: DataType[];
+}> {
 	const query = getUsersQuery({ ...params });
 
 	const [total, result, inactive, active, on_leave, employees, clients] =
@@ -285,9 +291,9 @@ export const getUsers = async (
 		// inactive: total - (active + clients),
 		inactive,
 		on_leave,
-		result: result as unknown as UserType[],
+		result: result as unknown as DataType[],
 	};
-};
+}
 
 export const getUserGroups = async (
 	id: string,

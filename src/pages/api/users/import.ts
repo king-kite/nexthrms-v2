@@ -13,14 +13,14 @@ import {
 	importPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../utils';
-import { NextApiErrorMessage } from '../../../utils/classes';
-import parseForm from '../../../utils/parseForm';
 import {
 	UserImportQueryType,
 	ObjectPermissionImportType,
 	NextApiRequestExtendUser,
 } from '../../../types';
+import { hasModelPermission } from '../../../utils';
+import { NextApiErrorMessage } from '../../../utils/classes';
+import parseForm from '../../../utils/parseForm';
 
 export const config = {
 	api: {
