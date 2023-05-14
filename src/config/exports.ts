@@ -34,6 +34,7 @@ export const userHeaders = [
 	'is_admin',
 	'is_superuser',
 	'email_verified',
+	'permissions',
 	'updated_at',
 	'created_at',
 ];

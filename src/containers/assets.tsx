@@ -358,15 +358,15 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							requirements={[
 								{
 									title: 'id',
-									value: '"c2524fca-9182-4455-8367-c7a27abe1b73"',
+									value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
 								},
 								{
 									title: 'asset_id',
-									value: '"564-71-3751"',
+									value: '564-71-3751',
 								},
 								{
 									title: 'condition',
-									value: '"GOOD"',
+									value: 'GOOD',
 								},
 								{
 									required: false,
@@ -380,31 +380,31 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								{
 									required: false,
 									title: 'model',
-									value: '"Suzuki"',
+									value: 'Suzuki',
 								},
 								{
 									title: 'name',
-									value: '"Steel"',
+									value: 'Steel',
 								},
 								{
 									title: 'purchase_date',
-									value: '"2023-03-26T21:49:51.090Z"',
+									value: '2023-03-26T21:49:51.090Z',
 								},
 								{
 									title: 'purchase_from',
-									value: '"Denesik-Bernier"',
+									value: 'Denesik-Bernier',
 								},
 								{
 									title: 'serial_no',
-									value: '"872018614-2"',
+									value: '872018614-2',
 								},
 								{
 									title: 'status',
-									value: '"APPROVED"',
+									value: 'APPROVED',
 								},
 								{
 									title: 'supplier',
-									value: '"Mynte"',
+									value: 'Mynte',
 								},
 								{
 									title: 'warranty',
@@ -416,17 +416,17 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								},
 								{
 									title: 'user',
-									value: '"jandoe@gmail.com"',
+									value: 'jandoe@gmail.com',
 								},
 								{
 									required: false,
 									title: 'updated_at',
-									value: '"2023-03-26T21:49:51.090Z"',
+									value: '2023-03-26T21:49:51.090Z',
 								},
 								{
 									required: false,
 									title: 'created_at',
-									value: '"2023-03-26T21:49:51.090Z"',
+									value: '2023-03-26T21:49:51.090Z',
 								},
 							]}
 							sample={samples.assets}
