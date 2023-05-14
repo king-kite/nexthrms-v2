@@ -146,8 +146,10 @@ const UserTable = ({ users }: TableType) => {
 					user.employee?.leaves.length && user.employee?.leaves.length > 0
 			);
 		} else if (activeRow === 'active') {
-			finalList = users.filter(
-				(user) => user.isActive === true && user.employee?.leaves.length === 0
+			finalList = users.filter((user) =>
+				user.employee
+					? user.isActive === true && user.employee.leaves.length === 0
+					: user.isActive
 			);
 		} else if (activeRow === 'inactive') {
 			finalList = users.filter((user) => user.isActive === false);
