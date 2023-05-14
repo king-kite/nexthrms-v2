@@ -14,12 +14,18 @@ import { handlePrismaErrors } from '../../../validators';
 
 type ResponseType = {
 	total: number;
-	result: UserType[];
+	result: DataType[];
 	inactive: number;
 	active: number;
 	on_leave: number;
 	employees: number;
 	clients: number;
+};
+
+type DataType = UserType & {
+	permissions: {
+		codename: string;
+	}[];
 };
 
 async function getUsersData(req: NextApiRequestExtendUser) {
@@ -39,7 +45,16 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 		user: req.user,
 		placeholder,
 		getData(params) {
-			return getUsers(params);
+			return getUsers<DataType>({
+				...params,
+				select: {
+					permissions: {
+						select: {
+							codename: true,
+						},
+					},
+				},
+			});
 		},
 	});
 	const data = result ? result.data : placeholder;
@@ -57,6 +72,7 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 			phone: user.profile?.phone || null,
 			state: user.profile?.state || null,
 			city: user.profile?.city || null,
+			permissions: user.permissions.map((perm) => perm.codename).join(','),
 			is_active: user.isActive,
 			is_admin: user.isAdmin,
 			is_superuser: user.isSuperUser,
