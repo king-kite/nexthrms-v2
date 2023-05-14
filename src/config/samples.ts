@@ -7,6 +7,7 @@ function getSamples(name: string) {
 
 const samples = {
 	assets: getSamples('assets'),
+	users: getSamples('users'),
 };
 
 export default samples;

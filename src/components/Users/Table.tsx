@@ -10,13 +10,13 @@ import { UserType } from '../../types';
 import { getStringedDate } from '../../utils';
 
 const heads: TableHeadType = [
-	{ 
+	{
 		style: {
 			marginLeft: '3.5rem',
 			minWidth: '70px',
 			textAlign: 'left',
 		},
-		value: 'user' 
+		value: 'user',
 	},
 	{ value: 'role' },
 	{ value: 'status' },
@@ -162,56 +162,54 @@ const UserTable = ({ users }: TableType) => {
 	}, [activeRow, users]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				heads={heads}
-				rows={rows}
-				renderActionLinkAs={({ link, children, ...props }) => (
-					<Link href={link}>
-						<a {...props}>{children}</a>
-					</Link>
-				)}
-				renderContainerLinkAs={(props) => (
-					<Link href={props.link}>
-						<a className={props.className}>{props.children}</a>
-					</Link>
-				)}
-				split={{
-					actions: [
-						{
-							active: activeRow === 'all',
-							onClick: () => setActiveRow('all'),
-							title: 'all',
-						},
-						{
-							active: activeRow === 'clients',
-							onClick: () => setActiveRow('clients'),
-							title: 'clients',
-						},
-						{
-							active: activeRow === 'employees',
-							onClick: () => setActiveRow('employees'),
-							title: 'employees',
-						},
-						{
-							active: activeRow === 'active',
-							onClick: () => setActiveRow('active'),
-							title: 'active',
-						},
-						{
-							active: activeRow === 'inactive',
-							onClick: () => setActiveRow('inactive'),
-							title: 'inactive',
-						},
-						{
-							active: activeRow === 'on leave',
-							onClick: () => setActiveRow('on leave'),
-							title: 'on leave',
-						},
-					],
-				}}
-			/>
-		</div>
+		<Table
+			heads={heads}
+			rows={rows}
+			renderActionLinkAs={({ link, children, ...props }) => (
+				<Link href={link}>
+					<a {...props}>{children}</a>
+				</Link>
+			)}
+			renderContainerLinkAs={(props) => (
+				<Link href={props.link}>
+					<a className={props.className}>{props.children}</a>
+				</Link>
+			)}
+			split={{
+				actions: [
+					{
+						active: activeRow === 'all',
+						onClick: () => setActiveRow('all'),
+						title: 'all',
+					},
+					{
+						active: activeRow === 'clients',
+						onClick: () => setActiveRow('clients'),
+						title: 'clients',
+					},
+					{
+						active: activeRow === 'employees',
+						onClick: () => setActiveRow('employees'),
+						title: 'employees',
+					},
+					{
+						active: activeRow === 'active',
+						onClick: () => setActiveRow('active'),
+						title: 'active',
+					},
+					{
+						active: activeRow === 'inactive',
+						onClick: () => setActiveRow('inactive'),
+						title: 'inactive',
+					},
+					{
+						active: activeRow === 'on leave',
+						onClick: () => setActiveRow('on leave'),
+						title: 'on leave',
+					},
+				],
+			}}
+		/>
 	);
 };
 
