@@ -13,11 +13,14 @@ import {
 	importPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { UserImportQueryType, NextApiRequestExtendUser } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import parseForm from '../../../utils/parseForm';
-import { ObjectPermissionImportType } from '../../../types';
+import {
+	UserImportQueryType,
+	ObjectPermissionImportType,
+	NextApiRequestExtendUser,
+} from '../../../types';
 
 export const config = {
 	api: {
@@ -40,6 +43,7 @@ function getUserInput(user: UserImportQueryType) {
 			state: user.state,
 			phone: user.phone,
 		},
+		permissions: user.permissions ? user.permissions.split(',') : null,
 		isActive: !!user.is_active,
 		isAdmin: !!user.is_admin,
 		isSuperUser: !!user.is_superuser,
@@ -76,6 +80,11 @@ function createUsers(
 							profile: {
 								update: data.profile,
 							},
+							permissions: data.permissions
+								? {
+										set: data.permissions.map((codename) => ({ codename })),
+								  }
+								: undefined,
 						},
 						create: {
 							...data,
@@ -83,6 +92,11 @@ function createUsers(
 							profile: {
 								create: data.profile,
 							},
+							permissions: data.permissions
+								? {
+										connect: data.permissions.map((codename) => ({ codename })),
+								  }
+								: undefined,
 						},
 						select: {
 							id: true,
