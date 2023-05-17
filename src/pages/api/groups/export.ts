@@ -37,15 +37,13 @@ async function getGroupsData(req: NextApiRequestExtendUser) {
 
 	const data = result ? result.data : placeholder;
 
-	const groups = data.result.map((group) => {
-		return {
-			id: group.id,
-			name: group.name,
-			description: groups.description,
-			permissions: group.permissions.map((perm) => perm.codename).join(','),
-			active: group.active,
-		};
-	});
+	const groups = data.result.map((group) => ({
+		id: group.id,
+		name: group.name,
+		description: group.description,
+		permissions: group.permissions.map((perm) => perm.codename).join(','),
+		active: group.active,
+	}));
 
 	const perms = await getObjectPermissionExportData({
 		ids: groups.map((group) => group.id),
