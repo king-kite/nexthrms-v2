@@ -18,6 +18,14 @@ export const assetHeaders = [
 	'created_at',
 ];
 
+export const groupHeaders = [
+	'id',
+	'name',
+	'description',
+	'active',
+	'permissions',
+];
+
 export const userHeaders = [
 	'id',
 	'email',

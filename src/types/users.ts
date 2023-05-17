@@ -30,6 +30,14 @@ export type GroupType = {
 	};
 };
 
+export type GroupImportQueryType = {
+	id?: string;
+	name: string;
+	description?: string | null;
+	active: boolean;
+	permissions: string;
+};
+
 export type CreateGroupQueryType = {
 	name: string;
 	active?: boolean;

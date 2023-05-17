@@ -4,10 +4,7 @@ import {
 } from '@prisma/client';
 
 import prisma from '../client';
-import {
-	ObjectPermissionImportType,
-	PermissionPrismaModelNameType,
-} from '../../types';
+import { ObjectPermissionImportType } from '../../types';
 
 // A function to check if a user has view, edit or delete
 // permissions concerning an object in a model

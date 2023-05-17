@@ -107,7 +107,8 @@ export const ASSET_URL = (id: string) => `${ASSETS_URL}${id}/`;
 
 export const GROUPS_URL = `${ROOT_URL}/groups/`;
 export const GROUP_URL = (id: string) => `${GROUPS_URL}${id}/`;
-export const GROUPS_EXPORT_URL = `${ROOT_URL}/groups/export`;
+export const GROUPS_EXPORT_URL = `${ROOT_URL}/groups/export/`;
+export const GROUPS_IMPORT_URL = `${ROOT_URL}/groups/import/`;
 
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
