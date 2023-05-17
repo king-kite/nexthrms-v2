@@ -233,7 +233,6 @@ export type ProjectTaskFollowerImportQueryType = {
 	id?: string | null;
 	is_leader: boolean;
 	member_id: string;
-	project_id: string;
 	task_id: string;
 	created_at?: Date | string | null;
 	updated_at?: Date | string | null;
