@@ -26,6 +26,8 @@ export const groupHeaders = [
 	'permissions',
 ];
 
+export const jobHeaders = ['id', 'name', 'updated_at', 'created_at'];
+
 export const userHeaders = [
 	'id',
 	'email',

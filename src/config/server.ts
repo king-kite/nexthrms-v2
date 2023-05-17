@@ -113,6 +113,7 @@ export const GROUPS_IMPORT_URL = `${ROOT_URL}/groups/import/`;
 export const JOBS_URL = `${ROOT_URL}/jobs/`;
 export const JOB_URL = (id: string) => `${ROOT_URL}/jobs/${id}/`;
 export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
+export const JOBS_IMPORT_URL = `${ROOT_URL}/jobs/import/`;
 
 type ObjectPermissionType = {
 	limit: number;
