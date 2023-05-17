@@ -1,3 +1,4 @@
+import { exportDataParametersWithSearch } from './parameters';
 import * as refs from './refs';
 
 const responses = {
@@ -53,6 +54,37 @@ const responses = {
 	},
 };
 
+export function getExportResponse({
+	description,
+	tags,
+	title,
+}: {
+	description?: string;
+	tags: string[];
+	title: string;
+}) {
+	return {
+		get: {
+			parameters: exportDataParametersWithSearch,
+			responses: {
+				...responses,
+				'200': {
+					content: {
+						'application/json': {
+							schema: {
+								$ref: refs.BASE,
+							},
+						},
+					},
+					description,
+				},
+			},
+			summary: title,
+			tags,
+		},
+	};
+}
+
 export function getImportResponse({
 	tags,
 	title: summary,
@@ -75,11 +107,6 @@ export function getImportResponse({
 								},
 							},
 						},
-						// encoding: {
-						// 	image: {
-						// 		contentType: 'image/*',
-						// 	},
-						// },
 					},
 				},
 			},
