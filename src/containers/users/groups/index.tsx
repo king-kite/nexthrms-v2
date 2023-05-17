@@ -68,7 +68,7 @@ const Groups = ({
 
 	const { data, isFetching, isLoading, refetch } = useGetGroupsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			users: {
