@@ -6,6 +6,8 @@ import { JobType, ParamsType } from '../../types';
 export const jobSelectQuery: Prisma.JobSelect = {
 	id: true,
 	name: true,
+	updatedAt: true,
+	createdAt: true,
 };
 
 export const getJobsQuery = ({

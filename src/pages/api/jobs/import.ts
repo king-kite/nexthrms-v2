@@ -1,4 +1,4 @@
-import { groupHeaders as headers, permissions } from '../../../config';
+import { jobHeaders as headers, permissions } from '../../../config';
 import { prisma } from '../../../db';
 import {
 	addObjectPermissions,
@@ -9,7 +9,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import {
-	GroupImportQueryType,
+	JobImportQueryType,
 	ObjectPermissionImportType,
 	NextApiRequestExtendUser,
 } from '../../../types';
@@ -23,21 +23,18 @@ export const config = {
 	},
 };
 
-function getDataInput(group: GroupImportQueryType) {
+function getDataInput(data: JobImportQueryType) {
 	return {
-		id: group.id && group.id.length > 0 ? group.id : undefined,
-		name: group.name,
-		description: group.description,
-		active: group.active
-			? group.active.toString().toLowerCase() === 'true'
-			: false,
-		permissions: group.permissions ? group.permissions.split(',') : null,
+		id: data.id && data.id.length > 0 ? data.id : undefined,
+		name: data.name,
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
 	};
 }
 
 function createData(
 	req: NextApiRequestExtendUser,
-	data: GroupImportQueryType[],
+	data: JobImportQueryType[],
 	perms?: ObjectPermissionImportType[]
 ) {
 	return new Promise<
@@ -49,7 +46,7 @@ function createData(
 			const input = data.map(getDataInput);
 			const result = await prisma.$transaction(
 				input.map((data) =>
-					prisma.group.upsert({
+					prisma.job.upsert({
 						where: data.id
 							? {
 									id: data.id,
@@ -57,33 +54,16 @@ function createData(
 							: {
 									name: data.name,
 							  },
-						update: {
-							...data,
-							permissions: data.permissions
-								? {
-										set: data.permissions.map((codename) => ({ codename })),
-								  }
-								: undefined,
-						},
-						create: {
-							...data,
-							permissions: data.permissions
-								? {
-										connect: data.permissions.map((codename) => ({ codename })),
-								  }
-								: undefined,
-						},
-						select: {
-							id: true,
-						},
+						update: data,
+						create: data,
 					})
 				)
 			);
 			await Promise.all(
-				result.map((group) =>
+				result.map((data) =>
 					addObjectPermissions({
-						model: 'groups',
-						objectId: group.id,
+						model: 'jobs',
+						objectId: data.id,
 						users: [req.user.id],
 					})
 				)
@@ -119,7 +99,7 @@ export default admin().post(async (req, res) => {
 			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 		);
 
-	importData<GroupImportQueryType>({
+	importData<JobImportQueryType>({
 		headers,
 		path: files.data.filepath,
 		type: files.data.mimetype,
@@ -128,16 +108,16 @@ export default admin().post(async (req, res) => {
 		.then((result) => createData(req, result.data, result.permissions))
 		.then(() =>
 			createNotification({
-				message: 'Groups data was imported successfully.',
+				message: 'Jobs data was imported successfully.',
 				recipient: req.user.id,
-				title: 'Import Group Data Success.',
+				title: 'Import Job Data Success.',
 				type: 'SUCCESS',
 			})
 		)
 		.catch((error) =>
 			handleErrors(error, {
 				recipient: req.user.id,
-				title: 'Import Group Data Error',
+				title: 'Import Job Data Error',
 			})
 		);
 

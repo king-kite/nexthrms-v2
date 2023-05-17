@@ -3,6 +3,8 @@ import { PaginatedResponseType, SuccessResponseType } from './base';
 export type JobType = {
 	id: string;
 	name: string;
+	updatedAt: Date | string;
+	createdAt: Date | string;
 };
 
 export type JobImportQueryType = {
