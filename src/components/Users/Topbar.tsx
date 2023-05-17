@@ -1,5 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useMemo, useRef } from 'react';
+import React from 'react';
 import {
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
@@ -19,16 +19,11 @@ type TopbarProps = {
 	exportData?: { filtered?: string; all?: string };
 };
 
-const Topbar: FC<TopbarProps> = ({
-	loading,
-	openModal,
-	onSubmit,
-	exportData,
-}) => {
-	const searchRef = useRef<HTMLInputElement | null>(null);
+const Topbar = ({ loading, openModal, onSubmit, exportData }: TopbarProps) => {
+	const searchRef = React.useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const [canView, canCreate, canExport] = useMemo(() => {
+	const [canView, canCreate, canExport] = React.useMemo(() => {
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.user.VIEW]) ||

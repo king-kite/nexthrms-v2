@@ -1,11 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../../components/common';
 import { GroupTable, Form, Topbar } from '../../../components/Groups';
 import {
 	permissions,
+	samples,
 	DEFAULT_PAGINATION_SIZE,
 	GROUPS_EXPORT_URL,
+	GROUPS_IMPORT_URL,
 } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
@@ -17,7 +24,7 @@ import {
 	CreateGroupErrorResponseType,
 	GetGroupsResponseType,
 } from '../../../types';
-import { downloadFile, hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 
 interface ErrorType extends CreateGroupErrorResponseType {
 	message?: string;
@@ -28,16 +35,17 @@ const Groups = ({
 }: {
 	groups: GetGroupsResponseType['data'];
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.group.CREATE])
@@ -109,7 +117,7 @@ const Groups = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateGroupQueryType) => {
 			if (canCreate) createGroup(form);
 		},
@@ -125,59 +133,92 @@ const Groups = ({
 				onClick: refetch,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canCreate || canView) && data
-					? {
-							offset,
-							setOffset,
-							loading: isFetching,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			<Topbar
-				openModal={() => setModalVisible(true)}
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
+					setModalVisible(true);
+				}}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = GROUPS_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'groups.csv' : 'groups.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						open({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
-				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: GROUPS_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${search}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
-				<div className="mt-3">
+				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
 					<GroupTable groups={data?.result || []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
 				</div>
 			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
-							errors={errors}
-							resetErrors={() => setErrors(undefined)}
-							loading={loading}
-							success={formSuccess}
-							onSubmit={handleSubmit}
-						/>
+						bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								title="groups"
+								requirements={[
+									{
+										required: false,
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'name',
+										value: 'employee',
+									},
+									{
+										required: false,
+										title: 'description',
+										value: '"This group is for employee users only."',
+									},
+									{
+										required: false,
+										title: 'permissions',
+										value: '"can_mark_attendance,can_view_project"',
+									},
+									{
+										title: 'active',
+										value: 'true',
+									},
+								]}
+								sample={samples.groups}
+								url={GROUPS_IMPORT_URL}
+							/>
+						) : (
+							<Form
+								errors={errors}
+								resetErrors={() => setErrors(undefined)}
+								loading={loading}
+								success={formSuccess}
+								onSubmit={handleSubmit}
+							/>
+						)
 					}
 					description="Fill in the form below to add a new group"
 					title="Add Group"
