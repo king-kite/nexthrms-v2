@@ -28,6 +28,8 @@ export const clientSelectQuery = {
 		},
 	},
 	position: true,
+	updatedAt: true,
+	createdAt: true,
 };
 
 export const getClientsQuery = ({

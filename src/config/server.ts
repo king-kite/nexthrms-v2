@@ -41,6 +41,7 @@ export const ATTENDANCE_ADMIN_SINGLE_URL = (id: string) =>
 
 export const CLIENTS_URL = `${ROOT_URL}/clients/`;
 export const CLIENTS_EXPORT_URL = `${ROOT_URL}/clients/export/`;
+export const CLIENTS_IMPORT_URL = `${ROOT_URL}/clients/import/`;
 export const CLIENT_URL = (id: string) => `${ROOT_URL}/clients/${id}/`;
 
 export const DEPARTMENTS_URL = `${ROOT_URL}/departments/`;
