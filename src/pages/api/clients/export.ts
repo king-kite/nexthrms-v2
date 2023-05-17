@@ -1,21 +1,22 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions } from '../../../config';
+import { clientHeaders as headers, permissions } from '../../../config';
 import { getClients } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { GetClientsResponseType } from '../../../types';
+import {
+	GetClientsResponseType,
+	NextApiRequestExtendUser,
+} from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
+import { handlePrismaErrors } from '../../../validators';
 
-export default admin().get(async (req, res) => {
-	const hasExportPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.client.EXPORT]);
-
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
-
+// Get the records from the database, including the permissions
+async function getData(req: NextApiRequestExtendUser) {
 	const placeholder: GetClientsResponseType['data'] = {
 		active: 0,
 		inactive: 0,
@@ -36,66 +37,83 @@ export default admin().get(async (req, res) => {
 
 	const data = result ? result.data : placeholder;
 
-	const clients = data.result.map((client) => {
+	const values = data.result.map((client) => {
 		return {
 			id: client.id,
 			company: client.company,
 			position: client.position,
+			contact_id: client.contact.id,
 			first_name: client.contact.firstName,
 			last_name: client.contact.lastName,
 			email: client.contact.email,
 			dob: client.contact.profile?.dob || null,
+			image: client.contact.profile?.image || null,
 			gender: client.contact.profile?.gender || null,
 			address: client.contact.profile?.address || null,
 			phone: client.contact.profile?.phone || null,
 			state: client.contact.profile?.state || null,
 			city: client.contact.profile?.city || null,
-			is_active: client.contact.isActive,
+			updated_at: client.updatedAt,
+			created_at: client.createdAt,
 		};
 	});
 
-	if (req.query.type === 'csv') {
-		const data = parse(clients);
+	const perms = await getObjectPermissionExportData({
+		ids: values.map((value) => value.id),
+		model: 'clients',
+	});
 
-		res.setHeader('Content-Type', 'text/csv');
-		res.setHeader('Content-Disposition', 'attachment; filename="clients.csv"');
+	return {
+		data: values,
+		permissions: perms,
+	};
+}
 
-		return res.status(200).end(data);
-	} else {
-		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Clients'); // New Worksheet
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.client.EXPORT]);
 
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Company', key: 'company', width: 10 },
-			{ header: 'Position', key: 'position', width: 10 },
-			{ header: 'First Name', key: 'first_name', width: 10 },
-			{ header: 'Last Name', key: 'last_name', width: 10 },
-			{ header: 'Email Address', key: 'email', width: 10 },
-			{ header: 'Date of Birth', key: 'dob', width: 10 },
-			{ header: 'Gender', key: 'gender', width: 10 },
-			{ header: 'Address', key: 'address', width: 10 },
-			{ header: 'Phone', key: 'phone', width: 10 },
-			{ header: 'State', key: 'state', width: 10 },
-			{ header: 'City', key: 'city', width: 10 },
-			{ header: 'Is Active', key: 'is_active', width: 10 },
-		];
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-		worksheet.addRows(clients);
-
-		// Making first line in excel bold
-		worksheet.getRow(1).eachCell((cell) => {
-			cell.font = { bold: true };
+	getData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				title: 'Clients',
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
+		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
+			createNotification({
+				message,
+				messageId: data.file,
+				recipient: req.user.id,
+				title: 'Clients data export was successful.',
+				type: 'DOWNLOAD',
+			});
+		})
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
+			createNotification({
+				message: error.message,
+				recipient: req.user.id,
+				title: 'Clients data export failed.',
+				type: 'ERROR',
+			});
 		});
 
-		res.setHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		);
-		res.setHeader('Content-Disposition', 'attachment; filename="clients.xlsx"');
-
-		return workbook.xlsx.write(res).then(function () {
-			res.status(200).end();
-		});
-	}
+	return res.status(200).json({
+		status: 'success',
+		message:
+			'Your request was received successfully. A notification will be sent to you with a download link.',
+	});
 });

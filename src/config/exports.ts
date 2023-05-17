@@ -18,6 +18,25 @@ export const assetHeaders = [
 	'created_at',
 ];
 
+export const clientHeaders = [
+	'id',
+	'company',
+	'position',
+	'contact_id',
+	'first_name',
+	'last_name',
+	'email',
+	'image',
+	'gender',
+	'city',
+	'address',
+	'dob',
+	'phone',
+	'state',
+	'updated_at',
+	'created_at',
+];
+
 export const groupHeaders = [
 	'id',
 	'name',
