@@ -1,6 +1,7 @@
-import {exportDataParametersWithSearch as parameters} from "../../parameters";
-import responses from "../../responses";
-import * as tags from "../../tags";
+import { exportDataParametersWithSearch as parameters } from '../../parameters';
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
@@ -9,16 +10,9 @@ const path = {
 			...responses,
 			'200': {
 				content: {
-					'application/csv': {
+					'application/json': {
 						schema: {
-							type: 'string',
-							format: 'binary',
-						},
-					},
-					'application/excel': {
-						schema: {
-							type: 'string',
-							format: 'binary',
+							$ref: refs.BASE,
 						},
 					},
 				},

@@ -1,31 +1,25 @@
 import { exportDataParametersWithSearch as parameters } from '../../parameters';
-import responses from "../../responses";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
 		parameters,
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/csv": {
+					'application/json': {
 						schema: {
-							type: 'string',
-							format: 'binary'
-						},
-					},
-					"application/excel": {
-						schema: {
-							type: 'string',
-							format: 'binary'
+							$ref: refs.BASE,
 						},
 					},
 				},
-				description: "Export Users Information",
+				description: 'Export Users Information',
 			},
 		},
-		summary: "Export Users Data",
+		summary: 'Export Users Data',
 		tags: [tags.Users],
 	},
 };
