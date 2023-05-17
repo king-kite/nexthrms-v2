@@ -38,11 +38,16 @@ export const getGroupsQuery = ({
 	limit,
 	search = undefined,
 	where = {},
+	select = {},
 }: ParamsType & {
 	where?: Prisma.GroupWhereInput;
+	select?: Prisma.GroupSelect;
 }): Prisma.GroupFindManyArgs => {
 	const query: Prisma.GroupFindManyArgs = {
-		select: groupSelectQuery,
+		select: {
+			...groupSelectQuery,
+			...select,
+		},
 		orderBy: {
 			name: 'asc' as const,
 		},
@@ -154,6 +159,7 @@ export type GetGroupsParamsType = ParamsType & {
 export const getGroups = async (
 	params: GetGroupsParamsType & {
 		where?: Prisma.GroupWhereInput;
+		select?: Prisma.GroupSelect;
 	} = { search: undefined }
 ): Promise<{
 	total: number;

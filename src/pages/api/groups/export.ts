@@ -1,21 +1,18 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions } from '../../../config';
+import { groupHeaders as headers, permissions } from '../../../config';
 import { getGroups } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { GroupType } from '../../../types';
+import { NextApiRequestExtendUser, GroupType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
+import { handlePrismaErrors } from '../../../validators';
 
-export default admin().get(async (req, res) => {
-	const hasExportPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.group.EXPORT]);
-
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
-
+async function getGroupsData(req: NextApiRequestExtendUser) {
 	const placeholder: {
 		total: number;
 		result: GroupType[];
@@ -44,44 +41,68 @@ export default admin().get(async (req, res) => {
 		return {
 			id: group.id,
 			name: group.name,
+			description: groups.description,
 			permissions: group.permissions.map((perm) => perm.codename).join(','),
-			users: group.users.map((user) => user.id).join(','),
+			active: group.active,
 		};
 	});
 
-	if (req.query.type === 'csv') {
-		const data = parse(groups);
+	const perms = await getObjectPermissionExportData({
+		ids: groups.map((group) => group.id),
+		model: 'groups',
+	});
 
-		res.setHeader('Content-Type', 'text/csv');
-		res.setHeader('Content-Disposition', 'attachment; filename="groups.csv"');
+	return {
+		data: groups,
+		permissions: perms,
+	};
+}
 
-		return res.status(200).end(data);
-	} else {
-		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Groups'); // New Worksheet
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.group.EXPORT]);
 
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'Permissions', key: 'permissions', width: 10 },
-			{ header: 'Users', key: 'users', width: 10 },
-		];
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-		worksheet.addRows(groups);
-
-		// Making first line in excel bold
-		worksheet.getRow(1).eachCell((cell) => {
-			cell.font = { bold: true };
+	getGroupsData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				title: 'Groups',
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
+		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
+			createNotification({
+				message,
+				messageId: data.file,
+				recipient: req.user.id,
+				title: 'Groups data export was successful.',
+				type: 'DOWNLOAD',
+			});
+		})
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
+			createNotification({
+				message: error.message,
+				recipient: req.user.id,
+				title: 'Groups data export failed.',
+				type: 'ERROR',
+			});
 		});
 
-		res.setHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		);
-		res.setHeader('Content-Disposition', 'attachment; filename="groups.xlsx"');
-
-		return workbook.xlsx.write(res).then(function () {
-			res.status(200).end();
-		});
-	}
+	return res.status(200).json({
+		status: 'success',
+		message:
+			'Your request was received successfully. A notification will be sent to you with a download link.',
+	});
 });
