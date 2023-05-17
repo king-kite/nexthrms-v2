@@ -75,7 +75,7 @@ const Jobs = ({
 		return [canCreate, canExport, canView, canEdit];
 	}, [authData]);
 
-	const { data, isLoading, isFetching, refetch } = useGetJobsQuery(
+	const { data, isFetching, refetch } = useGetJobsQuery(
 		{
 			limit,
 			offset,
