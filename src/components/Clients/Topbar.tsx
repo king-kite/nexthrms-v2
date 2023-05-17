@@ -1,6 +1,11 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useRef, useMemo } from 'react';
-import { FaCloudDownloadAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
+import React from 'react';
+import {
+	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
+	FaSearch,
+	FaUserPlus,
+} from 'react-icons/fa';
 
 import { ExportForm } from '../common';
 import { permissions } from '../../config';
@@ -8,24 +13,20 @@ import { useAuthContext } from '../../store/contexts';
 import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
-	openModal: () => void;
+	openModal: (bulk: boolean) => void;
 	loading: boolean;
 	onSubmit: (search: string) => void;
-	exportData: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading?: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
-const Topbar: FC<TopbarProps> = ({
-	exportData,
-	exportLoading,
-	loading,
-	openModal,
-	onSubmit,
-}) => {
-	const searchRef = useRef<HTMLInputElement | null>(null);
+const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
+	const searchRef = React.useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const [canView, canCreate, canExport] = useMemo(() => {
+	const [canView, canCreate, canExport] = React.useMemo(() => {
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
@@ -81,24 +82,35 @@ const Topbar: FC<TopbarProps> = ({
 				</form>
 			)}
 			{canCreate && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
-					<Button
-						caps
-						iconLeft={FaUserPlus}
-						onClick={openModal}
-						margin="lg:mr-6"
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title="add client"
-					/>
-				</div>
+				<>
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<Button
+							caps
+							iconLeft={FaUserPlus}
+							onClick={() => openModal(false)}
+							margin="lg:mr-6"
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title="add client"
+						/>
+					</div>
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<Button
+							caps
+							iconLeft={FaCloudUploadAlt}
+							onClick={() => openModal(true)}
+							margin="lg:mr-6"
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title="bulk import"
+						/>
+					</div>
+				</>
 			)}
 			{canExport && (
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 					<ButtonDropdown
-						component={() => (
-							<ExportForm loading={exportLoading} onSubmit={exportData} />
-						)}
+						component={() => <ExportForm {...exportData} />}
 						props={{
 							caps: true,
 							iconLeft: FaCloudDownloadAlt,

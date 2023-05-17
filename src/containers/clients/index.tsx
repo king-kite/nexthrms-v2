@@ -1,11 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import React from 'react';
 
-import { Container, Modal } from '../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../components/common';
 import { Cards, ClientTable, Form, Topbar } from '../../components/Clients';
 import {
 	permissions,
+	samples,
 	CLIENTS_EXPORT_URL,
+	CLIENTS_IMPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../../config';
 import { useAuthContext, useAlertContext } from '../../store/contexts';
@@ -17,20 +23,20 @@ import {
 	CreateClientErrorResponseType,
 	GetClientsResponseType,
 } from '../../types';
-import { downloadFile, hasModelPermission } from '../../utils';
+import { hasModelPermission } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
-	const [modalVisible, setModalVisible] = useState(false);
-
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.client.CREATE])
@@ -53,7 +59,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 
 	const { data, refetch, isLoading, isFetching } = useGetClientsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -90,7 +96,7 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 		}
 	);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: FormData) => {
 			if (canCreate) createClient(form);
 		},
@@ -110,16 +116,6 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				loading: isFetching,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canView || canCreate) && data
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			{(canView || canCreate) && (
 				<Cards
@@ -129,49 +125,97 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 				/>
 			)}
 			<Topbar
-				openModal={() => setModalVisible(true)}
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
+					setModalVisible(true);
+				}}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				exportData={async (type, filtered) => {
-					if (canExport) {
-						let url = CLIENTS_EXPORT_URL + '?type=' + type;
-						if (filtered) {
-							url =
-								url +
-								`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-						}
-						const result = await downloadFile({
-							url,
-							name: type === 'csv' ? 'clients.csv' : 'clients.xlsx',
-							setLoading: setExportLoading,
-						});
-						if (result?.status !== 200) {
-							open({
-								type: 'danger',
-								message: 'An error occurred. Unable to export file!',
-							});
-						}
-					}
-				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: CLIENTS_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`,
+						  }
+				}
 			/>
 			{(canView || canCreate) && (
-				<ClientTable clients={data ? data.result : []} />
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+					<ClientTable clients={data ? data.result : []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
 			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
-							errors={
-								createError
-									? { ...createError?.data, message: createError.message }
-									: undefined
-							}
-							loading={createData.isLoading}
-							onSubmit={(form: FormData) => handleSubmit(form)}
-							success={createData.isSuccess}
-						/>
+						bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								title="groups"
+								requirements={[
+									{
+										required: false,
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'company',
+										value: 'Forest Co',
+									},
+									{
+										title: 'position',
+										value: 'Business Consultant',
+									},
+									{
+										title: 'contact_id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.clients}
+								url={CLIENTS_IMPORT_URL}
+							/>
+						) : (
+							<Form
+								errors={
+									createError
+										? { ...createError?.data, message: createError.message }
+										: undefined
+								}
+								loading={createData.isLoading}
+								onSubmit={(form: FormData) => handleSubmit(form)}
+								success={createData.isSuccess}
+							/>
+						)
 					}
 					keepVisible
 					description="Fill in the form below to add a new Client"

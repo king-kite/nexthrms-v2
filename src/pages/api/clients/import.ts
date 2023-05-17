@@ -53,7 +53,6 @@ function createData(
 				input.map((data) =>
 					prisma.client.upsert({
 						where: {
-							id: data.id,
 							contactId: data.contactId,
 						},
 						update: data,
