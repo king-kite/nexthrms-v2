@@ -367,7 +367,7 @@ model ProjectFile {
   file        String
   size        Int
   storageInfo Json?  @map("storage_info")
-  type        String @default("application") @map("type")
+  type        String @default("file") @map("type")
 
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String  @map("project_id") @db.Uuid

@@ -10,6 +10,11 @@ const samples = {
 	clients: getSamples('clients'),
 	groups: getSamples('groups'),
 	jobs: getSamples('jobs'),
+	projects: getSamples('projects'),
+	projectFiles: getSamples('project_files'),
+	projectTasks: getSamples('project_tasks'),
+	projectTeam: getSamples('project_team'),
+	projectTaskFollowers: getSamples('project_task_followers'),
 	users: getSamples('users'),
 };
 

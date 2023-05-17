@@ -1,3 +1,5 @@
+import { ProjectPriority } from '@prisma/client';
+
 import {
 	BaseResponseType,
 	PaginatedResponseType,
@@ -29,16 +31,33 @@ export type ProjectType = {
 	endDate: Date | string;
 	initialCost: number;
 	rate: number;
-	priority: 'HIGH' | 'MEDIUM' | 'LOW';
+	priority: ProjectPriority;
 	team: ProjectTeamType[];
 	progress?: number; // In Decimal. Multiply by 100 to get percentage
+	createdAt: Date | string;
 	updatedAt: Date | string;
+};
+
+export type ProjectImportQueryType = {
+	id: string;
+	client_id?: string | null;
+	name: string;
+	description: string;
+	completed: boolean;
+	start_date: Date | string;
+	end_date: Date | string;
+	initial_cost: number;
+	rate: number;
+	priority: ProjectPriority;
+	files?: string | null;
+	created_at: Date | string;
+	updated_at: Date | string;
 };
 
 export type CreateProjectQueryType = {
 	name: string;
 	description: string;
-	priority: 'HIGH' | 'MEDIUM' | 'LOW';
+	priority: ProjectPriority;
 	initialCost: number;
 	rate: number;
 	startDate: string;
@@ -91,6 +110,17 @@ export type ProjectTeamType = {
 		} | null;
 	};
 	isLeader: boolean;
+	createdAt: Date | string;
+	updatedAt: Date | string;
+};
+
+export type ProjectTeamImportQueryType = {
+	id?: string | null;
+	is_leader: boolean;
+	employee_id: string;
+	project_id: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 };
 
 export type GetProjectTeamResponseType = PaginatedResponseType<
@@ -128,7 +158,21 @@ export type ProjectFileType = {
 			email: string;
 		};
 	};
+	createdAt: Date | string;
 	updatedAt: Date | string;
+};
+
+export type ProjectFileImportQueryType = {
+	id?: string | null;
+	name: string;
+	file: string;
+	size: number;
+	storage_info?: string | null;
+	type: string;
+	project_id: string;
+	uploaded_by?: string | null;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 };
 
 export type CreateProjectFileQueryType = {
@@ -154,7 +198,7 @@ export type ProjectTaskType = {
 	description: string;
 	completed: boolean;
 	dueDate: Date | string;
-	priority: 'HIGH' | 'MEDIUM' | 'LOW';
+	priority: ProjectPriority;
 	followers: {
 		id: string;
 		member: {
@@ -162,12 +206,37 @@ export type ProjectTaskType = {
 			employee: ProjectTeamType['employee'];
 		};
 		isLeader: boolean;
+		createdAt: Date | string;
+		updatedAt: Date | string;
 	}[];
 	project: {
 		id: string;
 		name: string;
 	};
+	createdAt: Date | string;
 	updatedAt: Date | string;
+};
+
+export type ProjectTaskImportQueryType = {
+	project_id: string;
+	id?: string;
+	name: string;
+	description: string;
+	completed?: boolean;
+	priority: ProjectPriority;
+	due_date: Date | string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
+};
+
+export type ProjectTaskFollowerImportQueryType = {
+	id?: string | null;
+	is_leader: boolean;
+	member_id: string;
+	project_id: string;
+	task_id: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 };
 
 export type GetProjectTasksResponseType = SuccessResponseType<{
@@ -185,7 +254,7 @@ export type CreateProjectTaskQueryType = {
 	name: string;
 	description: string;
 	dueDate: Date | string;
-	priority: 'HIGH' | 'MEDIUM' | 'LOW';
+	priority: ProjectPriority;
 	followers?: {
 		memberId: string; // -> Project Team (Member) ID
 		isLeader?: boolean;

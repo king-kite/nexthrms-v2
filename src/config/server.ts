@@ -74,23 +74,38 @@ export const OVERTIME_ADMIN_EXPORT_URL = `${ROOT_URL}/overtime/admin/export/`;
 
 export const PROJECTS_URL = `${ROOT_URL}/projects/`;
 export const PROJECTS_EXPORT_URL = `${ROOT_URL}/projects/export/`;
+export const PROJECTS_IMPORT_URL = `${ROOT_URL}/projects/import/`;
 export const PROJECT_URL = (id: string) => `${ROOT_URL}/projects/${id}/`;
 export const PROJECT_TEAM_URL = (id: string) =>
 	`${ROOT_URL}/projects/${id}/team/`;
+export const PROJECT_TEAM_EXPORT_URL = (id: string) =>
+	`${ROOT_URL}/projects/${id}/team/export/`;
+export const PROJECT_TEAM_IMPORT_URL = (id: string) =>
+	`${ROOT_URL}/projects/${id}/team/import/`;
 export const PROJECT_TEAM_MEMBER_URL = (project_id: string, id: string) =>
 	`${ROOT_URL}/projects/${project_id}/team/${id}/`;
 export const PROJECT_FILES_URL = (id: string) =>
 	`${ROOT_URL}/projects/${id}/files/`;
+export const PROJECT_FILES_EXPORT_URL = (id: string) =>
+	`${ROOT_URL}/projects/${id}/files/export/`;
+export const PROJECT_FILES_IMPORT_URL = (id: string) =>
+	`${ROOT_URL}/projects/${id}/files/import/`;
 export const PROJECT_FILE_URL = (project_id: string, id: string) =>
 	`${ROOT_URL}/projects/${project_id}/files/${id}/`;
 export const PROJECT_TASKS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/`;
 export const PROJECT_TASKS_EXPORTS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/export/`;
+export const PROJECT_TASKS_IMPORT_URL = (project_id: string) =>
+	`${ROOT_URL}/projects/${project_id}/tasks/import/`;
 export const PROJECT_TASK_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/`;
 export const PROJECT_TASK_FOLLOWERS_URL = (pid: string, id: string) =>
 	`${ROOT_URL}/projects/${pid}/tasks/${id}/followers/`;
+export const PROJECT_TASK_FOLLOWERS_EXPORT_URL = (pid: string, id: string) =>
+	`${ROOT_URL}/projects/${pid}/tasks/${id}/followers/export/`;
+export const PROJECT_TASK_FOLLOWERS_IMPORT_URL = (pid: string, id: string) =>
+	`${ROOT_URL}/projects/${pid}/tasks/${id}/followers/import/`;
 export const PROJECT_TASK_FOLLOWER_URL = (
 	pid: string,
 	taskId: string,

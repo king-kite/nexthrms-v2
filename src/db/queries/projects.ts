@@ -41,6 +41,7 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 			},
 		},
 	},
+	createdAt: true,
 	updatedAt: true,
 	team: {
 		select: {
@@ -223,6 +224,7 @@ export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 		},
 	},
 	updatedAt: true,
+	createdAt: true,
 };
 
 export const getProjectFilesQuery = ({
@@ -275,6 +277,8 @@ export const getProjectFile = async (id: string) => {
 export const teamSelectQuery: Prisma.ProjectTeamSelect = {
 	id: true,
 	isLeader: true,
+	updatedAt: true,
+	createdAt: true,
 	employee: {
 		select: {
 			id: true,
@@ -414,6 +418,7 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 	description: true,
 	priority: true,
 	dueDate: true,
+	createdAt: true,
 	updatedAt: true,
 	project: {
 		select: {
@@ -610,6 +615,8 @@ export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 			},
 		},
 	},
+	updatedAt: true,
+	createdAt: true,
 };
 
 export const getTaskFollowersQuery = ({

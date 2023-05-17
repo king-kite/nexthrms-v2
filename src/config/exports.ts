@@ -37,6 +37,64 @@ export const groupHeaders = [
 
 export const jobHeaders = ['id', 'name', 'updated_at', 'created_at'];
 
+export const projectHeaders = [
+	'id',
+	'client_id',
+	'name',
+	'description',
+	'completed',
+	'start_date',
+	'end_date',
+	'initial_cost',
+	'rate',
+	'priority',
+	'updated_at',
+	'created_at',
+];
+
+export const projectFileHeaders = [
+	'id',
+	'name',
+	'file',
+	'size',
+	'storage_info',
+	'type',
+	'project_id',
+	'uploaded_by',
+	'created_at',
+	'updated_at',
+];
+
+export const projectTeamHeaders = [
+	'id',
+	'is_leader',
+	'employee_id',
+	'project_id',
+	'created_at',
+	'updated_at',
+];
+
+export const projectTaskHeaders = [
+	'project_id',
+	'id',
+	'name',
+	'description',
+	'completed',
+	'priority',
+	'due_date',
+	'updated_at',
+	'created_at',
+];
+
+export const projectTaskFollowerHeaders = [
+	'id',
+	'is_leader',
+	'member_id',
+	'task_id',
+	'created_at',
+	'updated_at',
+];
+
 export const userHeaders = [
 	'id',
 	'email',

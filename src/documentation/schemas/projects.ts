@@ -60,6 +60,10 @@ export const ProjectFileModel = {
 				},
 			},
 		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
 		updatedAt: {
 			type: 'string',
 			format: 'date-time',
@@ -121,6 +125,14 @@ export const ProjectTeamModel = {
 					},
 				},
 			},
+		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
+		updatedAt: {
+			type: 'string',
+			format: 'date-time',
 		},
 	},
 };
@@ -211,6 +223,10 @@ export const ProjectModel = {
 				$ref: PROJECT_TEAM,
 			},
 		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
 		updatedAt: {
 			type: 'string',
 			format: 'date-time',
@@ -259,6 +275,10 @@ export const ProjectTaskModel = {
 					type: 'string',
 				},
 			},
+		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
 		},
 		updatedAt: {
 			type: 'string',
@@ -330,6 +350,14 @@ export const ProjectTaskFollowerModel = {
 					},
 				},
 			},
+		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
+		updatedAt: {
+			type: 'string',
+			format: 'date-time',
 		},
 	},
 };
