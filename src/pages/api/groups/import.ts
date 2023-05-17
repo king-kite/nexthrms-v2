@@ -28,7 +28,9 @@ function getUserInput(group: GroupImportQueryType) {
 		id: group.id && group.id.length > 0 ? group.id : undefined,
 		name: group.name,
 		description: group.description,
-		active: group.active,
+		active: group.active
+			? group.active.toString().toLowerCase() === 'true'
+			: false,
 		permissions: group.permissions ? group.permissions.split(',') : null,
 	};
 }

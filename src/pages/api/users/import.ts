@@ -45,10 +45,18 @@ function getUserInput(user: UserImportQueryType) {
 		},
 		permissions: user.permissions ? user.permissions.split(',') : null,
 		groups: user.groups ? user.groups.split(',') : null,
-		isActive: !!user.is_active,
-		isAdmin: !!user.is_admin,
-		isSuperUser: !!user.is_superuser,
-		isEmailVerified: !!user.email_verified,
+		isActive: user.is_active
+			? user.is_active.toString().toLowerCase() === 'true'
+			: false,
+		isAdmin: user.is_admin
+			? user.is_admin.toString().toLowerCase() === 'true'
+			: false,
+		isSuperUser: user.is_superuser
+			? user.is_superuser.toString().toLowerCase() === 'true'
+			: false,
+		isEmailVerified: user.email_verified
+			? user.email_verified.toString().toLowerCase() === 'true'
+			: false,
 		updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
 		createdAt: user.created_at ? new Date(user.created_at) : new Date(),
 	};
