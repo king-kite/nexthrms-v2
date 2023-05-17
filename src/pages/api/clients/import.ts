@@ -90,7 +90,7 @@ function createData(
 export default admin().post(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.asset.CREATE]);
+		hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
@@ -114,7 +114,7 @@ export default admin().post(async (req, res) => {
 		headers,
 		path: files.data.filepath,
 		type: files.data.mimetype,
-		zipName: 'assets.csv',
+		zipName: 'clients.csv',
 	})
 		.then((result) => createData(req, result.data, result.permissions))
 		.then(() =>
