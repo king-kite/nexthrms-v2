@@ -43,6 +43,7 @@ export const userHeaders = [
 	'is_superuser',
 	'email_verified',
 	'permissions',
+	'groups',
 	'updated_at',
 	'created_at',
 ];

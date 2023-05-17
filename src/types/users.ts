@@ -208,7 +208,8 @@ export type UserImportQueryType = {
 	city?: string | null;
 	state?: string | null;
 	phone?: string | null;
-	permissions?: string;
+	permissions?: string | null;
+	groups?: string | null;
 	is_active?: boolean;
 	is_admin?: boolean;
 	is_superuser?: boolean;

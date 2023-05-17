@@ -26,6 +26,9 @@ type DataType = UserType & {
 	permissions: {
 		codename: string;
 	}[];
+	groups: {
+		name: string;
+	}[];
 };
 
 async function getUsersData(req: NextApiRequestExtendUser) {
@@ -53,6 +56,11 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 							codename: true,
 						},
 					},
+					groups: {
+						select: {
+							name: true,
+						},
+					},
 				},
 			});
 		},
@@ -73,6 +81,7 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 			state: user.profile?.state || null,
 			city: user.profile?.city || null,
 			permissions: user.permissions.map((perm) => perm.codename).join(','),
+			groups: user.groups.map((group) => group.name).join(','),
 			is_active: user.isActive,
 			is_admin: user.isAdmin,
 			is_superuser: user.isSuperUser,

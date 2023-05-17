@@ -44,6 +44,7 @@ function getUserInput(user: UserImportQueryType) {
 			phone: user.phone,
 		},
 		permissions: user.permissions ? user.permissions.split(',') : null,
+		groups: user.groups ? user.groups.split(',') : null,
 		isActive: !!user.is_active,
 		isAdmin: !!user.is_admin,
 		isSuperUser: !!user.is_superuser,
@@ -85,6 +86,11 @@ function createUsers(
 										set: data.permissions.map((codename) => ({ codename })),
 								  }
 								: undefined,
+							groups: data.groups
+								? {
+										set: data.groups.map((name) => ({ name })),
+								  }
+								: undefined,
 						},
 						create: {
 							...data,
@@ -95,6 +101,11 @@ function createUsers(
 							permissions: data.permissions
 								? {
 										connect: data.permissions.map((codename) => ({ codename })),
+								  }
+								: undefined,
+							groups: data.groups
+								? {
+										connect: data.groups.map((name) => ({ name })),
 								  }
 								: undefined,
 						},
