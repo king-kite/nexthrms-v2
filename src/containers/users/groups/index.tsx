@@ -72,7 +72,7 @@ const Groups = ({
 			offset,
 			search,
 			users: {
-				limit: DEFAULT_PAGINATION_SIZE,
+				limit,
 				offset: 0,
 				search: '',
 			},
