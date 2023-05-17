@@ -192,30 +192,33 @@ const Jobs = ({
 					</div>
 				)}
 			</div>
-			<JobTable
-				jobs={data?.result || []}
-				updateJob={
-					!canEdit
-						? undefined
-						: (id: string, form: { name: string }) => {
-								setEditId(id);
-								setForm({ name: form.name });
-								setModalVisible(true);
-						  }
-				}
-			/>
-			{data && data?.total > 0 && (
-				<TablePagination
-					disabled={isFetching}
-					totalItems={data.total}
-					onChange={(pageNo: number) => {
-						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-						offset !== value && setOffset(value * limit);
-					}}
-					onSizeChange={(size) => setLimit(size)}
-					pageSize={limit}
+			<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+				<JobTable
+					jobs={data?.result || []}
+					updateJob={
+						!canEdit
+							? undefined
+							: (id: string, form: { name: string }) => {
+									setEditId(id);
+									setForm({ name: form.name });
+									setModalVisible(true);
+							  }
+					}
 				/>
-			)}
+				{data && data?.total > 0 && (
+					<TablePagination
+						disabled={isFetching}
+						totalItems={data.total}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * limit);
+						}}
+						onSizeChange={(size) => setLimit(size)}
+						pageSize={limit}
+					/>
+				)}
+			</div>
+
 			{(canCreate || canEdit) && (
 				<Modal
 					close={() => {

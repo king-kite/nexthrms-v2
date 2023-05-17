@@ -158,11 +158,7 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 		);
 	}, [jobs, updateJob, canViewPermissions, handleDelete, isLoading]);
 
-	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table heads={heads} rows={rows} />
-		</div>
-	);
+	return <Table heads={heads} rows={rows} />;
 };
 
 export default JobTable;
