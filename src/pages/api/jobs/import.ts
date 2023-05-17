@@ -103,7 +103,7 @@ export default admin().post(async (req, res) => {
 		headers,
 		path: files.data.filepath,
 		type: files.data.mimetype,
-		zipName: 'groups.csv',
+		zipName: 'jobs.csv',
 	})
 		.then((result) => createData(req, result.data, result.permissions))
 		.then(() =>
