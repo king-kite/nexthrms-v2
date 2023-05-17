@@ -2,7 +2,7 @@ import * as routes from '../../../config/server';
 
 import group from './group';
 import groups from './groups';
-import exportGroups from './exportGroups';
+import exportGroups from './export-groups';
 
 const path = {
 	[routes.GROUPS_URL]: groups,

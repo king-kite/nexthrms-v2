@@ -1,7 +1,8 @@
 import * as routes from '../../../config/server';
+import { getImportResponse } from '../../responses';
+import * as tags from '../../tags';
 
 import exportUsers from './export-users';
-import importUsers from './import-users';
 import userActivation from './user-activation';
 import passwordChange from './password-change';
 import user from './user'; // Single User Path
@@ -17,7 +18,10 @@ const paths = {
 	[routes.CHANGE_USER_PASSWORD_URL]: passwordChange,
 	[routes.ACTIVATE_USER_URL]: userActivation,
 	[routes.USERS_EXPORT_URL]: exportUsers,
-	[routes.USERS_IMPORT_URL]: importUsers,
+	[routes.USERS_IMPORT_URL]: getImportResponse({
+		title: 'Import Users Data',
+		tags: [tags.Users],
+	}),
 };
 
 export default paths;
