@@ -108,22 +108,23 @@ function createAssets(
 				)
 			);
 
-			// Asset users can view their assets
-			await Promise.all(
-				result.reduce((acc: Promise<any>[], asset) => {
-					if (!asset.user || asset.user.id === req.user.id) return acc;
-					return [
-						...acc,
-						updateObjectPermissions({
-							model: 'assets',
-							objectId: asset.id,
-							permissions: ['VIEW'],
-							users: [asset.user.id],
-						}),
-					];
-				}, [])
-			);
 			if (perms) await importPermissions(perms);
+			// Asset users can view their assets
+			else
+				await Promise.all(
+					result.reduce((acc: Promise<any>[], asset) => {
+						if (!asset.user || asset.user.id === req.user.id) return acc;
+						return [
+							...acc,
+							updateObjectPermissions({
+								model: 'assets',
+								objectId: asset.id,
+								permissions: ['VIEW'],
+								users: [asset.user.id],
+							}),
+						];
+					}, [])
+				);
 			resolve(result);
 		} catch (error) {
 			reject(error);
