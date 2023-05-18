@@ -56,16 +56,26 @@ const responses = {
 
 export function getExportResponse({
 	description,
+	parameters,
 	tags,
 	title,
 }: {
 	description?: string;
+	parameters?: {
+		in: 'path' | 'query';
+		name: string;
+		required?: boolean;
+		schema?: {
+			type?: string;
+			format?: string;
+		};
+	}[];
 	tags: string[];
 	title: string;
 }) {
 	return {
 		get: {
-			parameters: exportDataParametersWithSearch,
+			parameters: [...exportDataParametersWithSearch, ...(parameters || [])],
 			responses: {
 				...responses,
 				'200': {
@@ -86,14 +96,25 @@ export function getExportResponse({
 }
 
 export function getImportResponse({
+	parameters,
 	tags,
 	title: summary,
 }: {
+	parameters?: {
+		in: 'path' | 'query';
+		name: string;
+		required?: boolean;
+		schema?: {
+			type?: string;
+			format?: string;
+		};
+	}[];
 	tags: string[];
 	title: string;
 }) {
 	return {
 		post: {
+			parameters,
 			requestBody: {
 				required: true,
 				content: {
