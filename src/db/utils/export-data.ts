@@ -14,20 +14,19 @@ function exportData(
 	headers: string[],
 	options: {
 		permissionTitle?: string;
-		title: string;
+		title?: string;
 		type: string; // 'csv' | 'excel';
 		userId?: string;
 	} = {
-		title: 'Sheet 1',
 		type: 'csv',
 	}
 ) {
 	return new Promise<{ file: string; size: number | null }>(
 		async (resolve, reject) => {
 			try {
-				const csvTitle = options.title.toLowerCase() + '.csv';
-				const excelTitle = options.title.toLowerCase() + '.xlsx';
-				const zipTitle = options.title.toLowerCase() + '.zip';
+				const csvTitle = (options.title || 'Data').toLowerCase() + '.csv';
+				const excelTitle = (options.title || 'Data').toLowerCase() + '.xlsx';
+				const zipTitle = (options.title || 'Data').toLowerCase() + '.zip';
 
 				let uploadInfo: {
 					buffer: Buffer;
@@ -36,7 +35,7 @@ function exportData(
 				} | null = null;
 
 				const workbook = new excelJS.Workbook(); // Create a new workbook
-				const worksheet = workbook.addWorksheet(options.title); // New Worksheet
+				const worksheet = workbook.addWorksheet(options.title || 'Data'); // New Worksheet
 
 				// Add the headers
 				worksheet.columns = headers.map((key) => ({

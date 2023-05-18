@@ -59,7 +59,6 @@ export default admin().get(async (req, res) => {
 	getJobsData(req)
 		.then((data) => {
 			return exportData(data, headers, {
-				title: 'Jobs',
 				type: (req.query.type as string) || 'csv',
 				userId: req.user.id,
 			});
