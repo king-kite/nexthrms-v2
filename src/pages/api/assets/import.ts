@@ -159,7 +159,6 @@ export default admin().post(async (req, res) => {
 		headers,
 		path: files.data.filepath,
 		type: files.data.mimetype,
-		zipName: 'assets.csv',
 	})
 		.then((result) => createAssets(req, result.data, result.permissions))
 		.then(() =>

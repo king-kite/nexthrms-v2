@@ -230,15 +230,20 @@ export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 export const getProjectFilesQuery = ({
 	id,
 	where = {},
+	select = {},
 }: ParamsType & {
 	id: string;
 	where?: Prisma.ProjectFileWhereInput;
+	select?: Prisma.ProjectFileSelect;
 }): Prisma.ProjectFileFindManyArgs => {
 	const query: Prisma.ProjectFileFindManyArgs = {
 		orderBy: {
 			updatedAt: 'asc' as const,
 		},
-		select: projectFileSelectQuery,
+		select: {
+			...projectFileSelectQuery,
+			...select,
+		},
 		where: {
 			projectId: id,
 			...where,
@@ -252,6 +257,7 @@ export const getProjectFiles = async (
 	params: ParamsType & {
 		id: string;
 		where?: Prisma.ProjectFileWhereInput;
+		select?: Prisma.ProjectFileSelect;
 	} = {
 		id: '',
 	}

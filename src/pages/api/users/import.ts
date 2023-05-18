@@ -167,7 +167,6 @@ export default admin().post(async (req, res) => {
 		headers,
 		path: files.data.filepath,
 		type: files.data.mimetype,
-		zipName: 'users.csv',
 	})
 		.then((result) => createUsers(req, result.data, result.permissions))
 		.then(() =>

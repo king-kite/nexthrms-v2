@@ -167,7 +167,8 @@ export type ProjectFileImportQueryType = {
 	name: string;
 	file: string;
 	size: number;
-	storage_info?: string | null;
+	storage_info_keys?: string | null;
+	storage_info_values?: string | null;
 	type: string;
 	project_id: string;
 	uploaded_by?: string | null;
