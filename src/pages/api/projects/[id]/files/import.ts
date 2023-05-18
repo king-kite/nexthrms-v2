@@ -75,8 +75,14 @@ function createData(
 				input.map((data) =>
 					prisma.projectFile.upsert({
 						where: { id: data.id },
-						update: data,
-						create: data,
+						update: {
+							...data,
+							projectId: req.query.id as string,
+						},
+						create: {
+							...data,
+							projectId: req.query.id as string,
+						},
 					})
 				)
 			);

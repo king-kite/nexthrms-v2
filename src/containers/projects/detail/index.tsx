@@ -7,6 +7,7 @@ import { FaPen, FaTasks, FaTrash, FaUsers, FaUserShield } from 'react-icons/fa';
 import { Container, Modal } from '../../../components/common';
 import {
 	Form,
+	ImportExport,
 	ProjectDetail,
 	ProjectFiles,
 	ProjectImages,
@@ -258,6 +259,10 @@ const Detail = ({
 									</p>
 								</div>
 							</div>
+
+							{(authData?.isAdmin || authData?.isSuperUser) && (
+								<ImportExport id={id} />
+							)}
 
 							{files && (
 								<>
