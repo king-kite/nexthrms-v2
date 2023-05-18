@@ -49,7 +49,7 @@ function getDataInput(data: ProjectFileImportQueryType) {
 		projectId: data.project_id,
 		name: data.name,
 		file: data.file,
-		size: data.size,
+		size: +data.size,
 		type: data.type,
 		storageInfo,
 		uploadedBy: data.uploaded_by ? data.uploaded_by : null,
