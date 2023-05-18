@@ -8,6 +8,7 @@ import {
 	exportData,
 	getObjectPermissionExportData,
 	getRecords,
+	hasViewPermission,
 } from '../../../../../db/utils';
 import { admin } from '../../../../../middlewares';
 import {
@@ -78,53 +79,65 @@ async function getData(req: NextApiRequestExtendUser) {
 	};
 }
 
-export default admin().get(async (req, res) => {
-	const hasPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [
-			permissions.projectfile.EXPORT,
-		]);
-
-	if (!hasPerm) throw new NextApiErrorMessage(403);
-
-	getData(req)
-		.then((data) => {
-			return exportData(data, headers, {
-				title: 'Project Files',
-				type: (req.query.type as string) || 'csv',
-				userId: req.user.id,
-			});
-		})
-		.then((data) => {
-			let message =
-				'File exported successfully. Click on the download link to proceed!';
-			if (data.size) {
-				const size = String(data.size / (1024 * 1024));
-				const sizeString =
-					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
-				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
-			}
-			createNotification({
-				message,
-				messageId: data.file,
-				recipient: req.user.id,
-				title: 'Project files data export was successful.',
-				type: 'DOWNLOAD',
-			});
-		})
-		.catch((err) => {
-			const error = handlePrismaErrors(err);
-			createNotification({
-				message: error.message,
-				recipient: req.user.id,
-				title: 'Project files data export failed.',
-				type: 'ERROR',
-			});
+export default admin()
+	.use(async (req, res, next) => {
+		// Check the user can view the project
+		const canViewProject = await hasViewPermission({
+			model: 'projects',
+			perm: 'project',
+			objectId: req.query.id as string,
+			user: req.user,
 		});
+		if (!canViewProject) throw new NextApiErrorMessage(403);
+		next();
+	})
+	.get(async (req, res) => {
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.projectfile.EXPORT,
+			]);
 
-	return res.status(200).json({
-		status: 'success',
-		message:
-			'Your request was received successfully. A notification will be sent to you with a download link.',
+		if (!hasPerm) throw new NextApiErrorMessage(403);
+
+		getData(req)
+			.then((data) => {
+				return exportData(data, headers, {
+					title: 'Project Files',
+					type: (req.query.type as string) || 'csv',
+					userId: req.user.id,
+				});
+			})
+			.then((data) => {
+				let message =
+					'File exported successfully. Click on the download link to proceed!';
+				if (data.size) {
+					const size = String(data.size / (1024 * 1024));
+					const sizeString =
+						size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+					message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+				}
+				createNotification({
+					message,
+					messageId: data.file,
+					recipient: req.user.id,
+					title: 'Project files data export was successful.',
+					type: 'DOWNLOAD',
+				});
+			})
+			.catch((err) => {
+				const error = handlePrismaErrors(err);
+				createNotification({
+					message: error.message,
+					recipient: req.user.id,
+					title: 'Project files data export failed.',
+					type: 'ERROR',
+				});
+			});
+
+		return res.status(200).json({
+			status: 'success',
+			message:
+				'Your request was received successfully. A notification will be sent to you with a download link.',
+		});
 	});
-});
