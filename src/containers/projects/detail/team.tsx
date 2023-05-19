@@ -158,8 +158,8 @@ const Team = ({
 			{data && (
 				<div className="w-full">
 					<div className="flex flex-wrap items-center w-full">
-						{canEdit && authData?.isAdmin && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3">
+						{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 								<Button
 									iconLeft={FaCloudUploadAlt}
 									onClick={() => setModalVisible(true)}
@@ -169,7 +169,7 @@ const Team = ({
 							</div>
 						)}
 						{canExport && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3">
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 								<ButtonDropdown
 									dropList={[
 										{
@@ -201,14 +201,14 @@ const Team = ({
 					<div className="py-2 w-full sm:px-4">
 						<div className="bg-white p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									{data.name}
 								</h3>
 							</div>
 						</div>
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									Client
 								</h3>
 							</div>
@@ -246,7 +246,7 @@ const Team = ({
 						</div>
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									Project Leaders
 								</h3>
 							</div>
@@ -330,7 +330,7 @@ const Team = ({
 						</div>
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									Project Team
 								</h3>
 							</div>
@@ -413,7 +413,7 @@ const Team = ({
 							)}
 						</div>
 					</div>
-					{canEdit && authData?.isAdmin && (
+					{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
 						<Modal
 							close={() => setModalVisible(false)}
 							component={
