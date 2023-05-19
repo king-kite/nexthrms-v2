@@ -1,14 +1,24 @@
-import { ButtonType } from 'kite-react-tailwind';
+import { Alert, Button, ButtonDropdown, ButtonType } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
+import React from 'react';
+import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa';
 
-import { Container, PersonCard } from '../../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	PersonCard,
+} from '../../../components/common';
 import {
 	permissions,
+	samples,
 	CLIENT_PAGE_URL,
-	EMPLOYEE_PAGE_URL,
 	DEFAULT_IMAGE,
+	EMPLOYEE_PAGE_URL,
+	PROJECT_TEAM_EXPORT_URL,
+	PROJECT_TEAM_IMPORT_URL,
 } from '../../../config';
+import { useAxiosInstance } from '../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetProjectQuery,
@@ -33,6 +43,8 @@ const Team = ({
 	const router = useRouter();
 	const id = router.query.id as string;
 
+	const [modalVisible, setModalVisible] = React.useState(false);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -56,14 +68,23 @@ const Team = ({
 				},
 			}
 		);
-	const leaders = useMemo(() => {
+	const { execute, loading } = useAxiosInstance({
+		onSettled(response) {
+			open({
+				type: response.status === 'success' ? 'success' : 'danger',
+				message: response.message,
+			});
+		},
+	});
+
+	const leaders = React.useMemo(() => {
 		if (data) {
 			return data.team.filter((member) => member.isLeader === true);
 		}
 		return [];
 	}, [data]);
 
-	const team = useMemo(() => {
+	const team = React.useMemo(() => {
 		if (data) {
 			return data.team.filter((member) => member.isLeader === false);
 		}
@@ -88,13 +109,25 @@ const Team = ({
 		},
 	});
 
-	const [canEdit] = useMemo(() => {
+	const { url, importUrl } = React.useMemo(
+		() => ({
+			url: PROJECT_TEAM_EXPORT_URL(id),
+			importUrl: PROJECT_TEAM_IMPORT_URL(id),
+		}),
+		[id]
+	);
+
+	const [canEdit, canExport] = React.useMemo(() => {
 		if (!authData) return [];
 		const canEdit =
 			authData.isSuperUser ||
 			hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
 			(objPermData && objPermData.edit);
-		return [canEdit];
+		const canExport =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [permissions.project.EXPORT]));
+		return [canEdit, canExport];
 	}, [authData, objPermData]);
 
 	return (
@@ -124,6 +157,47 @@ const Team = ({
 		>
 			{data && (
 				<div className="w-full">
+					<div className="flex flex-wrap items-center w-full">
+						{canEdit && authData?.isAdmin && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3">
+								<Button
+									iconLeft={FaCloudUploadAlt}
+									onClick={() => setModalVisible(true)}
+									rounded="rounded-xl"
+									title="Import Files"
+								/>
+							</div>
+						)}
+						{canExport && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3">
+								<ButtonDropdown
+									dropList={[
+										{
+											onClick() {
+												execute(url + '?type=csv');
+											},
+											title: 'CSV',
+										},
+										{
+											onClick() {
+												execute(url + '?type=excel');
+											},
+											title: 'Excel',
+										},
+									]}
+									props={{
+										caps: true,
+										disabled: loading,
+										iconLeft: FaCloudDownloadAlt,
+										margin: 'lg:mr-6',
+										padding: 'px-3 py-2 md:px-6',
+										rounded: 'rounded-xl',
+										title: loading ? 'Exporting...' : 'Export Files',
+									}}
+								/>
+							</div>
+						)}
+					</div>
 					<div className="py-2 w-full sm:px-4">
 						<div className="bg-white p-4 rounded-md">
 							<div className="my-2">
@@ -165,7 +239,7 @@ const Team = ({
 									/>
 								</div>
 							) : (
-								<p className="my-2 text-center text-gray-700 text-sm md:text-base">
+								<p className="my-2 text-left text-gray-700 text-sm md:text-base">
 									Client information is not available.
 								</p>
 							)}
@@ -339,6 +413,65 @@ const Team = ({
 							)}
 						</div>
 					</div>
+					{canEdit && authData?.isAdmin && (
+						<Modal
+							close={() => setModalVisible(false)}
+							component={
+								!modalVisible ? (
+									<Alert
+										type="danger"
+										message="Unable show import form. Please try again!"
+									/>
+								) : (
+									<ImportForm
+										onSuccess={(data) => {
+											open({
+												type: 'success',
+												message: data.message,
+											});
+											setModalVisible(false);
+										}}
+										title="project_team"
+										requirements={[
+											{
+												required: false,
+												title: 'id',
+												value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+											},
+											{
+												title: 'is_leader',
+												value: 'true',
+											},
+											{
+												title: 'project_id',
+												value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+											},
+											{
+												title: 'employee_id',
+												value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+											},
+											{
+												required: false,
+												title: 'updated_at',
+												value: '"2023-03-26T21:49:51.090Z"',
+											},
+											{
+												required: false,
+												title: 'created_at',
+												value: '"2023-03-26T21:49:51.090Z"',
+											},
+										]}
+										sample={samples.projectTeam}
+										url={importUrl}
+									/>
+								)
+							}
+							keepVisible
+							description="Upload import file using the form below"
+							title="Import Project Files"
+							visible={modalVisible}
+						/>
+					)}
 				</div>
 			)}
 		</Container>

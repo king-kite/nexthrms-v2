@@ -4,13 +4,11 @@ import {
 } from '../../../../../config';
 import { prisma } from '../../../../../db';
 import {
-	addObjectPermissions,
 	createNotification,
 	handleNotificationErrors as handleErrors,
 	hasViewPermission,
+	hasObjectPermission,
 	importData,
-	importPermissions,
-	updateObjectPermissions,
 } from '../../../../../db/utils';
 import { admin } from '../../../../../middlewares';
 import {
@@ -95,7 +93,15 @@ export default admin()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
 
-		if (!hasExportPerm) throw new NextApiErrorMessage(403);
+		if (!hasExportPerm) {
+			const hasPerm = await hasObjectPermission({
+				model: 'projects',
+				objectId: req.query.id as string,
+				permission: 'EDIT',
+				userId: req.user.id,
+			});
+			if (!hasPerm) throw new NextApiErrorMessage(403);
+		}
 
 		const { files } = (await parseForm(req)) as { files: any };
 
