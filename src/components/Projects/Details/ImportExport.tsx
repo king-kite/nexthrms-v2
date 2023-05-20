@@ -65,7 +65,7 @@ function ImportExport({ id }: { id: string }) {
 					</div>
 				)}
 				{canExport && (
-					<div className="my-2 w-full sm:px-2 sm:w-1/3">
+					<div className="my-2 w-full sm:px-2 sm:w-1/3 md:max-w-[200px]">
 						<ButtonDropdown
 							dropList={[
 								{

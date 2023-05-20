@@ -169,7 +169,7 @@ const Team = ({
 							</div>
 						)}
 						{canExport && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/2 md:max-w-[200px]">
+							<div className="my-2 w-full sm:px-2 sm:w-1/2">
 								<ButtonDropdown
 									dropList={[
 										{

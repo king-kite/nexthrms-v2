@@ -1,17 +1,32 @@
-import { Button, ButtonType } from 'kite-react-tailwind';
+import { Alert, Button, ButtonDropdown, ButtonType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
-import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
+import React from 'react';
+import {
+	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
+	FaPen,
+	FaTrash,
+	FaUserShield,
+} from 'react-icons/fa';
 
 import {
 	permissions,
+	samples,
 	DEFAULT_IMAGE,
 	EMPLOYEE_PAGE_URL,
 	PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL,
+	PROJECT_TASK_FOLLOWERS_EXPORT_URL,
+	PROJECT_TASK_FOLLOWERS_IMPORT_URL,
 } from '../../../../config';
-import { Container, Modal, PersonCard } from '../../../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	PersonCard,
+} from '../../../../components/common';
 import { TaskForm } from '../../../../components/Projects';
+import { useAxiosInstance } from '../../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../../store/contexts';
 import {
 	useGetProjectTaskQuery,
@@ -35,8 +50,10 @@ const Detail = ({
 	task: ProjectTaskType;
 	objPerm: UserObjPermType;
 }) => {
-	const [errors, setErrors] = useState<CreateProjectTaskErrorResponseType>();
-	const [modalVisible, setModalVisible] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [errors, setErrors] =
+		React.useState<CreateProjectTaskErrorResponseType>();
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const router = useRouter();
 	const { id, task_id: taskId } = router.query as {
@@ -46,6 +63,15 @@ const Detail = ({
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
+
+	const { execute, loading } = useAxiosInstance({
+		onSettled(response) {
+			open({
+				type: response.status === 'success' ? 'success' : 'danger',
+				message: response.message,
+			});
+		},
+	});
 
 	const { data, error, isLoading, isFetching, refetch } =
 		useGetProjectTaskQuery(
@@ -126,42 +152,57 @@ const Detail = ({
 		},
 	});
 
-	const leaders = useMemo(() => {
+	const leaders = React.useMemo(() => {
 		if (data && data.followers) {
 			return data.followers.filter((follower) => follower.isLeader === true);
 		}
 		return [];
 	}, [data]);
 
-	const followers = useMemo(() => {
+	const followers = React.useMemo(() => {
 		if (data && data.followers) {
 			return data.followers.filter((follower) => follower.isLeader === false);
 		}
 		return [];
 	}, [data]);
 
-	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
-		if (!authData) return [];
-		const canEdit =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projecttask.EDIT,
-			]) ||
-			(objPermData && objPermData.edit);
-		const canDelete =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projecttask.DELETE,
-			]) ||
-			(objPermData && objPermData.delete);
-		const canViewObjectPermissions =
-			authData.isSuperUser ||
-			(authData.isAdmin &&
+	const { url, importUrl } = React.useMemo(
+		() => ({
+			url: PROJECT_TASK_FOLLOWERS_EXPORT_URL(id, taskId),
+			importUrl: PROJECT_TASK_FOLLOWERS_IMPORT_URL(id, taskId),
+		}),
+		[id, taskId]
+	);
+
+	const [canEdit, canDelete, canExport, canViewObjectPermissions] =
+		React.useMemo(() => {
+			if (!authData) return [];
+			const canEdit =
+				authData.isSuperUser ||
 				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
-		return [canEdit, canDelete, canViewObjectPermissions];
-	}, [authData, objPermData]);
+					permissions.projecttask.EDIT,
+				]) ||
+				(objPermData && objPermData.edit);
+			const canDelete =
+				authData.isSuperUser ||
+				hasModelPermission(authData.permissions, [
+					permissions.projecttask.DELETE,
+				]) ||
+				(objPermData && objPermData.delete);
+			const canExport =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.projecttask.EXPORT,
+					]));
+			const canViewObjectPermissions =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.permissionobject.VIEW,
+					]));
+			return [canEdit, canDelete, canExport, canViewObjectPermissions];
+		}, [authData, objPermData]);
 
 	return (
 		<Container
@@ -196,9 +237,54 @@ const Detail = ({
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 								<Button
 									iconLeft={FaPen}
-									onClick={() => setModalVisible(true)}
+									onClick={() => {
+										setBulkForm(false);
+										setModalVisible(true);
+									}}
 									rounded="rounded-xl"
 									title="Edit Task"
+								/>
+							</div>
+						)}
+						{canExport && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<ButtonDropdown
+									dropList={[
+										{
+											onClick() {
+												execute(url + '?type=csv');
+											},
+											title: 'CSV',
+										},
+										{
+											onClick() {
+												execute(url + '?type=excel');
+											},
+											title: 'Excel',
+										},
+									]}
+									props={{
+										caps: true,
+										disabled: loading,
+										iconLeft: FaCloudDownloadAlt,
+										margin: 'lg:mr-6',
+										padding: 'px-3 py-2 md:px-6',
+										rounded: 'rounded-xl',
+										title: loading ? 'Exporting...' : 'Export Followers',
+									}}
+								/>
+							</div>
+						)}
+						{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
+							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+								<Button
+									iconLeft={FaCloudUploadAlt}
+									onClick={() => {
+										setBulkForm(true);
+										setModalVisible(true);
+									}}
+									rounded="rounded-xl"
+									title="Import Followers"
 								/>
 							</div>
 						)}
@@ -206,7 +292,6 @@ const Detail = ({
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 								<Button
 									bg="bg-red-600 hover:bg-red-500"
-									focus="focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
 									iconLeft={FaTrash}
 									rounded="rounded-xl"
 									title="Delete Task"
@@ -236,7 +321,7 @@ const Detail = ({
 					<div className="py-2 w-full sm:px-4">
 						<div className="bg-white my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									{data.name}
 								</h3>
 							</div>
@@ -246,7 +331,6 @@ const Detail = ({
 									<span className="font-bold mx-2 text-gray-600">
 										followers
 									</span>
-									,
 								</span>
 							</div>
 							<div className="my-1">
@@ -257,7 +341,7 @@ const Detail = ({
 						</div>
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									Task Leaders
 								</h3>
 							</div>
@@ -341,7 +425,7 @@ const Detail = ({
 						</div>
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
-								<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 									Task Followers
 								</h3>
 							</div>
@@ -426,21 +510,76 @@ const Detail = ({
 					</div>
 					{canEdit && (
 						<Modal
-							close={() => setModalVisible(false)}
+							close={() => {
+								setBulkForm(false);
+								setModalVisible(false);
+							}}
 							component={
-								<TaskForm
-									initState={data}
-									editMode
-									errors={errors}
-									onSubmit={(form) => {
-										updateTask({
-											projectId: id,
-											id: taskId,
-											data: form,
-										});
-									}}
-									loading={editLoading}
-								/>
+								bulkForm ? (
+									canEdit && (authData?.isAdmin || authData?.isSuperUser) ? (
+										<ImportForm
+											onSuccess={(data) => {
+												open({
+													type: 'success',
+													message: data.message,
+												});
+												setModalVisible(false);
+											}}
+											title="project_task_followers"
+											requirements={[
+												{
+													required: false,
+													title: 'id',
+													value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+												},
+												{
+													title: 'is_leader',
+													value: 'true',
+												},
+												{
+													title: 'task_id',
+													value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+												},
+												{
+													title: 'member_id',
+													value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+												},
+												{
+													required: false,
+													title: 'updated_at',
+													value: '"2023-03-26T21:49:51.090Z"',
+												},
+												{
+													required: false,
+													title: 'created_at',
+													value: '"2023-03-26T21:49:51.090Z"',
+												},
+											]}
+											sample={samples.projectTaskFollowers}
+											url={importUrl}
+										/>
+									) : (
+										<Alert
+											type="warning"
+											message="Unable show import form. Please try again!"
+											onClose={() => setModalVisible(false)}
+										/>
+									)
+								) : (
+									<TaskForm
+										initState={data}
+										editMode
+										errors={errors}
+										onSubmit={(form) => {
+											updateTask({
+												projectId: id,
+												id: taskId,
+												data: form,
+											});
+										}}
+										loading={editLoading}
+									/>
+								)
 							}
 							description="Fill in the form below to update the task"
 							title="Update Task"
