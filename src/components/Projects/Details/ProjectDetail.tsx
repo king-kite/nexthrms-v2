@@ -40,7 +40,7 @@ const ProjectDetail = ({
 		<div className="py-2 w-full sm:px-4 lg:pr-0 lg:w-1/3">
 			<div className="flex flex-col items-center md:flex-row md:items-start lg:flex-col lg:items-center">
 				<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full md:mr-6 md:w-[55%] lg:mr-0 lg:mt-0 lg:w-full">
-					<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+					<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 						project details
 					</h3>
 					<ul className="pb-1 pt-3">
@@ -157,7 +157,7 @@ const ProjectDetail = ({
 				</div>
 
 				<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full md:w-[45%] lg:w-full">
-					<h3 className="cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+					<h3 className="font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 						Assigned Leader{leaders.length > 1 ? 's' : ''}
 					</h3>
 					{leaders.length > 0 ? (
@@ -199,7 +199,7 @@ const ProjectDetail = ({
 			</div>
 
 			<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full">
-				<h3 className="cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+				<h3 className="font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 					Assigned Team
 				</h3>
 				<ul className="grid grid-cols-1 pb-1 pt-3 sm:grid-cols-2 lg:grid-cols-1">

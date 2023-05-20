@@ -157,7 +157,7 @@ const Team = ({
 		>
 			{data && (
 				<div className="w-full">
-					<div className="flex flex-wrap items-center w-full">
+					<div className="flex flex-wrap items-center w-full lg:justify-end">
 						{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
 								<Button
@@ -169,7 +169,7 @@ const Team = ({
 							</div>
 						)}
 						{canExport && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+							<div className="my-2 w-full sm:px-2 sm:w-1/2 md:max-w-[200px]">
 								<ButtonDropdown
 									dropList={[
 										{
@@ -419,8 +419,9 @@ const Team = ({
 							component={
 								!modalVisible ? (
 									<Alert
-										type="danger"
+										type="warning"
 										message="Unable show import form. Please try again!"
+										onClose={() => setModalVisible(false)}
 									/>
 								) : (
 									<ImportForm

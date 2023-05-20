@@ -45,7 +45,7 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 
 	return (
 		<div className="bg-white my-4 p-4 rounded-md shadow-lg">
-			<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+			<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 				uploaded images
 			</h3>
 			{canCreateFile && (

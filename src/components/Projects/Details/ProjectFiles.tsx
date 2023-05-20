@@ -54,7 +54,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 							<div className="flex justify-end">
 								<div
 									onClick={() => setVisible(false)}
-									className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+									className="duration-500 mx-4 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
 								>
 									<FaTimes className="text-xs sm:text-sm" />
 								</div>

@@ -249,7 +249,7 @@ const Detail = ({
 						<div className="py-2 w-full sm:px-4 lg:pl-0 lg:w-2/3">
 							<div className="bg-white p-4 rounded-md shadow-lg">
 								<div className="my-2">
-									<h3 className="capitalize cursor-pointer font-bold text-lg text-gray-800 tracking-wide md:text-xl">
+									<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
 										{data.name}
 									</h3>
 								</div>
