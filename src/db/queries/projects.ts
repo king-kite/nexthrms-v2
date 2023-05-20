@@ -6,6 +6,7 @@ import {
 	ProjectType,
 	ProjectFileType,
 	ProjectTaskType,
+	ProjectTaskFollowerType,
 	ProjectTeamType,
 } from '../../types';
 
@@ -725,7 +726,7 @@ export const getTaskFollowers = async (
 		prisma.projectTaskFollower.findMany(query),
 	]);
 
-	return { total, result: result as unknown as ProjectTeamType[] };
+	return { total, result: result as unknown as ProjectTaskFollowerType[] };
 };
 
 export const getTaskFollower = async (id: string) => {
@@ -733,7 +734,7 @@ export const getTaskFollower = async (id: string) => {
 		where: { id },
 		select: taskFollowerSelectQuery,
 	});
-	return follower as unknown as ProjectTeamType | null;
+	return follower as unknown as ProjectTaskFollowerType | null;
 };
 
 // ******** Task Followers Queries Stop *********

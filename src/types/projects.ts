@@ -200,20 +200,22 @@ export type ProjectTaskType = {
 	completed: boolean;
 	dueDate: Date | string;
 	priority: ProjectPriority;
-	followers: {
-		id: string;
-		member: {
-			id: string;
-			employee: ProjectTeamType['employee'];
-		};
-		isLeader: boolean;
-		createdAt: Date | string;
-		updatedAt: Date | string;
-	}[];
+	followers: PRojectTaskFollowerType[];
 	project: {
 		id: string;
 		name: string;
 	};
+	createdAt: Date | string;
+	updatedAt: Date | string;
+};
+
+export type ProjectTaskFollowerType = {
+	id: string;
+	member: {
+		id: string;
+		employee: ProjectTeamType['employee'];
+	};
+	isLeader: boolean;
 	createdAt: Date | string;
 	updatedAt: Date | string;
 };

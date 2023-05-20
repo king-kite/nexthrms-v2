@@ -24,7 +24,7 @@ export default auth()
 		});
 		if (!canViewProject) throw new NextApiErrorMessage(403);
 
-		// Check the user can view the project
+		// Check the user can view the task
 		const canViewTask = await hasViewPermission({
 			model: 'projects_tasks',
 			perm: 'projecttask',

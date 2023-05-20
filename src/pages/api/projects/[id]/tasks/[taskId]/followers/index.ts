@@ -28,6 +28,15 @@ export default auth()
 			user: req.user,
 		});
 		if (!canViewProject) throw new NextApiErrorMessage(403);
+
+		// Check the user can view the task
+		const canViewTask = await hasViewPermission({
+			model: 'projects_tasks',
+			perm: 'projecttask',
+			objectId: req.query.taskId as string,
+			user: req.user,
+		});
+		if (!canViewTask) throw new NextApiErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
