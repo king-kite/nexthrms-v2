@@ -200,7 +200,7 @@ export type ProjectTaskType = {
 	completed: boolean;
 	dueDate: Date | string;
 	priority: ProjectPriority;
-	followers: PRojectTaskFollowerType[];
+	followers: ProjectTaskFollowerType[];
 	project: {
 		id: string;
 		name: string;
