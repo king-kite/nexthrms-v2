@@ -115,29 +115,28 @@ const Detail = ({
 			},
 		});
 
-	const { deleteFollower, isLoading: delFolLoading } =
-		useDeleteProjectTaskFollowerMutation({
-			onSuccess() {
-				open({
-					type: 'success',
-					message: 'Task was updated successfully',
-				});
-				setModalVisible(false);
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
+	const { deleteFollower } = useDeleteProjectTaskFollowerMutation({
+		onSuccess() {
+			open({
+				type: 'success',
+				message: 'Task follower was removed successfully',
+			});
+			setModalVisible(false);
+		},
+		onError(err) {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
+	});
 
 	const { appointFollower, isLoading: appointLoading } =
 		useAppointProjectTaskLeaderMutation({
 			onSuccess() {
 				open({
 					type: 'success',
-					message: 'Employee was re-appointed successfully!',
+					message: 'Task follower was re-appointed successfully!',
 				});
 			},
 		});
@@ -246,48 +245,6 @@ const Detail = ({
 								/>
 							</div>
 						)}
-						{canExport && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-								<ButtonDropdown
-									dropList={[
-										{
-											onClick() {
-												execute(url + '?type=csv');
-											},
-											title: 'CSV',
-										},
-										{
-											onClick() {
-												execute(url + '?type=excel');
-											},
-											title: 'Excel',
-										},
-									]}
-									props={{
-										caps: true,
-										disabled: loading,
-										iconLeft: FaCloudDownloadAlt,
-										margin: 'lg:mr-6',
-										padding: 'px-3 py-2 md:px-6',
-										rounded: 'rounded-xl',
-										title: loading ? 'Exporting...' : 'Export Followers',
-									}}
-								/>
-							</div>
-						)}
-						{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
-							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
-								<Button
-									iconLeft={FaCloudUploadAlt}
-									onClick={() => {
-										setBulkForm(true);
-										setModalVisible(true);
-									}}
-									rounded="rounded-xl"
-									title="Import Followers"
-								/>
-							</div>
-						)}
 						{canDelete && (
 							<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4 lg:w-1/5">
 								<Button
@@ -326,12 +283,12 @@ const Detail = ({
 								</h3>
 							</div>
 							<div className="my-1">
-								<span className="font-medium mr-1 text-gray-800 text-sm md:text-base">
+								<p className="font-medium mr-1 text-gray-800 text-sm md:text-base">
 									{data.followers.length}
-									<span className="font-bold mx-2 text-gray-600">
+									<span className="font-bold ml-1 text-gray-600">
 										followers
 									</span>
-								</span>
+								</p>
 							</div>
 							<div className="my-1">
 								<p className="font-semibold my-2 text-left text-sm text-gray-600 md:text-base">
@@ -339,6 +296,55 @@ const Detail = ({
 								</p>
 							</div>
 						</div>
+
+						{(canExport ||
+							(canEdit && (authData?.isAdmin || authData?.isSuperUser))) && (
+							<div className="flex flex-wrap items-center w-full sm:px-4">
+								{canExport && (
+									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pl-0 md:max-w-[230px]">
+										<ButtonDropdown
+											dropList={[
+												{
+													onClick() {
+														execute(url + '?type=csv');
+													},
+													title: 'CSV',
+												},
+												{
+													onClick() {
+														execute(url + '?type=excel');
+													},
+													title: 'Excel',
+												},
+											]}
+											props={{
+												caps: true,
+												disabled: loading,
+												iconLeft: FaCloudDownloadAlt,
+												margin: 'lg:mr-6',
+												padding: 'px-3 py-2 md:px-6',
+												rounded: 'rounded-xl',
+												title: loading ? 'Exporting...' : 'Export Followers',
+											}}
+										/>
+									</div>
+								)}
+								{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
+									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+										<Button
+											iconLeft={FaCloudUploadAlt}
+											onClick={() => {
+												setBulkForm(true);
+												setModalVisible(true);
+											}}
+											rounded="rounded-xl"
+											title="Import Followers"
+										/>
+									</div>
+								)}
+							</div>
+						)}
+
 						<div className="bg-gray-200 my-4 p-4 rounded-md">
 							<div className="my-2">
 								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
@@ -363,7 +369,6 @@ const Detail = ({
 												bg: 'bg-white hover:bg-red-100',
 												border: 'border border-red-500 hover:border-red-600',
 												color: 'text-red-500',
-												disabled: delFolLoading,
 												onClick: () =>
 													deleteFollower({
 														id: leader.id,
@@ -447,7 +452,6 @@ const Detail = ({
 												bg: 'bg-white hover:bg-red-100',
 												border: 'border border-red-500 hover:border-red-600',
 												color: 'text-red-500',
-												disabled: delFolLoading,
 												onClick: () =>
 													deleteFollower({
 														id: follower.member.id,
