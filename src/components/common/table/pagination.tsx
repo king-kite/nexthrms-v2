@@ -20,7 +20,7 @@ export type PaginationProps = PaginationType & {
 function Pagination({
 	disabled = false,
 	onChange,
-	pageSizes = [25, 50, 100, 200],
+	pageSizes = [5, 10, 25, 50, 100, 200, 400, 500, 800, 1000],
 	onSizeChange,
 	...props
 }: PaginationProps) {
