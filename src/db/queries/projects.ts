@@ -465,6 +465,8 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 				},
 			},
 			isLeader: true,
+			updatedAt: true,
+			createdAt: true,
 		},
 	},
 };
