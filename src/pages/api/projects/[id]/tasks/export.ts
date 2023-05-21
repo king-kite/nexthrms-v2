@@ -119,19 +119,18 @@ export default admin()
 			// task followers to be exported as well
 			.then(({ followers, data }) => {
 				let message =
-					'File exported successfully. Click on the download link to proceed!';
+					'File exported successfully. The task followers will be exported shortly. Click on the download link to proceed!';
 				if (data.size) {
 					const size = String(data.size / (1024 * 1024));
 					const sizeString =
 						size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
-					message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+					message = `File (${sizeString}MB) exported successfully. The task followers will be exported shortly. Click on the download link to proceed!`;
 				}
 				createNotification({
 					message,
 					messageId: data.file,
 					recipient: req.user.id,
-					title:
-						"Project's tasks data export was successful. The task followers will be exported shortly.",
+					title: 'Tasks data export was successful.',
 					type: 'DOWNLOAD',
 				});
 				return exportData({ data: followers }, followerHeaders, {
@@ -162,7 +161,7 @@ export default admin()
 				createNotification({
 					message: error.message,
 					recipient: req.user.id,
-					title: "Project's tasks/followers data export failed.",
+					title: 'Tasks/followers data export failed.',
 					type: 'ERROR',
 				});
 			});
