@@ -181,7 +181,6 @@ const Groups = ({
 									setModalVisible(false);
 									setBulkForm(false);
 								}}
-								title="groups"
 								requirements={[
 									{
 										required: false,

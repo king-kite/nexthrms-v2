@@ -179,7 +179,6 @@ const Users = ({
 									setModalVisible(false);
 									setBulkForm(false);
 								}}
-								title="users"
 								requirements={[
 									{
 										required: false,
@@ -265,12 +264,12 @@ const Users = ({
 									{
 										required: false,
 										title: 'updated_at',
-										value: '"2023-03-26T21:49:51.090Z"',
+										value: '2023-03-26T21:49:51.090Z',
 									},
 									{
 										required: false,
 										title: 'created_at',
-										value: '"2023-03-26T21:49:51.090Z"',
+										value: '2023-03-26T21:49:51.090Z',
 									},
 								]}
 								sample={samples.users}

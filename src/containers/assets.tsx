@@ -354,7 +354,6 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								setModalVisible(false);
 								setBulkForm(false);
 							}}
-							title="assets"
 							requirements={[
 								{
 									title: 'id',

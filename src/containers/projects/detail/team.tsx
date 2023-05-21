@@ -432,7 +432,6 @@ const Team = ({
 											});
 											setModalVisible(false);
 										}}
-										title="project_team"
 										requirements={[
 											{
 												required: false,
@@ -454,12 +453,12 @@ const Team = ({
 											{
 												required: false,
 												title: 'updated_at',
-												value: '"2023-03-26T21:49:51.090Z"',
+												value: '2023-03-26T21:49:51.090Z',
 											},
 											{
 												required: false,
 												title: 'created_at',
-												value: '"2023-03-26T21:49:51.090Z"',
+												value: '2023-03-26T21:49:51.090Z',
 											},
 										]}
 										sample={samples.projectTeam}

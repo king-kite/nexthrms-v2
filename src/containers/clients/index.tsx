@@ -171,7 +171,6 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 									setModalVisible(false);
 									setBulkForm(false);
 								}}
-								title="groups"
 								requirements={[
 									{
 										required: false,

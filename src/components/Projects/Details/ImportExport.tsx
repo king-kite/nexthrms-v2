@@ -112,7 +112,6 @@ function ImportExport({ id }: { id: string }) {
 									});
 									setModalVisible(false);
 								}}
-								title="project_files"
 								requirements={[
 									{
 										required: false,

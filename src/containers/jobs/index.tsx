@@ -237,7 +237,6 @@ const Jobs = ({
 									setModalVisible(false);
 									setBulkForm(false);
 								}}
-								title="jobs"
 								requirements={[
 									{
 										required: false,
