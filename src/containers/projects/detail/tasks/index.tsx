@@ -137,6 +137,7 @@ const ProjectTasks = ({
 				}}
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
+				projectId={id}
 				exportData={
 					!canExport
 						? undefined
