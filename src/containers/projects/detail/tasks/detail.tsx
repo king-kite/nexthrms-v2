@@ -529,7 +529,6 @@ const Detail = ({
 												});
 												setModalVisible(false);
 											}}
-											title="project_task_followers"
 											requirements={[
 												{
 													required: false,
