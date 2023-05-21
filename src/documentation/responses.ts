@@ -64,6 +64,7 @@ export function getExportResponse({
 	parameters?: {
 		in: 'path' | 'query';
 		name: string;
+		description?: string;
 		required?: boolean;
 		schema?: {
 			type?: string;
@@ -104,6 +105,7 @@ export function getImportResponse({
 		in: 'path' | 'query';
 		name: string;
 		required?: boolean;
+		description?: string;
 		schema?: {
 			type?: string;
 			format?: string;

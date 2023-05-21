@@ -118,6 +118,16 @@ const paths = {
 					type: 'string',
 				},
 			},
+			{
+				in: 'query',
+				name: 'import',
+				required: false,
+				description:
+					"Set to 'followers' to import followers data for all tasks. Otherwise leave empty.",
+				schema: {
+					type: 'string',
+				},
+			},
 		],
 		title: 'Import Single Project Tasks Data',
 		tags: [tags.Projects],
