@@ -1,5 +1,6 @@
 import {
 	projectTaskHeaders as headers,
+	projectTaskFollowerHeaders as followerHeaders,
 	permissions,
 } from '../../../../../config';
 import { prisma } from '../../../../../db';
@@ -164,7 +165,7 @@ export default admin()
 			req.query.import === 'followers' ? 'Task Followers' : 'Tasks';
 
 		importData<ProjectTaskImportQueryType>({
-			headers,
+			headers: req.query.import === 'followers' ? followerHeaders : headers,
 			path: files.data.filepath,
 			type: files.data.mimetype,
 		})
