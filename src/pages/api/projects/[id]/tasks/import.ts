@@ -15,6 +15,7 @@ import { admin } from '../../../../../middlewares';
 import {
 	ObjectPermissionImportType,
 	ProjectTaskImportQueryType,
+	ProjectTaskFollowerImportQueryType,
 	NextApiRequestExtendUser,
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
@@ -43,9 +44,22 @@ function getDataInput(data: ProjectTaskImportQueryType) {
 	};
 }
 
+function getFollowerInput(data: ProjectTaskFollowerImportQueryType) {
+	return {
+		id: data.id ? data.id : undefined,
+		isLeader: data.is_leader
+			? data.is_leader.toString().toLowerCase() === 'true'
+			: false,
+		memberId: data.member_id,
+		taskId: data.task_id,
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+	};
+}
+
 function createData(
 	req: NextApiRequestExtendUser,
-	data: ProjectTaskImportQueryType[],
+	data: any,
 	perms?: ObjectPermissionImportType[]
 ) {
 	return new Promise<
@@ -54,35 +68,55 @@ function createData(
 		}[]
 	>(async (resolve, reject) => {
 		try {
-			const input = data.map(getDataInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.projectTask.upsert({
-						where: {
-							id: data.id,
-						},
-						update: {
-							...data,
-							projectId: req.query.id as string,
-						},
-						create: {
-							...data,
-							projectId: req.query.id as string,
-						},
-					})
-				)
-			);
-			await Promise.all(
-				result.map((task) =>
-					addObjectPermissions({
-						model: 'projects_tasks',
-						objectId: task.id,
-						users: [req.user.id],
-					})
-				)
-			);
-			if (perms) await importPermissions(perms);
-			resolve(result);
+			// Not trying to import followers but tasks data
+			if (req.query.import !== 'followers') {
+				const input = data.map(getDataInput);
+				const result = await prisma.$transaction(
+					input.map((data: any) =>
+						prisma.projectTask.upsert({
+							where: {
+								id: data.id,
+							},
+							update: {
+								...data,
+								projectId: req.query.id as string,
+							},
+							create: {
+								...data,
+								projectId: req.query.id as string,
+							},
+						})
+					)
+				);
+				await Promise.all(
+					result.map((task) =>
+						addObjectPermissions({
+							model: 'projects_tasks',
+							objectId: task.id,
+							users: [req.user.id],
+						})
+					)
+				);
+				if (perms) await importPermissions(perms);
+				resolve(result);
+			} else {
+				const input = data.map(getFollowerInput);
+				const result = await prisma.$transaction(
+					input.map((data: any) =>
+						prisma.projectTaskFollower.upsert({
+							where: {
+								taskId_memberId: {
+									taskId: data.taskId as string,
+									memberId: data.memberId,
+								},
+							},
+							update: data,
+							create: data,
+						})
+					)
+				);
+				resolve(result);
+			}
 		} catch (error) {
 			reject(error);
 		}
@@ -99,15 +133,6 @@ export default admin()
 			user: req.user,
 		});
 		if (!canViewProject) throw new NextApiErrorMessage(403);
-
-		// Check the user can view the task
-		const canViewTask = await hasViewPermission({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			objectId: req.query.taskId as string,
-			user: req.user,
-		});
-		if (!canViewTask) throw new NextApiErrorMessage(403);
 		next();
 	})
 	.post(async (req, res) => {
@@ -135,6 +160,9 @@ export default admin()
 				'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 			);
 
+		const messageTitle =
+			req.query.import === 'followers' ? 'Task Followers' : 'Tasks';
+
 		importData<ProjectTaskImportQueryType>({
 			headers,
 			path: files.data.filepath,
@@ -143,16 +171,16 @@ export default admin()
 			.then((result) => createData(req, result.data, result.permissions))
 			.then(() =>
 				createNotification({
-					message: 'Tasks data was imported successfully.',
+					message: `${messageTitle} data was imported successfully.`,
 					recipient: req.user.id,
-					title: 'Import Task Data Success.',
+					title: `Import ${messageTitle} Data Success.`,
 					type: 'SUCCESS',
 				})
 			)
 			.catch((error) =>
 				handleErrors(error, {
 					recipient: req.user.id,
-					title: 'Import Task Data Error',
+					title: `Import ${messageTitle} Data Error`,
 				})
 			);
 
