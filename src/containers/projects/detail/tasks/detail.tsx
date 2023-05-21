@@ -299,7 +299,7 @@ const Detail = ({
 
 						{(canExport ||
 							(canEdit && (authData?.isAdmin || authData?.isSuperUser))) && (
-							<div className="flex flex-wrap items-center w-full sm:px-4">
+							<div className="flex flex-wrap items-center w-full sm:px-4 md:pl-0">
 								{canExport && (
 									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pl-0 md:max-w-[230px]">
 										<ButtonDropdown
@@ -330,7 +330,7 @@ const Detail = ({
 									</div>
 								)}
 								{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
-									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:w-1/4">
+									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:max-w-[230px]">
 										<Button
 											iconLeft={FaCloudUploadAlt}
 											onClick={() => {
