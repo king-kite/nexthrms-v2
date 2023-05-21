@@ -107,7 +107,7 @@ function createData(
 						prisma.projectTaskFollower.upsert({
 							where: {
 								taskId_memberId: {
-									taskId: data.taskId as string,
+									taskId: data.taskId,
 									memberId: data.memberId,
 								},
 							},
@@ -168,6 +168,8 @@ export default admin()
 			headers: req.query.import === 'followers' ? followerHeaders : headers,
 			path: files.data.filepath,
 			type: files.data.mimetype,
+			replaceEmpty: true,
+			replaceEmptyValue: null,
 		})
 			.then((result) => createData(req, result.data, result.permissions))
 			.then(() =>

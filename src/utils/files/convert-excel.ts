@@ -159,7 +159,7 @@ export default function excelToJson<DataType = any>(
 		try {
 			fs.readFile(filepath, (err, file) => {
 				if (err)
-					reject({
+					return reject({
 						status: 500,
 						data: err,
 					});
@@ -168,7 +168,7 @@ export default function excelToJson<DataType = any>(
 					workbook.xlsx.load(file).then((workbook) => {
 						const worksheet = workbook.getWorksheet(1);
 						if (!worksheet)
-							reject({
+							return reject({
 								status: 404,
 								data: 'Invalid excel file format. No Worksheet was found.',
 							});
@@ -177,12 +177,12 @@ export default function excelToJson<DataType = any>(
 							type: 'data',
 							...options,
 						});
-						if (error) reject(error);
+						if (error) return reject(error);
 						else {
 							// Check for permissions worksheet
 							const worksheet = workbook.getWorksheet(2);
 							if (!worksheet) {
-								resolve({ data });
+								return resolve({ data });
 							} else {
 								const { data: permissions, error } =
 									getData<ObjectPermissionImportType>(worksheet, {
@@ -191,15 +191,15 @@ export default function excelToJson<DataType = any>(
 										type: 'permission',
 										headers: permissionHeaders,
 									});
-								if (error) reject(error);
-								else resolve({ data, permissions });
+								if (error) return reject(error);
+								else return resolve({ data, permissions });
 							}
 						}
 					});
 				}
 			});
 		} catch (error) {
-			reject({
+			return reject({
 				status: 500,
 				data: error,
 			});

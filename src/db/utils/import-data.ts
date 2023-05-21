@@ -6,11 +6,14 @@ export function importData<DataType = any>({
 	path,
 	type,
 	zipName = 'data.csv',
+	...rest
 }: {
 	headers: string[];
 	path: string;
 	type: string;
 	zipName?: string;
+	replaceEmpty?: boolean;
+	replaceEmptyValue?: any;
 }) {
 	return new Promise<{
 		data: DataType[];
@@ -22,11 +25,11 @@ export function importData<DataType = any>({
 					.then((result) => resolve(result))
 					.catch((error) => reject(error));
 			} else if (type === 'text/csv') {
-				csvToJson(path, { headers })
+				csvToJson(path, { headers, ...rest })
 					.then((data: DataType[]) => resolve({ data }))
 					.catch((error) => reject(error));
 			} else {
-				excelToJson(path, { headers })
+				excelToJson(path, { headers, ...rest })
 					.then(
 						(result: {
 							data: DataType[];
