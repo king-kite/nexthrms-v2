@@ -209,42 +209,40 @@ const ProjectTable = ({ tasks, loading }: TableType) => {
 	]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				disabled={loading}
-				heads={heads}
-				rows={rows}
-				renderActionLinkAs={({ link, children, ...props }) => (
-					<Link href={link}>
-						<a {...props}>{children}</a>
-					</Link>
-				)}
-				renderContainerLinkAs={(props) => (
-					<Link href={props.link}>
-						<a className={props.className}>{props.children}</a>
-					</Link>
-				)}
-				split={{
-					actions: [
-						{
-							active: activeRow === 'all',
-							onClick: () => setActiveRow('all'),
-							title: 'all',
-						},
-						{
-							active: activeRow === 'completed',
-							onClick: () => setActiveRow('completed'),
-							title: 'completed',
-						},
-						{
-							active: activeRow === 'ongoing',
-							onClick: () => setActiveRow('ongoing'),
-							title: 'ongoing',
-						},
-					],
-				}}
-			/>
-		</div>
+		<Table
+			disabled={loading}
+			heads={heads}
+			rows={rows}
+			renderActionLinkAs={({ link, children, ...props }) => (
+				<Link href={link}>
+					<a {...props}>{children}</a>
+				</Link>
+			)}
+			renderContainerLinkAs={(props) => (
+				<Link href={props.link}>
+					<a className={props.className}>{props.children}</a>
+				</Link>
+			)}
+			split={{
+				actions: [
+					{
+						active: activeRow === 'all',
+						onClick: () => setActiveRow('all'),
+						title: 'all',
+					},
+					{
+						active: activeRow === 'completed',
+						onClick: () => setActiveRow('completed'),
+						title: 'completed',
+					},
+					{
+						active: activeRow === 'ongoing',
+						onClick: () => setActiveRow('ongoing'),
+						title: 'ongoing',
+					},
+				],
+			}}
+		/>
 	);
 };
 

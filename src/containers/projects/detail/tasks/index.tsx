@@ -1,7 +1,11 @@
 import { useRouter } from 'next/router';
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../../../components/common';
+import {
+	Container,
+	Modal,
+	TablePagination,
+} from '../../../../components/common';
 import {
 	TaskCards as Cards,
 	TaskForm as Form,
@@ -23,7 +27,7 @@ import {
 	CreateProjectTaskErrorResponseType,
 	GetProjectTasksResponseType,
 } from '../../../../types';
-import { downloadFile, hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils';
 
 type ErrorType = CreateProjectTaskErrorResponseType;
 
@@ -32,11 +36,11 @@ const ProjectTasks = ({
 }: {
 	tasks: GetProjectTasksResponseType['data'];
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -44,7 +48,7 @@ const ProjectTasks = ({
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport] = useMemo(() => {
+	const [canCreate, canExport] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [
@@ -53,9 +57,10 @@ const ProjectTasks = ({
 			: false;
 		const canExport = authData
 			? authData.isSuperUser ||
-			  hasModelPermission(authData.permissions, [
-					permissions.projecttask.EXPORT,
-			  ])
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.projecttask.EXPORT,
+					]))
 			: false;
 		return [canCreate, canExport];
 	}, [authData]);
@@ -63,7 +68,7 @@ const ProjectTasks = ({
 	const { data, refetch, isLoading, isFetching } = useGetProjectTasksQuery(
 		{
 			id,
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -101,7 +106,7 @@ const ProjectTasks = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateProjectTaskQueryType) => {
 			setErrors(undefined);
 			if (canCreate) createTask({ projectId: id, data: form });
@@ -114,22 +119,11 @@ const ProjectTasks = ({
 			background="bg-gray-100"
 			heading="Tasks"
 			title={data ? data.project.name : ''}
-			disabledLoading={isLoading}
 			refresh={{
 				onClick: refetch,
 				loading: isFetching,
 			}}
 			icon
-			paginate={
-				data && data.total > 0
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total,
-					  }
-					: undefined
-			}
 		>
 			<Cards
 				total={data?.total || 0}
@@ -143,32 +137,30 @@ const ProjectTasks = ({
 				}}
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = PROJECT_TASKS_EXPORTS_URL(id) + '?type=' + type;
-					let name = data
-						? `${data.project.name} project team`
-						: 'project team ' + id;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? `${name}.csv` : `${name}.xlsx`,
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						showAlert({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
-				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: PROJECT_TASKS_EXPORTS_URL(id),
+								filtered: `&offset=${offset}&limit=${limit}&search=${search}`,
+						  }
+				}
 			/>
-			<TaskTable loading={isLoading} tasks={data?.result || []} />
+			<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
+				<TaskTable loading={isLoading} tasks={data?.result || []} />
+				{data && data?.total > 0 && (
+					<TablePagination
+						disabled={isFetching}
+						totalItems={data.total}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * limit);
+						}}
+						onSizeChange={(size) => setLimit(size)}
+						pageSize={limit}
+					/>
+				)}
+			</div>
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}

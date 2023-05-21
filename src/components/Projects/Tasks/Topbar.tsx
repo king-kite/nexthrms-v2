@@ -1,5 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useMemo, useRef } from 'react';
+import React from 'react';
 import { FaCloudDownloadAlt, FaSearch, FaPlus } from 'react-icons/fa';
 
 import { ExportForm } from '../../common';
@@ -11,21 +11,17 @@ type TopbarProps = {
 	openModal: () => void;
 	loading: boolean;
 	onSubmit: (search: string) => void;
-	exportData: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
-const Topbar: FC<TopbarProps> = ({
-	loading,
-	openModal,
-	onSubmit,
-	exportData,
-	exportLoading,
-}) => {
-	const searchRef = useRef<HTMLInputElement | null>(null);
+const Topbar = ({ loading, openModal, onSubmit, exportData }: TopbarProps) => {
+	const searchRef = React.useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport] = useMemo(() => {
+	const [canCreate, canExport] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.project.CREATE])
@@ -51,12 +47,10 @@ const Topbar: FC<TopbarProps> = ({
 						caps: true,
 						disabled: loading,
 						iconLeft: FaSearch,
-						// padding: 'pl-2 pr-4 py-[0.54rem]',
 						title: 'Search',
 						type: 'submit',
 					}}
 					inputProps={{
-						// bdrColor: 'border-primary-500',
 						disabled: loading,
 						icon: FaSearch,
 						onChange: ({ target: { value } }) => {
@@ -72,9 +66,7 @@ const Topbar: FC<TopbarProps> = ({
 			{canExport && (
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 					<ButtonDropdown
-						component={() => (
-							<ExportForm loading={exportLoading} onSubmit={exportData} />
-						)}
+						component={() => <ExportForm {...exportData} />}
 						props={{
 							caps: true,
 							iconLeft: FaCloudDownloadAlt,
