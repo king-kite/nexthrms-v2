@@ -1,12 +1,88 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions } from '../../../../../config';
+import {
+	projectTaskHeaders as headers,
+	projectTaskFollowerHeaders as followerHeaders,
+	permissions,
+} from '../../../../../config';
 import { getProjectTasks } from '../../../../../db';
-import { getRecords, hasViewPermission } from '../../../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+	hasViewPermission,
+} from '../../../../../db/utils';
 import { admin } from '../../../../../middlewares';
+import {
+	NextApiRequestExtendUser,
+	ProjectTaskFollowerImportQueryType,
+	UserType,
+} from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { handlePrismaErrors } from '../../../../../validators';
+
+async function getTasksData(req: NextApiRequestExtendUser) {
+	const placeholder = {
+		total: 0,
+		result: [],
+		project: {
+			id: req.query.id as string,
+			name: '',
+		},
+		ongoing: 0,
+		completed: 0,
+	};
+	const result = await getRecords({
+		model: 'projects_tasks',
+		perm: 'projecttask',
+		user: req.user,
+		query: req.query,
+		placeholder,
+		getData(params) {
+			return getProjectTasks({
+				...params,
+				id: req.query.id as string,
+			});
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+	const tasks = data.result.map((task) => ({
+		id: task.id,
+		name: task.name,
+		description: task.description,
+		due_date: task.dueDate,
+		completed: task.completed,
+		priority: task.priority,
+		project_id: task.project.id,
+		updated_at: task.updatedAt,
+		created_at: task.createdAt,
+	}));
+	const perms = await getObjectPermissionExportData({
+		ids: tasks.map((task) => task.id),
+		model: 'projects_tasks',
+	});
+	const followers = data.result.reduce(
+		(acc: ProjectTaskFollowerImportQueryType[], task) => {
+			const taskFollowers = task.followers.map((follower) => ({
+				id: follower.id,
+				is_leader: follower.isLeader,
+				member_id: follower.member.id,
+				task_id: task.id,
+				created_at: follower.createdAt,
+				updated_at: follower.updatedAt,
+			}));
+			return [...acc, ...taskFollowers];
+		},
+		[]
+	);
+
+	return {
+		data: tasks,
+		followers,
+		permissions: perms,
+	};
+}
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -29,90 +105,71 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const placeholder = {
-			total: 0,
-			result: [],
-			project: {
-				id: req.query.id as string,
-				name: '',
-			},
-			ongoing: 0,
-			completed: 0,
-		};
-
-		const result = await getRecords({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			user: req.user,
-			query: req.query,
-			placeholder,
-			getData(params) {
-				return getProjectTasks({
-					...params,
-					id: req.query.id as string,
+		getTasksData(req)
+			// Destructure the followers and export the tasks first
+			.then(({ followers, ...data }) =>
+				exportData(data, headers, {
+					type: (req.query.type as string) || 'csv',
+					userId: req.user.id,
+				})
+					// Pass along the task data export and the followers to the next .then method
+					.then((data) => ({ data, followers }))
+			)
+			// Create a success notification for the task export data and return an exportData function for the
+			// task followers to be exported as well
+			.then(({ followers, data }) => {
+				let message =
+					'File exported successfully. Click on the download link to proceed!';
+				if (data.size) {
+					const size = String(data.size / (1024 * 1024));
+					const sizeString =
+						size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+					message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+				}
+				createNotification({
+					message,
+					messageId: data.file,
+					recipient: req.user.id,
+					title:
+						"Project's tasks data export was successful. The task followers will be exported shortly.",
+					type: 'DOWNLOAD',
 				});
-			},
-		});
-
-		const data = result ? result.data : placeholder;
-
-		const tasks = data.result.map((task) => {
-			return {
-				id: task.id,
-				name: task.name,
-				description: task.description,
-				dueDate: task.dueDate,
-				completed: task.completed,
-				priority: task.priority,
-				updated_at: task.updatedAt,
-			};
-		});
-
-		let fileName = data.project.name + ' tasks';
-
-		if (req.query.type === 'csv') {
-			const data = parse(tasks);
-			fileName += '.csv';
-			res.setHeader('Content-Type', 'text/csv');
-			res.setHeader(
-				'Content-Disposition',
-				`attachment; filename="${fileName}"`
-			);
-
-			return res.status(200).end(data);
-		} else {
-			const workbook = new excelJS.Workbook(); // Create a new workbook
-			const worksheet = workbook.addWorksheet('Projects'); // New Worksheet
-
-			worksheet.columns = [
-				{ header: 'ID', key: 'id', width: 10 },
-				{ header: 'Name', key: 'name', width: 10 },
-				{ header: 'Description', key: 'description', width: 10 },
-				{ header: 'Due Date', key: 'dueDate', width: 10 },
-				{ header: 'Completed', key: 'completed', width: 10 },
-				{ header: 'Priority', key: 'priority', width: 10 },
-				{ header: 'Last Update', key: 'updated_at', width: 10 },
-			];
-
-			worksheet.addRows(tasks);
-
-			// Making first line in excel bold
-			worksheet.getRow(1).eachCell((cell) => {
-				cell.font = { bold: true };
+				return exportData({ data: followers }, followerHeaders, {
+					type: (req.query.type as string) || 'csv',
+					userId: req.user.id,
+				});
+			})
+			// create a notification for the successful export of the task followers
+			.then((data) => {
+				let message =
+					'File exported successfully. Click on the download link to proceed!';
+				if (data.size) {
+					const size = String(data.size / (1024 * 1024));
+					const sizeString =
+						size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+					message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+				}
+				createNotification({
+					message,
+					messageId: data.file,
+					recipient: req.user.id,
+					title: 'All task followers have exported successfully',
+					type: 'DOWNLOAD',
+				});
+			})
+			.catch((err) => {
+				const error = handlePrismaErrors(err);
+				createNotification({
+					message: error.message,
+					recipient: req.user.id,
+					title: "Project's tasks/followers data export failed.",
+					type: 'ERROR',
+				});
 			});
 
-			fileName += '.xlsx';
-			res.setHeader(
-				'Content-Type',
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-			);
-			res.setHeader(
-				'Content-Disposition',
-				`attachment; filename="${fileName}"`
-			);
-
-			return workbook.xlsx.write(res).then(function () {
-				res.status(200).end();
-			});
-		}
+		return res.status(200).json({
+			status: 'success',
+			message:
+				'Your request was received successfully. A notification will be sent to you with a download link.',
+		});
 	});
