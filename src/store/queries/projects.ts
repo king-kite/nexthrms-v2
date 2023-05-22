@@ -379,7 +379,7 @@ export function useMarkProjectMutation(
 								rate: project.rate,
 								startDate: getStringedDate(project.startDate),
 								endDate: getStringedDate(project.endDate),
-								client?: project.client?.id || '',
+								client: project.client?.id || '',
 								completed: !project.completed,
 							}
 							showLoader();
