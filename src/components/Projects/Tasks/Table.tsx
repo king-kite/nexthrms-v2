@@ -117,9 +117,10 @@ const getRows = (
 type TableType = {
 	tasks: ProjectTaskType[];
 	loading: boolean;
+	projectId: string;
 };
 
-const ProjectTable = ({ tasks, loading }: TableType) => {
+const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<'all' | 'ongoing' | 'completed'>(
 		'all'
@@ -194,7 +195,7 @@ const ProjectTable = ({ tasks, loading }: TableType) => {
 				deleteTask: canDelete ? deleteTask : undefined,
 				markTask: canEdit ? markTask : undefined,
 				objPermLink: canViewObjectPermissions
-					? PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL
+					? (taskId) => PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(projectId, taskId)
 					: undefined,
 			})
 		);
@@ -206,6 +207,7 @@ const ProjectTable = ({ tasks, loading }: TableType) => {
 		tasks,
 		deleteTask,
 		markTask,
+		projectId,
 	]);
 
 	return (

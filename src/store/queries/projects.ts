@@ -1182,7 +1182,7 @@ export function useMarkProjectTaskMutation(
 	);
 
 	const markTask = React.useCallback(
-		({ id, followers, project, updatedAt, ...task }: ProjectTaskType) => {
+		(task: ProjectTaskType) => {
 			openModal({
 				closeOnButtonClick: false,
 				header: 'Mark ' + (!task.completed ? 'Completed?' : 'Ongoing?'),
@@ -1204,14 +1204,17 @@ export function useMarkProjectTaskMutation(
 						caps: true,
 						onClick: () => {
 							showLoader();
+							const data = {
+								name: task.name,
+								description: task.description,
+								dueDate: getStringedDate(task.dueDate),
+								priority: task.priority,
+								completed: !task.completed,
+							}
 							mutate({
 								id,
 								projectId: project.id,
-								data: {
-									...task,
-									completed: !task.completed,
-									dueDate: getStringedDate(task.dueDate),
-								},
+								data,
 							});
 						},
 						title: 'proceed',

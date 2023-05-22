@@ -148,7 +148,7 @@ const ProjectTasks = ({
 				}
 			/>
 			<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
-				<TaskTable loading={isLoading} tasks={data?.result || []} />
+				<TaskTable projectId={id} loading={isLoading} tasks={data?.result || []} />
 				{data && data?.total > 0 && (
 					<TablePagination
 						disabled={isFetching}
