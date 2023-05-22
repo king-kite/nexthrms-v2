@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../components/common';
+import { Container, Modal, TablePagination } from '../../components/common';
 import { Cards, Form, ProjectTable, Topbar } from '../../components/Projects';
 import {
 	permissions,
@@ -17,7 +17,7 @@ import {
 	CreateProjectErrorResponseType,
 	GetProjectsResponseType,
 } from '../../types';
-import { downloadFile, hasModelPermission } from '../../utils';
+import { hasModelPermission } from '../../utils';
 
 interface ErrorType extends CreateProjectErrorResponseType {
 	message?: string;
@@ -28,16 +28,16 @@ const Projects = ({
 }: {
 	projects: GetProjectsResponseType['data'];
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
+	const [offset, setOffset] = React.useState(0);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.project.CREATE])
@@ -60,7 +60,7 @@ const Projects = ({
 
 	const { data, refetch, isLoading, isFetching } = useGetProjectsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -98,7 +98,7 @@ const Projects = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateProjectQueryType) => {
 			if (canCreate) createProject(form);
 		},
@@ -114,16 +114,6 @@ const Projects = ({
 				loading: isFetching,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canCreate || canView) && data && data.total > 0
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total,
-					  }
-					: undefined
-			}
 		>
 			{(canCreate || canView) && (
 				<Cards
@@ -139,30 +129,31 @@ const Projects = ({
 				}}
 				loading={isLoading}
 				onSubmit={(e: string) => setSearch(e)}
-				exportLoading={exportLoading}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = PROJECTS_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'projects.csv' : 'projects.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						showAlert({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
-				}}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: PROJECTS_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${search}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
-				<ProjectTable loading={isLoading} projects={data?.result || []} />
+				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
+					<ProjectTable loading={isLoading} projects={data?.result || []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
 			)}
 			{canCreate && (
 				<Modal
