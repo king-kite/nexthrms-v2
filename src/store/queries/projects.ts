@@ -1212,7 +1212,7 @@ export function useMarkProjectTaskMutation(
 								completed: !task.completed,
 							}
 							mutate({
-								id,
+								id: task.id,
 								projectId: project.id,
 								data,
 							});
