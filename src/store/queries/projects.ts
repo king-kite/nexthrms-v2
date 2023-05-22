@@ -350,7 +350,7 @@ export function useMarkProjectMutation(
 	);
 
 	const markProject = React.useCallback(
-		({ id, team, updatedAt, ...project }: ProjectType) => {
+		(project: ProjectType) => {
 			openModal({
 				closeOnButtonClick: false,
 				header: 'Mark ' + (!project.completed ? 'Completed?' : 'Ongoing?'),
@@ -371,16 +371,21 @@ export function useMarkProjectMutation(
 							: 'bg-green-600 hover:bg-green-500',
 						caps: true,
 						onClick: () => {
+							const data = {
+								name: project.name,
+								description: project.description,
+								priority: project.priority,
+								initialCost: project.initialCost,
+								rate: project.rate,
+								startDate: getStringedDate(project.startDate),
+								endDate: getStringedDate(project.endDate),
+								client?: project.client?.id || '',
+								completed: !project.completed,
+							}
 							showLoader();
 							mutate({
-								id,
-								data: {
-									...project,
-									completed: !project.completed,
-									startDate: getStringedDate(project.startDate),
-									endDate: getStringedDate(project.endDate),
-									client: project.client?.id || '',
-								},
+								id: project.id,
+								data,
 							});
 						},
 						title: 'proceed',

@@ -164,7 +164,7 @@ const Team = ({
 									iconLeft={FaCloudUploadAlt}
 									onClick={() => setModalVisible(true)}
 									rounded="rounded-xl"
-									title="Import Files"
+									title="Import Team"
 								/>
 							</div>
 						)}
@@ -192,7 +192,7 @@ const Team = ({
 										margin: 'lg:mr-6',
 										padding: 'px-3 py-2 md:px-6',
 										rounded: 'rounded-xl',
-										title: loading ? 'Exporting...' : 'Export Files',
+										title: loading ? 'Exporting...' : 'Export Team',
 									}}
 								/>
 							</div>
