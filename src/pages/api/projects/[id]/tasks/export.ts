@@ -15,7 +15,6 @@ import { admin } from '../../../../../middlewares';
 import {
 	NextApiRequestExtendUser,
 	ProjectTaskFollowerImportQueryType,
-	UserType,
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
