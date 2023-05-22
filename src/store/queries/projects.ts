@@ -1213,7 +1213,7 @@ export function useMarkProjectTaskMutation(
 							}
 							mutate({
 								id: task.id,
-								projectId: project.id,
+								projectId: task.project.id,
 								data,
 							});
 						},
