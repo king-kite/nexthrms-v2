@@ -8,6 +8,7 @@ import { getProjectTeam } from '../queries';
 import {
 	ObjectPermissionImportType,
 	ProjectFileImportQueryType,
+	ProjectTaskImportQueryType,
 	ProjectTaskFollowerImportQueryType,
 	ProjectTeamImportQueryType,
 } from '../../types';
@@ -170,6 +171,91 @@ export function importProjectTeam({
 	});
 }
 // ********* Project Team Stop **********
+
+// ********* Project Task Start **********
+
+function getProjectTaskInput(data: ProjectTaskImportQueryType) {
+	return {
+		projectId: data.project_id,
+		id: data.id ? data.id : undefined,
+		name: data.name,
+		description: data.description,
+		completed: data.completed
+			? data.completed.toString().toLowerCase() === 'true'
+			: false,
+		dueDate: new Date(data.due_date),
+		priority: data.priority,
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+	};
+}
+
+export function importProjectTasks({
+	data,
+	permissions: perms,
+	projectId,
+	userId,
+}: {
+	data: ProjectTaskImportQueryType[];
+	permissions?: ObjectPermissionImportType[];
+	projectId?: string;
+	userId: string;
+}) {
+	return new Promise<
+		{
+			id: string;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getProjectTaskInput);
+			// check that every task input has an ID.
+			const invalid = input.filter((task) => !task.id);
+			if (invalid.length > 0) {
+				return reject({
+					data: {
+						message:
+							`An id field is required to avoid duplicate records. The following records do not have an id: ` +
+							input.map((task) => task.name).join(','),
+						title: 'ID field is required.',
+					},
+					status: 400,
+				});
+			}
+			const result = await prisma.$transaction(
+				input.map((data: any) =>
+					prisma.projectTask.upsert({
+						where: {
+							id: data.id,
+						},
+						update: {
+							...data,
+							projectId: projectId || data.projectId,
+						},
+						create: {
+							...data,
+							projectId: projectId || data.projectId,
+						},
+					})
+				)
+			);
+			await Promise.all(
+				result.map((task) =>
+					addObjectPermissions({
+						model: 'projects_tasks',
+						objectId: task.id,
+						users: [userId],
+					})
+				)
+			);
+			if (perms) await importPermissions(perms);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
+}
+
+// ********* Project Task Stop ***********
 
 // ********* Project Task Follower Start ********
 

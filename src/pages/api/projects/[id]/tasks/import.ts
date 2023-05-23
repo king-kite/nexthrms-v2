@@ -3,21 +3,20 @@ import {
 	projectTaskFollowerHeaders as followerHeaders,
 	permissions,
 } from '../../../../../config';
-import { prisma } from '../../../../../db';
 import {
-	addObjectPermissions,
 	createNotification,
 	handleNotificationErrors as handleErrors,
 	hasViewPermission,
 	importData,
-	importPermissions,
 } from '../../../../../db/utils';
+import {
+	importProjectTasks,
+	importProjectTaskFollowers,
+} from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
 import {
-	ObjectPermissionImportType,
 	ProjectTaskImportQueryType,
 	ProjectTaskFollowerImportQueryType,
-	NextApiRequestExtendUser,
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
@@ -28,114 +27,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
-function getDataInput(data: ProjectTaskImportQueryType) {
-	return {
-		projectId: data.project_id,
-		id: data.id ? data.id : undefined,
-		name: data.name,
-		description: data.description,
-		completed: data.completed
-			? data.completed.toString().toLowerCase() === 'true'
-			: false,
-		dueDate: new Date(data.due_date),
-		priority: data.priority,
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-	};
-}
-
-function getFollowerInput(data: ProjectTaskFollowerImportQueryType) {
-	return {
-		id: data.id ? data.id : undefined,
-		isLeader: data.is_leader
-			? data.is_leader.toString().toLowerCase() === 'true'
-			: false,
-		memberId: data.member_id,
-		taskId: data.task_id,
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-	};
-}
-
-function createData(
-	req: NextApiRequestExtendUser,
-	data: any,
-	perms?: ObjectPermissionImportType[]
-) {
-	return new Promise<
-		{
-			id: string;
-		}[]
-	>(async (resolve, reject) => {
-		try {
-			// Not trying to import followers but tasks data
-			if (req.query.import !== 'followers') {
-				const input = data.map(getDataInput);
-				// check that every task input has an ID.
-				const invalid: any[] = input.filter((task: any) => !task.id);
-				if (invalid.length > 0) {
-					return reject({
-						data: {
-							message:
-								`An id field is required to avoid duplicate records. The following records do not have an id: ` +
-								input.map((task: any) => task.name).join(','),
-							title: 'ID field is required.',
-						},
-						status: 400,
-					});
-				}
-				const result = await prisma.$transaction(
-					input.map((data: any) =>
-						prisma.projectTask.upsert({
-							where: {
-								id: data.id,
-							},
-							update: {
-								...data,
-								projectId: req.query.id as string,
-							},
-							create: {
-								...data,
-								projectId: req.query.id as string,
-							},
-						})
-					)
-				);
-				await Promise.all(
-					result.map((task) =>
-						addObjectPermissions({
-							model: 'projects_tasks',
-							objectId: task.id,
-							users: [req.user.id],
-						})
-					)
-				);
-				if (perms) await importPermissions(perms);
-				resolve(result);
-			} else {
-				const input = data.map(getFollowerInput);
-				const result = await prisma.$transaction(
-					input.map((data: any) =>
-						prisma.projectTaskFollower.upsert({
-							where: {
-								taskId_memberId: {
-									taskId: data.taskId,
-									memberId: data.memberId,
-								},
-							},
-							update: data,
-							create: data,
-						})
-					)
-				);
-				resolve(result);
-			}
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -177,14 +68,27 @@ export default admin()
 		const messageTitle =
 			req.query.import === 'followers' ? 'Task Followers' : 'Tasks';
 
-		importData<ProjectTaskImportQueryType>({
-			headers: req.query.import === 'followers' ? followerHeaders : headers,
-			path: files.data.filepath,
-			type: files.data.mimetype,
-			replaceEmpty: true,
-			replaceEmptyValue: null,
-		})
-			.then((result) => createData(req, result.data, result.permissions))
+		importData<ProjectTaskImportQueryType | ProjectTaskFollowerImportQueryType>(
+			{
+				headers: req.query.import === 'followers' ? followerHeaders : headers,
+				path: files.data.filepath,
+				type: files.data.mimetype,
+				replaceEmpty: true,
+				replaceEmptyValue: null,
+			}
+		)
+			.then((result) =>
+				req.query.import === 'followers'
+					? importProjectTaskFollowers({
+							data: result.data as ProjectTaskFollowerImportQueryType[],
+					  })
+					: importProjectTasks({
+							data: result.data as ProjectTaskImportQueryType[],
+							permissions: result.permissions,
+							projectId: req.query.id as string,
+							userId: req.user.id,
+					  })
+			)
 			.then(() =>
 				createNotification({
 					message: `${messageTitle} data was imported successfully.`,
