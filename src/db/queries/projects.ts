@@ -11,6 +11,70 @@ import {
 } from '../../types';
 
 // ******** Project Queries Start ***********
+export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
+	id: true,
+	isLeader: true,
+	member: {
+		select: {
+			id: true,
+			employee: {
+				select: {
+					id: true,
+					user: {
+						select: {
+							id: true,
+							firstName: true,
+							lastName: true,
+							email: true,
+							profile: {
+								select: {
+									image: true,
+								},
+							},
+						},
+					},
+					job: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
+	},
+	updatedAt: true,
+	createdAt: true,
+};
+
+export const teamSelectQuery: Prisma.ProjectTeamSelect = {
+	id: true,
+	isLeader: true,
+	updatedAt: true,
+	createdAt: true,
+	employee: {
+		select: {
+			id: true,
+			user: {
+				select: {
+					id: true,
+					firstName: true,
+					lastName: true,
+					email: true,
+					profile: {
+						select: {
+							image: true,
+						},
+					},
+				},
+			},
+			job: {
+				select: {
+					name: true,
+				},
+			},
+		},
+	},
+};
 
 export const projectSelectQuery: Prisma.ProjectSelect = {
 	id: true,
@@ -45,33 +109,7 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 	createdAt: true,
 	updatedAt: true,
 	team: {
-		select: {
-			id: true,
-			employee: {
-				select: {
-					id: true,
-					user: {
-						select: {
-							id: true,
-							firstName: true,
-							lastName: true,
-							email: true,
-							profile: {
-								select: {
-									image: true,
-								},
-							},
-						},
-					},
-					job: {
-						select: {
-							name: true,
-						},
-					},
-				},
-			},
-			isLeader: true,
-		},
+		select: teamSelectQuery,
 	},
 };
 
@@ -281,36 +319,6 @@ export const getProjectFile = async (id: string) => {
 // ******** File Queries Stop **********
 
 // ******** Team Queries Start ********
-export const teamSelectQuery: Prisma.ProjectTeamSelect = {
-	id: true,
-	isLeader: true,
-	updatedAt: true,
-	createdAt: true,
-	employee: {
-		select: {
-			id: true,
-			user: {
-				select: {
-					id: true,
-					firstName: true,
-					lastName: true,
-					email: true,
-					profile: {
-						select: {
-							image: true,
-						},
-					},
-				},
-			},
-			job: {
-				select: {
-					name: true,
-				},
-			},
-		},
-	},
-};
-
 export const getProjectTeamQuery = ({
 	offset,
 	limit,
@@ -434,40 +442,7 @@ export const taskSelectQuery: Prisma.ProjectTaskSelect = {
 		},
 	},
 	followers: {
-		select: {
-			id: true,
-			member: {
-				select: {
-					id: true,
-					employee: {
-						select: {
-							id: true,
-							user: {
-								select: {
-									id: true,
-									firstName: true,
-									lastName: true,
-									email: true,
-									profile: {
-										select: {
-											image: true,
-										},
-									},
-								},
-							},
-							job: {
-								select: {
-									name: true,
-								},
-							},
-						},
-					},
-				},
-			},
-			isLeader: true,
-			updatedAt: true,
-			createdAt: true,
-		},
+		select: taskFollowerSelectQuery,
 	},
 };
 
@@ -592,40 +567,6 @@ export const getProjectTask = async (id: string) => {
 // ******** Task Queries Stop **********
 
 // ******** Task Follower Queries Start **********
-export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
-	id: true,
-	isLeader: true,
-	member: {
-		select: {
-			id: true,
-			employee: {
-				select: {
-					id: true,
-					user: {
-						select: {
-							id: true,
-							firstName: true,
-							lastName: true,
-							email: true,
-							profile: {
-								select: {
-									image: true,
-								},
-							},
-						},
-					},
-					job: {
-						select: {
-							name: true,
-						},
-					},
-				},
-			},
-		},
-	},
-	updatedAt: true,
-	createdAt: true,
-};
 
 export const getTaskFollowersQuery = ({
 	offset,
