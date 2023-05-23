@@ -222,7 +222,7 @@ const Topbar = ({ loading, openModal, onSubmit, exportData }: TopbarProps) => {
 						ref={searchRef}
 					/>
 				</form>
-				{exportData && authData?.isAdmin && (
+				{exportData && (authData?.isAdmin || authData?.isSuperUser) && (
 					<div className="my-3 w-full sm:pr-1 sm:w-1/3 md:w-1/4 md:my-0 md:px-3 lg:pl-2 lg:pr-0 lg:w-1/5">
 						<ButtonDropdown
 							component={() => <ExportForm {...exportData} />}
