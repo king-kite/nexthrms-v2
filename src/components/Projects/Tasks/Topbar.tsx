@@ -187,7 +187,7 @@ const Topbar = ({
 								setModalVisible(false);
 							}}
 							requirements={requirements}
-							sample={samples.users}
+							sample={formType === 'followers' ? samples.projectTaskFollowers : samples.projectTasks}
 							url={url}
 						/>
 					}
