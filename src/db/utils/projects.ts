@@ -41,7 +41,7 @@ function getProjectFileInput(data: ProjectFileImportQueryType) {
 	};
 }
 
-export function createProjectFileFromInput({
+export function importProjectFiles({
 	data,
 	permissions: perms,
 	projectId,

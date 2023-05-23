@@ -8,7 +8,7 @@ import {
 	hasViewPermission,
 	importData,
 } from '../../../../../db/utils';
-import { createProjectFileFromInput } from '../../../../../db/utils/projects';
+import { importProjectFiles } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
 import { ProjectFileImportQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
@@ -64,7 +64,7 @@ export default admin()
 			type: files.data.mimetype,
 		})
 			.then((result) =>
-				createProjectFileFromInput({
+				importProjectFiles({
 					projectId: req.query.id as string,
 					userId: req.user.id,
 					...result,
