@@ -9,6 +9,8 @@ date.setHours(0, 0, 0, 0);
 export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,
 	dateEmployed: true,
+	createdAt: true,
+	updatedAt: true,
 	department: {
 		select: {
 			id: true,

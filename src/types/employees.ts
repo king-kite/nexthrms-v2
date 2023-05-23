@@ -66,6 +66,8 @@ interface EmployeeUserType extends UserDataType {
 export type EmployeeType = {
 	id: string;
 	dateEmployed: Date | string;
+	createdAt: Date | string;
+	updatedAt: Date | string;
 	department: {
 		id: string;
 		name: string;

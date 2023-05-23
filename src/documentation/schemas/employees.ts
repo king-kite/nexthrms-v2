@@ -32,6 +32,14 @@ export const EmployeeModel = {
 			type: 'string',
 			format: 'date-time',
 		},
+		createdAt: {
+			type: 'string',
+			format: 'date-time',
+		},
+		updatedAt: {
+			type: 'string',
+			format: 'date-time',
+		},
 		user: {
 			type: 'object',
 			properties: {
@@ -105,6 +113,8 @@ export const EmployeeModel = {
 	example: {
 		id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 		dateEmployed: '2022-11-28T14:53:40.800Z',
+		createdAt: '2022-11-28T14:53:40.800Z',
+		updatedAt: '2022-11-28T14:53:40.800Z',
 		leaves: [
 			{
 				startDate: '2022-10-29T00:00:00.000Z',
