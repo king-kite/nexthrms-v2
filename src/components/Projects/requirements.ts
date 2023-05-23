@@ -82,6 +82,62 @@ export const followerRequirements = [
   },
 ]
 
+export const projectRequirements = [
+  {
+    title: 'id',
+    value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+  },
+  {
+    required: false,
+    title: 'client_id',
+    value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+  },
+  {
+    title: 'name',
+    value: 'Draft a plan.',
+  },
+  {
+    title: 'description',
+    value: 'This is the description to go about the plan.',
+  },
+  {
+    title: 'start_date',
+    value: '2023-03-26T21:49:51.090Z',
+  },
+  {
+    title: 'end_date',
+    value: '2023-03-26T21:49:51.090Z',
+  },
+  {
+    required: false,
+    title: 'completed',
+    value: 'true',
+  },
+  {
+    title: 'initial_cost',
+    value: '5000'
+  },
+  {
+    title: 'rate',
+    value: '10',
+  },
+  {
+    required: false,
+    title: 'priority',
+    value: 'HIGH',
+  },
+  {
+    required: false,
+    title: 'updated_at',
+    value: '2023-03-26T21:49:51.090Z',
+  },
+  {
+    required: false,
+    title: 'created_at',
+    value: '2023-03-26T21:49:51.090Z',
+  },
+]
+
 export const taskRequirements = [
   {
     title: 'id',
