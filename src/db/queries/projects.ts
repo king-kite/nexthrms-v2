@@ -550,17 +550,18 @@ export const getProjectTasks = async (
 			typeof query.where?.projectId === 'string'
 				? prisma.project.findUniqueOrThrow({
 						where: {
-							id: params.id,
+							id: query.where.projectId,
 						},
 						select: { id: true, name: true },
 				  })
 				: prisma.project.findFirst({
-					where: {
-						id: params.id,
-						...query.where
-					},
-					select: { id: true, name: true },
-				}),
+						where: {
+							id: {
+								in: query.where?.projectId?.in || [],
+							},
+						},
+						select: { id: true, name: true },
+				  }),
 		]);
 
 	return {
@@ -568,7 +569,11 @@ export const getProjectTasks = async (
 		result: result as unknown as ProjectTaskType[],
 		completed,
 		ongoing,
-		project,
+		// Just add some placeholders
+		project: project || {
+			id: '',
+			name: '',
+		},
 	};
 };
 
