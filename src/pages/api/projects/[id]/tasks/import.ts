@@ -72,6 +72,19 @@ function createData(
 			// Not trying to import followers but tasks data
 			if (req.query.import !== 'followers') {
 				const input = data.map(getDataInput);
+				// check that every task input has an ID.
+				const invalid: any[] = input.filter((task: any) => !task.id);
+				if (invalid.length > 0) {
+					return reject({
+						data: {
+							message:
+								`An id field is required to avoid duplicate records. The following records do not have an id: ` +
+								input.map((task: any) => task.name).join(','),
+							title: 'ID field is required.',
+						},
+						status: 400,
+					});
+				}
 				const result = await prisma.$transaction(
 					input.map((data: any) =>
 						prisma.projectTask.upsert({
