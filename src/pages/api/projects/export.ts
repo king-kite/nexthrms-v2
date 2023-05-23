@@ -6,56 +6,53 @@ import {
 	projectTaskFollowerHeaders as followerHeaders,
 	permissions,
 } from '../../../config';
-import { getProjects, getProjectFiles, getProjectTasks } from '../../../db';
+import {
+	getProjects,
+	// selects
+	projectSelectQuery,
+	projectFileSelectQuery,
+	taskSelectQuery,
+} from '../../../db';
 import {
 	createNotification,
 	exportData,
 	getObjectPermissionExportData,
 	getRecords,
+	getUserObjects,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import {
 	NextApiRequestExtendUser,
+	ProjectType,
+	ProjectFileType,
+	ProjectTaskType,
 	ProjectTaskFollowerImportQueryType,
 	ProjectTeamImportQueryType,
-	ProjectFileType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
-async function getTasksData(
-	req: NextApiRequestExtendUser,
-	projectIds: string[]
-) {
-	const placeholder = {
-		total: 0,
-		result: [],
-		project: {
-			id: req.query.id as string,
-			name: '',
-		},
-		ongoing: 0,
-		completed: 0,
-	};
-	const result = await getRecords({
-		model: 'projects_tasks',
-		perm: 'projecttask',
-		user: req.user,
-		placeholder,
-		getData() {
-			return getProjectTasks({
-				where: {
-					projectId: {
-						in: projectIds,
-					},
-				},
-			});
-		},
-	});
+type DataType = ProjectType & {
+	client: {
+		id: string;
+	} | null;
+	files: (ProjectFileType & {
+		storageInfo?: object | null;
+	})[];
+	tasks: ProjectTaskType[];
+};
 
-	const data = result ? result.data : placeholder;
-	const tasks = data.result.map((task) => ({
+type RecordType = {
+	total: number;
+	ongoing: number;
+	completed: number;
+	result: DataType[];
+};
+
+// Get the task export/import query data
+async function getTasksData(data: DataType['tasks']) {
+	const tasks = data.map((task) => ({
 		id: task.id,
 		name: task.name,
 		description: task.description,
@@ -70,7 +67,7 @@ async function getTasksData(
 		ids: tasks.map((task) => task.id),
 		model: 'projects_tasks',
 	});
-	const followers = data.result.reduce(
+	const followers = data.reduce(
 		(acc: ProjectTaskFollowerImportQueryType[], task) => {
 			const taskFollowers = task.followers.map((follower) => ({
 				id: follower.id,
@@ -91,44 +88,9 @@ async function getTasksData(
 		permissions: perms,
 	};
 }
-
-type FileDataType = ProjectFileType & {
-	storageInfo?: object | null;
-};
-
-async function getFilesData(
-	req: NextApiRequestExtendUser,
-	projectIds: string[]
-) {
-	const placeholder = {
-		total: 0,
-		result: [],
-	};
-
-	const result = await getRecords<{
-		result: FileDataType[];
-	}>({
-		user: req.user,
-		model: 'projects_files',
-		perm: 'projectfile',
-		placeholder,
-		getData() {
-			return getProjectFiles({
-				where: {
-					projectId: {
-						in: projectIds,
-					},
-				},
-				select: {
-					storageInfo: true,
-				},
-			});
-		},
-	});
-
-	const data = result ? result.data : placeholder;
-
-	const files = data.result.map((file) => ({
+// Get the files export/import query data
+async function getFilesData(data: DataType['files']) {
+	const files = data.map((file) => ({
 		id: file.id,
 		project_id: file.project.id,
 		name: file.name,
@@ -158,12 +120,40 @@ async function getFilesData(
 }
 
 async function getProjectsData(req: NextApiRequestExtendUser) {
-	const placeholder = {
+	const placeholder: RecordType = {
 		total: 0,
 		result: [],
 		ongoing: 0,
 		completed: 0,
 	};
+
+	// Only get the files that the user can view if the user is not a superuser
+	// and does not have model permissions
+	const validFileIds =
+		!req.user.isSuperUser &&
+		!hasModelPermission(req.user.allPermissions, [permissions.projectfile.VIEW])
+			? (
+					await getUserObjects({
+						modelName: 'projects_files',
+						permission: 'VIEW',
+						userId: req.user.id,
+					})
+			  ).map((permFile) => permFile.objectId)
+			: undefined;
+
+	// Only get the tasks that the user can view if the user is not a superuser
+	// and does nothave model permissions
+	const validTaskIds =
+		!req.user.isSuperUser &&
+		!hasModelPermission(req.user.allPermissions, [permissions.projecttask.VIEW])
+			? (
+					await getUserObjects({
+						modelName: 'projects_tasks',
+						permission: 'VIEW',
+						userId: req.user.id,
+					})
+			  ).map((permTask) => permTask.objectId)
+			: undefined;
 
 	const records = await getRecords({
 		model: 'projects',
@@ -172,10 +162,45 @@ async function getProjectsData(req: NextApiRequestExtendUser) {
 		user: req.user,
 		query: req.query,
 		getData(params) {
-			return getProjects(params);
+			const value = getProjects({
+				...params,
+				select: {
+					...projectSelectQuery,
+					client: {
+						select: {
+							id: true,
+						},
+					},
+					files: {
+						where: validFileIds
+							? {
+									id: {
+										in: validFileIds,
+									},
+							  }
+							: undefined,
+						select: {
+							...projectFileSelectQuery,
+							storageInfo: true,
+						},
+					},
+					tasks: {
+						where: validTaskIds
+							? {
+									id: {
+										in: validTaskIds,
+									},
+							  }
+							: undefined,
+						select: taskSelectQuery,
+					},
+				},
+			});
+			return value as unknown as Promise<RecordType>;
 		},
 	});
 
+	// Projects
 	const data = records ? records.data : placeholder;
 	const projects = data.result.map((project) => ({
 		id: project.id,
@@ -191,11 +216,12 @@ async function getProjectsData(req: NextApiRequestExtendUser) {
 		updated_at: project.updatedAt,
 		created_at: project.createdAt,
 	}));
-
-	const perms = await getObjectPermissionExportData({
+	const projectPerms = await getObjectPermissionExportData({
 		ids: projects.map((project) => project.id),
 		model: 'projects',
 	});
+
+	// Team
 	const team = data.result.reduce(
 		(acc: ProjectTeamImportQueryType[], project) => {
 			const members = project.team.map((member) => ({
@@ -211,43 +237,49 @@ async function getProjectsData(req: NextApiRequestExtendUser) {
 		[]
 	);
 
+	// Files
+	const { allFiles, allTasks } = data.result.reduce(
+		(
+			acc: { allFiles: DataType['files']; allTasks: DataType['tasks'] },
+			project
+		) => ({
+			allFiles: [...acc.allFiles, ...project.files],
+			allTasks: [...acc.allTasks, ...project.tasks],
+		}),
+		{ allFiles: [], allTasks: [] }
+	);
+	const files = await getFilesData(allFiles);
+
+	// Tasks
+	const { followers, ...tasks } = await getTasksData(allTasks);
+
 	return {
-		data: projects,
-		team,
-		permissions: perms,
+		files,
+		projects: {
+			data: projects,
+			permissions: projectPerms,
+		},
+		team: {
+			data: team,
+		},
+		tasks,
+		followers: {
+			data: followers,
+		},
 	};
 }
 
 async function handleDataExport(req: NextApiRequestExtendUser) {
 	try {
-		const {
-			data: projects,
-			team,
-			permissions: projectPerms,
-		} = await getProjectsData(req);
-
-		const projectIds = projects.map((project) => project.id);
-
-		const { data: files, permissions: filePerms } = await getFilesData(
-			req,
-			projectIds
+		const { files, followers, projects, tasks, team } = await getProjectsData(
+			req
 		);
-
-		const {
-			data: tasks,
-			followers,
-			permissions: taskPerms,
-		} = await getTasksData(req, projectIds);
 
 		// export projects
-		const projectData = await exportData(
-			{ data: projects, permissions: projectPerms },
-			headers,
-			{
-				type: (req.query.type as string) || 'csv',
-				userId: req.user.id,
-			}
-		);
+		const projectData = await exportData(projects, headers, {
+			type: (req.query.type as string) || 'csv',
+			userId: req.user.id,
+		});
 		let message = '';
 
 		message =
@@ -267,14 +299,10 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 		});
 
 		// export project files
-		const fileData = await exportData(
-			{ data: files, permissions: filePerms },
-			fileHeaders,
-			{
-				type: (req.query.type as string) || 'csv',
-				userId: req.user.id,
-			}
-		);
+		const fileData = await exportData(files, fileHeaders, {
+			type: (req.query.type as string) || 'csv',
+			userId: req.user.id,
+		});
 		message =
 			'Projects files were exported successfully. The projects teams will be exported shortly. Click on the download link to proceed!';
 		if (fileData.size) {
@@ -292,7 +320,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 		});
 
 		// export project team
-		const teamData = await exportData({ data: team }, teamHeaders, {
+		const teamData = await exportData(team, teamHeaders, {
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
@@ -312,15 +340,11 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 			type: 'DOWNLOAD',
 		});
 
-		// export project task
-		const taskData = await exportData(
-			{ data: tasks, permissions: taskPerms },
-			taskHeaders,
-			{
-				type: (req.query.type as string) || 'csv',
-				userId: req.user.id,
-			}
-		);
+		// export project tasks
+		const taskData = await exportData(tasks, taskHeaders, {
+			type: (req.query.type as string) || 'csv',
+			userId: req.user.id,
+		});
 		message =
 			'Projects tasks were exported successfully. The projects task followers will be exported shortly. Click on the download link to proceed!';
 		if (taskData.size) {
@@ -338,14 +362,10 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 		});
 
 		// export project task followers
-		const followerData = await exportData(
-			{ data: followers },
-			followerHeaders,
-			{
-				type: (req.query.type as string) || 'csv',
-				userId: req.user.id,
-			}
-		);
+		const followerData = await exportData(followers, followerHeaders, {
+			type: (req.query.type as string) || 'csv',
+			userId: req.user.id,
+		});
 		message =
 			'Projects task followers were exported successfully. Click on the download link to proceed!';
 		if (followerData.size) {

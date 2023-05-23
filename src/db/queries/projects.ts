@@ -198,7 +198,8 @@ export const getProjects = async (
 
 	const [total, result, completed, ongoing] = await prisma.$transaction([
 		prisma.project.count({ where: query.where }),
-		prisma.project.findMany({ ...query, select: projectSelectQuery }),
+		// prisma.project.findMany({ ...query, select: projectSelectQuery }),
+		prisma.project.findMany(query),
 		prisma.project.count({
 			where: {
 				completed: true,
