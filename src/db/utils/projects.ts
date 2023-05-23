@@ -7,11 +7,35 @@ import prisma from '../client';
 import { getProjectTeam } from '../queries';
 import {
 	ObjectPermissionImportType,
+	ProjectImportQueryType,
 	ProjectFileImportQueryType,
 	ProjectTaskImportQueryType,
 	ProjectTaskFollowerImportQueryType,
 	ProjectTeamImportQueryType,
 } from '../../types';
+
+// ******* Project Start *********
+
+function getProjectInput(data: ProjectImportQueryType) {
+	return {
+		id: data.id ? data.id : undefined,
+		clientId: data.client_id ? data.client_id : undefined,
+		name: data.name,
+		description: data.description,
+		completed: data.completed
+			? data.completed.toString().toLowerCase() === 'true'
+			: false,
+		startDate: new Date(data.start_date),
+		endDate: new Date(data.end_date),
+		initialCost: data.initial_cost,
+		rate: data.rate,
+		priority: data.priority,
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+	};
+}
+
+// ******* Project Stop **********
 
 // ******* Project Files Start *********
 function getProjectFileInput(data: ProjectFileImportQueryType) {
