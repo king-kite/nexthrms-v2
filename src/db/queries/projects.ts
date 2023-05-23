@@ -120,8 +120,10 @@ export const getProjectsQuery = ({
 	from,
 	to,
 	where = {},
+	select = {},
 }: ParamsType & {
 	where?: Prisma.ProjectWhereInput;
+	select?: Prisma.ProjectSelect;
 }): Prisma.ProjectFindManyArgs => {
 	const query: Prisma.ProjectFindManyArgs = {
 		skip: offset,
@@ -129,7 +131,10 @@ export const getProjectsQuery = ({
 		orderBy: {
 			name: 'asc' as const,
 		},
-		select: projectSelectQuery,
+		select: {
+			...projectSelectQuery,
+			...select,
+		},
 		where: search
 			? {
 					OR: [
@@ -184,6 +189,7 @@ export const getProjectsQuery = ({
 export const getProjects = async (
 	params: ParamsType & {
 		where?: Prisma.ProjectWhereInput;
+		select?: Prisma.ProjectSelect;
 	} = {
 		search: undefined,
 	}
@@ -539,12 +545,19 @@ export const getProjectTasks = async (
 					...query.where,
 				},
 			}),
-			prisma.project.findUniqueOrThrow({
-				where: {
-					id: params.id,
-				},
-				select: { id: true, name: true },
-			}),
+			// Did this because when exporting projects, we dont pass in a string id for the where input
+			// we pass in an object with a key in and an array of strings as the value
+			typeof query.where?.projectId === 'string'
+				? prisma.project.findUniqueOrThrow({
+						where: {
+							id: params.id,
+						},
+						select: { id: true, name: true },
+				  })
+				: {
+						id: '',
+						name: '',
+				  },
 		]);
 
 	return {
