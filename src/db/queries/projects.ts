@@ -554,10 +554,13 @@ export const getProjectTasks = async (
 						},
 						select: { id: true, name: true },
 				  })
-				: {
-						id: '',
-						name: '',
-				  },
+				: prisma.project.findFirst({
+					where: {
+						id: params.id,
+						...query.where
+					},
+					select: { id: true, name: true },
+				}),
 		]);
 
 	return {
