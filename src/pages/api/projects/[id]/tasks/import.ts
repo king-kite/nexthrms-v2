@@ -68,15 +68,13 @@ export default admin()
 		const messageTitle =
 			req.query.import === 'followers' ? 'Task Followers' : 'Tasks';
 
-		importData<ProjectTaskImportQueryType | ProjectTaskFollowerImportQueryType>(
-			{
-				headers: req.query.import === 'followers' ? followerHeaders : headers,
-				path: files.data.filepath,
-				type: files.data.mimetype,
-				replaceEmpty: true,
-				replaceEmptyValue: null,
-			}
-		)
+		importData({
+			headers: req.query.import === 'followers' ? followerHeaders : headers,
+			path: files.data.filepath,
+			type: files.data.mimetype,
+			replaceEmpty: true,
+			replaceEmptyValue: null,
+		})
 			.then((result) =>
 				req.query.import === 'followers'
 					? importProjectTaskFollowers({
