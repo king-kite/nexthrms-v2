@@ -49,7 +49,6 @@ export type ProjectImportQueryType = {
 	initial_cost: number;
 	rate: number;
 	priority: ProjectPriority;
-	files?: string | null;
 	created_at: Date | string;
 	updated_at: Date | string;
 };
