@@ -2,22 +2,15 @@ import {
 	projectFileHeaders as headers,
 	permissions,
 } from '../../../../../config';
-import { prisma, getProjectTeam } from '../../../../../db';
 import {
-	addObjectPermissions,
 	createNotification,
 	handleNotificationErrors as handleErrors,
 	hasViewPermission,
 	importData,
-	importPermissions,
-	updateObjectPermissions,
 } from '../../../../../db/utils';
+import { createProjectFileFromInput } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
-import {
-	ProjectFileImportQueryType,
-	ObjectPermissionImportType,
-	NextApiRequestExtendUser,
-} from '../../../../../types';
+import { ProjectFileImportQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import parseForm from '../../../../../utils/parseForm';
@@ -27,101 +20,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
-function getDataInput(data: ProjectFileImportQueryType) {
-	const keys = data.storage_info_keys
-		? data.storage_info_keys.split(',')
-		: null;
-	const values = data.storage_info_values
-		? data.storage_info_values.split(',')
-		: null;
-	const storageInfo =
-		keys && values
-			? keys.reduce((acc: any, key: string, index) => {
-					return {
-						...acc,
-						[key]: values[index],
-					};
-			  }, {})
-			: null;
-
-	return {
-		id: data.id && data.id.length > 0 ? data.id : undefined,
-		projectId: data.project_id,
-		name: data.name,
-		file: data.file,
-		size: +data.size,
-		type: data.type,
-		storageInfo,
-		uploadedBy: data.uploaded_by ? data.uploaded_by : null,
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-	};
-}
-
-function createData(
-	req: NextApiRequestExtendUser,
-	data: ProjectFileImportQueryType[],
-	perms?: ObjectPermissionImportType[]
-) {
-	return new Promise<
-		{
-			id: string;
-		}[]
-	>(async (resolve, reject) => {
-		try {
-			const input = data.map(getDataInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.projectFile.upsert({
-						where: { id: data.id },
-						update: {
-							...data,
-							projectId: req.query.id as string,
-						},
-						create: {
-							...data,
-							projectId: req.query.id as string,
-						},
-					})
-				)
-			);
-			await Promise.all(
-				result.map((data) =>
-					addObjectPermissions({
-						model: 'projects_files',
-						objectId: data.id,
-						users: [req.user.id],
-					})
-				)
-			);
-			if (perms) await importPermissions(perms);
-			else {
-				const team = await getProjectTeam({
-					id: req.query.id as string,
-				});
-				const ids = team.result.reduce((acc: string[], team) => {
-					if (team.employee.user.id !== req.user.id)
-						return [...acc, team.employee.user.id];
-					return acc;
-				}, []);
-				await Promise.all(
-					result.map((data) =>
-						updateObjectPermissions({
-							model: 'projects_files',
-							objectId: data.id,
-							permissions: ['VIEW'],
-							users: ids,
-						})
-					)
-				);
-			}
-			resolve(result);
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -165,7 +63,13 @@ export default admin()
 			path: files.data.filepath,
 			type: files.data.mimetype,
 		})
-			.then((result) => createData(req, result.data, result.permissions))
+			.then((result) =>
+				createProjectFileFromInput({
+					projectId: req.query.id as string,
+					userId: req.user.id,
+					...result,
+				})
+			)
 			.then(() =>
 				createNotification({
 					message: "Project's files data was imported successfully.",
