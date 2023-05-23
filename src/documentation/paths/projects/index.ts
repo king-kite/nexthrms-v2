@@ -25,6 +25,18 @@ const paths = {
 		tags: [tags.Projects],
 	}),
 	[routes.PROJECTS_IMPORT_URL]: getImportResponse({
+		parameters: [
+			{
+				in: 'query',
+				name: 'import',
+				required: false,
+				description:
+					"Set to 'files' import files for all projects. Set to 'team' to import team for all projects. Set to 'tasks' to import tasks for all projetcs. Set to 'followers' to import followers data for all tasks. Otherwise leave empty.",
+				schema: {
+					type: 'projects | files | team | tasks | followers',
+				},
+			},
+		],
 		title: 'Import Projects Data',
 		tags: [tags.Projects],
 	}),
@@ -125,7 +137,7 @@ const paths = {
 				description:
 					"Set to 'followers' to import followers data for all tasks. Otherwise leave empty.",
 				schema: {
-					type: 'string',
+					type: 'tasks | followers',
 				},
 			},
 		],
