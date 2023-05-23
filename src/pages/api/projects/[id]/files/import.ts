@@ -65,9 +65,10 @@ export default admin()
 		})
 			.then((result) =>
 				importProjectFiles({
+					data: result.data,
+					permissions: result.permissions,
 					projectId: req.query.id as string,
 					userId: req.user.id,
-					...result,
 				})
 			)
 			.then(() =>

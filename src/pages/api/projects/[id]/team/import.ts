@@ -2,7 +2,6 @@ import {
 	projectTeamHeaders as headers,
 	permissions,
 } from '../../../../../config';
-import { prisma } from '../../../../../db';
 import {
 	createNotification,
 	handleNotificationErrors as handleErrors,
@@ -10,11 +9,9 @@ import {
 	hasObjectPermission,
 	importData,
 } from '../../../../../db/utils';
+import { importProjectTeam } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
-import {
-	ProjectTeamImportQueryType,
-	NextApiRequestExtendUser,
-} from '../../../../../types';
+import { ProjectTeamImportQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import parseForm from '../../../../../utils/parseForm';
@@ -24,57 +21,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
-function getDataInput(data: ProjectTeamImportQueryType) {
-	return {
-		id: data.id ? data.id : undefined,
-		isLeader: data.is_leader
-			? data.is_leader.toString().toLowerCase() === 'true'
-			: false,
-		employeeId: data.employee_id,
-		projectId: data.project_id,
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-	};
-}
-
-function createData(
-	req: NextApiRequestExtendUser,
-	data: ProjectTeamImportQueryType[]
-) {
-	return new Promise<
-		{
-			id: string;
-		}[]
-	>(async (resolve, reject) => {
-		try {
-			const input = data.map(getDataInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.projectTeam.upsert({
-						where: {
-							projectId_employeeId: {
-								projectId: req.query.id as string,
-								employeeId: data.employeeId,
-							},
-						},
-						update: {
-							...data,
-							projectId: req.query.id as string,
-						},
-						create: {
-							...data,
-							projectId: req.query.id as string,
-						},
-					})
-				)
-			);
-			resolve(result);
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -124,7 +70,12 @@ export default admin()
 			path: files.data.filepath,
 			type: files.data.mimetype,
 		})
-			.then((result) => createData(req, result.data))
+			.then((result) =>
+				importProjectTeam({
+					data: result.data,
+					projectId: req.query.id as string,
+				})
+			)
 			.then(() =>
 				createNotification({
 					message: "Project's team data was imported successfully.",
