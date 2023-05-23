@@ -7,6 +7,7 @@ import {
 	FaPlus,
 } from 'react-icons/fa';
 
+import { followerRequirements, taskRequirements } from '../requirements';
 import { ExportForm, ImportForm, Modal } from '../../common';
 import {
 	permissions,
@@ -48,48 +49,7 @@ const Topbar = ({
 		if (formType === 'tasks') {
 			return {
 				url,
-				requirements: [
-					{
-						title: 'id',
-						value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-					},
-					{
-						title: 'name',
-						value: 'Draft a plan.',
-					},
-					{
-						title: 'description',
-						value: 'This is the description to go about the plan.',
-					},
-					{
-						title: 'due_date',
-						value: '2023-03-26T21:49:51.090Z',
-					},
-					{
-						required: false,
-						title: 'completed',
-						value: 'true',
-					},
-					{
-						required: false,
-						title: 'priority',
-						value: 'HIGH',
-					},
-					{
-						title: 'project_id',
-						value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-					},
-					{
-						required: false,
-						title: 'updated_at',
-						value: '2023-03-26T21:49:51.090Z',
-					},
-					{
-						required: false,
-						title: 'created_at',
-						value: '2023-03-26T21:49:51.090Z',
-					},
-				],
+				requirements: taskRequirements,
 				title: 'Tasks',
 				description:
 					'Upload a valid file to import multiple tasks for multiple projects.',
@@ -97,35 +57,7 @@ const Topbar = ({
 		}
 		return {
 			url: url + '?import=followers',
-			requirements: [
-				{
-					required: false,
-					title: 'id',
-					value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-				},
-				{
-					title: 'is_leader',
-					value: 'true',
-				},
-				{
-					title: 'task_id',
-					value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-				},
-				{
-					title: 'member_id',
-					value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-				},
-				{
-					required: false,
-					title: 'updated_at',
-					value: '2023-03-26T21:49:51.090Z',
-				},
-				{
-					required: false,
-					title: 'created_at',
-					value: '2023-03-26T21:49:51.090Z',
-				},
-			],
+			requirements: followerRequirements,
 			title: 'Tasks Followers',
 			description:
 				'Upload a valid file to import multiple task followers for multiple tasks.',
