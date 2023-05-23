@@ -2,7 +2,6 @@ import {
 	projectTaskFollowerHeaders as headers,
 	permissions,
 } from '../../../../../../../config';
-import { prisma } from '../../../../../../../db';
 import {
 	createNotification,
 	handleNotificationErrors as handleErrors,
@@ -10,11 +9,9 @@ import {
 	hasObjectPermission,
 	importData,
 } from '../../../../../../../db/utils';
+import { importProjectTaskFollowers } from '../../../../../../../db/utils/projects';
 import { admin } from '../../../../../../../middlewares';
-import {
-	ProjectTaskFollowerImportQueryType,
-	NextApiRequestExtendUser,
-} from '../../../../../../../types';
+import { ProjectTaskFollowerImportQueryType } from '../../../../../../../types';
 import { hasModelPermission } from '../../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
 import parseForm from '../../../../../../../utils/parseForm';
@@ -24,57 +21,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
-function getDataInput(data: ProjectTaskFollowerImportQueryType) {
-	return {
-		id: data.id ? data.id : undefined,
-		isLeader: data.is_leader
-			? data.is_leader.toString().toLowerCase() === 'true'
-			: false,
-		memberId: data.member_id,
-		taskId: data.task_id,
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-	};
-}
-
-function createData(
-	req: NextApiRequestExtendUser,
-	data: ProjectTaskFollowerImportQueryType[]
-) {
-	return new Promise<
-		{
-			id: string;
-		}[]
-	>(async (resolve, reject) => {
-		try {
-			const input = data.map(getDataInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.projectTaskFollower.upsert({
-						where: {
-							taskId_memberId: {
-								taskId: req.query.taskId as string,
-								memberId: data.memberId,
-							},
-						},
-						update: {
-							...data,
-							taskId: req.query.taskId as string,
-						},
-						create: {
-							...data,
-							taskId: req.query.taskId as string,
-						},
-					})
-				)
-			);
-			resolve(result);
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -135,7 +81,12 @@ export default admin()
 			path: files.data.filepath,
 			type: files.data.mimetype,
 		})
-			.then((result) => createData(req, result.data))
+			.then((result) =>
+				importProjectTaskFollowers({
+					taskId: req.query.taskId as string,
+					data: result.data,
+				})
+			)
 			.then(() =>
 				createNotification({
 					message: 'Task followers data was imported successfully.',

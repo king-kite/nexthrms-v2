@@ -8,6 +8,7 @@ import { getProjectTeam } from '../queries';
 import {
 	ObjectPermissionImportType,
 	ProjectFileImportQueryType,
+	ProjectTaskFollowerImportQueryType,
 	ProjectTeamImportQueryType,
 } from '../../types';
 
@@ -115,7 +116,7 @@ export function importProjectFiles({
 // ********* Project Files Stop ********
 
 // ********* Project Team Start **********
-function getDataInput(data: ProjectTeamImportQueryType) {
+function getProjectTeamInput(data: ProjectTeamImportQueryType) {
 	return {
 		id: data.id ? data.id : undefined,
 		isLeader: data.is_leader
@@ -141,7 +142,7 @@ export function importProjectTeam({
 		}[]
 	>(async (resolve, reject) => {
 		try {
-			const input = data.map(getDataInput);
+			const input = data.map(getProjectTeamInput);
 			const result = await prisma.$transaction(
 				input.map((data) =>
 					prisma.projectTeam.upsert({
@@ -169,3 +170,61 @@ export function importProjectTeam({
 	});
 }
 // ********* Project Team Stop **********
+
+// ********* Project Task Follower Start ********
+
+function getTaskFollowerInput(data: ProjectTaskFollowerImportQueryType) {
+	return {
+		id: data.id ? data.id : undefined,
+		isLeader: data.is_leader
+			? data.is_leader.toString().toLowerCase() === 'true'
+			: false,
+		memberId: data.member_id,
+		taskId: data.task_id,
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+	};
+}
+
+export function importProjectTaskFollowers({
+	data,
+	taskId,
+}: {
+	data: ProjectTaskFollowerImportQueryType[];
+	taskId?: string;
+}) {
+	return new Promise<
+		{
+			id: string;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getTaskFollowerInput);
+			const result = await prisma.$transaction(
+				input.map((data) =>
+					prisma.projectTaskFollower.upsert({
+						where: {
+							taskId_memberId: {
+								taskId: taskId || data.taskId,
+								memberId: data.memberId,
+							},
+						},
+						update: {
+							...data,
+							taskId: taskId || data.taskId,
+						},
+						create: {
+							...data,
+							taskId: taskId || data.taskId,
+						},
+					})
+				)
+			);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
+}
+
+// ********* Project Task Follower Stop ********
