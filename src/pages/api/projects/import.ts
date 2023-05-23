@@ -48,27 +48,27 @@ export default admin().post(async (req, res) => {
 	const hasTaskCreatePerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.CREATE]);
-	if (!hasTaskCreatePerm && req.query.import && req.query.import !== 'tasks') throw new NextApiErrorMessage(403);
-
-	// Can create file
-	const hasFileCreatePerm = 
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.projectfile.CREATE]);
-	if (!hasFileCreatePerm && req.query.import && req.query.import !== 'files') throw new NextApiErrorMessage(403);
+	if (!hasTaskCreatePerm && req.query.import === 'tasks') throw new NextApiErrorMessage(403);
 
 	// Can edit project
 	// Only allow model level user permissions
 	const hasEditPerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
-	if (!hasEditPerm && !hasCreatePerm && req.query.import !== 'team') throw new NextApiErrorMessage(403);
+	if (!hasEditPerm && !hasCreatePerm && req.query.import === 'team') throw new NextApiErrorMessage(403);
+
+	// Can create file
+	const hasFileCreatePerm = 
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [permissions.projectfile.CREATE]);
+	if (!hasFileCreatePerm && req.query.import === 'files') throw new NextApiErrorMessage(403);
 	
 	// Can edit project task
 	// Only allow model level user permissions
 	const hasTaskEditPerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.EDIT]);
-	if (!hasTaskEditPerm && !hasTaskCreatePerm && req.query.import !== 'followers') throw new NextApiErrorMessage(403);
+	if (!hasTaskEditPerm && !hasTaskCreatePerm && req.query.import === 'followers') throw new NextApiErrorMessage(403);
 
 	const { files } = (await parseForm(req)) as { files: any };
 
