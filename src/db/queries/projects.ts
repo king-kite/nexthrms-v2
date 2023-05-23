@@ -233,7 +233,7 @@ export const getProjectFilesQuery = ({
 	where = {},
 	select = {},
 }: ParamsType & {
-	id: string;
+	id?: string;
 	where?: Prisma.ProjectFileWhereInput;
 	select?: Prisma.ProjectFileSelect;
 }): Prisma.ProjectFileFindManyArgs => {
@@ -256,7 +256,7 @@ export const getProjectFilesQuery = ({
 
 export const getProjectFiles = async (
 	params: ParamsType & {
-		id: string;
+		id?: string;
 		where?: Prisma.ProjectFileWhereInput;
 		select?: Prisma.ProjectFileSelect;
 	} = {
@@ -480,7 +480,7 @@ export const getProjectTasksQuery = ({
 	to,
 	where = {},
 }: ParamsType & {
-	id: string;
+	id?: string;
 	where?: Prisma.ProjectTaskWhereInput;
 }): Prisma.ProjectTaskFindManyArgs => {
 	const query: Prisma.ProjectTaskFindManyArgs = {
@@ -529,11 +529,10 @@ export const getProjectTasksQuery = ({
 
 export const getProjectTasks = async (
 	params: ParamsType & {
-		id: string;
+		id?: string;
 		where?: Prisma.ProjectTaskWhereInput;
 	} = {
 		search: undefined,
-		id: '',
 	}
 ): Promise<{
 	total: number;
