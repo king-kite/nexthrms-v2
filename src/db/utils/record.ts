@@ -32,7 +32,7 @@ export async function getRecords<DataType = unknown>({
 	model: PermissionModelChoices | null;
 	placeholder: DataType;
 	perm: PermissionKeyType;
-	query: NextApiRequest['query'] | ParamsType;
+	query?: NextApiRequest['query'] | ParamsType;
 	user: Omit<RequestUserType, 'checkPassword'>;
 	getData: (
 		params: ParamsType & {
@@ -50,7 +50,7 @@ export async function getRecords<DataType = unknown>({
 
 	// if the user has view model permissions
 	if (hasViewPerm) {
-		const params = validateParams(query);
+		const params = validateParams({ ...query });
 		const data = await getData({ ...params });
 
 		return {
@@ -69,7 +69,7 @@ export async function getRecords<DataType = unknown>({
 		});
 
 		if (userObjects.length > 0) {
-			const params = validateParams(query);
+			const params = validateParams({ ...query });
 
 			const data = (await getData({
 				...params,
