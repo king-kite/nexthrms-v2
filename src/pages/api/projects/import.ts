@@ -38,37 +38,39 @@ export const config = {
 };
 
 export default admin().post(async (req, res) => {
+	const queryImport = req.query.import?.toString() || "projects";
+
 	// Can create project
 	const hasCreatePerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.CREATE]);
-	if (!hasCreatePerm && req.query.import && req.query.import !== 'projects') throw new NextApiErrorMessage(403);
+	if (!hasCreatePerm && queryImport === 'projects') throw new NextApiErrorMessage(403);
 	
 	// Can create task
 	const hasTaskCreatePerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.CREATE]);
-	if (!hasTaskCreatePerm && req.query.import === 'tasks') throw new NextApiErrorMessage(403);
+	if (!hasTaskCreatePerm && queryImport === 'tasks') throw new NextApiErrorMessage(403);
 
 	// Can edit project
 	// Only allow model level user permissions
 	const hasEditPerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
-	if (!hasEditPerm && !hasCreatePerm && req.query.import === 'team') throw new NextApiErrorMessage(403);
+	if (!hasEditPerm && !hasCreatePerm && queryImport === 'team') throw new NextApiErrorMessage(403);
 
 	// Can create file
 	const hasFileCreatePerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projectfile.CREATE]);
-	if (!hasFileCreatePerm && req.query.import === 'files') throw new NextApiErrorMessage(403);
+	if (!hasFileCreatePerm && queryImport === 'files') throw new NextApiErrorMessage(403);
 	
 	// Can edit project task
 	// Only allow model level user permissions
 	const hasTaskEditPerm = 
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.EDIT]);
-	if (!hasTaskEditPerm && !hasTaskCreatePerm && req.query.import === 'followers') throw new NextApiErrorMessage(403);
+	if (!hasTaskEditPerm && !hasTaskCreatePerm && queryImport === 'followers') throw new NextApiErrorMessage(403);
 
 	const { files } = (await parseForm(req)) as { files: any };
 
@@ -87,25 +89,25 @@ export default admin().post(async (req, res) => {
 		);
 
 	const messageTitle =
-		req.query.import === 'files'
+		queryImport === 'files'
 			? 'Project Files'
-			: req.query.import === 'team'
+			: queryImport === 'team'
 			? 'Project Team'
-			: req.query.import === 'tasks'
+			: queryImport === 'tasks'
 			? 'Tasks'
-			: req.query.import === 'followers'
+			: queryImport === 'followers'
 			? 'Task Followers'
 			: 'Projects';
 
 	importData({
 		headers:
-			req.query.import === 'files'
+			queryImport === 'files'
 				? fileHeaders
-				: req.query.import === 'team'
+				: queryImport === 'team'
 				? teamHeaders
-				: req.query.import === 'tasks'
+				: queryImport === 'tasks'
 				? taskHeaders
-				: req.query.import === 'followers'
+				: queryImport === 'followers'
 				? followerHeaders
 				: headers,
 		path: files.data.filepath,
@@ -114,23 +116,23 @@ export default admin().post(async (req, res) => {
 		replaceEmptyValue: null,
 	})
 		.then((result) =>
-			req.query.import === 'files'
+			queryImport === 'files'
 				? importProjectFiles({
 						data: result.data as ProjectFileImportQueryType[],
 						permissions: result.permissions,
 						userId: req.user.id,
 				  })
-				: req.query.import === 'team'
+				: queryImport === 'team'
 				? importProjectTeam({
 						data: result.data as ProjectTeamImportQueryType[],
 				  })
-				: req.query.import === 'tasks'
+				: queryImport === 'tasks'
 				? importProjectTasks({
 						data: result.data as ProjectTaskImportQueryType[],
 						permissions: result.permissions,
 						userId: req.user.id,
 				  })
-				: req.query.import === 'followers'
+				: queryImport === 'followers'
 				? importProjectTaskFollowers({
 						data: result.data as ProjectTaskFollowerImportQueryType[],
 				  })
