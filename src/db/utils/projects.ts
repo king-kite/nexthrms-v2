@@ -35,6 +35,61 @@ function getProjectInput(data: ProjectImportQueryType) {
 	};
 }
 
+export function importProjects({
+	data,
+	permissions: perms,
+	userId,
+}: {
+	data: ProjectImportQueryType[];
+	permissions?: ObjectPermissionImportType[];
+	userId: string;
+}) {
+	return new Promise<
+		{
+			id: string;
+		}[]
+	>(async (resolve, reject) => {
+		try {
+			const input = data.map(getProjectInput);
+			// check that every project input has an ID.
+			const invalid = input.filter((project) => !project.id);
+			if (invalid.length > 0) {
+				return reject({
+					data: {
+						message:
+							`An id field is required to avoid duplicate records. The following records do not have an id: ` +
+							input.map((project) => project.name).join(','),
+						title: 'ID field is required.',
+					},
+					status: 400,
+				});
+			}
+			const result = await prisma.$transaction(
+				input.map((data) =>
+					prisma.project.upsert({
+						where: { id: data.id },
+						update: data,
+						create: data,
+					})
+				)
+			);
+			await Promise.all(
+				result.map((data) =>
+					addObjectPermissions({
+						model: 'projects',
+						objectId: data.id,
+						users: [userId],
+					})
+				)
+			);
+			if (perms) await importPermissions(perms);
+			resolve(result);
+		} catch (error) {
+			reject(error);
+		}
+	});
+}
+
 // ******* Project Stop **********
 
 // ******* Project Files Start *********
@@ -77,7 +132,7 @@ export function importProjectFiles({
 }: {
 	data: ProjectFileImportQueryType[];
 	permissions?: ObjectPermissionImportType[];
-	projectId: string;
+	projectId?: string;
 	userId: string;
 }) {
 	return new Promise<
@@ -93,11 +148,11 @@ export function importProjectFiles({
 						where: { id: data.id },
 						update: {
 							...data,
-							projectId,
+							projectId: projectId || data.projectId,
 						},
 						create: {
 							...data,
-							projectId,
+							projectId: projectId || data.projectId,
 						},
 					})
 				)
@@ -112,7 +167,7 @@ export function importProjectFiles({
 				)
 			);
 			if (perms) await importPermissions(perms);
-			else {
+			else if (projectId) {
 				const team = await getProjectTeam({
 					id: projectId,
 				});
@@ -272,6 +327,27 @@ export function importProjectTasks({
 				)
 			);
 			if (perms) await importPermissions(perms);
+			// If no permissions were fonud for the tasks, then just add all the project team members
+			else if (projectId) {
+				const team = await getProjectTeam({
+					id: projectId,
+				});
+				const ids = team.result.reduce((acc: string[], team) => {
+					if (team.employee.user.id !== userId)
+						return [...acc, team.employee.user.id];
+					return acc;
+				}, []);
+				await Promise.all(
+					result.map((data) =>
+						updateObjectPermissions({
+							model: 'projects_tasks',
+							objectId: data.id,
+							permissions: ['VIEW'],
+							users: ids,
+						})
+					)
+				);
+			}
 			resolve(result);
 		} catch (error) {
 			reject(error);
