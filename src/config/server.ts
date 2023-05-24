@@ -50,6 +50,7 @@ export const DEPARTMENT_URL = (id: string) => `${ROOT_URL}/departments/${id}/`;
 
 export const EMPLOYEES_URL = `${ROOT_URL}/employees/`;
 export const EMPLOYEES_EXPORT_URL = `${ROOT_URL}/employees/export/`;
+export const EMPLOYEES_IMPORT_URL = `${ROOT_URL}/employees/import/`;
 export const EMPLOYEE_URL = (id: string) => `${EMPLOYEES_URL}${id}/`;
 
 export const HOLIDAYS_URL = `${ROOT_URL}/holidays/`;
