@@ -5,17 +5,17 @@ import { getExportResponse, getImportResponse } from '../../responses';
 import project from './project';
 import projects from './projects';
 
-import projectFile from './projectFile';
-import projectFiles from './projectFiles';
+import projectFile from './project-file';
+import projectFiles from './project-files';
 
-import projectTeam from './projectTeam';
-import projectTeamMember from './projectTeamMember';
+import projectTeam from './project-team';
+import projectTeamMember from './project-team-member';
 
-import projectTask from './projectTask';
-import projectTasks from './projectTasks';
+import projectTask from './project-task';
+import projectTasks from './project-tasks';
 
-import projectTaskFollower from './projectTaskFollower';
-import projectTaskFollowers from './projectTaskFollowers';
+import projectTaskFollower from './project-task-follower';
+import projectTaskFollowers from './project-task-followers';
 
 const paths = {
 	[routes.PROJECTS_URL]: projects,
