@@ -72,7 +72,7 @@ const Topbar = ({
 						<Button
 							caps
 							iconLeft={FaPlus}
-							onClick={() => openModal(true)}
+							onClick={() => openModal(false)}
 							margin="lg:mr-6"
 							padding="px-3 py-2 md:px-6"
 							rounded="rounded-xl"
