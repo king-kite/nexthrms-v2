@@ -38,7 +38,16 @@ async function getData(req: NextApiRequestExtendUser) {
 
 	const data = result ? result.data : placeholder;
 
-	const departments = await getDepartments();
+	const departments = await getDepartments({
+		select: {
+			_count: undefined,
+			hod: {
+				select: {
+					id: true,
+				},
+			},
+		},
+	});
 
 	const values = data.result.map((emp) => {
 		// Check if the user is a HOD

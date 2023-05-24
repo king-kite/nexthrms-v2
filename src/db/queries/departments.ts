@@ -47,13 +47,18 @@ export const getDepartmentsQuery = ({
 	from,
 	to,
 	where = {},
+	select = {},
 }: ParamsType & {
 	where?: Prisma.DepartmentWhereInput;
+	select?: Prisma.DepartmentSelect;
 }): Prisma.DepartmentFindManyArgs => {
 	const query: Prisma.DepartmentFindManyArgs = {
 		skip: offset,
 		take: limit,
-		select: departmentSelectQuery,
+		select: {
+			...departmentSelectQuery,
+			...select,
+		},
 		where: search
 			? {
 					name: {
@@ -78,6 +83,7 @@ export const getDepartmentsQuery = ({
 export const getDepartments = async (
 	params?: ParamsType & {
 		where?: Prisma.DepartmentWhereInput;
+		select?: Prisma.DepartmentSelect;
 	}
 ): Promise<{ total: number; result: DepartmentType[] }> => {
 	const query = getDepartmentsQuery({ ...params });
