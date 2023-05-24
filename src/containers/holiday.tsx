@@ -5,7 +5,7 @@ import { Container, ImportForm, Modal, TablePagination } from '../components/com
 import {
 	DEFAULT_PAGINATION_SIZE,
 	HOLIDAYS_EXPORT_URL,
-	HOLIDAS_IMPORT_URL,
+	HOLIDAYS_IMPORT_URL,
 	permissions,
 	samples,
 } from '../config';
