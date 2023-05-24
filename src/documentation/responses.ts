@@ -67,6 +67,7 @@ export function getExportResponse({
 		description?: string;
 		required?: boolean;
 		schema?: {
+			default?: any;
 			type?: string;
 			format?: string;
 		};
