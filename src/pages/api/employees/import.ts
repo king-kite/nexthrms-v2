@@ -53,11 +53,6 @@ function getInput(data: EmployeeImportQueryType) {
 				id: data.user_id,
 			},
 		},
-		supervisors: data.supervisors
-			? {
-					connect: data.supervisors.split(',').map((id) => ({ id })),
-			  }
-			: undefined,
 		dateEmployed: data.date_employed
 			? new Date(data.date_employed)
 			: new Date(),
@@ -74,6 +69,21 @@ function createData(
 	return new Promise(async (resolve, reject) => {
 		try {
 			const input = data.map(getInput);
+			// Arrange the supervisors, coz the supervisor(employee) may not have been created yet
+			const supervisors = data.reduce(
+				(acc: { supervisors: string[]; userId: string }[], value) => {
+					return [
+						...acc,
+						{
+							supervisors: value.supervisors
+								? value.supervisors.split(',')
+								: [],
+							userId: value.user_id,
+						},
+					];
+				},
+				[]
+			);
 			const result = await prisma.$transaction(
 				input.map(({ userId, ...data }) =>
 					prisma.employee.upsert({
@@ -97,6 +107,20 @@ function createData(
 						model: 'employees',
 						objectId: data.id,
 						users: [req.user.id],
+					})
+				)
+			);
+
+			// Now add the supervisors
+			await prisma.$transaction(
+				supervisors.map(({ supervisors, userId }) =>
+					prisma.employee.update({
+						where: { userId },
+						data: {
+							supervisors: {
+								connect: supervisors.map((id) => ({ id })),
+							},
+						},
 					})
 				)
 			);
