@@ -1,12 +1,59 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions } from '../../../config';
+import { departmentHeaders as headers, permissions } from '../../../config';
 import { getDepartments } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
+import {
+	GetDepartmentsResponseType,
+	NextApiRequestExtendUser,
+} from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
+import { handlePrismaErrors } from '../../../validators';
+
+// Get the records from the database, including the permissions
+async function getData(req: NextApiRequestExtendUser) {
+	const placeholder: GetDepartmentsResponseType['data'] = {
+		total: 0,
+		result: [],
+	};
+
+	const result = await getRecords<GetDepartmentsResponseType['data']>({
+		model: 'departments',
+		perm: 'department',
+		query: req.query,
+		user: req.user,
+		placeholder,
+		getData(params) {
+			return getDepartments(params);
+		},
+	});
+
+	const data = result ? result.data : placeholder;
+
+	const values = data.result.map((value) => {
+		return {
+			id: value.id,
+			name: value.name,
+			updated_at: value.updatedAt,
+			created_at: value.createdAt,
+		};
+	});
+
+	const perms = await getObjectPermissionExportData({
+		ids: values.map((value) => value.id),
+		model: 'departments',
+	});
+
+	return {
+		data: values,
+		permissions: perms,
+	};
+}
 
 export default admin().get(async (req, res) => {
 	const hasPerm =
@@ -17,76 +64,43 @@ export default admin().get(async (req, res) => {
 
 	if (!hasPerm) throw new NextApiErrorMessage(403);
 
-	const placeholder = {
-		total: 0,
-		result: [],
-	};
-
-	const result = await getRecords({
-		model: 'departments',
-		perm: 'department',
-		user: req.user,
-		query: req.query,
-		placeholder,
-		getData(params) {
-			return getDepartments(params);
-		},
-	});
-
-	const data = result ? result.data : placeholder;
-
-	const departments = data.result.map((department) => {
-		return {
-			id: department.id,
-			name: department.name,
-			hod_first_name: department.hod?.user.firstName,
-			hod_last_name: department.hod?.user.lastName,
-			hod_email: department.hod?.user.email,
-			no_of_employees: department._count,
-		};
-	});
-
-	if (req.query.type === 'csv') {
-		const data = parse(departments);
-
-		res.setHeader('Content-Type', 'text/csv');
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="departments.csv"'
-		);
-
-		return res.status(200).end(data);
-	} else {
-		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Departments'); // New Worksheet
-
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'HOD First Name', key: 'hod_first_name', width: 10 },
-			{ header: 'HOD Last Name', key: 'hod_last_name', width: 10 },
-			{ header: 'HOD Email', key: 'hod_email', width: 10 },
-			{ header: 'Number Of Employees', key: 'no_of_employees', width: 10 },
-		];
-
-		worksheet.addRows(departments);
-
-		// Making first line in excel bold
-		worksheet.getRow(1).eachCell((cell) => {
-			cell.font = { bold: true };
+	getData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
+		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
+			createNotification({
+				message,
+				messageId: data.file,
+				recipient: req.user.id,
+				title: 'Departments data export was successful.',
+				type: 'DOWNLOAD',
+			});
+		})
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
+			createNotification({
+				message: error.message,
+				recipient: req.user.id,
+				title: 'Departments data export failed.',
+				type: 'ERROR',
+			});
 		});
 
-		res.setHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		);
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="departments.xlsx"'
-		);
-
-		return workbook.xlsx.write(res).then(function () {
-			res.status(200).end();
-		});
-	}
+	return res.status(200).json({
+		status: 'success',
+		message:
+			'Your request was received successfully. A notification will be sent to you with a download link.',
+	});
 });

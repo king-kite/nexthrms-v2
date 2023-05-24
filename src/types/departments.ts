@@ -3,6 +3,8 @@ import { PaginatedResponseType, SuccessResponseType } from './base';
 export type DepartmentType = {
 	id: string;
 	name: string;
+	updatedAt: Date | string;
+	createdAt: Date | string;
 	hod: {
 		id: string;
 		user: {
