@@ -61,7 +61,7 @@ function createData(
 			}
 			const result = await prisma.$transaction(
 				input.map((data) =>
-					prisma.department.upsert({
+					prisma.holiday.upsert({
 						where: { id: data.id },
 						update: data,
 						create: data,
