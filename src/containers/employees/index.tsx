@@ -1,11 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../components/common';
+import { Container, ImportForm, Modal, TablePagination } from '../../components/common';
 import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
 import {
 	permissions,
+	samples,
 	DEFAULT_PAGINATION_SIZE,
 	EMPLOYEES_EXPORT_URL,
+	EMPLOYEES_IMPORT_URL,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
@@ -16,7 +18,7 @@ import {
 	CreateEmployeeErrorResponseType,
 	GetEmployeesResponseType,
 } from '../../types';
-import { downloadFile, hasModelPermission } from '../../utils';
+import { hasModelPermission } from '../../utils';
 
 interface ErrorType extends CreateEmployeeErrorResponseType {
 	message?: string;
@@ -27,17 +29,17 @@ const Employees = ({
 }: {
 	employees: GetEmployeesResponseType['data'];
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
-
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
@@ -70,7 +72,7 @@ const Employees = ({
 
 	const employees = useGetEmployeesQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -115,7 +117,7 @@ const Employees = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: FormData) => {
 			if (canCreate) createEmployee(form);
 		},
@@ -131,16 +133,6 @@ const Employees = ({
 				onClick: employees.refetch,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canCreate || canView) && employees.data
-					? {
-							offset,
-							setOffset,
-							loading: employees.isFetching,
-							totalItems: employees.data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			{(canCreate || canView) && (
 				<Cards
@@ -150,40 +142,94 @@ const Employees = ({
 				/>
 			)}
 			<Topbar
-				openModal={() => setModalVisible(true)}
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
+					setModalVisible(true);
+				}}
 				loading={employees.isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = EMPLOYEES_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'employees.csv' : 'employees.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						open({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
-				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: EMPLOYEES_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${search}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
-				<div className="mt-3">
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 					<EmployeeTable employees={employees.data?.result || []} />
+					{employees.data && employees.data?.total > 0 && (
+						<TablePagination
+							disabled={employees.isFetching}
+							totalItems={employees.data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
 				</div>
 			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
+						bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								requirements={[
+									{
+										required: false,
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'department',
+										value: 'finance',
+									},
+									{
+										title: 'job',
+										value: 'business consultant',
+									},
+									{
+										title: 'user_id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'supervisors',
+										value: '"c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73"',
+									},
+									{
+										required: false,
+										title: 'date_employed',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.employees}
+								url={EMPLOYEES_IMPORT_URL}
+							/>
+						) : 
 						<Form
 							errors={errors}
 							resetErrors={() => setErrors(undefined)}

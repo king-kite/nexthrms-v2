@@ -1,6 +1,11 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useMemo, useRef } from 'react';
-import { FaCloudDownloadAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
+import React from 'react';
+import {
+	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
+	FaSearch,
+	FaUserPlus,
+} from 'react-icons/fa';
 
 import { ExportForm } from '../common';
 import { permissions } from '../../config';
@@ -8,24 +13,20 @@ import { useAuthContext } from '../../store/contexts';
 import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
-	openModal: () => void;
+	openModal: (bulkForm?: boolean) => void;
 	loading: boolean;
 	onSubmit: (search: string) => void;
-	exportData: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading?: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
-const Topbar: FC<TopbarProps> = ({
-	loading,
-	openModal,
-	onSubmit,
-	exportData,
-	exportLoading = false,
-}) => {
-	const searchRef = useRef<HTMLInputElement | null>(null);
+const Topbar = ({ loading, openModal, onSubmit, exportData }: TopbarProps) => {
+	const searchRef = React.useRef<HTMLInputElement | null>(null);
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport] = useMemo(() => {
+	const [canCreate, canExport] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
@@ -78,9 +79,7 @@ const Topbar: FC<TopbarProps> = ({
 			{canExport && (
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 					<ButtonDropdown
-						component={() => (
-							<ExportForm loading={exportLoading} onSubmit={exportData} />
-						)}
+						component={() => <ExportForm {...exportData} />}
 						props={{
 							caps: true,
 							iconLeft: FaCloudDownloadAlt,
@@ -93,17 +92,30 @@ const Topbar: FC<TopbarProps> = ({
 				</div>
 			)}
 			{canCreate && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 lg:w-1/4">
-					<Button
-						caps
-						iconLeft={FaUserPlus}
-						onClick={openModal}
-						margin="lg:mr-6"
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title="add employee"
-					/>
-				</div>
+				<>
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 lg:w-1/4">
+						<Button
+							caps
+							iconLeft={FaUserPlus}
+							onClick={() => openModal(false)}
+							margin="lg:mr-6"
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title="add employee"
+						/>
+					</div>
+					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<Button
+							caps
+							iconLeft={FaCloudUploadAlt}
+							onClick={() => openModal(true)}
+							margin="lg:mr-6"
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title="bulk import"
+						/>
+					</div>
+				</>
 			)}
 		</div>
 	);
