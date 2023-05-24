@@ -6,6 +6,8 @@ import { DepartmentType, ParamsType } from '../../types';
 export const departmentSelectQuery: Prisma.DepartmentSelect = {
 	id: true,
 	name: true,
+	updatedAt: true,
+	createdAt: true,
 	hod: {
 		select: {
 			id: true,
@@ -96,5 +98,5 @@ export async function getDepartment(id: string) {
 		where: { id },
 		select: departmentSelectQuery,
 	});
-	return result as unknown as (DepartmentType | null);
+	return result as unknown as DepartmentType | null;
 }

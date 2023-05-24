@@ -46,6 +46,7 @@ export const CLIENT_URL = (id: string) => `${ROOT_URL}/clients/${id}/`;
 
 export const DEPARTMENTS_URL = `${ROOT_URL}/departments/`;
 export const DEPARTMENTS_EXPORT_URL = `${ROOT_URL}/departments/export/`;
+export const DEPARTMENTS_IMPORT_URL = `${ROOT_URL}/departments/import/`;
 export const DEPARTMENT_URL = (id: string) => `${ROOT_URL}/departments/${id}/`;
 
 export const EMPLOYEES_URL = `${ROOT_URL}/employees/`;

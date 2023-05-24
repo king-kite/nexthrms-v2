@@ -8,6 +8,16 @@ export const DepartmentModel = {
 		name: {
 			type: 'string',
 		},
+		updatedAt: {
+			required: false,
+			type: 'string',
+			format: 'date-time',
+		},
+		createdAt: {
+			required: false,
+			type: 'string',
+			format: 'date-time',
+		},
 		hod: {
 			type: 'object',
 			nullable: true,
@@ -73,6 +83,8 @@ export const DepartmentModel = {
 	example: {
 		id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 		name: 'Administration',
+		createdAt: '2022-11-28T14:53:40.800Z',
+		updatedAt: '2022-11-28T14:53:40.800Z',
 		hod: {
 			id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 			user: {

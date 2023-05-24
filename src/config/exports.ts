@@ -27,6 +27,8 @@ export const clientHeaders = [
 	'created_at',
 ];
 
+export const departmentHeaders = ['id', 'name', 'updated_at', 'created_at'];
+
 export const employeeHeaders = [
 	'id',
 	'department',
