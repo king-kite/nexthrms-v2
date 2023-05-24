@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { Form, Topbar, HolidayTable } from '../components/Holidays';
-import { Container, ImportForm, Modal, TablePagination } from '../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../components/common';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	HOLIDAYS_EXPORT_URL,
@@ -99,10 +104,14 @@ const Holidays = ({
 				}}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				exportData={!canExport ? undefined : {
-					all: HOLIDAYS_EXPORT_URL,
-					filtered: `&offset=${offset}&limit=${limit}&search=${search}`
-				}}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: HOLIDAYS_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${search}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
@@ -115,7 +124,7 @@ const Holidays = ({
 										setEditId(id);
 										setForm(data);
 										setModalVisible(true);
-									}
+								  }
 						}
 					/>
 					{data && data?.total > 0 && (
@@ -139,7 +148,7 @@ const Holidays = ({
 						canCreate && bulkForm ? (
 							<ImportForm
 								onSuccess={(data) => {
-									open({
+									showAlert({
 										type: 'success',
 										message: data.message,
 									});
@@ -173,22 +182,23 @@ const Holidays = ({
 								sample={samples.holiday}
 								url={HOLIDAYS_IMPORT_URL}
 							/>
-						) : 
-						<Form
-							editId={canEdit && editId ? editId : undefined}
-							form={form}
-							onSuccess={() => {
-								if (editId) setEditId(undefined);
-								setModalVisible(false);
-								showAlert({
-									type: 'success',
-									message: editId
-										? 'Holiday updated successfully!'
-										: 'Holiday created successfully!',
-								});
-							}}
-							onChange={handleChange}
-						/>
+						) : (
+							<Form
+								editId={canEdit && editId ? editId : undefined}
+								form={form}
+								onSuccess={() => {
+									if (editId) setEditId(undefined);
+									setModalVisible(false);
+									showAlert({
+										type: 'success',
+										message: editId
+											? 'Holiday updated successfully!'
+											: 'Holiday created successfully!',
+									});
+								}}
+								onChange={handleChange}
+							/>
+						)
 					}
 					keepVisible
 					description={
