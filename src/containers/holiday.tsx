@@ -99,8 +99,8 @@ const Holidays = ({
 				}}
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
-				exportData={!canExport ? undefined: {
-					url: HOLIDAYS_EXPORT_URL,
+				exportData={!canExport ? undefined : {
+					all: HOLIDAYS_EXPORT_URL,
 					filtered: `&offset=${offset}&limit=${limit}&search=${search}`
 				}}
 			/>

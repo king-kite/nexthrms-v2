@@ -95,9 +95,7 @@ const Topbar = ({
 			{exportData && (
 				<div className="my-3 w-full sm:pl-1 sm:w-1/3 md:mb-0 md:mt-5 md:pl-0 md:w-1/4 lg:my-0 lg:w-1/5">
 					<ButtonDropdown
-						component={() => (
-							<ExportForm {...exportData} />
-						)}
+						component={() => <ExportForm {...exportData} />}
 						props={{
 							caps: true,
 							iconLeft: FaCloudDownloadAlt,
