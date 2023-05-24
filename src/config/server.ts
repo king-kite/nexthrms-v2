@@ -56,6 +56,7 @@ export const EMPLOYEE_URL = (id: string) => `${EMPLOYEES_URL}${id}/`;
 
 export const HOLIDAYS_URL = `${ROOT_URL}/holidays/`;
 export const HOLIDAYS_EXPORT_URL = `${ROOT_URL}/holidays/export/`;
+export const HOLIDAYS_IMPORT_URL = `${ROOT_URL}/holidays/import/`;
 export const HOLIDAY_URL = (id: string) => `${ROOT_URL}/holidays/${id}/`;
 
 export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;

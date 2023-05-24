@@ -7,6 +7,8 @@ export const holidaySelectQuery: Prisma.HolidaySelect = {
 	id: true,
 	name: true,
 	date: true,
+	createdAt: true,
+	updatedAt: true,
 };
 
 export const getHolidaysQuery = ({

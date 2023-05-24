@@ -11,6 +11,7 @@ const samples = {
 	departments: getSamples('departments'),
 	employees: getSamples('employees'),
 	groups: getSamples('groups'),
+	holiday: getSamples('holiday'),
 	jobs: getSamples('jobs'),
 	projects: getSamples('projects'),
 	projectFiles: getSamples('project_files'),

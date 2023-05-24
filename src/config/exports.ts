@@ -49,6 +49,14 @@ export const groupHeaders = [
 	'permissions',
 ];
 
+export const holidayHeaders = [
+	'id',
+	'name',
+	'date',
+	'created_at',
+	'updated_at',
+];
+
 export const jobHeaders = ['id', 'name', 'updated_at', 'created_at'];
 
 export const projectHeaders = [
