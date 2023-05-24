@@ -111,7 +111,7 @@ const Departments = ({
 				onClick: refetch,
 			}}
 		>
-			<div className="flex flex-wrap items-center my-2 py-2 w-full lg:pb-0">
+			<div className="flex flex-wrap items-center mb-2 py-2 w-full lg:pb-0">
 				<form
 					className="flex items-center mb-3 w-full md:mb-0 md:w-1/2 lg:mb-0 lg:w-2/5"
 					onSubmit={(e) => {
