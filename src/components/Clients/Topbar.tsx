@@ -47,10 +47,10 @@ const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
 	}, [authData]);
 
 	return (
-		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
+		<div className="flex flex-wrap items-center py-2 w-full lg:pb-0">
 			{canView && (
 				<form
-					className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
+					className="flex items-center mb-3 w-full md:mb-0 md:w-1/2 lg:mb-0 lg:w-2/5"
 					onSubmit={(e) => {
 						e.preventDefault();
 						if (searchRef.current) {
@@ -62,12 +62,10 @@ const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
 						ref={searchRef}
 						buttonProps={{
 							disabled: loading,
-							// padding: 'pl-2 pr-4 py-[0.54rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
 						inputProps={{
-							// bdrColor: 'border-primary-500',
 							disabled: loading,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {
@@ -83,7 +81,7 @@ const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
 			)}
 			{canCreate && (
 				<>
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+					<div className="my-3 w-full sm:pr-1 sm:w-1/3 md:w-1/4 md:my-0 md:px-3 lg:pl-2 lg:pr-0 lg:w-1/5">
 						<Button
 							caps
 							iconLeft={FaUserPlus}
@@ -94,7 +92,7 @@ const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
 							title="add client"
 						/>
 					</div>
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+					<div className="my-3 w-full sm:px-2 sm:w-1/3 md:w-1/4 md:px-0 md:my-0 lg:px-2 lg:w-1/5">
 						<Button
 							caps
 							iconLeft={FaCloudUploadAlt}
@@ -108,7 +106,7 @@ const Topbar = ({ exportData, loading, openModal, onSubmit }: TopbarProps) => {
 				</>
 			)}
 			{canExport && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+				<div className="my-3 w-full sm:pl-1 sm:w-1/3 md:mb-0 md:mt-5 md:pl-0 md:w-1/4 lg:my-0 lg:w-1/5">
 					<ButtonDropdown
 						component={() => <ExportForm {...exportData} />}
 						props={{
