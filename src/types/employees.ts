@@ -93,6 +93,19 @@ export type EmployeeType = {
 		approved: boolean;
 	}[];
 };
+
+export type EmployeeImportQueryType = {
+	id: string;
+	department?: string;
+	job?: string;
+	user_id: string;
+	supervisors?: string;
+	supervised_employees?: string;
+	date_employed?: string;
+	updated_at?: string;
+	created_at?: string;
+};
+
 export type CreateEmployeeResponseType = SuccessResponseType<EmployeeType>;
 
 export type GetEmployeesResponseType = SuccessResponseType<{

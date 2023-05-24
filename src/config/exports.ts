@@ -29,8 +29,8 @@ export const clientHeaders = [
 
 export const employeeHeaders = [
 	'id',
-	'department_name',
-	'job_name',
+	'department',
+	'job',
 	'user_id',
 	'supervisors',
 	'supervised_employees',
