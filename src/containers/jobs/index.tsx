@@ -107,9 +107,9 @@ const Jobs = ({
 			}}
 			error={!canCreate && !canView ? { statusCode: 403 } : undefined}
 		>
-			<div className="flex flex-col md:flex-row md:items-center">
+			<div className="flex flex-wrap items-center my-2 py-2 w-full lg:pb-0">
 				<form
-					className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
+					className="flex items-center mb-3 w-full md:mb-0 md:w-1/2 lg:mb-0 lg:w-2/5"
 					onSubmit={(e) => {
 						e.preventDefault();
 						if (searchRef.current?.value)
@@ -141,7 +141,7 @@ const Jobs = ({
 				</form>
 				{canCreate && (
 					<>
-						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<div className="my-3 w-full sm:pr-1 sm:w-1/3 md:w-1/4 md:my-0 md:px-3 lg:pl-2 lg:pr-0 lg:w-1/5">
 							<Button
 								onClick={() => {
 									setForm({ name: '' });
@@ -154,7 +154,7 @@ const Jobs = ({
 								title="Add Job"
 							/>
 						</div>
-						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+						<div className="my-3 w-full sm:px-2 sm:w-1/3 md:w-1/4 md:px-0 md:my-0 lg:px-2 lg:w-1/5">
 							<Button
 								bold="normal"
 								caps
@@ -172,7 +172,7 @@ const Jobs = ({
 					</>
 				)}
 				{canExport && (
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
+					<div className="my-3 w-full sm:pl-1 sm:w-1/3 md:mb-0 md:mt-5 md:pl-0 md:w-1/4 lg:my-0 lg:w-1/5">
 						<ButtonDropdown
 							component={() => (
 								<ExportForm
@@ -245,7 +245,7 @@ const Jobs = ({
 									},
 									{
 										title: 'name',
-										value: 'Steel Binder',
+										value: 'steel binder',
 									},
 									{
 										required: false,
