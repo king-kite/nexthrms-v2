@@ -256,26 +256,24 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 	]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				heads={heads}
-				rows={rows}
-				tick={canDelete}
-				actions={
-					canDelete
-						? {
-								actions: [
-									{
-										title: 'Delete departments',
-										value: 'del_dep',
-										onSubmit: handleDeleteMultiple,
-									},
-								],
-						  }
-						: undefined
-				}
-			/>
-		</div>
+		<Table
+			heads={heads}
+			rows={rows}
+			tick={canDelete}
+			actions={
+				canDelete
+					? {
+							actions: [
+								{
+									title: 'Delete departments',
+									value: 'del_dep',
+									onSubmit: handleDeleteMultiple,
+								},
+							],
+						}
+					: undefined
+			}
+		/>
 	);
 };
 

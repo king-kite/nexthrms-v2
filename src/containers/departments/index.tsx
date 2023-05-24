@@ -1,18 +1,27 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import React from 'react';
 import {
 	FaCheckCircle,
 	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
 	FaPlus,
 	FaSearch,
 } from 'react-icons/fa';
 
-import { Container, ExportForm, Modal } from '../../components/common';
+import {
+	Container,
+	ExportForm,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../components/common';
 import { Form, DepartmentTable } from '../../components/Departments';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	DEPARTMENTS_EXPORT_URL,
+	DEPARTMENTS_IMPORT_URL,
 	permissions,
+	samples,
 } from '../../config';
 import {
 	useAlertContext,
@@ -21,31 +30,32 @@ import {
 } from '../../store/contexts';
 import { useGetDepartmentsQuery } from '../../store/queries';
 import { GetDepartmentsResponseType } from '../../types';
-import { downloadFile, hasModelPermission } from '../../utils';
+import { hasModelPermission } from '../../utils';
 
 const Departments = ({
 	departments,
 }: {
 	departments: GetDepartmentsResponseType['data'];
 }) => {
-	const [modalVisible, setModalVisible] = useState(false);
-	const [form, setForm] = useState<{
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [form, setForm] = React.useState<{
 		name: string;
 		hod: string | null;
 	}>({ name: '', hod: null });
-	const [editId, setEditId] = useState<string>();
+	const [editId, setEditId] = React.useState<string>();
 
 	const { open } = useAlertContext();
 	const { open: openModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
-	const [offset, setOffset] = useState(0);
-	const [nameSearch, setNameSearch] = useState('');
-	const [exportLoading, setExportLoading] = useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [nameSearch, setNameSearch] = React.useState('');
 
-	const searchRef = useRef<HTMLInputElement>(null);
+	const searchRef = React.useRef<HTMLInputElement>(null);
 
-	const [canCreate, canExport, canView, canEdit] = useMemo(() => {
+	const [canCreate, canExport, canView, canEdit] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
 		const canCreate =
 			authData.isSuperUser ||
@@ -67,7 +77,7 @@ const Departments = ({
 
 	const { data, isFetching, isLoading, refetch } = useGetDepartmentsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search: nameSearch,
 			onError(error) {
@@ -84,9 +94,12 @@ const Departments = ({
 		}
 	);
 
-	const handleChange = useCallback((name: string, value: string | null) => {
-		setForm((prevState) => ({ ...prevState, [name]: value }));
-	}, []);
+	const handleChange = React.useCallback(
+		(name: string, value: string | null) => {
+			setForm((prevState) => ({ ...prevState, [name]: value }));
+		},
+		[]
+	);
 
 	return (
 		<Container
@@ -97,16 +110,6 @@ const Departments = ({
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			paginate={
-				(canCreate || canView) && data
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
 				<form
@@ -140,51 +143,46 @@ const Departments = ({
 					/>
 				</form>
 				{canCreate && (
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
-						<Button
-							caps
-							iconLeft={FaPlus}
-							onClick={() => {
-								setForm({ name: '', hod: null });
-								setEditId(undefined);
-								setModalVisible(true);
-							}}
-							margin="lg:mr-6"
-							padding="px-3 py-2 md:px-6"
-							rounded="rounded-xl"
-							title="add department"
-						/>
-					</div>
+					<>
+						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+							<Button
+								caps
+								iconLeft={FaPlus}
+								onClick={() => {
+									setForm({ name: '', hod: null });
+									setEditId(undefined);
+									setModalVisible(true);
+								}}
+								margin="lg:mr-6"
+								padding="px-3 py-2 md:px-6"
+								rounded="rounded-xl"
+								title="add department"
+							/>
+						</div>
+						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+							<Button
+								bold="normal"
+								caps
+								onClick={() => {
+									setBulkForm(true);
+									setForm({ name: '', hod: null });
+									setEditId(undefined);
+									setModalVisible(true);
+								}}
+								iconRight={FaCloudUploadAlt}
+								rounded="rounded-lg"
+								title="Bulk Import"
+							/>
+						</div>
+					</>
 				)}
 				{canExport && (
 					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:pl-4 xl:pl-5 xl:w-1/4">
 						<ButtonDropdown
 							component={() => (
 								<ExportForm
-									loading={exportLoading}
-									onSubmit={async (
-										type: 'csv' | 'excel',
-										filtered: boolean
-									) => {
-										let url = DEPARTMENTS_EXPORT_URL + '?type=' + type;
-										if (filtered) {
-											url =
-												url +
-												`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${nameSearch}`;
-										}
-										const result = await downloadFile({
-											url,
-											name:
-												type === 'csv' ? 'departments.csv' : 'departments.xlsx',
-											setLoading: setExportLoading,
-										});
-										if (result?.status !== 200) {
-											open({
-												type: 'danger',
-												message: 'An error occurred. Unable to export file!',
-											});
-										}
-									}}
+									all={DEPARTMENTS_EXPORT_URL}
+									filtered={`&offset=${offset}&limit=${limit}&search=${nameSearch}`}
 								/>
 							)}
 							props={{
@@ -199,18 +197,32 @@ const Departments = ({
 					</div>
 				)}
 			</div>
-			<DepartmentTable
-				departments={data?.result || []}
-				updateDep={
-					canEdit
-						? (form: { id: string; name: string; hod: string | null }) => {
-								setEditId(form.id);
-								setForm({ name: form.name, hod: form.hod });
-								setModalVisible(true);
-						  }
-						: undefined
-				}
-			/>
+			<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+				<DepartmentTable
+					departments={data?.result || []}
+					updateDep={
+						canEdit
+							? (form: { id: string; name: string; hod: string | null }) => {
+									setEditId(form.id);
+									setForm({ name: form.name, hod: form.hod });
+									setModalVisible(true);
+							  }
+							: undefined
+					}
+				/>
+				{data && data?.total > 0 && (
+					<TablePagination
+						disabled={isFetching}
+						totalItems={data.total}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * limit);
+						}}
+						onSizeChange={(size) => setLimit(size)}
+						pageSize={limit}
+					/>
+				)}
+			</div>
 			{(canCreate || canEdit) && (
 				<Modal
 					close={() => {
@@ -219,31 +231,67 @@ const Departments = ({
 						setForm({ name: '', hod: null });
 					}}
 					component={
-						<Form
-							form={form}
-							editId={editId}
-							onChange={handleChange}
-							onSuccess={() => {
-								setModalVisible(false);
-								openModal({
-									closeOnButtonClick: true,
-									color: 'success',
-									decisions: [
-										{
-											color: 'success',
-											title: 'OK',
-										},
-									],
-									Icon: FaCheckCircle,
-									header: editId ? 'Department Edited' : 'Department Created',
-									message: editId
-										? 'Department Edited Successfully'
-										: 'Department Created Successfully.',
-								});
-								setEditId(undefined);
-								setForm({ name: '', hod: null });
-							}}
-						/>
+						canCreate && bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								requirements={[
+									{
+										required: false,
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'name',
+										value: 'finance',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.departments}
+								url={DEPARTMENTS_IMPORT_URL}
+							/>
+						) : (
+							<Form
+								form={form}
+								editId={editId}
+								onChange={handleChange}
+								onSuccess={() => {
+									setModalVisible(false);
+									openModal({
+										closeOnButtonClick: true,
+										color: 'success',
+										decisions: [
+											{
+												color: 'success',
+												title: 'OK',
+											},
+										],
+										Icon: FaCheckCircle,
+										header: editId ? 'Department Edited' : 'Department Created',
+										message: editId
+											? 'Department Edited Successfully'
+											: 'Department Created Successfully.',
+									});
+									setEditId(undefined);
+									setForm({ name: '', hod: null });
+								}}
+							/>
+						)
 					}
 					description={
 						editId
