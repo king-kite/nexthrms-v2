@@ -1,5 +1,5 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
-import { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
@@ -74,12 +74,12 @@ type TableType = {
 };
 
 const HolidayTable = ({ holidays, onEdit }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canViewPermissions] = useMemo(() => {
+	const [canViewPermissions] = React.useMemo(() => {
 		if (!authData) return [false];
 		const canViewPermissions =
 			authData.isSuperUser ||
@@ -119,29 +119,27 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 		},
 	});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setRows(
 			getRows(holidays, canViewPermissions, onEdit || undefined, deleteHoliday)
 		);
 	}, [holidays, onEdit, canViewPermissions, deleteHoliday]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				actions={{
-					actions: [
-						{
-							onSubmit: deleteHolidays,
-							title: 'Delete Holidays',
-							value: 'del_hods',
-						},
-					],
-				}}
-				heads={heads}
-				rows={rows}
-				tick
-			/>
-		</div>
+		<Table
+			actions={{
+				actions: [
+					{
+						onSubmit: deleteHolidays,
+						title: 'Delete Holidays',
+						value: 'del_hods',
+					},
+				],
+			}}
+			heads={heads}
+			rows={rows}
+			tick
+		/>		
 	);
 };
 

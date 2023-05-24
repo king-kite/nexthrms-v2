@@ -1,16 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
 import { Form, Topbar, HolidayTable } from '../components/Holidays';
-import { Container, Modal } from '../components/common';
+import { Container, ImportForm, Modal, TablePagination } from '../components/common';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	HOLIDAYS_EXPORT_URL,
+	HOLIDAS_IMPORT_URL,
 	permissions,
+	samples,
 } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetHolidaysQuery } from '../store/queries';
 import { GetHolidaysResponseType } from '../types';
-import { downloadFile, hasModelPermission } from '../utils';
+import { hasModelPermission } from '../utils';
 
 type HolidayCreateType = {
 	name: string;
@@ -22,18 +24,19 @@ const Holidays = ({
 }: {
 	holidays: GetHolidaysResponseType['data'];
 }) => {
-	const [modalVisible, setModalVisible] = useState(false);
-	const [form, setForm] = useState({ name: '', date: '' });
-	const [editId, setEditId] = useState<string>();
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [form, setForm] = React.useState({ name: '', date: '' });
+	const [editId, setEditId] = React.useState<string>();
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
 
-	const [canCreate, canView, canEdit, canExport] = useMemo(() => {
+	const [canCreate, canView, canEdit, canExport] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
 		const canCreate =
 			authData.isSuperUser ||
@@ -56,7 +59,7 @@ const Holidays = ({
 
 	const { data, isLoading, isFetching, refetch } = useGetHolidaysQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -73,7 +76,7 @@ const Holidays = ({
 		}
 	);
 
-	const handleChange = useCallback((name: string, value: string) => {
+	const handleChange = React.useCallback((name: string, value: string) => {
 		setForm((prevState) => ({ ...prevState, [name]: value }));
 	}, []);
 
@@ -86,19 +89,10 @@ const Holidays = ({
 			}}
 			error={!canCreate && !canView ? { statusCode: 403 } : undefined}
 			disabledLoading={isLoading}
-			paginate={
-				(canCreate || canView) && data
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			<Topbar
-				openModal={() => {
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
 					setEditId(undefined);
 					setForm({ name: '', date: '' });
 					setModalVisible(true);
@@ -106,45 +100,81 @@ const Holidays = ({
 				loading={isFetching}
 				onSubmit={(name: string) => setSearch(name)}
 				exportLoading={exportLoading}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = HOLIDAYS_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'holidays.csv' : 'holidays.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						showAlert({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
+				exportData={!canExport ? undefined: {
+					url: HOLIDAYS_EXPORT_URL,
+					filtered: `&offset=${offset}&limit=${limit}&search=${search}`
 				}}
 			/>
 			{(canCreate || canView) && (
-				<HolidayTable
-					holidays={data ? data.result : []}
-					onEdit={
-						!canEdit
-							? undefined
-							: (id: string, data: HolidayCreateType) => {
-									setEditId(id);
-									setForm(data);
-									setModalVisible(true);
-							  }
-					}
-				/>
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+					<HolidayTable
+						holidays={data ? data.result : []}
+						onEdit={
+							!canEdit
+								? undefined
+								: (id: string, data: HolidayCreateType) => {
+										setEditId(id);
+										setForm(data);
+										setModalVisible(true);
+									}
+						}
+					/>
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
 			)}
 			{(canCreate || canEdit) && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
+						canCreate && bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								requirements={[
+									{
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'name',
+										value: 'finance',
+									},
+									{
+										title: 'date',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.holiday}
+								url={HOLIDAYS_IMPORT_URL}
+							/>
+						) : 
 						<Form
 							editId={canEdit && editId ? editId : undefined}
 							form={form}
