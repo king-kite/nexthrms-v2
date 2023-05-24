@@ -33,6 +33,13 @@ function getInput(data: EmployeeImportQueryType) {
 					},
 			  }
 			: undefined,
+		hod: data.is_hod
+			? {
+					connect: {
+						name: data.is_hod,
+					},
+			  }
+			: undefined,
 		job: data.department
 			? {
 					connect: {

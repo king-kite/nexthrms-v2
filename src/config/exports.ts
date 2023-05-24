@@ -34,6 +34,7 @@ export const employeeHeaders = [
 	'department',
 	'job',
 	'user_id',
+	'is_hod',
 	'supervisors',
 	'date_employed',
 	'updated_at',

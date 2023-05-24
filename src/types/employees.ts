@@ -99,6 +99,7 @@ export type EmployeeImportQueryType = {
 	department?: string;
 	job?: string;
 	user_id: string;
+	is_hod?: string;
 	supervisors?: string;
 	date_employed?: string;
 	updated_at?: string;

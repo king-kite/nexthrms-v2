@@ -212,6 +212,10 @@ const Employees = ({
 										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
 									},
 									{
+										title: 'is_hod',
+										value: 'finance',
+									},
+									{
 										title: 'supervisors',
 										value:
 											'"c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73"',

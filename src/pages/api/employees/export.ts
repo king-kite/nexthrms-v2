@@ -1,5 +1,5 @@
 import { employeeHeaders as headers, permissions } from '../../../config';
-import { getEmployees } from '../../../db';
+import { getDepartments, getEmployees } from '../../../db';
 import {
 	createNotification,
 	exportData,
@@ -38,12 +38,19 @@ async function getData(req: NextApiRequestExtendUser) {
 
 	const data = result ? result.data : placeholder;
 
+	const departments = await getDepartments();
+
 	const values = data.result.map((emp) => {
+		// Check if the user is a HOD
+		const hodDepartment = departments.result.find(
+			(dep) => dep.hod?.id === emp.id
+		);
 		return {
 			id: emp.id,
 			user_id: emp.user.id,
 			department: emp.department?.name || null,
 			job: emp.job?.name || null,
+			is_hod: hodDepartment ? hodDepartment.name : null,
 			supervisors: emp.supervisors.map((item) => item.id).join(','),
 			date_employed: emp.dateEmployed,
 			updated_at: emp.updatedAt,
