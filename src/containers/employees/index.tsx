@@ -1,6 +1,11 @@
 import React from 'react';
 
-import { Container, ImportForm, Modal, TablePagination } from '../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../components/common';
 import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
 import {
 	permissions,
@@ -208,7 +213,8 @@ const Employees = ({
 									},
 									{
 										title: 'supervisors',
-										value: '"c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73"',
+										value:
+											'"c2524fca-9182-4455-8367-c7a27abe1b73,c2524fca-9182-4455-8367-c7a27abe1b73"',
 									},
 									{
 										required: false,
@@ -229,14 +235,15 @@ const Employees = ({
 								sample={samples.employees}
 								url={EMPLOYEES_IMPORT_URL}
 							/>
-						) : 
-						<Form
-							errors={errors}
-							resetErrors={() => setErrors(undefined)}
-							loading={loading}
-							onSubmit={handleSubmit}
-							success={formSuccess}
-						/>
+						) : (
+							<Form
+								errors={errors}
+								resetErrors={() => setErrors(undefined)}
+								loading={loading}
+								onSubmit={handleSubmit}
+								success={formSuccess}
+							/>
+						)
 					}
 					description="Fill in the form below to add a new Employee"
 					title="Add Employee"
