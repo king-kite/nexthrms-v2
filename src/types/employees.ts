@@ -100,7 +100,6 @@ export type EmployeeImportQueryType = {
 	job?: string;
 	user_id: string;
 	supervisors?: string;
-	supervised_employees?: string;
 	date_employed?: string;
 	updated_at?: string;
 	created_at?: string;

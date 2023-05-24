@@ -51,11 +51,6 @@ function getInput(data: EmployeeImportQueryType) {
 					connect: data.supervisors.split(',').map((id) => ({ id })),
 			  }
 			: undefined,
-		supervisedEmployees: data.supervised_employees
-			? {
-					connect: data.supervised_employees.split(',').map((id) => ({ id })),
-			  }
-			: undefined,
 		dateEmployed: data.date_employed
 			? new Date(data.date_employed)
 			: new Date(),
