@@ -73,6 +73,14 @@ const prisma = new PrismaClient();
 					categoryName: model.name.toLowerCase(),
 				},
 			];
+			if (model.name.toLowerCase() === 'permission') {
+				modelPermissions.push({
+					name: `can edit ${model.title}`.toUpperCase(),
+					codename: `can_edit_${model.name}`.toLowerCase(),
+					description: `Specifies whether a user can edit the permissions table. Specifically, to import permissions data.`,
+					categoryName: model.name.toLowerCase(),
+				});
+			}
 
 			return [...acc, ...modelPermissions];
 		}

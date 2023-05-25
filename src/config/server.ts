@@ -163,7 +163,8 @@ export const OBJECT_PERMISSIONS_URL = (
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
 export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
-export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export`;
+export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export/`;
+export const PERMISSIONS_IMPORT_URL = `${ROOT_URL}/permissions/import/`;
 
 export const PERMISSION_CATEGORIES_URL = `${ROOT_URL}/permissions/categories/`;
 export const PERMISSION_CATEGORY_URL = (id: string) =>

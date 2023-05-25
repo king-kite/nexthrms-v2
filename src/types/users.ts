@@ -111,6 +111,14 @@ export type PermissionType = {
 	description?: string | null;
 };
 
+export type PermissionImportQueryType = {
+	id?: string;
+	name: string;
+	codename: string;
+	description?: string | null;
+	category?: string | null;
+};
+
 export type PermissionCategoryType = {
 	id: string;
 	name: string;
