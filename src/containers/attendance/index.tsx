@@ -50,7 +50,7 @@ const Attendance = ({
 				loading: isFetching,
 			}}
 			error={!authData?.employee ? { statusCode: 403 } : undefined}
-			loading={isLoading}
+			disabledLoading={isLoading}
 		>
 			{data && (
 				<>
