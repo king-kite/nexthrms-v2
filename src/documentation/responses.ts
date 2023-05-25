@@ -98,10 +98,12 @@ export function getExportResponse({
 }
 
 export function getImportResponse({
+	description,
 	parameters,
 	tags,
 	title: summary,
 }: {
+	description?: string;
 	parameters?: {
 		in: 'path' | 'query';
 		name: string;
@@ -144,6 +146,7 @@ export function getImportResponse({
 							},
 						},
 					},
+					description,
 				},
 				'400': {
 					content: {
