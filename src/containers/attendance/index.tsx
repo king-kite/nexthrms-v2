@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React from 'react';
 
-import { Container } from '../../components/common';
+import { Container, TablePagination } from '../../components/common';
 import { StatsCard, AttendanceTable } from '../../components/Attendance';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
@@ -17,14 +17,15 @@ const Attendance = ({
 	attendanceData: GetAttendanceResponseType['data'];
 	attendanceInfo: GetAttendanceInfoResponseType['data'];
 }) => {
-	const [offset, setOffset] = useState(0);
+	const [offset, setOffset] = React.useState(0);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const { data, refetch, isLoading, isFetching } = useGetAttendanceQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			onError(error) {
 				open({
@@ -50,21 +51,25 @@ const Attendance = ({
 			}}
 			error={!authData?.employee ? { statusCode: 403 } : undefined}
 			loading={isLoading}
-			paginate={
-				authData?.employee && data
-					? {
-							loading: isFetching,
-							offset,
-							setOffset,
-							totalItems: data ? data.total : 0,
-					  }
-					: undefined
-			}
 		>
 			{data && (
 				<>
 					<StatsCard attendanceInfo={attendanceInfo} />
-					<AttendanceTable attendance={data ? data.result : []} />
+					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+						<AttendanceTable attendance={data ? data.result : []} />
+						{data && data?.total > 0 && (
+							<TablePagination
+								disabled={isFetching}
+								totalItems={data.total}
+								onChange={(pageNo: number) => {
+									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+									offset !== value && setOffset(value * limit);
+								}}
+								onSizeChange={(size) => setLimit(size)}
+								pageSize={limit}
+							/>
+						)}
+					</div>
 				</>
 			)}
 		</Container>

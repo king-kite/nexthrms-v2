@@ -81,7 +81,7 @@ function AttendanceAdmin({
 	const [offset, setOffset] = React.useState(0);
 	const { data, refetch, isLoading, isFetching } = useGetAttendanceAdminQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search: searchForm?.name,
 			date:
