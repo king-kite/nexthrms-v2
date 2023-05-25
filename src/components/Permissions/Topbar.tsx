@@ -1,5 +1,5 @@
 import { ButtonDropdown, InputButton } from 'kite-react-tailwind';
-import { FC, useRef } from 'react';
+import React from 'react';
 import { FaCloudDownloadAlt, FaSearch } from 'react-icons/fa';
 
 import { ExportForm } from '../common';
@@ -7,17 +7,14 @@ import { ExportForm } from '../common';
 type TopbarProps = {
 	loading: boolean;
 	onSubmit: (search: string) => void;
-	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading?: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
-const Topbar: FC<TopbarProps> = ({
-	loading,
-	onSubmit,
-	exportData,
-	exportLoading = false,
-}) => {
-	const searchRef = useRef<HTMLInputElement | null>(null);
+const Topbar = ({ loading, onSubmit, exportData }: TopbarProps) => {
+	const searchRef = React.useRef<HTMLInputElement | null>(null);
 
 	return (
 		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
@@ -54,9 +51,7 @@ const Topbar: FC<TopbarProps> = ({
 			{exportData && (
 				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
 					<ButtonDropdown
-						component={() => (
-							<ExportForm loading={exportLoading} onSubmit={exportData} />
-						)}
+						component={() => <ExportForm {...exportData} />}
 						props={{
 							caps: true,
 							iconLeft: FaCloudDownloadAlt,

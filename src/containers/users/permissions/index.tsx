@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container } from '../../../components/common';
+import { Container, TablePagination } from '../../../components/common';
 import { PermissionTable, Topbar } from '../../../components/Permissions';
 import {
 	permissions,
@@ -10,21 +10,21 @@ import {
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useGetPermissionsQuery } from '../../../store/queries';
 import { GetPermissionsResponseType } from '../../../types';
-import { downloadFile, hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 
 const Permissions = ({
 	permissions: permissionData,
 }: {
 	permissions: GetPermissionsResponseType['data'];
 }) => {
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [exportLoading, setExportLoading] = useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canExport, canView] = useMemo(() => {
+	const [canExport, canView] = React.useMemo(() => {
 		if (!authData) return [false, false];
 		const hasExportPerm =
 			authData.isSuperUser ||
@@ -45,7 +45,7 @@ const Permissions = ({
 
 	const { data, isFetching, refetch } = useGetPermissionsQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			onError(error) {
@@ -69,16 +69,6 @@ const Permissions = ({
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			paginate={
-				canView && data
-					? {
-							offset,
-							setOffset,
-							loading: isFetching,
-							totalItems: data.total || 0,
-					  }
-					: undefined
-			}
 		>
 			<Topbar
 				loading={isFetching}
@@ -86,31 +76,27 @@ const Permissions = ({
 				exportData={
 					!canExport
 						? undefined
-						: async (type, filtered) => {
-								let url = PERMISSIONS_EXPORT_URL + '?type=' + type;
-								if (filtered) {
-									url =
-										url +
-										`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`;
-								}
-								const result = await downloadFile({
-									url,
-									name: type === 'csv' ? 'permissions.csv' : 'permissions.xlsx',
-									setLoading: setExportLoading,
-								});
-								if (result?.status !== 200) {
-									open({
-										type: 'danger',
-										message: 'An error occurred. Unable to export file!',
-									});
-								}
+						: {
+								all: PERMISSIONS_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`,
 						  }
 				}
-				exportLoading={exportLoading}
 			/>
 			{canView && data && (
-				<div className="mt-3">
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 					<PermissionTable permissions={data.result} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
 				</div>
 			)}
 		</Container>
