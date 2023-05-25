@@ -243,22 +243,20 @@ const AttendanceAdminTable = ({
 	]);
 
 	return (
-		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-			<Table
-				heads={heads}
-				rows={rows}
-				renderActionLinkAs={({ link, children, ...props }) => (
-					<Link href={link}>
-						<a {...props}>{children}</a>
-					</Link>
-				)}
-				renderContainerLinkAs={(props) => (
-					<Link href={props.link}>
-						<a className={props.className}>{props.children}</a>
-					</Link>
-				)}
-			/>
-		</div>
+		<Table
+			heads={heads}
+			rows={rows}
+			renderActionLinkAs={({ link, children, ...props }) => (
+				<Link href={link}>
+					<a {...props}>{children}</a>
+				</Link>
+			)}
+			renderContainerLinkAs={(props) => (
+				<Link href={props.link}>
+					<a className={props.className}>{props.children}</a>
+				</Link>
+			)}
+		/>
 	);
 };
 

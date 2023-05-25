@@ -27,9 +27,9 @@ const Topbar = ({ openModal, exportData }: TopbarProps) => {
 	}, [authData]);
 
 	return (
-		<div className="flex flex-wrap justify-end mb-0 w-full sm:flex-row sm:items-center">
+		<div className="flex flex-wrap gap-y-4 justify-end my-3 w-full sm:flex-row sm:items-center md:gap-4">
 			{exportData && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 lg:w-1/4">
+				<div className="w-full sm:w-[32%] md:w-1/4">
 					<ButtonDropdown
 						component={() => <ExportForm {...exportData} />}
 						props={{
@@ -45,7 +45,7 @@ const Topbar = ({ openModal, exportData }: TopbarProps) => {
 			)}
 			{canCreate && (
 				<>
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:w-1/4">
+					<div className="w-full sm:w-[32%] md:w-1/4">
 						<Button
 							iconLeft={FaPlus}
 							margin="lg:mr-6"
@@ -55,7 +55,7 @@ const Topbar = ({ openModal, exportData }: TopbarProps) => {
 							title="Add Attendance"
 						/>
 					</div>
-					<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-0 lg:w-1/4">
+					<div className="w-full sm:w-[32%] md:w-1/4">
 						<Button
 							iconLeft={FaCloudUploadAlt}
 							margin="lg:mr-6"
