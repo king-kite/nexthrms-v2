@@ -1,22 +1,18 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions } from '../../../../config';
+import { attendanceHeaders as headers, permissions } from '../../../../config';
 import { getAttendanceAdmin } from '../../../../db';
-import { getRecords } from '../../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
+import { NextApiRequestExtendUser } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
+import { handlePrismaErrors } from '../../../../validators';
 
-export default admin().get(async (req, res) => {
-	const hasPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [
-			permissions.attendance.EXPORT,
-		]);
-
-	if (!hasPerm) throw new NextApiErrorMessage(403);
-
+async function getData(req: NextApiRequestExtendUser) {
 	const placeholder = {
 		total: 0,
 		result: [],
@@ -34,64 +30,74 @@ export default admin().get(async (req, res) => {
 
 	const data = result ? result.data : placeholder;
 
-	const attendance = data.result.map((attend) => {
+	const values = data.result.map((attend) => {
 		return {
 			id: attend.id,
 			employee_id: attend.employee.id,
-			first_name: attend.employee.user.firstName,
-			last_name: attend.employee.user.lastName,
-			email: attend.employee.user.email,
 			date: attend.date,
 			punch_in: attend.punchIn,
-			punch_out: attend.punchOut,
-			last_update: attend.updatedAt,
+			punch_out: attend.punchOut ? attend.punchOut : null,
+			updated_at: attend.updatedAt,
 		};
 	});
 
-	if (req.query.type === 'csv') {
-		const data = parse(attendance);
+	const perms = await getObjectPermissionExportData({
+		ids: values.map((value) => value.id),
+		model: 'attendance',
+	});
 
-		res.setHeader('Content-Type', 'text/csv');
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="attendance.csv"'
-		);
+	return {
+		data: values,
+		permissions: perms,
+	};
+}
 
-		return res.status(200).end(data);
-	} else {
-		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Attendance'); // New Worksheet
+export default admin().get(async (req, res) => {
+	const hasPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [
+			permissions.attendance.EXPORT,
+		]);
 
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Date', key: 'date', width: 10 },
-			{ header: 'Punch In', key: 'punch_in', width: 10 },
-			{ header: 'Punch Out', key: 'punch_out', width: 10 },
-			{ header: 'Employee ID', key: 'employee_id', width: 10 },
-			{ header: 'First Name', key: 'first_name', width: 10 },
-			{ header: 'Last Name', key: 'last_name', width: 10 },
-			{ header: 'Email Address', key: 'email', width: 10 },
-			{ header: 'Last Update', key: 'last_update', width: 10 },
-		];
+	if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		worksheet.addRows(attendance);
-
-		// Making first line in excel bold
-		worksheet.getRow(1).eachCell((cell) => {
-			cell.font = { bold: true };
+	getData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
+		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
+			createNotification({
+				message,
+				messageId: data.file,
+				recipient: req.user.id,
+				title: 'Attendance data export was successful.',
+				type: 'DOWNLOAD',
+			});
+		})
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
+			createNotification({
+				message: error.message,
+				recipient: req.user.id,
+				title: 'Attendance data export failed.',
+				type: 'ERROR',
+			});
 		});
 
-		res.setHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		);
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="attendance.xlsx"'
-		);
-
-		return workbook.xlsx.write(res).then(function () {
-			res.status(200).end();
-		});
-	}
+	return res.status(200).json({
+		status: 'success',
+		message:
+			'Your request was received successfully. A notification will be sent to you with a download link.',
+	});
 });
