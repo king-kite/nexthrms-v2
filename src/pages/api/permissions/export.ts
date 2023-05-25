@@ -1,21 +1,21 @@
-import excelJS from 'exceljs';
-import { parse } from 'json2csv';
-
-import { permissions as perms } from '../../../config';
+import {
+	permissionHeaders as headers,
+	permissions as perms,
+} from '../../../config';
 import { getPermissions } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import {
+	createNotification,
+	exportData,
+	getObjectPermissionExportData,
+	getRecords,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { PermissionType } from '../../../types';
+import { PermissionType, NextApiRequestExtendUser } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
+import { handlePrismaErrors } from '../../../validators';
 
-export default admin().get(async (req, res) => {
-	const hasExportPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [perms.permission.EXPORT]);
-
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
-
+async function getData(req: NextApiRequestExtendUser) {
 	const placeholder: {
 		total: number;
 		result: PermissionType[];
@@ -43,7 +43,7 @@ export default admin().get(async (req, res) => {
 
 	const data = result ? result.data : placeholder;
 
-	const permissions = data.result.map((permission) => {
+	const values = data.result.map((permission) => {
 		return {
 			id: permission.id,
 			name: permission.name,
@@ -53,46 +53,61 @@ export default admin().get(async (req, res) => {
 		};
 	});
 
-	if (req.query.type === 'csv') {
-		const data = parse(permissions);
+	const perms = await getObjectPermissionExportData({
+		ids: values.map((value) => value.id),
+		model: 'permissions',
+	});
 
-		res.setHeader('Content-Type', 'text/csv');
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="permissions.csv"'
-		);
+	return {
+		data: values,
+		permissions: perms,
+	};
+}
 
-		return res.status(200).end(data);
-	} else {
-		const workbook = new excelJS.Workbook(); // Create a new workbook
-		const worksheet = workbook.addWorksheet('Permissions'); // New Worksheet
+export default admin().get(async (req, res) => {
+	const hasExportPerm =
+		req.user.isSuperUser ||
+		hasModelPermission(req.user.allPermissions, [perms.permission.EXPORT]);
 
-		worksheet.columns = [
-			{ header: 'ID', key: 'id', width: 10 },
-			{ header: 'Name', key: 'name', width: 10 },
-			{ header: 'Code Name', key: 'codename', width: 10 },
-			{ header: 'Description', key: 'description', width: 10 },
-			{ header: 'Category', key: 'category', width: 10 },
-		];
+	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
-		worksheet.addRows(permissions);
-
-		// Making first line in excel bold
-		worksheet.getRow(1).eachCell((cell) => {
-			cell.font = { bold: true };
+	getData(req)
+		.then((data) => {
+			return exportData(data, headers, {
+				type: (req.query.type as string) || 'csv',
+				userId: req.user.id,
+			});
+		})
+		.then((data) => {
+			let message =
+				'File exported successfully. Click on the download link to proceed!';
+			if (data.size) {
+				const size = String(data.size / (1024 * 1024));
+				const sizeString =
+					size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+				message = `File (${sizeString}MB) exported successfully. Click on the download link to proceed!`;
+			}
+			createNotification({
+				message,
+				messageId: data.file,
+				recipient: req.user.id,
+				title: 'Permissions data export was successful.',
+				type: 'DOWNLOAD',
+			});
+		})
+		.catch((err) => {
+			const error = handlePrismaErrors(err);
+			createNotification({
+				message: error.message,
+				recipient: req.user.id,
+				title: 'Permissions data export failed.',
+				type: 'ERROR',
+			});
 		});
 
-		res.setHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		);
-		res.setHeader(
-			'Content-Disposition',
-			'attachment; filename="permissions.xlsx"'
-		);
-
-		return workbook.xlsx.write(res).then(function () {
-			res.status(200).end();
-		});
-	}
+	return res.status(200).json({
+		status: 'success',
+		message:
+			'Your request was received successfully. A notification will be sent to you with a download link.',
+	});
 });
