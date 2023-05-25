@@ -7,6 +7,7 @@ function getSamples(name: string) {
 
 const samples = {
 	assets: getSamples('assets'),
+	attendance: getSamples('attendance'),
 	clients: getSamples('clients'),
 	departments: getSamples('departments'),
 	employees: getSamples('employees'),

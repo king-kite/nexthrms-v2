@@ -28,6 +28,15 @@ export type AttendanceType = {
 	} | null;
 };
 
+export type AttendanceImportQueryType = {
+	id?: string;
+	employee_id: string;
+	date: string;
+	punch_in: string;
+	punch_out?: string | null;
+	updated_at?: string;
+};
+
 export type AttendanceInfoType = {
 	date: Date | string;
 	punchIn: Date | string;

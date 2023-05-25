@@ -18,6 +18,15 @@ export const assetHeaders = [
 	'created_at',
 ];
 
+export const attendanceHeaders = [
+	'id',
+	'date',
+	'punch_in',
+	'punch_out',
+	'employee_id',
+	'updated_at',
+];
+
 export const clientHeaders = [
 	'id',
 	'company',
