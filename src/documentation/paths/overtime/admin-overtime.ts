@@ -2,7 +2,7 @@ import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
 
-import { requestExample, requestProperties } from './adminAllOvertime';
+import { requestExample, requestProperties } from './admin-all-overtime';
 
 const path = {
 	get: {

@@ -82,6 +82,21 @@ export const leaveHeaders = [
 	'updated_at',
 ];
 
+export const overtimeHeaders = [
+	'id',
+	'employee_id',
+	'type',
+	'date',
+	'hours',
+	'reason',
+	'status',
+	'attendance_id',
+	'created_by',
+	'approved_by',
+	'updated_at',
+	'created_at',
+];
+
 export const permissionHeaders = [
 	'name',
 	'codename',

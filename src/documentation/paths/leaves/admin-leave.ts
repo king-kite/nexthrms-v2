@@ -2,7 +2,7 @@ import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
 
-import { requestExample, requestProperties } from './adminLeaves';
+import { requestExample, requestProperties } from './admin-leaves';
 
 const path = {
 	get: {

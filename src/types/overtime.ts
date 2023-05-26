@@ -1,3 +1,5 @@
+import { LeaveStatus, OvertimeChoices } from '@prisma/client';
+
 import { SuccessResponseType } from './base';
 
 type EmployeeType = {
@@ -31,6 +33,21 @@ export type OvertimeType = {
 	employee: EmployeeType;
 	approvedBy: EmployeeType | null;
 	createdBy: EmployeeType | null;
+};
+
+export type OvertimeImportQueryType = {
+	id?: string;
+	employee_id: string;
+	type: OvertimeChoices;
+	date: string;
+	hours: number;
+	reason: string;
+	status: LeaveStatus;
+	attendance_id?: string;
+	created_by?: string;
+	approved_by?: string;
+	updated_at?: string;
+	created_at?: string;
 };
 
 export type GetAllOvertimeResponseType = SuccessResponseType<{
