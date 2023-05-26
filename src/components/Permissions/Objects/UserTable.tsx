@@ -228,19 +228,19 @@ const UserPermissionsTable = ({
 			</div>
 			<div className="mt-2 rounded-lg py-2 md:mt-1">
 				<Table heads={heads} rows={rows} />
+				{searchedUsers.length > 0 && (
+					<TablePagination
+						disabled={false}
+						totalItems={searchedUsers.length}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * limit);
+						}}
+						onSizeChange={(size) => setLimit(size)}
+						pageSize={limit}
+					/>
+				)}
 			</div>
-			{searchedUsers.length > 0 && (
-				<TablePagination
-					disabled={false}
-					totalItems={searchedUsers.length}
-					onChange={(pageNo: number) => {
-						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-						offset !== value && setOffset(value * limit);
-					}}
-					onSizeChange={(size) => setLimit(size)}
-					pageSize={limit}
-				/>
-			)}
 		</div>
 	);
 };
