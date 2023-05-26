@@ -6,6 +6,7 @@ import {
 	handleNotificationErrors as handleErrors,
 	importData,
 	importPermissions,
+	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import {
@@ -112,7 +113,7 @@ function createData(
 			);
 
 			// Now add the supervisors
-			await prisma.$transaction(
+			const employees = await prisma.$transaction(
 				supervisors.map(({ supervisors, userId }) =>
 					prisma.employee.update({
 						where: { userId },
@@ -121,11 +122,53 @@ function createData(
 								connect: supervisors.map((id) => ({ id })),
 							},
 						},
+						select: {
+							id: true,
+							department: {
+								select: { hod: { select: { user: { select: { id: true } } } } },
+							},
+							supervisors: { select: { user: { select: { id: true } } } },
+						},
 					})
 				)
 			);
 
 			if (perms) await importPermissions(perms);
+			else {
+				const objPerms = employees.reduce(
+					(
+						acc: {
+							id: string;
+							users: string[];
+						}[],
+						employee
+					) => {
+						const officers = employee.supervisors.map(
+							(supervisor) => supervisor.user.id
+						);
+						if (employee.department?.hod)
+							officers.push(employee.department.hod.user.id);
+						return [
+							...acc,
+							{
+								id: employee.id,
+								users: officers,
+							},
+						];
+					},
+					[]
+				);
+				await Promise.all(
+					objPerms.map((perm) =>
+						updateObjectPermissions({
+							model: 'employees',
+							objectId: perm.id,
+							permissions: ['VIEW'],
+							users: perm.users,
+						})
+					)
+				);
+			}
 			resolve(result);
 		} catch (error) {
 			reject(error);
