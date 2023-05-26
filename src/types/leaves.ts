@@ -1,3 +1,5 @@
+import { LeaveChoices, LeaveStatus } from '@prisma/client';
+
 import { SuccessResponseType } from './base';
 
 type EmployeeType = {
@@ -45,8 +47,8 @@ export type LeaveImportQueryType = {
 	reason: string;
 	start_date: string;
 	end_date: string;
-	type: string;
-	status: string;
+	type: LeaveChoices;
+	status: LeaveStatus;
 	employee_id: string;
 	created_by?: string;
 	approved_by?: string;
