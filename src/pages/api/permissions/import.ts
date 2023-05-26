@@ -36,9 +36,6 @@ function getDataInput(data: PermissionImportQueryType) {
 						where: {
 							name: data.category,
 						},
-						connect: {
-							name: data.category,
-						},
 						create: {
 							name: data.category,
 						},
