@@ -18,9 +18,9 @@ const Topbar = ({ loading, onSubmit, openModal, exportData }: TopbarProps) => {
 	const searchRef = React.useRef<HTMLInputElement | null>(null);
 
 	return (
-		<div className="flex flex-col my-2 w-full lg:flex-row lg:items-center">
+		<div className="flex flex-wrap gap-3 items-center my-2 w-full md:gap-y-5 md:justify-between">
 			<form
-				className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
+				className="flex items-center w-full md:w-2/5"
 				onSubmit={(e) => {
 					e.preventDefault();
 					if (searchRef.current) onSubmit(searchRef.current.value);
@@ -50,7 +50,7 @@ const Topbar = ({ loading, onSubmit, openModal, exportData }: TopbarProps) => {
 				/>
 			</form>
 			{exportData && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+				<div className="w-full sm:w-1/3 md:w-1/4">
 					<ButtonDropdown
 						component={() => <ExportForm {...exportData} />}
 						props={{
@@ -65,7 +65,7 @@ const Topbar = ({ loading, onSubmit, openModal, exportData }: TopbarProps) => {
 				</div>
 			)}
 			{exportData && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:px-4 xl:px-5 xl:w-1/4">
+				<div className="w-full sm:w-1/3 md:w-1/4">
 					<Button
 						caps
 						iconLeft={FaCloudUploadAlt}
