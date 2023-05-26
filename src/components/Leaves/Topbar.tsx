@@ -1,6 +1,11 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
 import React from 'react';
-import { FaCloudDownloadAlt, FaPlus, FaSearch } from 'react-icons/fa';
+import {
+	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
+	FaPlus,
+	FaSearch,
+} from 'react-icons/fa';
 
 import FilterDropdownForm from './FilterDropdownForm';
 import { ExportForm } from '../common';
@@ -10,7 +15,7 @@ import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	adminView: boolean;
-	openModal: () => void;
+	openModal: (bulk?: boolean) => void;
 	loading: boolean;
 
 	dateForm: { from?: string; to?: string } | undefined;
@@ -19,8 +24,10 @@ type TopbarProps = {
 	>;
 
 	searchSubmit?: (search: string) => void;
-	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading?: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
 function Topbar({
@@ -31,11 +38,10 @@ function Topbar({
 	setDateForm,
 	searchSubmit,
 	exportData,
-	exportLoading,
 }: TopbarProps) {
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport] = React.useMemo(() => {
+	const [canCreate] = React.useMemo(() => {
 		if (!authData) return [false, false];
 		const canCreate =
 			authData.isSuperUser ||
@@ -43,26 +49,18 @@ function Topbar({
 				permissions.leave.CREATE,
 				permissions.leave.REQUEST,
 			]);
-		const canExport =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.leave.EXPORT]);
-		return [canCreate, canExport];
+		return [canCreate];
 	}, [authData]);
 
 	return (
-		<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
+		<div className="flex flex-wrap gap-3 w-full">
 			{adminView && searchSubmit && (
 				<>
 					<Form onSubmit={searchSubmit} loading={loading} />
-					{canExport && (
-						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
+					{exportData && (
+						<div className="w-full sm:w-1/3">
 							<ButtonDropdown
-								component={() => (
-									<ExportForm
-										loading={exportLoading}
-										onSubmit={exportData ? exportData : undefined}
-									/>
-								)}
+								component={() => <ExportForm {...exportData} />}
 								props={{
 									caps: true,
 									iconLeft: FaCloudDownloadAlt,
@@ -76,7 +74,7 @@ function Topbar({
 					)}
 				</>
 			)}
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+			<div className="w-full sm:w-1/3">
 				<ButtonDropdown
 					component={() => (
 						<FilterDropdownForm
@@ -91,17 +89,32 @@ function Topbar({
 				/>
 			</div>
 			{canCreate && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
-					<Button
-						caps
-						iconLeft={FaPlus}
-						margin="lg:mr-6"
-						onClick={openModal}
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title={adminView ? 'Add Leave' : 'Request Leave'}
-					/>
-				</div>
+				<>
+					<div className="w-full sm:w-1/3">
+						<Button
+							caps
+							iconLeft={FaPlus}
+							margin="lg:mr-6"
+							onClick={() => openModal(false)}
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title={adminView ? 'Add Leave' : 'Request Leave'}
+						/>
+					</div>
+					{adminView && (
+						<div className="w-full sm:w-1/3">
+							<Button
+								caps
+								iconLeft={FaCloudUploadAlt}
+								margin="lg:mr-6"
+								onClick={() => openModal(true)}
+								padding="px-3 py-2 md:px-6"
+								rounded="rounded-xl"
+								title="Import"
+							/>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);

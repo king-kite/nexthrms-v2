@@ -1,6 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../../components/common';
 import {
 	Cards,
 	Form,
@@ -9,8 +14,10 @@ import {
 } from '../../../components/Leaves';
 import {
 	permissions,
+	samples,
 	DEFAULT_PAGINATION_SIZE,
 	LEAVES_ADMIN_EXPORT_URL,
+	LEAVES_ADMIN_IMPORT_URL,
 } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
@@ -22,24 +29,28 @@ import {
 	CreateLeaveErrorResponseType,
 	GetLeavesResponseType,
 } from '../../../types';
-import { downloadFile, hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
-	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
-	const [errors, setErrors] = useState<
+	const [dateQuery, setDateQuery] = React.useState<{
+		from?: string;
+		to?: string;
+	}>();
+	const [errors, setErrors] = React.useState<
 		CreateLeaveErrorResponseType & {
 			message?: string;
 		}
 	>();
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		if (!authData?.isAdmin && !authData?.isSuperUser)
 			return [false, false, false];
 
@@ -63,7 +74,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesAdminQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			from: dateQuery?.from || undefined,
@@ -102,7 +113,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateLeaveQueryType) => {
 			setErrors(undefined);
 			if (!form.employee) {
@@ -123,17 +134,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				onClick: refetch,
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			loading={isLoading}
-			paginate={
-				(canCreate || canView) && data
-					? {
-							loading: isFetching,
-							setOffset,
-							offset,
-							totalItems: data.total,
-					  }
-					: undefined
-			}
+			disabledLoading={isLoading}
 		>
 			{(canCreate || canView) && (
 				<Cards
@@ -148,48 +149,118 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				dateForm={dateQuery}
 				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
-				openModal={() => setModalVisible(true)}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = LEAVES_ADMIN_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
-								search || ''
-							}`;
-						if (dateQuery?.from && dateQuery?.to) {
-							url += `&from=${dateQuery.from}&to=${dateQuery.to}`;
-						}
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'leaves.csv' : 'leaves.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						open({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
+					setModalVisible(true);
 				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: LEAVES_ADMIN_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${
+									search || ''
+								}${
+									dateQuery?.from && dateQuery?.to
+										? `&from=${dateQuery.from}&to=${dateQuery.to}`
+										: ''
+								}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
-				<LeaveAdminTable leaves={data?.result || []} />
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+					<LeaveAdminTable leaves={data?.result || []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
 			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
-							adminView
-							errors={errors}
-							loading={createLoading}
-							success={isSuccess}
-							onSubmit={handleSubmit}
-						/>
+						bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								requirements={[
+									{
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'employee_id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'start_date',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										title: 'end_date',
+										value: '2023-03-28T21:49:51.090Z',
+									},
+									{
+										title: 'reason',
+										value: '"This is the reason for this leave"',
+									},
+									{
+										title: 'status',
+										value: 'PENDING',
+									},
+									{
+										title: 'type',
+										value: 'C',
+									},
+									{
+										required: false,
+										title: 'created_by',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
+										title: 'approved_by',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.leaves}
+								url={LEAVES_ADMIN_IMPORT_URL}
+							/>
+						) : (
+							<Form
+								adminView
+								errors={errors}
+								loading={createLoading}
+								success={isSuccess}
+								onSubmit={handleSubmit}
+							/>
+						)
 					}
 					description="Fill in the form below to create a leave"
 					keepVisible

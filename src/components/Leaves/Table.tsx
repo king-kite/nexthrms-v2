@@ -5,7 +5,7 @@ import { FaArrowRight } from 'react-icons/fa';
 
 import { LEAVE_DETAIL_PAGE_URL } from '../../config/routes';
 import { LeaveType } from '../../types';
-import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
+import { getDate, getNoOfDays, serializeLeave } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'type' },
