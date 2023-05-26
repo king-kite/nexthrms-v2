@@ -4,11 +4,12 @@ import {
 	Checkbox,
 	Input,
 	Select,
+	Select2,
 	Textarea,
 } from 'kite-react-tailwind';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config';
+import { DEFAULT_PAGINATION_SIZE, DEFAULT_IMAGE } from '../../config';
 import { useGetPermissionsQuery, useGetUsersQuery } from '../../store/queries';
 
 import {
@@ -45,7 +46,7 @@ function handleDataError(err: unknown): string | undefined {
 	return undefined;
 }
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	editMode,
 	initState,
 	errors,
@@ -53,10 +54,10 @@ const Form: FC<FormProps> = ({
 	loading,
 	success,
 	onSubmit,
-}) => {
-	const [usrLimit, setUsrLimit] = useState(DEFAULT_PAGINATION_SIZE);
+}: FormProps) => {
+	const [usrLimit, setUsrLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const formStaleData = useMemo(
+	const formStaleData = React.useMemo(
 		() => ({
 			users: initState ? initState.users.map((user) => user.id) : [],
 			permissions: initState
@@ -66,10 +67,10 @@ const Form: FC<FormProps> = ({
 		[initState]
 	);
 
-	const [form, setForm] = useState(formStaleData);
-	const [formErrors, setErrors] = useState<ErrorType>();
+	const [form, setForm] = React.useState(formStaleData);
+	const [formErrors, setErrors] = React.useState<ErrorType>();
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const {
 		data: permissions = { total: 0, result: [] },
@@ -81,7 +82,7 @@ const Form: FC<FormProps> = ({
 		search: '',
 	});
 
-	const sortedPermissions = useMemo(() => {
+	const sortedPermissions = React.useMemo(() => {
 		if (permissions.result.length <= 0) return [];
 		// Get the names of all permission categories and sort it;
 		let categoryNames: string[] = [];
@@ -112,7 +113,7 @@ const Form: FC<FormProps> = ({
 
 	const usersError = handleDataError(users.error);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (input: CreateGroupQueryType) => {
 			try {
 				const valid: CreateGroupQueryType =
@@ -136,7 +137,7 @@ const Form: FC<FormProps> = ({
 		[onSubmit]
 	);
 
-	const removeFormErrors = useCallback(
+	const removeFormErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -148,7 +149,7 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
@@ -159,7 +160,7 @@ const Form: FC<FormProps> = ({
 		[removeFormErrors]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success && !editMode) {
 			setForm(formStaleData);
 			if (formRef.current) {
@@ -240,7 +241,12 @@ const Form: FC<FormProps> = ({
 					</div>
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end md:col-span-2">
-					<Select
+					<Select2
+						bdrColor={
+							usersError || formErrors?.users || errors?.users
+								? 'border-red-600'
+								: 'border-gray-300'
+						}
 						btn={{
 							caps: true,
 							disabled:
@@ -260,46 +266,56 @@ const Form: FC<FormProps> = ({
 								: 'load more',
 						}}
 						disabled={users.isLoading || loading}
-						error={usersError || formErrors?.users || errors?.users}
-						label="Users"
-						onChange={({ target: { selectedOptions } }) => {
-							const selectValues = Array.from(
-								selectedOptions,
-								(option) => option.value
-							);
-							handleFormChange('users', selectValues);
+						onSelect={({ value }) => {
+							let users: string[] = [];
+							// Check if the employee with this value as id is selected
+							const selected = form.users.find((item) => item === value);
+							if (selected) {
+								users = form.users.filter((item) => item !== value);
+							} else {
+								users = [...form.users, value];
+							}
+							handleFormChange('users', users);
 						}}
-						multiple
-						name="users"
-						placeholder="Select Users"
+						error={usersError || formErrors?.users || errors?.users}
 						options={
 							users.data
-								? users.data.result.reduce(
-										(
-											total: {
-												title: string;
-												value: string;
-											}[],
-											user
-										) => {
-											if (user.isActive)
+								? users.data.result
+										.reduce(
+											(
+												total: {
+													image: string;
+													title: string;
+													value: string;
+												}[],
+												user
+											) => {
 												return [
 													...total,
 													{
+														image: user.profile?.image || DEFAULT_IMAGE,
 														title: toCapitalize(
 															user.firstName + ' ' + user.lastName
 														),
 														value: user.id,
 													},
 												];
-											return total;
-										},
-										[]
-								  )
+											},
+											[]
+										)
+										.sort((a, b) => {
+											const aName = a.title.toLowerCase();
+											const bName = b.title.toLowerCase();
+											return aName < bName ? -1 : aName > bName ? 1 : 0;
+										})
 								: []
 						}
-						required={false}
+						multiple
 						value={form.users}
+						required={false}
+						label="Users"
+						placeholder="Select Users"
+						shadow="shadow-lg"
 					/>
 				</div>
 
