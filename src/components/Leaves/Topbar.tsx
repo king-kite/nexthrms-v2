@@ -53,12 +53,12 @@ function Topbar({
 	}, [authData]);
 
 	return (
-		<div className="flex flex-wrap gap-3 w-full">
+		<div className="flex flex-wrap gap-3 w-full md:gap-4">
 			{adminView && searchSubmit && (
 				<>
 					<Form onSubmit={searchSubmit} loading={loading} />
 					{exportData && (
-						<div className="w-full sm:w-1/3">
+						<div className="w-full sm:w-[31%] md:w-[25%]">
 							<ButtonDropdown
 								component={() => <ExportForm {...exportData} />}
 								props={{
@@ -74,7 +74,7 @@ function Topbar({
 					)}
 				</>
 			)}
-			<div className="w-full sm:w-1/3">
+			<div className="w-full sm:w-[31%] md:w-[25%]">
 				<ButtonDropdown
 					component={() => (
 						<FilterDropdownForm
@@ -90,7 +90,7 @@ function Topbar({
 			</div>
 			{canCreate && (
 				<>
-					<div className="w-full sm:w-1/3">
+					<div className="w-full sm:w-[31%] md:w-[25%]">
 						<Button
 							caps
 							iconLeft={FaPlus}
@@ -102,7 +102,7 @@ function Topbar({
 						/>
 					</div>
 					{adminView && (
-						<div className="w-full sm:w-1/3">
+						<div className="w-full sm:w-1/3 md:w-[25%]">
 							<Button
 								caps
 								iconLeft={FaCloudUploadAlt}
@@ -131,7 +131,7 @@ const Form = ({
 
 	return (
 		<form
-			className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
+			className="w-full sm:w-2/3 md:w-[45%]"
 			onSubmit={(e) => {
 				e.preventDefault();
 				onSubmit(search.current?.value || '');
