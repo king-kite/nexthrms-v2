@@ -45,11 +45,11 @@ async function getData(req: NextApiRequestExtendUser) {
 
 	const values = data.result.map((permission) => {
 		return {
-			id: permission.id,
 			name: permission.name,
 			codename: permission.codename,
 			description: permission.description || null,
 			category: permission.category ? permission.category.name : null,
+			id: permission.id,
 		};
 	});
 

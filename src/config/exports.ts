@@ -69,11 +69,11 @@ export const holidayHeaders = [
 export const jobHeaders = ['id', 'name', 'updated_at', 'created_at'];
 
 export const permissionHeaders = [
-	'id',
 	'name',
 	'codename',
 	'description',
 	'category',
+	'id',
 ];
 
 export const projectHeaders = [
