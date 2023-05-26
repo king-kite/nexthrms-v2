@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../components/common';
+import { Container, Modal, TablePagination } from '../../components/common';
 import { Cards, Form, Topbar, LeaveTable } from '../../components/Leaves';
 import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
@@ -16,19 +16,23 @@ import {
 import { hasModelPermission } from '../../utils';
 
 const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
-	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
-	const [errors, setErrors] = useState<
+	const [dateQuery, setDateQuery] = React.useState<{
+		from?: string;
+		to?: string;
+	}>();
+	const [errors, setErrors] = React.useState<
 		CreateLeaveErrorResponseType & {
 			message?: string;
 		}
 	>();
-	const [offset, setOffset] = useState(0);
-	const [modalVisible, setModalVisible] = useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canRequest, canView] = useMemo(() => {
+	const [canRequest, canView] = React.useMemo(() => {
 		const canRequest = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.leave.REQUEST])
@@ -39,7 +43,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 
 	const { data, isLoading, isFetching, refetch } = useGetLeavesQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			from: dateQuery?.from || undefined,
 			to: dateQuery?.to || undefined,
@@ -77,7 +81,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateLeaveQueryType) => {
 			if (canRequest) {
 				setErrors(undefined);
@@ -95,17 +99,7 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				onClick: refetch,
 			}}
 			error={!canView && !canRequest ? { statusCode: 403 } : undefined}
-			loading={isLoading}
-			paginate={
-				(canRequest || canView) && data
-					? {
-							loading: isFetching,
-							setOffset,
-							offset,
-							totalItems: data.total,
-					  }
-					: undefined
-			}
+			disabledLoading={isLoading}
 		>
 			{(canRequest || canView) && (
 				<Cards
@@ -121,7 +115,23 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				setDateForm={setDateQuery}
 				openModal={() => setModalVisible(true)}
 			/>
-			{(canRequest || canView) && <LeaveTable leaves={data?.result || []} />}
+			{(canRequest || canView) && (
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+					<LeaveTable leaves={data?.result || []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
+			)}
 			{canRequest && (
 				<Modal
 					close={() => setModalVisible(false)}
