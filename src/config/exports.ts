@@ -68,6 +68,20 @@ export const holidayHeaders = [
 
 export const jobHeaders = ['id', 'name', 'updated_at', 'created_at'];
 
+export const leaveHeaders = [
+	'id',
+	'reason',
+	'start_date',
+	'end_date',
+	'type',
+	'status',
+	'employee_id',
+	'created_by',
+	'approved_by',
+	'created_at',
+	'updated_at',
+];
+
 export const permissionHeaders = [
 	'name',
 	'codename',

@@ -40,6 +40,20 @@ export type LeaveType = {
 	createdBy: EmployeeType | null;
 };
 
+export type LeaveImportQueryType = {
+	id?: string;
+	reason: string;
+	start_date: string;
+	end_date: string;
+	type: string;
+	status: string;
+	employee_id: string;
+	created_by?: string;
+	approved_by?: string;
+	created_at?: string;
+	updated_at?: string;
+};
+
 export type GetLeavesResponseType = SuccessResponseType<{
 	approved: number;
 	pending: number;

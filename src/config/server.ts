@@ -67,6 +67,7 @@ export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/`;
 export const LEAVE_ADMIN_URL = (id: string) =>
 	`${ROOT_URL}/leaves/admin/${id}/`;
 export const LEAVES_ADMIN_EXPORT_URL = `${ROOT_URL}/leaves/admin/export/`;
+export const LEAVES_ADMIN_IMPORT_URL = `${ROOT_URL}/leaves/admin/import/`;
 
 export const OVERTIME_URL = `${ROOT_URL}/overtime/all/`;
 export const OVERTIME_DETAIL_URL = (id: string) => `${OVERTIME_URL}${id}/`;
