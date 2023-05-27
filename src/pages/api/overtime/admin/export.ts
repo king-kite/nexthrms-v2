@@ -17,11 +17,7 @@ type OvertimeExportType = {
 	denied: number;
 	pending: number;
 	total: number;
-	result: (OvertimeType & {
-		attendance: {
-			id: string;
-		} | null;
-	})[];
+	result: OvertimeType[];
 };
 
 async function getData(req: NextApiRequestExtendUser) {
@@ -40,16 +36,7 @@ async function getData(req: NextApiRequestExtendUser) {
 		user: req.user,
 		placeholder,
 		getData(params) {
-			return getAllOvertimeAdmin({
-				...params,
-				select: {
-					attendance: {
-						select: {
-							id: true,
-						},
-					},
-				},
-			}) as Promise<OvertimeExportType>;
+			return getAllOvertimeAdmin(params);
 		},
 	});
 
@@ -61,9 +48,9 @@ async function getData(req: NextApiRequestExtendUser) {
 			employee_id: overtime.employee.id,
 			date: overtime.date,
 			type: overtime.type,
+			hours: overtime.hours,
 			status: overtime.status,
 			reason: overtime.reason,
-			attendance_id: overtime.attendance ? overtime.attendance.id : null,
 			created_by: overtime.createdBy ? overtime.createdBy.id : null,
 			approved_by: overtime.approvedBy ? overtime.approvedBy.id : null,
 			created_at: overtime.createdAt,

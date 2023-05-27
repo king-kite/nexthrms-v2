@@ -90,7 +90,6 @@ export const overtimeHeaders = [
 	'hours',
 	'reason',
 	'status',
-	'attendance_id',
 	'created_by',
 	'approved_by',
 	'updated_at',

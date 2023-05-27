@@ -43,7 +43,6 @@ export type OvertimeImportQueryType = {
 	hours: number;
 	reason: string;
 	status: LeaveStatus;
-	attendance_id?: string;
 	created_by?: string;
 	approved_by?: string;
 	updated_at?: string;
