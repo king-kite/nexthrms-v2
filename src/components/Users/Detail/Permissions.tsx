@@ -4,7 +4,7 @@ import React from 'react';
 import { FaPen } from 'react-icons/fa';
 
 import PermissionsForm from './PermissionsForm';
-import { Modal, Pagination } from '../../common';
+import { Modal, TablePagination } from '../../common';
 import { Permissions } from '../../Groups/Detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
@@ -34,6 +34,7 @@ function UserPermissions({
 		'single'
 	);
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
@@ -46,7 +47,7 @@ function UserPermissions({
 	const { data, isLoading, isFetching } = useGetUserPermissionsQuery(
 		{
 			id,
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search: '',
 		},
@@ -143,18 +144,16 @@ function UserPermissions({
 						}
 					/>
 					{data.total > 0 && (
-						<div className="pt-2 pb-5">
-							<Pagination
-								disabled={isFetching}
-								onChange={(pageNo: number) => {
-									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-									offset !== value &&
-										setOffset(value * DEFAULT_PAGINATION_SIZE);
-								}}
-								pageSize={DEFAULT_PAGINATION_SIZE}
-								totalItems={data.total}
-							/>
-						</div>
+						<TablePagination
+							disabled={isFetching}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							pageSize={limit}
+							onSizeChange={(size) => setLimit(size)}
+							totalItems={data.total}
+						/>
 					)}
 				</div>
 			) : (
