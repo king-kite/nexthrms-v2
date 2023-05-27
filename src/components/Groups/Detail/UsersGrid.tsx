@@ -2,12 +2,8 @@ import { InputButton } from 'kite-react-tailwind';
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 
-import { Pagination, PersonCard } from '../../common';
-import {
-	DEFAULT_IMAGE,
-	DEFAULT_PAGINATION_SIZE,
-	USER_PAGE_URL,
-} from '../../../config';
+import { PersonCard, TablePagination } from '../../common';
+import { DEFAULT_IMAGE, USER_PAGE_URL } from '../../../config';
 import { useAlertModalContext } from '../../../store/contexts';
 import { GroupUserType } from '../../../types';
 
@@ -20,6 +16,8 @@ function UsersGrid({
 	paginate?: {
 		loading: boolean;
 		totalItems: number;
+		limit: number;
+		setLimit: React.Dispatch<React.SetStateAction<number>>;
 		offset: number;
 		setOffset: React.Dispatch<React.SetStateAction<number>>;
 	};
@@ -128,18 +126,17 @@ function UsersGrid({
 				))}
 			</div>
 			{paginate && paginate.totalItems > 0 && (
-				<div className="mt-5">
-					<Pagination
-						disabled={paginate.loading || false}
-						onChange={(pageNo: number) => {
-							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-							paginate.offset !== value &&
-								paginate.setOffset(value * DEFAULT_PAGINATION_SIZE);
-						}}
-						pageSize={DEFAULT_PAGINATION_SIZE}
-						totalItems={paginate.totalItems || 0}
-					/>
-				</div>
+				<TablePagination
+					disabled={paginate.loading || false}
+					totalItems={paginate.totalItems}
+					onChange={(pageNo: number) => {
+						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+						paginate.offset !== value &&
+							paginate.setOffset(value * paginate.limit);
+					}}
+					onSizeChange={(size) => paginate.setLimit(size)}
+					pageSize={paginate.limit}
+				/>
 			)}
 		</div>
 	);

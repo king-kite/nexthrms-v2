@@ -1,6 +1,6 @@
 import { Button, InfoComp, TabNavigator } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import React from 'react';
 import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import { Container, Modal } from '../../../components/common';
@@ -39,9 +39,10 @@ function GroupDetail({
 	group: GroupType;
 	objPerm: UserObjPermType;
 }) {
-	const [editMessage, setEditMessage] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [offset, setOffset] = useState(0);
+	const [editMessage, setEditMessage] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [offset, setOffset] = React.useState(0);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -49,7 +50,7 @@ function GroupDetail({
 		{
 			id,
 			users: {
-				limit: DEFAULT_PAGINATION_SIZE,
+				limit,
 				offset,
 				search: '',
 			},
@@ -111,7 +112,7 @@ function GroupDetail({
 		},
 	});
 
-	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+	const [canEdit, canDelete, canViewObjectPermissions] = React.useMemo(() => {
 		if (!authData) return [false, false, false];
 		if (!authData.isSuperUser && !authData.isAdmin) return [false, false];
 
@@ -273,6 +274,8 @@ function GroupDetail({
 													data._count?.users
 														? {
 																totalItems: data._count.users,
+																limit,
+																setLimit,
 																offset,
 																setOffset,
 																loading: isFetching || editLoading,
