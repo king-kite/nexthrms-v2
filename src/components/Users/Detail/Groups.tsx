@@ -5,7 +5,7 @@ import { FaPen } from 'react-icons/fa';
 
 import GroupCards from './GroupCards';
 import UserGroupsForm from './UserGroupsForm';
-import { Modal, Pagination } from '../../common';
+import { Modal, TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
@@ -34,6 +34,7 @@ function UserGroups({
 		'single'
 	);
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
@@ -45,7 +46,7 @@ function UserGroups({
 	const { data, isLoading, isFetching } = useGetUserGroupsQuery(
 		{
 			id,
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search: '',
 		},
@@ -137,18 +138,16 @@ function UserGroups({
 						}
 					/>
 					{data.total > 0 && (
-						<div className="pt-2 pb-5">
-							<Pagination
-								disabled={isFetching}
-								onChange={(pageNo: number) => {
-									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-									offset !== value &&
-										setOffset(value * DEFAULT_PAGINATION_SIZE);
-								}}
-								pageSize={DEFAULT_PAGINATION_SIZE}
-								totalItems={data.total}
-							/>
-						</div>
+						<TablePagination
+							disabled={isFetching}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							pageSize={limit}
+							onSizeChange={(size) => setLimit(size)}
+							totalItems={data.total}
+						/>
 					)}
 				</div>
 			) : (
