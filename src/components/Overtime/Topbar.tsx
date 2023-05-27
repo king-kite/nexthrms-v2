@@ -1,6 +1,11 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
 import React from 'react';
-import { FaCloudDownloadAlt, FaPlus, FaSearch } from 'react-icons/fa';
+import {
+	FaCloudDownloadAlt,
+	FaCloudUploadAlt,
+	FaPlus,
+	FaSearch,
+} from 'react-icons/fa';
 
 import FilterDropdownForm from './FilterDropdownForm';
 import { ExportForm } from '../common';
@@ -10,7 +15,7 @@ import { hasModelPermission } from '../../utils';
 
 type TopbarProps = {
 	adminView: boolean;
-	openModal: () => void;
+	openModal: (bulk?: boolean) => void;
 	loading: boolean;
 
 	dateForm: { from?: string; to?: string } | undefined;
@@ -19,8 +24,10 @@ type TopbarProps = {
 	>;
 
 	searchSubmit?: (search: string) => void;
-	exportData?: (type: 'csv' | 'excel', filter: boolean) => void;
-	exportLoading?: boolean;
+	exportData?: {
+		all: string;
+		filtered: string;
+	};
 };
 
 const Topbar: React.FC<TopbarProps> = ({
@@ -31,35 +38,29 @@ const Topbar: React.FC<TopbarProps> = ({
 	setDateForm,
 	searchSubmit,
 	exportData,
-	exportLoading,
 }) => {
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport] = React.useMemo(() => {
-		if (!authData) return [false, false];
+	const [canCreate] = React.useMemo(() => {
+		if (!authData) return [false];
 		const canCreate =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.overtime.CREATE, permissions.overtime.REQUEST]);
-		const canExport =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.overtime.EXPORT]);
-		return [canCreate, canExport];
+			hasModelPermission(authData.permissions, [
+				permissions.overtime.CREATE,
+				permissions.overtime.REQUEST,
+			]);
+		return [canCreate];
 	}, [authData]);
 
 	return (
-		<div className="flex flex-col mb-0 w-full lg:flex-row lg:items-center">
+		<div className="flex flex-wrap gap-3 w-full md:gap-4">
 			{adminView && searchSubmit && (
 				<>
 					<Form onSubmit={searchSubmit} loading={loading} />
-					{canExport && (
-						<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 lg:pl-0 xl:w-1/4">
+					{exportData && (
+						<div className="w-full sm:w-[31%] md:w-[25%]">
 							<ButtonDropdown
-								component={() => (
-									<ExportForm
-										onSubmit={exportData ? exportData : undefined}
-										loading={exportLoading}
-									/>
-								)}
+								component={() => <ExportForm {...exportData} />}
 								props={{
 									caps: true,
 									iconLeft: FaCloudDownloadAlt,
@@ -73,7 +74,7 @@ const Topbar: React.FC<TopbarProps> = ({
 					)}
 				</>
 			)}
-			<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pr-4 xl:w-1/4">
+			<div className="w-full sm:w-[31%] md:w-[25%]">
 				<ButtonDropdown
 					component={() => (
 						<FilterDropdownForm
@@ -88,17 +89,32 @@ const Topbar: React.FC<TopbarProps> = ({
 				/>
 			</div>
 			{canCreate && (
-				<div className="my-3 pr-4 w-full sm:w-1/3 lg:my-0 lg:pl-4 lg:pr-0 xl:w-1/4">
-					<Button
-						caps
-						iconLeft={FaPlus}
-						margin="lg:mr-6"
-						onClick={openModal}
-						padding="px-3 py-2 md:px-6"
-						rounded="rounded-xl"
-						title={adminView ? 'Add Overtime' : 'Request Overtime'}
-					/>
-				</div>
+				<>
+					<div className="w-full sm:w-[31%] md:w-[25%]">
+						<Button
+							caps
+							iconLeft={FaPlus}
+							margin="lg:mr-6"
+							onClick={() => openModal(false)}
+							padding="px-3 py-2 md:px-6"
+							rounded="rounded-xl"
+							title={adminView ? 'Add Overtime' : 'Request Overtime'}
+						/>
+					</div>
+					{adminView && (
+						<div className="w-full sm:w-1/3 md:w-[25%]">
+							<Button
+								caps
+								iconLeft={FaCloudUploadAlt}
+								margin="lg:mr-6"
+								onClick={() => openModal(true)}
+								padding="px-3 py-2 md:px-6"
+								rounded="rounded-xl"
+								title="Import"
+							/>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
@@ -115,7 +131,7 @@ const Form = ({
 
 	return (
 		<form
-			className="flex items-center mb-3 pr-8 w-full lg:mb-0 lg:w-3/5"
+			className="w-full sm:w-2/3 md:w-[45%]"
 			onSubmit={(e) => {
 				e.preventDefault();
 				onSubmit(search.current?.value || '');

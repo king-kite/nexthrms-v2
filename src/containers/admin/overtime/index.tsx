@@ -1,6 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
-import { Container, Modal } from '../../../components/common';
+import {
+	Container,
+	ImportForm,
+	Modal,
+	TablePagination,
+} from '../../../components/common';
 import {
 	Cards,
 	Form,
@@ -9,8 +14,10 @@ import {
 } from '../../../components/Overtime';
 import {
 	permissions,
+	samples,
 	DEFAULT_PAGINATION_SIZE,
 	OVERTIME_ADMIN_EXPORT_URL,
+	OVERTIME_ADMIN_IMPORT_URL,
 } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
@@ -22,28 +29,32 @@ import {
 	CreateOvertimeErrorResponseType,
 	GetAllOvertimeResponseType,
 } from '../../../types';
-import { downloadFile, hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils';
 
 const Overtime = ({
 	overtime,
 }: {
 	overtime: GetAllOvertimeResponseType['data'];
 }) => {
-	const [dateQuery, setDateQuery] = useState<{ from?: string; to?: string }>();
-	const [errors, setErrors] = useState<
+	const [dateQuery, setDateQuery] = React.useState<{
+		from?: string;
+		to?: string;
+	}>();
+	const [errors, setErrors] = React.useState<
 		CreateOvertimeErrorResponseType & {
 			message?: string;
 		}
 	>();
-	const [offset, setOffset] = useState(0);
-	const [search, setSearch] = useState('');
-	const [modalVisible, setModalVisible] = useState(false);
-	const [exportLoading, setExportLoading] = useState(false);
+	const [bulkForm, setBulkForm] = React.useState(false);
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+	const [search, setSearch] = React.useState('');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canCreate, canExport, canView] = useMemo(() => {
+	const [canCreate, canExport, canView] = React.useMemo(() => {
 		if (!authData?.isAdmin && !authData?.isSuperUser)
 			return [false, false, false];
 
@@ -67,7 +78,7 @@ const Overtime = ({
 
 	const { data, isLoading, isFetching, refetch } = useGetAllOvertimeAdminQuery(
 		{
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit,
 			offset,
 			search,
 			from: dateQuery?.from || undefined,
@@ -106,7 +117,7 @@ const Overtime = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
 			if (!form.employee) {
@@ -126,18 +137,8 @@ const Overtime = ({
 				loading: isFetching,
 				onClick: refetch,
 			}}
-			loading={isLoading}
+			disabledLoading={isLoading}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
-			paginate={
-				(canCreate || canView) && data
-					? {
-							loading: isFetching,
-							setOffset,
-							offset,
-							totalItems: data.total,
-					  }
-					: undefined
-			}
 		>
 			{(canCreate || canView) && (
 				<Cards
@@ -152,48 +153,119 @@ const Overtime = ({
 				dateForm={dateQuery}
 				setDateForm={setDateQuery}
 				searchSubmit={(value) => setSearch(value)}
-				openModal={() => setModalVisible(true)}
-				exportData={async (type, filtered) => {
-					if (!canExport) return;
-					let url = OVERTIME_ADMIN_EXPORT_URL + '?type=' + type;
-					if (filtered) {
-						url =
-							url +
-							`&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${
-								search || ''
-							}`;
-						if (dateQuery?.from && dateQuery?.to) {
-							url += `&from=${dateQuery.from}&to=${dateQuery.to}`;
-						}
-					}
-					const result = await downloadFile({
-						url,
-						name: type === 'csv' ? 'overtime.csv' : 'overtime.xlsx',
-						setLoading: setExportLoading,
-					});
-					if (result?.status !== 200) {
-						open({
-							type: 'danger',
-							message: 'An error occurred. Unable to export file!',
-						});
-					}
+				openModal={(bulk = false) => {
+					setBulkForm(bulk);
+					setModalVisible(true);
 				}}
-				exportLoading={exportLoading}
+				exportData={
+					!canExport
+						? undefined
+						: {
+								all: OVERTIME_ADMIN_EXPORT_URL,
+								filtered: `&offset=${offset}&limit=${limit}&search=${
+									search || ''
+								}${
+									dateQuery?.from && dateQuery?.to
+										? `&from=${dateQuery.from}&to=${dateQuery.to}`
+										: ''
+								}`,
+						  }
+				}
 			/>
 			{(canCreate || canView) && (
-				<OvertimeAdminTable overtime={data?.result || []} />
+				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
+					<OvertimeAdminTable overtime={data?.result || []} />
+					{data && data?.total > 0 && (
+						<TablePagination
+							disabled={isFetching}
+							totalItems={data.total}
+							onChange={(pageNo: number) => {
+								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+								offset !== value && setOffset(value * limit);
+							}}
+							onSizeChange={(size) => setLimit(size)}
+							pageSize={limit}
+						/>
+					)}
+				</div>
 			)}
 			{canCreate && (
 				<Modal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
-							adminView
-							errors={errors}
-							loading={createLoading}
-							success={isSuccess}
-							onSubmit={handleSubmit}
-						/>
+						bulkForm ? (
+							<ImportForm
+								onSuccess={(data) => {
+									open({
+										type: 'success',
+										message: data.message,
+									});
+									setModalVisible(false);
+									setBulkForm(false);
+								}}
+								requirements={[
+									{
+										required: false,
+										title: 'id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'employee_id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										title: 'date',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										title: 'hours',
+										value: '2',
+									},
+									{
+										title: 'reason',
+										value: '"This is the reason for this overtime"',
+									},
+									{
+										title: 'status',
+										value: 'PENDING',
+									},
+									{
+										title: 'type',
+										value: 'C',
+									},
+									{
+										required: false,
+										title: 'created_by',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
+										title: 'approved_by',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
+										title: 'updated_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+									{
+										required: false,
+										title: 'created_at',
+										value: '2023-03-26T21:49:51.090Z',
+									},
+								]}
+								sample={samples.overtime}
+								url={OVERTIME_ADMIN_IMPORT_URL}
+							/>
+						) : (
+							<Form
+								adminView
+								errors={errors}
+								loading={createLoading}
+								success={isSuccess}
+								onSubmit={handleSubmit}
+							/>
+						)
 					}
 					description="Fill in the form below to create a overtime"
 					keepVisible
