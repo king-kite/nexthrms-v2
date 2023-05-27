@@ -156,8 +156,10 @@ export const getAllOvertimeAdminQuery = ({
 	from,
 	to,
 	where = {},
+	select = {},
 }: ParamsType & {
 	where?: Prisma.OvertimeWhereInput;
+	select?: Prisma.OvertimeSelect;
 }): Prisma.OvertimeFindManyArgs => {
 	const query: Prisma.OvertimeFindManyArgs = {
 		skip: offset,
@@ -214,7 +216,10 @@ export const getAllOvertimeAdminQuery = ({
 						...where,
 				  }
 				: where,
-		select: overtimeSelectQuery,
+		select: {
+			...overtimeSelectQuery,
+			...select,
+		},
 	};
 
 	return query;
@@ -223,6 +228,7 @@ export const getAllOvertimeAdminQuery = ({
 export const getAllOvertimeAdmin = async (
 	params: ParamsType & {
 		where?: Prisma.OvertimeWhereInput;
+		select?: Prisma.OvertimeSelect;
 	} = {
 		search: '',
 	}
