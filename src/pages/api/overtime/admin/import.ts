@@ -35,13 +35,13 @@ function getDataInput(data: OvertimeImportQueryType) {
 		hours: +data.hours,
 		status: data.status,
 		employeeId: data.employee_id,
-		attendance: data.id
-			? {
-					connect: {
-						overtimeId: data.id,
-					},
-			  }
-			: undefined,
+		// attendance: data.id
+		// 	? {
+		// 			connect: {
+		// 				overtimeId: data.id,
+		// 			},
+		// 	  }
+		// 	: undefined,
 		createdById: data.created_by ? data.created_by : null,
 		approvedById: data.approved_by ? data.approved_by : null,
 		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),

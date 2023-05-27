@@ -30,20 +30,20 @@ function getDataInput(data: AttendanceImportQueryType) {
 		id: data.id,
 		employee: {
 			connect: {
-				id: data.employee_id
-			}
+				id: data.employee_id,
+			},
 		},
 		date,
 		punchIn: new Date(data.punch_in),
 		punchOut: data.punch_out ? new Date(data.punch_out) : null,
-		overtime: {
-			connect: {
-				date_employeeId: {
-					date,
-					employeeId: data.employee_id
-				}
-			}
-		},
+		// overtime: {
+		// 	connect: {
+		// 		date_employeeId: {
+		// 			date,
+		// 			employeeId: data.employee_id
+		// 		}
+		// 	}
+		// },
 		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
 	};
 }
@@ -70,7 +70,9 @@ function createData(
 							input
 								.map(
 									(attendance) =>
-										attendance.employee.connect.id + ' ' + new Date(attendance.date)
+										attendance.employee.connect.id +
+										' ' +
+										new Date(attendance.date)
 								)
 								.join(','),
 						title: 'ID field is required.',
