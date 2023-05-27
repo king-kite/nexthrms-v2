@@ -99,7 +99,7 @@ function createData(
 export default admin().post(async (req, res) => {
 	const hasExportPerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.user.CREATE]);
+		hasModelPermission(req.user.allPermissions, [permissions.group.CREATE]);
 
 	if (!hasExportPerm) throw new NextApiErrorMessage(403);
 
