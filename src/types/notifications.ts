@@ -7,7 +7,9 @@ export type ParticipantType = {
 	lastName: string;
 	email: string;
 	profile: {
-		image: string;
+		image: {
+			url: string;
+		} | null;
 	};
 };
 

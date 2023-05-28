@@ -9,7 +9,9 @@ import { PermissionType } from './users';
 export interface AuthDataType extends UserDataType {
 	fullName: string;
 	profile: {
-		image: string;
+		image: {
+			url: string;
+		} | null;
 	} | null;
 	employee?: {
 		id: string;
@@ -34,7 +36,9 @@ export type ProfileType = {
 	profile: {
 		dob: Date | string | null;
 		gender: 'MALE' | 'FEMALE';
-		image: string;
+		image: {
+			url: string;
+		} | null;
 		address: string | null;
 		city: string | null;
 		phone: string | null;

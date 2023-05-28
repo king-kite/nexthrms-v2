@@ -10,7 +10,9 @@ type EmployeeType = {
 		lastName: string;
 		email: string;
 		profile: {
-			image: string;
+			image: {
+				url: string;
+			} | null;
 		} | null;
 	};
 	department: {

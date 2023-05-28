@@ -13,7 +13,9 @@ export type GroupUserType = {
 	email: string;
 	isActive: boolean;
 	profile?: {
-		image: string;
+		image: {
+			url: string;
+		} | null;
 	} | null;
 };
 
@@ -188,7 +190,9 @@ export type UserType = {
 	profile: {
 		dob: string | null;
 		gender: 'MALE' | 'FEMALE';
-		image: string;
+		image: {
+			url: string;
+		} | null;
 		address: string | null;
 		city: string | null;
 		phone: string | null;

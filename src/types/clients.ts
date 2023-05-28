@@ -10,7 +10,9 @@ export type ClientType = {
 		lastName: string;
 		email: string;
 		profile: {
-			image: string;
+			image: {
+				url: string;
+			} | null;
 			gender: 'MALE' | 'FEMALE';
 			city: string | null;
 			address: string | null;

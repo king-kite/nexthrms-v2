@@ -20,7 +20,9 @@ export type ProjectType = {
 			lastName: string;
 			email: string;
 			profile: {
-				image: string;
+				image: {
+					url: string;
+				} | null;
 			};
 		};
 	} | null;
@@ -101,7 +103,9 @@ export type ProjectTeamType = {
 			lastName: string;
 			email: string;
 			profile: {
-				image: string;
+				image: {
+					url: string;
+				} | null;
 			};
 		};
 		job: {
@@ -140,10 +144,12 @@ export type CreateProjectTeamResponseType = BaseResponseType;
 
 export type ProjectFileType = {
 	id: string;
-	name: string;
-	file: string;
-	size: number;
-	type: string;
+	file: {
+		name: string;
+		url: string;
+		size: number;
+		type: string;
+	};
 	project: {
 		id: string;
 		name: string;

@@ -13,7 +13,9 @@ export type DepartmentType = {
 			lastName: string;
 			email: string;
 			profile: {
-				image: string;
+				image: {
+					url: string;
+				} | null;
 			} | null;
 			employee: {
 				job: {

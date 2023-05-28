@@ -23,8 +23,10 @@ export type AssetType = {
 		lastName: string;
 		email: string;
 		profile: {
-			image: string;
-		};
+			image: {
+				url: string;
+			} | null;
+		} | null;
 	} | null;
 
 	updatedAt: Date | string;

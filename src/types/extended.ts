@@ -26,7 +26,9 @@ export type RequestUserType = {
 	isAdmin: boolean;
 	isEmailVerified: boolean;
 	profile: {
-		image: string;
+		image: {
+			url: string;
+		} | null;
 	} | null;
 	employee: RequestUserEmployeeType | null;
 	groups: Omit<GroupType, 'users'>[];

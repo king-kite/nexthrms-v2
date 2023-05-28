@@ -5,7 +5,9 @@ type UserDataType = {
 	lastName: string;
 	email: string;
 	profile: {
-		image: string;
+		image: {
+			url: string;
+		} | null;
 	} | null;
 	isActive: boolean;
 };
@@ -55,7 +57,9 @@ interface EmployeeUserType extends UserDataType {
 	profile: {
 		dob: string | null;
 		gender: 'MALE' | 'FEMALE';
-		image: string;
+		image: {
+			url: string;
+		} | null;
 		address: string | null;
 		city: string | null;
 		phone: string | null;
