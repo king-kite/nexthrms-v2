@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Form, Topbar, HolidayTable } from '../components/Holidays';
+import { Form, Topbar, HolidayTable } from '../components/holidays';
 import {
 	Container,
 	ImportForm,

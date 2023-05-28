@@ -1,3 +1,3 @@
-export { default as Form } from "./Form";
-export { default as HolidayTable } from "./Table";
-export { default as Topbar } from "./Topbar";
+export { default as Form } from './form';
+export { default as HolidayTable } from './table';
+export { default as Topbar } from './topbar';
