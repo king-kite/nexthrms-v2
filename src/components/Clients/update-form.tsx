@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Form from './Form';
+import Form from './form';
 import { permissions } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { useEditClientMutation } from '../../store/queries';
