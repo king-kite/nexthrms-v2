@@ -44,7 +44,9 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 							<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={leave.employee.user.email}
-									image={leave.employee.user.profile?.image || DEFAULT_IMAGE}
+									image={
+										leave.employee.user.profile?.image?.url || DEFAULT_IMAGE
+									}
 									name={`${leave.employee.user.firstName} ${leave.employee.user.lastName}`}
 								/>
 							</a>
