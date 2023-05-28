@@ -333,7 +333,7 @@ const Detail = ({
 						full_name={
 							data.employee.user.firstName + ' ' + data.employee.user.lastName
 						}
-						image={data.employee.user.profile?.image || DEFAULT_IMAGE}
+						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
 						actions={actions}
 					/>
 
@@ -410,7 +410,7 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.createdBy.user.profile?.image || DEFAULT_IMAGE,
+											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
 											alt:
 												data.createdBy.user.firstName +
 												' ' +
@@ -449,7 +449,7 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.approvedBy.user.profile?.image || DEFAULT_IMAGE,
+											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
 											alt:
 												data.approvedBy.user.firstName +
 												' ' +
