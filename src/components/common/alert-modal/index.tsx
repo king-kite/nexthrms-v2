@@ -1,8 +1,8 @@
 import { Loader } from 'kite-react-tailwind';
-import { useCallback, useEffect, useRef } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import { FaTimesCircle } from 'react-icons/fa';
-import DecisionButton, { ButtonProps as DecisionButtonTypes } from './Button';
+import DecisionButton, { ButtonProps as DecisionButtonTypes } from './button';
 
 const containerStyle =
 	'duration-1000 max-w-xs mx-auto px-4 rounded-lg transform transition-all w-full sm:px-0';
@@ -94,9 +94,9 @@ const AlertModal = ({
 			? 'border-yellow-500 text-yellow-500 hover:text-yellow-600'
 			: 'border-gray-500 text-gray-500 hover:text-gray-600';
 
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = React.useRef<HTMLDivElement>(null);
 
-	const handleMouseClick = useCallback(
+	const handleMouseClick = React.useCallback(
 		({ target }: Event) =>
 			!keepVisible &&
 			typeof close === 'function' &&
@@ -105,7 +105,7 @@ const AlertModal = ({
 		[close, keepVisible]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (keepVisible === false)
 			document.addEventListener('click', handleMouseClick, true);
 		else document.removeEventListener('click', handleMouseClick, true);

@@ -6,7 +6,7 @@ import React from 'react';
 import { BiRefresh } from 'react-icons/bi';
 import { FaArrowLeft } from 'react-icons/fa';
 
-import AlertMessage from './AlertMessage';
+import AlertMessage from './alert-message';
 import {
 	useAlertContext,
 	useAlertModalContext,

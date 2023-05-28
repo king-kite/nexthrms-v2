@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ModalProps as AlertModalType } from '../../components/common/AlertModal';
+import { ModalProps as AlertModalType } from '../../components/common/alert-modal';
 
 const initialState: AlertModalType = {
 	loading: false,
