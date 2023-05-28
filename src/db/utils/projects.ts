@@ -113,11 +113,13 @@ function getProjectFileInput(data: ProjectFileImportQueryType) {
 	return {
 		id: data.id && data.id.length > 0 ? data.id : undefined,
 		projectId: data.project_id,
-		name: data.name,
-		file: data.file,
-		size: +data.size,
-		type: data.type,
-		storageInfo,
+		file: {
+			type: data.type,
+			name: data.name,
+			url: data.file,
+			size: +data.size,
+			storageInfo
+		},
 		uploadedBy: data.uploaded_by ? data.uploaded_by : null,
 		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
 		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
@@ -149,10 +151,16 @@ export function importProjectFiles({
 						update: {
 							...data,
 							projectId: projectId || data.projectId,
+							file: {
+								update: data.file
+							}
 						},
 						create: {
 							...data,
 							projectId: projectId || data.projectId,
+							file: {
+								create: data.file
+							}
 						},
 					})
 				)
