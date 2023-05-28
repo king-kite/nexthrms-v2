@@ -44,7 +44,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 			<InfoTopBar
 				email={data?.email}
 				full_name={toCapitalize(`${data?.firstName} ${data?.lastName}`)}
-				image={data?.profile?.image || DEFAULT_IMAGE}
+				image={data?.profile?.image?.url || DEFAULT_IMAGE}
 				actions={[
 					{
 						iconLeft: FaUserEdit,
@@ -171,7 +171,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							title: 'Profile Image',
 							type: 'image',
 							value: {
-								src: supervisor.user.profile?.image || DEFAULT_IMAGE,
+								src: supervisor.user.profile?.image?.url || DEFAULT_IMAGE,
 								alt: supervisor.user.firstName + ' ' + supervisor.user.lastName,
 							},
 						},
@@ -204,7 +204,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							type: 'image',
 							value: {
 								src:
-									data.employee.department.hod.user.profile?.image ||
+									data.employee.department.hod.user.profile?.image?.url ||
 									DEFAULT_IMAGE,
 								alt:
 									data.employee.department.hod.user.firstName +

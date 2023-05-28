@@ -55,7 +55,9 @@ export type ProfileType = {
 					lastName: string;
 					email: string;
 					profile: {
-						image: string;
+						image: {
+							url: string;
+						} | null;
 					} | null;
 					employee: {
 						department: {
@@ -75,7 +77,9 @@ export type ProfileType = {
 				lastName: string;
 				email: string;
 				profile: {
-					image: string;
+					image: {
+						url: string;
+					} | null;
 				} | null;
 				employee: {
 					department: {
