@@ -34,7 +34,7 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 							<TableAvatarEmailNameCell
 								email={employee.user.email}
-								image={employee.user.profile?.image || DEFAULT_IMAGE}
+								image={employee.user.profile?.image?.url || DEFAULT_IMAGE}
 								name={`${employee.user.firstName} ${employee.user.lastName}`}
 							/>
 						</a>

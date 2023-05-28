@@ -1,11 +1,8 @@
 import { useCallback, useState } from 'react';
 
-import Form from '../Form';
+import Form from '../form';
 import { useEditEmployeeMutation } from '../../../store/queries';
-import {
-	EmployeeType,
-	CreateEmployeeErrorResponseType,
-} from '../../../types';
+import { EmployeeType, CreateEmployeeErrorResponseType } from '../../../types';
 
 interface ErrorType extends CreateEmployeeErrorResponseType {
 	message?: string;

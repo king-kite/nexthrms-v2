@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
-import { ChangePasswordForm, EmployeeForm } from '../../components/Employees';
+import { ChangePasswordForm, EmployeeForm } from '../../components/employees';
 import {
 	permissions,
 	DEFAULT_IMAGE,

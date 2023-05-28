@@ -15,7 +15,7 @@ import {
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { UpdateForm } from '../../components/clients';
-import { ChangePasswordForm } from '../../components/Employees';
+import { ChangePasswordForm } from '../../components/employees';
 import {
 	permissions,
 	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,

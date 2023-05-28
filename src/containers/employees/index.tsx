@@ -6,7 +6,7 @@ import {
 	Modal,
 	TablePagination,
 } from '../../components/common';
-import { Cards, EmployeeTable, Form, Topbar } from '../../components/Employees';
+import { Cards, EmployeeTable, Form, Topbar } from '../../components/employees';
 import {
 	permissions,
 	samples,
