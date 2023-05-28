@@ -4,7 +4,7 @@ import { permissions } from '../../../config';
 import { userSelectQuery as selectQuery, getUsers, prisma } from '../../../db';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateUserQueryType, UserType } from '../../../types';
+import { UserType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -70,9 +70,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateUserQueryType = await createUserSchema.validateAsync(
-			form
-		);
+		const valid = await createUserSchema.validateAsync(form);
 
 		if (files.image) {
 			// Upload a file to the bucket using firebase admin
@@ -93,11 +91,16 @@ export default admin()
 					type: 'image',
 				});
 
-				valid.profile.image = result.secure_url || result.url;
-				Object(valid.profile).imageStorageInfo = {
-					id: result.public_id,
+				valid.profile.image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -125,6 +128,9 @@ export default admin()
 			profile: {
 				create: {
 					...valid.profile,
+					image: {
+						create: valid.profile.image,
+					},
 				},
 			},
 			employee: valid.employee
@@ -143,7 +149,9 @@ export default admin()
 							},
 							supervisors: valid.employee.supervisors
 								? {
-										connect: valid.employee.supervisors.map((id) => ({ id })),
+										connect: valid.employee.supervisors.map((id: string) => ({
+											id,
+										})),
 								  }
 								: undefined,
 						},

@@ -12,7 +12,7 @@ import {
 } from '../../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
-import { CreateUserQueryType, UserType } from '../../../../types';
+import { UserType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { deleteFile, upload as uploadFile } from '../../../../utils/files';
@@ -114,9 +114,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateUserQueryType = await createUserSchema.validateAsync(
-			form
-		);
+		const valid = await createUserSchema.validateAsync(form);
 
 		if (files.image) {
 			// Upload a file to the bucket using firebase admin
@@ -137,11 +135,16 @@ export default admin()
 					type: 'image',
 				});
 
-				valid.profile.image = result.secure_url || result.url;
-				Object(valid.profile).imageStorageInfo = {
-					id: result.public_id,
+				valid.profile.image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 
 				// delete the old user profile image
@@ -150,25 +153,21 @@ export default admin()
 						userId: req.query.id as string,
 					},
 					select: {
-						image: true,
-						imageStorageInfo: true,
+						image: {
+							select: {
+								url: true,
+								storageInfo: true,
+							},
+						},
 					},
 				});
-				if (profile?.image && profile.image !== DEFAULT_IMAGE) {
-					if (USE_LOCAL_MEDIA_STORAGE) {
-						deleteFile(profile.image).catch((error) => {
-							console.log('DELETE USER IMAGE FILE ERROR :>>', error);
-						});
-					} else if (
-						profile.imageStorageInfo &&
-						(profile.imageStorageInfo as any).public_id
-					) {
-						deleteFile((profile.imageStorageInfo as any).public_id).catch(
-							(error) => {
-								console.log('DELETE USER IMAGE FILE ERROR :>>', error);
-							}
-						);
-					}
+				if (profile?.image && profile.image.url !== DEFAULT_IMAGE) {
+					const id = USE_LOCAL_MEDIA_STORAGE
+						? profile.image.url
+						: (profile.image.storageInfo as any).public_id;
+					deleteFile(id).catch((error) => {
+						console.log('DELETE USER IMAGE FILE ERROR :>>', error);
+					});
 				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -197,6 +196,12 @@ export default admin()
 			profile: {
 				update: {
 					...valid.profile,
+					image: {
+						upsert: {
+							create: valid.profile.image,
+							update: valid.profile.image,
+						},
+					},
 				},
 			},
 			employee: valid.employee
@@ -206,7 +211,9 @@ export default admin()
 								...employee,
 								supervisors: valid.employee.supervisors
 									? {
-											connect: valid.employee.supervisors.map((id) => ({ id })),
+											connect: valid.employee.supervisors.map((id: string) => ({
+												id,
+											})),
 									  }
 									: undefined,
 							},
@@ -214,7 +221,9 @@ export default admin()
 								...employee,
 								supervisors: valid.employee.supervisors
 									? {
-											set: valid.employee.supervisors.map((id) => ({ id })),
+											set: valid.employee.supervisors.map((id: string) => ({
+												id,
+											})),
 									  }
 									: undefined,
 							},
