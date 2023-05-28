@@ -12,7 +12,11 @@ const userSelect: Prisma.UserSelect = {
 	email: true,
 	profile: {
 		select: {
-			image: true,
+			image: {
+				select: {
+					url: true,
+				},
+			},
 		},
 	},
 	employee: {
@@ -36,7 +40,11 @@ export const profileUserSelectQuery: Prisma.UserSelect = {
 		select: {
 			dob: true,
 			gender: true,
-			image: true,
+			image: {
+				select: {
+					url: true,
+				},
+			},
 			address: true,
 			city: true,
 			phone: true,
@@ -128,7 +136,11 @@ export const authSelectQuery = {
 	password: true,
 	profile: {
 		select: {
-			image: true,
+			image: {
+				select: {
+					url: true,
+				},
+			},
 		},
 	},
 	employee: {

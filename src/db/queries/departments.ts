@@ -19,7 +19,11 @@ export const departmentSelectQuery: Prisma.DepartmentSelect = {
 					email: true,
 					profile: {
 						select: {
-							image: true,
+							image: {
+								select: {
+									url: true,
+								},
+							},
 						},
 					},
 					employee: {

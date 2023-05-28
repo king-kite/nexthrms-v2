@@ -28,7 +28,11 @@ export const assetSelectQuery: Prisma.AssetSelect = {
 			email: true,
 			profile: {
 				select: {
-					image: true,
+					image: {
+						select: {
+							url: true,
+						},
+					},
 				},
 			},
 		},

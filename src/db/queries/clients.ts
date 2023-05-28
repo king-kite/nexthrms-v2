@@ -15,7 +15,11 @@ export const clientSelectQuery = {
 			email: true,
 			profile: {
 				select: {
-					image: true,
+					image: {
+						select: {
+							url: true,
+						},
+					},
 					gender: true,
 					city: true,
 					address: true,

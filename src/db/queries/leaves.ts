@@ -13,7 +13,11 @@ const employeeSelectQuery: Prisma.EmployeeSelect = {
 			email: true,
 			profile: {
 				select: {
-					image: true,
+					image: {
+						select: {
+							url: true,
+						},
+					},
 				},
 			},
 		},

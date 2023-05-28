@@ -28,7 +28,11 @@ export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 							email: true,
 							profile: {
 								select: {
-									image: true,
+									image: {
+										select: {
+											url: true,
+										},
+									},
 								},
 							},
 						},
@@ -62,7 +66,11 @@ export const teamSelectQuery: Prisma.ProjectTeamSelect = {
 					email: true,
 					profile: {
 						select: {
-							image: true,
+							image: {
+								select: {
+									url: true,
+								},
+							},
 						},
 					},
 				},
@@ -99,7 +107,11 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 					email: true,
 					profile: {
 						select: {
-							image: true,
+							image: {
+								select: {
+									url: true,
+								},
+							},
 						},
 					},
 				},
@@ -246,10 +258,14 @@ export const getProject = async (id: string) => {
 
 export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
 	id: true,
-	name: true,
-	file: true,
-	size: true,
-	type: true,
+	file: {
+		select: {
+			name: true,
+			size: true,
+			type: true,
+			url: true,
+		},
+	},
 	project: {
 		select: {
 			id: true,

@@ -13,7 +13,11 @@ export const groupUserSelectQuery: Prisma.UserSelect = {
 	isActive: true,
 	profile: {
 		select: {
-			image: true,
+			image: {
+				select: {
+					url: true,
+				},
+			},
 		},
 	},
 };
