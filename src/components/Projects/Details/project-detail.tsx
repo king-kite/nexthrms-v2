@@ -172,7 +172,8 @@ const ProjectDetail = ({
 											<Image
 												className="h-[30px] rounded-full w-[30px]"
 												src={
-													leader.employee.user.profile?.image || DEFAULT_IMAGE
+													leader.employee.user.profile?.image?.url ||
+													DEFAULT_IMAGE
 												}
 												layout="fill"
 												alt=""
@@ -215,7 +216,8 @@ const ProjectDetail = ({
 											<Image
 												className="h-[30px] rounded-full w-[30px]"
 												src={
-													member.employee.user.profile?.image || DEFAULT_IMAGE
+													member.employee.user.profile?.image?.url ||
+													DEFAULT_IMAGE
 												}
 												layout="fill"
 												alt=""

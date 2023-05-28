@@ -87,7 +87,7 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 					{files.map((file, index) => {
 						const date = new Date(file.updatedAt);
 						const time = date.toLocaleTimeString();
-						const size = String(file.size / (1024 * 1024));
+						const size = String(file.file.size / (1024 * 1024));
 						const part1 = size.split('.')[0];
 						const part2 = size.split('.')[1]
 							? size.split('.')[1].slice(0, 2)
@@ -100,21 +100,21 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 									<Image
 										className="h-full rounded-md w-full"
 										layout="fill"
-										src={file.file}
+										src={file.file.url}
 										alt=""
 									/>
 								</div>
 								<span
 									onClick={() =>
 										downloadFile({
-											url: file.file,
-											name: file.name,
+											url: file.file.url,
+											name: file.file.name,
 										})
 									}
 									className="cursor-pointer inline-block text-left text-sm text-indigo-600 hover:text-indigo-500 hover:underline"
 								>
-									{file.name.slice(0, 40)}
-									{file.name.length > 40 ? '...' : ''}
+									{file.file.name.slice(0, 40)}
+									{file.file.name.length > 40 ? '...' : ''}
 								</span>
 								<p className="text-gray-700 text-sm">
 									{date.toDateString()} {time}

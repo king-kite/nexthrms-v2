@@ -1,6 +1,6 @@
-export { default as ProjectDetail } from "./ProjectDetail";
-export { default as ProjectFiles } from "./ProjectFiles";
-export { default as ProjectImages } from "./ProjectImages";
+export { default as ProjectDetail } from './project-detail';
+export { default as ProjectFiles } from './project-files';
+export { default as ProjectImages } from './project-images';
 
-export { default as AddProjectFileForm } from "./AddProjectFileForm";
-export { default as ImportExport } from './ImportExport';
+export { default as AddProjectFileForm } from './add-project-file-form';
+export { default as ImportExport } from './import-export';

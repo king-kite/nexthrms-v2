@@ -86,7 +86,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 					{files.map((file, index) => {
 						const date = new Date(file.updatedAt);
 						const time = date.toLocaleTimeString();
-						const size = String(file.size / (1024 * 1024));
+						const size = String(file.file.size / (1024 * 1024));
 						const sizeString =
 							size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
 						return (
@@ -100,13 +100,13 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 									<h5
 										onClick={() =>
 											downloadFile({
-												url: file.file,
-												name: file.name,
+												url: file.file.url,
+												name: file.file.name,
 											})
 										}
 										className="cursor-pointer text-indigo-600 text-base hover:text-indigo-500 hover:underline"
 									>
-										{file.name}
+										{file.file.name}
 									</h5>
 									<p className="text-gray-700 text-sm">
 										{date.toDateString()} {time}

@@ -1,5 +1,5 @@
 import { Alert, Button, File, Input } from 'kite-react-tailwind';
-import { useCallback, useRef, useState } from 'react';
+import React from 'react';
 
 import { useAlertModalContext } from '../../../store/contexts';
 import { useCreateProjectFileMutation } from '../../../store/queries';
@@ -19,12 +19,12 @@ const AddProjectFileForm = ({
 	onClose: () => void;
 	type: 'application' | 'image';
 }) => {
-	const formRef = useRef<HTMLFormElement | null>(null);
-	const [imageName, setImageName] = useState<string>();
+	const formRef = React.useRef<HTMLFormElement | null>(null);
+	const [imageName, setImageName] = React.useState<string>();
 
 	const { open } = useAlertModalContext();
 	const [formErrors, setFormErrors] =
-		useState<CreateProjectFileErrorResponseType>();
+		React.useState<CreateProjectFileErrorResponseType>();
 
 	const { mutate: createProjectFile, isLoading } = useCreateProjectFileMutation(
 		{
@@ -43,7 +43,7 @@ const AddProjectFileForm = ({
 		}
 	);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: { name: string; file: File }) => {
 			setFormErrors(undefined);
 			if (form.file.type.split('/')[0] !== type) {
@@ -78,7 +78,7 @@ const AddProjectFileForm = ({
 		[createProjectFile, projectId, type]
 	);
 
-	const removeErrors = useCallback(
+	const removeErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setFormErrors((prevState) => ({
