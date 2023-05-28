@@ -1,2 +1,2 @@
-export { default as Form } from "./Form";
-export { default as JobTable } from "./Table";
+export { default as Form } from './form';
+export { default as JobTable } from './table';

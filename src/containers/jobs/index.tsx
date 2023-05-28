@@ -15,7 +15,7 @@ import {
 	Modal,
 	TablePagination,
 } from '../../components/common';
-import { Form, JobTable } from '../../components/Jobs';
+import { Form, JobTable } from '../../components/jobs';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	JOBS_EXPORT_URL,
