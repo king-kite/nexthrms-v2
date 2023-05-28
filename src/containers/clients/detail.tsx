@@ -260,7 +260,7 @@ const ClientDetail = ({
 						full_name={toCapitalize(
 							`${data?.contact.firstName} ${data?.contact.lastName}`
 						)}
-						image={data?.contact.profile?.image || DEFAULT_IMAGE}
+						image={data?.contact.profile?.image?.url || DEFAULT_IMAGE}
 						actions={actions}
 					/>
 
