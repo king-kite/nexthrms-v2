@@ -111,7 +111,7 @@ function exportData(
 					// Create managed file
 					const data = await prisma.managedFile.create({
 						data: {
-							file: upload.secure_url || upload.url,
+							url: upload.secure_url || upload.url,
 							name: uploadInfo.name,
 							size: upload.bytes,
 							storageInfo: {
@@ -128,9 +128,12 @@ function exportData(
 								  }
 								: undefined,
 						},
-						select: { file: true, size: true },
+						select: { url: true, size: true },
 					});
-					resolve(data);
+					resolve({
+						file: data.url,
+						size: data.size,
+					});
 				}
 			} catch (error) {
 				reject(error);
