@@ -4,25 +4,25 @@ import {
 } from '@prisma/client';
 import React from 'react';
 
-import GroupForm, { FormType } from './GroupForm';
-import GroupTable from './GroupTable';
+import UserForm, { FormType } from './user-form';
+import UserTable from './user-table';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries';
-import { ObjPermGroupType } from '../../../types';
+import { ObjPermUser } from '../../../types';
 
-function Groups({
+function Users({
 	modelName,
 	objectId,
-	groups,
+	users,
 }: {
 	modelName: PermissionModelChoices;
 	objectId: string;
-	groups: ObjPermGroupType[];
+	users: ObjPermUser[];
 }) {
 	const [editMode, setEditMode] = React.useState(false);
 	const [initState, setInitState] = React.useState<FormType>();
-	const [initGroups, setInitGroups] = React.useState<ObjPermGroupType[]>();
+	const [initUsers, setInitUsers] = React.useState<ObjPermUser[]>();
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
@@ -36,7 +36,7 @@ function Groups({
 			onSuccess() {
 				setEditMode(false);
 				setInitState(undefined);
-				setInitGroups(undefined);
+				setInitUsers(undefined);
 				setModalVisible(false);
 				showAlert({
 					type: 'success',
@@ -46,7 +46,7 @@ function Groups({
 			onError(error) {
 				showAlert({
 					type: 'success',
-					message: error.data?.groups || error.message,
+					message: error.data?.users || error.message,
 				});
 			},
 		}
@@ -63,154 +63,154 @@ function Groups({
 				form.permissions.find((item) => item.name === 'VIEW')?.value || false;
 
 			if (!editMode && (canDelete || canEdit || canView)) {
-				// If not in edit mode this means that we want to connect the groups
+				// If not in edit mode this means that we want to connect the users
 				// to the respective permissions
 				const data: {
 					method: 'PUT' | 'DELETE';
 					permission: PermissionObjectChoices;
-					form: { groups: string[] };
+					form: { users: string[] };
 				}[] = [];
 				if (canDelete)
 					data.push({
-						method: 'PUT', // to update/connect the groups array
+						method: 'PUT', // to update/connect the users array
 						permission: 'DELETE',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 				if (canEdit)
 					data.push({
-						method: 'PUT', // to update/connect the groups array
+						method: 'PUT', // to update/connect the users array
 						permission: 'EDIT',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 				if (canView)
 					data.push({
-						method: 'PUT', // to update/connect the groups array
+						method: 'PUT', // to update/connect the users array
 						permission: 'VIEW',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 				mutate(data);
 			} else {
 				// We're in edit mode
-				const group = initGroups?.[0]; // group must be in the array on edit mode
-				if (!group) return;
+				const user = initUsers?.[0]; // user must be in the array on edit mode
+				if (!user) return;
 				const data: {
 					method: 'PUT' | 'DELETE';
 					permission: PermissionObjectChoices;
-					form: { groups: string[] };
+					form: { users: string[] };
 				}[] = [];
 
-				// Check the if the group had delete permission
+				// Check the if the user had delete permission
 				// And can not delete any more, then disconnect
-				if (group.delete === true && canDelete === false)
+				if (user.delete === true && canDelete === false)
 					data.push({
 						method: 'DELETE',
 						permission: 'DELETE',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
-				// Check the if the group does not have delete permission
+				// Check the if the user does not have delete permission
 				// And can delete now, then connect
-				if (!group.delete && canDelete === true)
+				if (!user.delete && canDelete === true)
 					data.push({
 						method: 'PUT',
 						permission: 'DELETE',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
-				// Check the if the group had edit permission
+				// Check the if the user had edit permission
 				// And can not edit any more, then disconnect
-				if (group.edit === true && canEdit === false)
+				if (user.edit === true && canEdit === false)
 					data.push({
 						method: 'DELETE',
 						permission: 'EDIT',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
-				// Check the if the group does not have edit permission
+				// Check the if the user does not have edit permission
 				// And can edit now, then connect
-				if (!group.edit && canEdit === true)
+				if (!user.edit && canEdit === true)
 					data.push({
 						method: 'PUT',
 						permission: 'EDIT',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
-				// Check the if the group had view permission
+				// Check the if the user had view permission
 				// And can not view any more, then disconnect
-				if (group.view === true && canView === false)
+				if (user.view === true && canView === false)
 					data.push({
 						method: 'DELETE',
 						permission: 'VIEW',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
-				// Check the if the group does not have view permission
+				// Check the if the user does not have view permission
 				// And can view now, then connect
-				if (!group.view && canView === true)
+				if (!user.view && canView === true)
 					data.push({
 						method: 'PUT',
 						permission: 'VIEW',
-						form: { groups: form.groups },
+						form: { users: form.users },
 					});
 
 				if (data.length > 0) mutate(data);
 			}
 		},
-		[editMode, initGroups, mutate, reset]
+		[editMode, initUsers, mutate, reset]
 	);
 
 	return (
 		<React.Fragment>
-			<GroupTable
+			<UserTable
 				openModal={() => {
 					setEditMode(false);
 					setInitState(undefined);
-					setInitGroups(undefined);
+					setInitUsers(undefined);
 					setModalVisible(true);
 				}}
-				onEdit={(group: ObjPermGroupType) => {
+				onEdit={(user: ObjPermUser) => {
 					setEditMode(true);
 					setInitState({
 						permissions: [
 							{
 								name: 'DELETE',
-								value: group.delete || false,
+								value: user.delete || false,
 							},
 							{
 								name: 'EDIT',
-								value: group.edit || false,
+								value: user.edit || false,
 							},
 							{
 								name: 'VIEW',
-								value: group.view || false,
+								value: user.view || false,
 							},
 						],
-						groups: [group.id],
+						users: [user.id],
 					});
-					setInitGroups([group]);
+					setInitUsers([user]);
 					setModalVisible(true);
 				}}
 				modelName={modelName}
 				objectId={objectId}
-				groups={groups}
+				users={users}
 			/>
 			<Modal
 				close={() => {
 					setEditMode(false);
 					setInitState(undefined);
-					setInitGroups(undefined);
+					setInitUsers(undefined);
 					setModalVisible(false);
 				}}
 				component={
 					modalVisible ? (
-						<GroupForm
+						<UserForm
 							editMode={editMode}
 							error={
 								error
-									? (error as any).data?.groups || (error as any).message
+									? (error as any).data?.users || (error as any).message
 									: undefined
 							}
-							initGroups={initGroups}
+							initUsers={initUsers}
 							initState={initState}
 							loading={isLoading}
 							// reset={isSuccess} // Reset the form if the mutation was successful
@@ -221,26 +221,12 @@ function Groups({
 					)
 				}
 				keepVisible
-				description="Fill the form update groups permissions for this record"
-				title="Update groups permissions"
+				description="Fill the form update users permissions for this record"
+				title="Update users permissions"
 				visible={modalVisible}
 			/>
-			{/* {paginate.totalItems > 0 && (
-        <div className="pt-2 pb-5">
-          <Pagination
-            disabled={paginate.loading || false}
-            onChange={(pageNo: number) => {
-              const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-              paginate.offset !== value &&
-                paginate.setOffset(value * DEFAULT_PAGINATION_SIZE);
-            }}
-            pageSize={DEFAULT_PAGINATION_SIZE}
-            totalItems={paginate.totalItems || 0}
-          />
-        </div>
-      )} */}
 		</React.Fragment>
 	);
 }
 
-export default Groups;
+export default Users;
