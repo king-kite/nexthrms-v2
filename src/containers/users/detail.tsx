@@ -343,7 +343,7 @@ const User = ({
 					<InfoTopBar
 						email={data.email}
 						full_name={toCapitalize(data.firstName + ' ' + data.lastName)}
-						image={data.profile?.image || DEFAULT_IMAGE}
+						image={data.profile?.image?.url || DEFAULT_IMAGE}
 						actions={actions}
 					/>
 
