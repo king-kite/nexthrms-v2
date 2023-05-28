@@ -223,7 +223,9 @@ const Team = ({
 										}
 										label={data.client.position || '------'}
 										image={{
-											src: data.client.contact.profile?.image || DEFAULT_IMAGE,
+											src:
+												data.client.contact.profile?.image?.url ||
+												DEFAULT_IMAGE,
 										}}
 										actions={[
 											{
@@ -291,7 +293,7 @@ const Team = ({
 												}
 												image={{
 													src:
-														leader.employee.user.profile?.image ||
+														leader.employee.user.profile?.image?.url ||
 														DEFAULT_IMAGE,
 												}}
 												options={
@@ -375,7 +377,7 @@ const Team = ({
 												}
 												image={{
 													src:
-														member.employee.user.profile?.image ||
+														member.employee.user.profile?.image?.url ||
 														DEFAULT_IMAGE,
 												}}
 												options={

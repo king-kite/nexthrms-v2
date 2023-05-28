@@ -268,13 +268,13 @@ const Detail = ({
 								<>
 									<ProjectImages
 										files={files.result.filter(
-											(file) => file.type.split('/')[0] === 'image'
+											(file) => file.file.type.split('/')[0] === 'image'
 										)}
 									/>
 
 									<ProjectFiles
 										files={files.result.filter(
-											(file) => file.type.split('/')[0] !== 'image'
+											(file) => file.file.type.split('/')[0] !== 'image'
 										)}
 									/>
 								</>

@@ -389,7 +389,7 @@ const Detail = ({
 												label={leader.member.employee.job?.name || '-----'}
 												image={{
 													src:
-														leader.member.employee.user.profile?.image ||
+														leader.member.employee.user.profile?.image?.url ||
 														DEFAULT_IMAGE,
 												}}
 												options={
@@ -472,7 +472,7 @@ const Detail = ({
 												label={follower.member.employee.job?.name || '-----'}
 												image={{
 													src:
-														follower.member.employee.user.profile?.image ||
+														follower.member.employee.user.profile?.image?.url ||
 														DEFAULT_IMAGE,
 												}}
 												options={
