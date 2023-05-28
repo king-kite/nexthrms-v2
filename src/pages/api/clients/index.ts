@@ -92,11 +92,16 @@ export default admin()
 					location,
 					type: 'image',
 				});
-				valid.contact.profile.image = result.secure_url || result.url;
-				Object(valid.contact.profile).imageStorageInfo = {
-					id: result.public_id,
+				valid.contact.profile.image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -111,7 +116,12 @@ export default admin()
 						email: valid.contact.email.toLowerCase(),
 						password: await hashPassword(valid.contact.lastName.toUpperCase()),
 						profile: {
-							create: valid.contact.profile,
+							create: {
+								...valid.contact.profile,
+								image: {
+									create: valid.contact.profile.image,
+								},
+							},
 						},
 					},
 			  }

@@ -8,7 +8,7 @@ import {
 import { prisma, getClient } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { ClientCreateQueryType, ClientType } from '../../../types';
+import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { deleteFile, upload as uploadFile } from '../../../utils/files';
@@ -78,10 +78,9 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: ClientCreateQueryType = await createClientSchema.validateAsync(
-			form,
-			{ abortEarly: false }
-		);
+		const valid = await createClientSchema.validateAsync(form, {
+			abortEarly: false,
+		});
 
 		if (valid.contactId && valid.contact) {
 			return res.status(400).json({
@@ -112,11 +111,17 @@ export default admin()
 					location,
 					type: 'image',
 				});
-				valid.contact.profile.image = result.secure_url || result.url;
-				Object(valid.contact.profile).imageStorageInfo = {
-					id: result.public_id,
+
+				Object(valid.contact.profile).image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 
 				// delete the old client user profile image
@@ -129,8 +134,12 @@ export default admin()
 							select: {
 								profile: {
 									select: {
-										image: true,
-										imageStorageInfo: true,
+										image: {
+											select: {
+												url: true,
+												storageInfo: true,
+											},
+										},
 									},
 								},
 							},
@@ -139,22 +148,14 @@ export default admin()
 				});
 				if (
 					client?.contact.profile?.image &&
-					client.contact.profile.image !== DEFAULT_IMAGE
+					client.contact.profile.image.url !== DEFAULT_IMAGE
 				) {
-					if (USE_LOCAL_MEDIA_STORAGE) {
-						deleteFile(client.contact.profile.image).catch((error) => {
-							console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
-						});
-					} else if (
-						client.contact.profile.imageStorageInfo &&
-						(client.contact.profile.imageStorageInfo as any).public_id
-					) {
-						deleteFile(
-							(client.contact.profile.imageStorageInfo as any).public_id
-						).catch((error) => {
-							console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
-						});
-					}
+					const id = USE_LOCAL_MEDIA_STORAGE
+						? client.contact.profile.image.url
+						: (client.contact.profile.image.storageInfo as any).public_id;
+					deleteFile(id).catch((error) => {
+						console.log('DELETE CLIENT IMAGE FILE ERROR :>>', error);
+					});
 				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -170,10 +171,12 @@ export default admin()
 					update: {
 						...valid.contact,
 						email: valid.contact.email.toLowerCase(),
-
 						profile: {
 							update: {
 								...valid.contact.profile,
+								image: {
+									update: valid.contact.profile.image,
+								},
 							},
 						},
 					},
