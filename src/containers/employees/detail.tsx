@@ -273,7 +273,7 @@ const Employee = ({
 						full_name={toCapitalize(
 							data.user.firstName + ' ' + data.user.lastName
 						)}
-						image={data.user.profile?.image || DEFAULT_IMAGE}
+						image={data.user.profile?.image?.url || DEFAULT_IMAGE}
 						actions={actions}
 					/>
 
@@ -396,7 +396,7 @@ const Employee = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: supervisor.user.profile?.image || DEFAULT_IMAGE,
+											src: supervisor.user.profile?.image?.url || DEFAULT_IMAGE,
 											alt:
 												supervisor.user.firstName +
 												' ' +
@@ -432,7 +432,7 @@ const Employee = ({
 										type: 'image',
 										value: {
 											src:
-												data.department.hod.user.profile?.image ||
+												data.department.hod.user.profile?.image?.url ||
 												DEFAULT_IMAGE,
 											alt:
 												data.department.hod.user.firstName +
