@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import React from 'react';
 
 import Form from './Form';
 import { permissions } from '../../config';
@@ -18,7 +18,7 @@ const UpdateForm = ({
 	client: ClientType;
 	onSuccess: () => void;
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
+	const [errors, setErrors] = React.useState<ErrorType>();
 
 	const { data: authData } = useAuthContext();
 	const canEdit = authData
@@ -41,7 +41,7 @@ const UpdateForm = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: FormData) => {
 			canEdit && updateClient({ id: client.id, form });
 		},

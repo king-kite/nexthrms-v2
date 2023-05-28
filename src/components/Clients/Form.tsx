@@ -286,7 +286,8 @@ const Form = ({
 															return [
 																...total,
 																{
-																	image: user.profile?.image || DEFAULT_IMAGE,
+																	image:
+																		user.profile?.image?.url || DEFAULT_IMAGE,
 																	title: user.firstName + ' ' + user.lastName,
 																	value: user.id,
 																},

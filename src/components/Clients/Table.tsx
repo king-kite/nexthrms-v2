@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
@@ -32,7 +32,7 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 							<TableAvatarEmailNameCell
 								email={client.contact.email}
-								image={client.contact.profile?.image || DEFAULT_IMAGE}
+								image={client.contact.profile?.image?.url || DEFAULT_IMAGE}
 								name={`${client.contact.firstName} ${client.contact.lastName}`}
 							/>
 						</a>
@@ -66,12 +66,12 @@ type TableType = {
 };
 
 const ClientTable = ({ clients }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<'all' | 'active' | 'inactive'>(
-		'all'
-	);
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [activeRow, setActiveRow] = React.useState<
+		'all' | 'active' | 'inactive'
+	>('all');
 
-	useEffect(() => {
+	React.useEffect(() => {
 		let finalList;
 		if (activeRow === 'active') {
 			finalList = clients.filter((client) => client.contact.isActive === true);
