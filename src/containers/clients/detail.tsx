@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
-import { UpdateForm } from '../../components/Clients';
+import { UpdateForm } from '../../components/clients';
 import { ChangePasswordForm } from '../../components/Employees';
 import {
 	permissions,
