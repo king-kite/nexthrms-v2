@@ -1,5 +1,5 @@
 import { Button, Loader } from 'kite-react-tailwind';
-import { useMemo } from 'react';
+import React from 'react';
 import { BiRefresh } from 'react-icons/bi';
 
 import { permissions } from '../../config';
@@ -31,7 +31,7 @@ function TimeSheet({
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [canMark] = useMemo(() => {
+	const [canMark] = React.useMemo(() => {
 		if (!authData) return [false];
 		const canMark =
 			authData.isSuperUser ||

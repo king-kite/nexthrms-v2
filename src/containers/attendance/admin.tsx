@@ -13,7 +13,7 @@ import {
 	Form,
 	SearchForm,
 	Topbar,
-} from '../../components/Attendance';
+} from '../../components/attendance';
 import {
 	ATTENDANCE_ADMIN_EXPORT_URL,
 	ATTENDANCE_ADMIN_IMPORT_URL,

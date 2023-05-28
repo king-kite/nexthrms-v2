@@ -1,5 +1,5 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
-import { useEffect, useState } from 'react';
+import React from 'react';
 
 import { AttendanceType } from '../../types';
 
@@ -37,9 +37,9 @@ type TableType = {
 };
 
 const AttendanceTable = ({ attendance = [] }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setRows(getRows(attendance));
 	}, [attendance]);
 
