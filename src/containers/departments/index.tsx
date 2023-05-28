@@ -15,7 +15,7 @@ import {
 	Modal,
 	TablePagination,
 } from '../../components/common';
-import { Form, DepartmentTable } from '../../components/Departments';
+import { Form, DepartmentTable } from '../../components/departments';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	DEPARTMENTS_EXPORT_URL,
