@@ -43,6 +43,14 @@ export default auth()
 
 		const projectFile = await prisma.projectFile.findUnique({
 			where: { id: req.query.fileId as string },
+			select: {
+				file: {
+					select: {
+						url: true,
+						storageInfo: true,
+					},
+				},
+			},
 		});
 
 		if (!projectFile)
@@ -55,18 +63,12 @@ export default auth()
 			where: { id: projectFile.id },
 		});
 
-		if (USE_LOCAL_MEDIA_STORAGE) {
-			deleteFile(projectFile.file).catch((error) => {
-				console.log('DELETE PROJECT FILE ERROR :>>', error);
-			});
-		} else if (
-			projectFile.storageInfo &&
-			(projectFile.storageInfo as any).public_id
-		) {
-			deleteFile((projectFile.storageInfo as any).public_id).catch((error) => {
-				console.log('DELETE PROJECT FILE ERROR :>>', error);
-			});
-		}
+		const deleteId = USE_LOCAL_MEDIA_STORAGE
+			? projectFile.file.url
+			: (profileFile.file.storageInfo as any).public_id;
+		deleteFile(projectFile.file).catch((error) => {
+			console.log('DELETE PROJECT FILE ERROR :>>', error);
+		});
 
 		return res.status(200).json({
 			status: 'success',
