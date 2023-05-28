@@ -128,14 +128,16 @@ export default auth()
 				},
 			},
 			file: {
-				type: files.file.mimetype ? files.file.mimetype : 'file',
-				name: String(fields.name),
-				url: result.secure_url || result.url,
-				size: files.file.size,
-				storageInfo: {
-					id: result.public_id,
-					name: result.original_filename,
-					type: result.resource_type,
+				create: {
+					type: files.file.mimetype || 'file',
+					name: String(fields.name),
+					url: result.secure_url || result.url,
+					size: files.file.size,
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				},
 			},
 		};
