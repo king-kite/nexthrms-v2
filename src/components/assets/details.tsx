@@ -83,7 +83,7 @@ function Details({
 					title: 'User Image',
 					type: 'image',
 					value: {
-						src: asset.user.profile?.image || DEFAULT_IMAGE,
+						src: asset.user.profile?.image?.url || DEFAULT_IMAGE,
 						alt: asset.user.firstName + ' ' + asset.user.lastName,
 					},
 				},

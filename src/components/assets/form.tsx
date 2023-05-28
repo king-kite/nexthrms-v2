@@ -1,12 +1,5 @@
 import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
-import {
-	ChangeEventHandler,
-	Dispatch,
-	FC,
-	SetStateAction,
-	useCallback,
-	useState,
-} from 'react';
+import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetUsersQuery } from '../../store/queries';
@@ -31,11 +24,11 @@ type FormProps = {
 	errors?: ErrorType;
 	form: AssetCreateQueryType;
 	loading: boolean;
-	onChange: ChangeEventHandler<
+	onChange: React.ChangeEventHandler<
 		HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 	>;
 	onSubmit: (form: AssetCreateQueryType) => void;
-	setErrors: Dispatch<SetStateAction<ErrorType | undefined>>;
+	setErrors: React.Dispatch<React.SetStateAction<ErrorType | undefined>>;
 };
 
 function handleDataError(err: unknown): string | undefined {
@@ -46,7 +39,7 @@ function handleDataError(err: unknown): string | undefined {
 	return undefined;
 }
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	editMode,
 	errors,
 	form,
@@ -54,14 +47,14 @@ const Form: FC<FormProps> = ({
 	onChange,
 	onSubmit,
 	setErrors,
-}) => {
-	const [usrLimit, setUsrLimit] = useState(DEFAULT_PAGINATION_SIZE);
+}: FormProps) => {
+	const [usrLimit, setUsrLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
 	const users = useGetUsersQuery({ limit: usrLimit, offset: 0, search: '' });
 
 	const usersError = handleDataError(users.error);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (input: AssetCreateQueryType) => {
 			try {
 				const valid: AssetCreateQueryType =

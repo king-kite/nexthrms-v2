@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
@@ -158,7 +158,7 @@ const AssetTable = ({
 	editAsset,
 	showAsset,
 }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = useState<
 		'all' | 'approved' | 'denied' | 'pending' | 'returned'
 	>('all');
@@ -166,7 +166,7 @@ const AssetTable = ({
 	const { data: authData } = useAuthContext();
 
 	// has model permission
-	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+	const [canEdit, canDelete, canViewObjectPermissions] = React.useMemo(() => {
 		const canEdit = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
@@ -187,7 +187,7 @@ const AssetTable = ({
 		return [canEdit, canDelete, canViewObjectPermissions];
 	}, [authData]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		let finalList;
 		if (activeRow === 'approved') {
 			finalList = assets.filter((asset) => asset.status === 'APPROVED');
