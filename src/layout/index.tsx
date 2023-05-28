@@ -2,7 +2,7 @@ import { MenuIcon } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
 
-import ScrollToTop from './scrollToTop';
+import ScrollToTop from './scroll-to-top';
 import Sidebar from './sidebar';
 import Topbar from './topbar';
 import { LOGO_IMAGE } from '../config';

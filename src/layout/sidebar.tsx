@@ -411,7 +411,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							<Image
 								className="h-full rounded-full w-full"
 								layout="fill"
-								src={data?.profile?.image || DEFAULT_IMAGE}
+								src={data?.profile?.image?.url || DEFAULT_IMAGE}
 								alt="user"
 							/>
 						</div>

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import React from 'react';
 import { FaRegBell } from 'react-icons/fa';
 
 import Notifications from './notifications';
@@ -24,7 +24,7 @@ const Topbar = () => {
 		HTMLDivElement
 	>();
 
-	const [count, setCount] = useState(0);
+	const [count, setCount] = React.useState(0);
 	const { data } = useAuthContext();
 
 	return (
@@ -84,7 +84,7 @@ const Topbar = () => {
 						<Image
 							className="h-full rounded-full w-full"
 							layout="fill"
-							src={data?.profile?.image || DEFAULT_IMAGE}
+							src={data?.profile?.image?.url || DEFAULT_IMAGE}
 							alt=""
 						/>
 					</div>
