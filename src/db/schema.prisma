@@ -203,10 +203,13 @@ model ManagedFile {
   id String @id @default(uuid()) @db.Uuid
 
   name        String @db.VarChar(255)
-  file        String
+  url         String @default("/images/default.png")
   size        Int?
   storageInfo Json?  @map("storage_info")
-  type        String @default("application") @map("type")
+  type        String @default("image") @map("type")
+
+  profile     Profile?
+  projectFile ProjectFile? @relation("project_file")
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String? @map("user_id") @db.Uuid
@@ -314,18 +317,20 @@ model PermissionObject {
 }
 
 model Profile {
-  id               String    @id @default(uuid()) @db.Uuid
-  dob              DateTime?
-  image            String    @default("/images/default.png")
-  imageStorageInfo Json?     @map("image_storage_info")
-  address          String?
-  city             String?   @db.VarChar(20)
-  phone            String?   @db.VarChar(20)
-  state            String?   @db.VarChar(100)
-  gender           Gender    @default(MALE)
+  id  String    @id @default(uuid()) @db.Uuid
+  dob DateTime?
+
+  address String?
+  city    String? @db.VarChar(20)
+  phone   String? @db.VarChar(20)
+  state   String? @db.VarChar(100)
+  gender  Gender  @default(MALE)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  image       ManagedFile? @relation(fields: [imageFileId], references: [id])
+  imageFileId String?      @unique @map("image_file_id") @db.Uuid
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique @map("user_id") @db.Uuid
@@ -362,12 +367,10 @@ model Project {
 }
 
 model ProjectFile {
-  id          String @id @default(uuid()) @db.Uuid
-  name        String @db.VarChar(255)
-  file        String
-  size        Int
-  storageInfo Json?  @map("storage_info")
-  type        String @default("file") @map("type")
+  id String @id @default(uuid()) @db.Uuid
+
+  file   ManagedFile @relation("project_file", fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String      @unique @map("file_id") @db.Uuid
 
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String  @map("project_id") @db.Uuid
