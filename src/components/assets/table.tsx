@@ -159,7 +159,7 @@ const AssetTable = ({
 	showAsset,
 }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<
+	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending' | 'returned'
 	>('all');
 
