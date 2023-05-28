@@ -4,7 +4,7 @@ import { InfoComp } from 'kite-react-tailwind';
 import { useState } from 'react';
 import { FaCheckCircle, FaLock, FaUserEdit } from 'react-icons/fa';
 
-import { ChangePasswordForm, UpdateForm } from '../../components/Profile';
+import { ChangePasswordForm, UpdateForm } from '../../components/profile';
 import { Container, InfoTopBar, Modal } from '../../components/common';
 import { DEFAULT_IMAGE, LEAVES_PAGE_URL, PROFILE_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';

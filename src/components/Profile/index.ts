@@ -1,2 +1,2 @@
-export { default as ChangePasswordForm } from "./ChangePasswordForm";
-export { default as UpdateForm } from "./UpdateForm";
+export { default as ChangePasswordForm } from "./change-password-form";
+export { default as UpdateForm } from "./update-form";

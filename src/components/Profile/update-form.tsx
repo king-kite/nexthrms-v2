@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, File, Input, Select, Textarea } from 'kite-react-tailwind';
 import { AxiosResponse } from 'axios';
-import { useCallback, useRef, useState } from 'react';
+import React from 'react';
 
 import { DEFAULT_IMAGE, PROFILE_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
@@ -31,9 +31,9 @@ const Form = ({
 	profile: ProfileType;
 	onSuccess: () => void;
 }) => {
-	const [formErrors, setErrors] = useState<ErrorType>();
-	const formRef = useRef<HTMLFormElement | null>(null);
-	const [form, setForm] = useState({ image: '' });
+	const [formErrors, setErrors] = React.useState<ErrorType>();
+	const formRef = React.useRef<HTMLFormElement | null>(null);
+	const [form, setForm] = React.useState({ image: '' });
 
 	const queryClient = useQueryClient();
 
@@ -59,7 +59,7 @@ const Form = ({
 					email: data.email,
 					fullName: data.firstName + ' ' + data.lastName,
 					profile: {
-						image: data.profile?.image || DEFAULT_IMAGE,
+						image: data.profile?.image?.url || DEFAULT_IMAGE,
 					},
 					employee: data.employee
 						? {
@@ -94,7 +94,7 @@ const Form = ({
 		}
 	);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: ProfileUpdateType) => {
 			try {
 				setErrors(undefined);
@@ -125,7 +125,7 @@ const Form = ({
 		[updateProfile]
 	);
 
-	const removeError = useCallback(
+	const removeError = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
