@@ -133,23 +133,16 @@ export default auth()
 			data: {
 				...data,
 				profile: {
-					upsert: {
-						create: {
-							...data.profile,
-							image: data.profile.image
-								? {
+					update: {
+						...data.profile,
+						image: data.profile.image
+							? {
+									upsert: {
 										create: data.profile.image,
-								  }
-								: undefined,
-						},
-						update: {
-							...data.profile,
-							image: data.profile.image
-								? {
 										update: data.profile.image,
-								  }
-								: undefined,
-						},
+									},
+							  }
+							: undefined,
 					},
 				},
 			},
