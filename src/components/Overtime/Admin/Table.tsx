@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../../common';
@@ -10,13 +10,13 @@ import { OvertimeType } from '../../../types';
 import { getDate, serializeOvertime } from '../../../utils';
 
 const heads: TableHeadType = [
-	{ 
+	{
 		style: {
 			marginLeft: '3.5rem',
 			minWidth: '70px',
-			textAlign: 'left'
+			textAlign: 'left',
 		},
-		value: 'employee' 
+		value: 'employee',
 	},
 	{ value: 'type' },
 	{ value: 'date' },
@@ -38,7 +38,9 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 							<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={item.employee.user.email}
-									image={item.employee.user.profile?.image || DEFAULT_IMAGE}
+									image={
+										item.employee.user.profile?.image?.url || DEFAULT_IMAGE
+									}
 									name={`${item.employee.user.firstName} ${item.employee.user.lastName}`}
 								/>
 							</a>
@@ -87,12 +89,12 @@ type TableType = {
 };
 
 const OvertimeTable = ({ overtime }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	useEffect(() => {
+	React.useEffect(() => {
 		let finalList;
 		if (activeRow === 'denied') {
 			finalList = overtime.filter((item) => item.status === 'DENIED');

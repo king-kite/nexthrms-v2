@@ -1,5 +1,5 @@
 import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetEmployeesQuery } from '../../store/queries';
@@ -22,18 +22,19 @@ type FormProps = {
 	onSubmit: (form: CreateOvertimeQueryType) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	adminView,
 	initState,
 	errors,
 	loading,
 	onSubmit,
 	success,
-}) => {
-	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
-	const [formErrors, setErrors] = useState<CreateOvertimeErrorResponseType>();
+}: FormProps) => {
+	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [formErrors, setErrors] =
+		React.useState<CreateOvertimeErrorResponseType>();
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const employees = useGetEmployeesQuery(
 		{ limit: empLimit, offset: 0, search: '' },
@@ -44,11 +45,11 @@ const Form: FC<FormProps> = ({
 
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success && formRef.current) formRef.current.reset();
 	}, [success]);
 
-	const handleChange = useCallback(
+	const handleChange = React.useCallback(
 		(name: string, value: string) => {
 			if (Object(formErrors)[name])
 				setErrors((prevState) => ({
@@ -59,7 +60,7 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
 			try {
