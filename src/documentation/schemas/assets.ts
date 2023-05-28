@@ -79,7 +79,13 @@ export const AssetModel = {
 					nullable: true,
 					properties: {
 						image: {
-							type: 'string',
+							type: 'object',
+							nullable: true,
+							properties: {
+								url: {
+									type: 'string',
+								},
+							},
 						},
 					},
 				},
@@ -119,7 +125,9 @@ export const AssetModel = {
 			lastName: 'Doe',
 			email: 'jandoe@kitehrms.com',
 			profile: {
-				image: '/images/default.png',
+				image: {
+					url: '/images/default.png',
+				},
 			},
 		},
 		warranty: 12,

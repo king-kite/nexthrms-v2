@@ -51,7 +51,14 @@ export const GroupModel = {
 						nullable: true,
 						properties: {
 							image: {
-								type: 'string',
+								type: 'object',
+								nullable: true,
+								properties: {
+									url: {
+										example: '/images/default.png',
+										type: 'string',
+									},
+								},
 							},
 						},
 					},

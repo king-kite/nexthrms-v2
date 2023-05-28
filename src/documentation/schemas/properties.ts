@@ -6,8 +6,16 @@ export const profileProperties = {
 		description: "An object containing the user's profile information",
 		properties: {
 			image: {
-				type: 'string',
+				type: 'object',
 				description: "The user's profile image",
+				nullable: true,
+				properties: {
+					url: {
+						description: "The user's profile image url",
+						example: '/images/default.png',
+						type: 'string',
+					},
+				},
 			},
 			dob: {
 				type: 'string',
@@ -69,7 +77,13 @@ export const userProfileEmployeeProperties = {
 				required: ['image'],
 				properties: {
 					image: {
-						type: 'string',
+						type: 'object',
+						nullable: true,
+						properties: {
+							url: {
+								type: 'string',
+							},
+						},
 					},
 				},
 			},

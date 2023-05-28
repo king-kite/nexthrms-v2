@@ -48,7 +48,14 @@ export const DepartmentModel = {
 							nullable: true,
 							properties: {
 								image: {
-									type: 'string',
+									type: 'object',
+									nullable: true,
+									properties: {
+										url: {
+											example: '/images/default.png',
+											type: 'string',
+										},
+									},
 								},
 							},
 						},
@@ -92,7 +99,9 @@ export const DepartmentModel = {
 				lastName: 'Doe',
 				email: 'jandoe@kitehrms.com',
 				profile: {
-					image: '/images/default.png',
+					url: {
+						image: '/images/default.png',
+					},
 				},
 			},
 			employee: {

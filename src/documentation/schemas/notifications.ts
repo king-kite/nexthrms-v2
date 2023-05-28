@@ -3,7 +3,9 @@ const userExample = {
 	lastName: 'Doe',
 	email: 'johndoe@kitehrms.com',
 	profile: {
-		image: '/images/default.png',
+		image: {
+			url: '/images/default.png',
+		},
 	},
 };
 
@@ -25,7 +27,14 @@ const userModel = {
 			nullable: true,
 			properties: {
 				image: {
-					type: 'string',
+					type: 'object',
+					nullable: true,
+					properties: {
+						url: {
+							example: '/images/default.png',
+							type: 'string',
+						},
+					},
 				},
 			},
 		},

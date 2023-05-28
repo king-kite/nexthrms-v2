@@ -43,8 +43,9 @@ export const ClientModel = {
 			lastName: 'Davis',
 			isActive: true,
 			profile: {
-				image:
-					'/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
+				image: {
+					url: '/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
+				},
 				dob: '2001-03-10T00:00:00.000Z',
 				gender: 'MALE',
 				address:

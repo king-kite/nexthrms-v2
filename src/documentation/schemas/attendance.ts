@@ -74,7 +74,13 @@ export const AttendanceModel = {
 							nullable: true,
 							properties: {
 								image: {
-									type: 'string',
+									type: 'object',
+									nullable: true,
+									properties: {
+										url: {
+											type: 'string',
+										},
+									},
 								},
 							},
 						},

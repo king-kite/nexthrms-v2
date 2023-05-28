@@ -7,18 +7,23 @@ export const ProjectFileModel = {
 			type: 'string',
 			format: 'uuid',
 		},
-		name: {
-			type: 'string',
-		},
 		file: {
-			type: 'string',
-			format: 'url',
-		},
-		size: {
-			type: 'number',
-		},
-		type: {
-			type: 'string',
+			type: 'object',
+			properties: {
+				name: {
+					type: 'string',
+				},
+				url: {
+					type: 'string',
+					format: 'url',
+				},
+				size: {
+					type: 'number',
+				},
+				type: {
+					type: 'string',
+				},
+			},
 		},
 		project: {
 			type: 'object',
@@ -109,7 +114,14 @@ export const ProjectTeamModel = {
 							type: 'object',
 							properties: {
 								image: {
-									type: 'string',
+									type: 'object',
+									nullable: true,
+									properties: {
+										url: {
+											example: '/images/default.png',
+											type: 'string',
+										},
+									},
 								},
 							},
 						},
@@ -179,7 +191,14 @@ export const ProjectModel = {
 							type: 'object',
 							properties: {
 								image: {
-									type: 'string',
+									type: 'object',
+									nullable: true,
+									properties: {
+										url: {
+											example: '/images/default.png',
+											type: 'string',
+										},
+									},
 								},
 							},
 						},
@@ -332,7 +351,14 @@ export const ProjectTaskFollowerModel = {
 									type: 'object',
 									properties: {
 										image: {
-											type: 'string',
+											type: 'object',
+											nullable: true,
+											properties: {
+												url: {
+													example: '/images/default.png',
+													type: 'string',
+												},
+											},
 										},
 									},
 								},

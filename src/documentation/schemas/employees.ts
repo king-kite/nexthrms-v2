@@ -14,7 +14,14 @@ const commonUserProperties = {
 			required: ['image'],
 			properties: {
 				image: {
-					type: 'string',
+					type: 'object',
+					nullable: true,
+					properties: {
+						url: {
+							example: '/images/default.png',
+							type: 'string',
+						},
+					},
 				},
 			},
 		},
@@ -130,8 +137,9 @@ export const EmployeeModel = {
 			lastName: 'Davis',
 			isActive: true,
 			profile: {
-				image:
-					'/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
+				image: {
+					url: '/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
+				},
 				dob: '2001-03-10T00:00:00.000Z',
 				gender: 'MALE',
 				address:
@@ -155,8 +163,9 @@ export const EmployeeModel = {
 					lastName: 'Doe',
 					email: 'jandoe@kitehrms.com',
 					profile: {
-						image:
-							'/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
+						image: {
+							url: '/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
+						},
 						dob: '2000-02-12T00:00:00.000Z',
 						gender: 'MALE',
 						address:
@@ -179,8 +188,9 @@ export const EmployeeModel = {
 					lastName: 'Andrews',
 					email: 'priscillaandrews@kitehrms.com',
 					profile: {
-						image:
-							'/media/users/profile/priscilla_andrews_priscillaandrews@kitehrms.com_1669470278039.jpg',
+						image: {
+							url: '/media/users/profile/priscilla_andrews_priscillaandrews@kitehrms.com_1669470278039.jpg',
+						},
 					},
 				},
 			},

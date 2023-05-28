@@ -45,13 +45,20 @@ export const AuthUserDataModel = {
 			description: "An object containing the user's profile information",
 			properties: {
 				image: {
-					type: 'string',
-					description: "The user's profile image",
-					example: '/images/default.png',
+					type: 'object',
+					nullable: true,
+					properties: {
+						url: {
+							example: '/images/default.png',
+							type: 'string',
+						},
+					},
 				},
 			},
 			example: {
-				image: '/images/default.png',
+				image: {
+					url: '/images/default.png',
+				},
 			},
 		},
 		employee: {
@@ -147,8 +154,9 @@ export const UserProfileDataModel = {
 		profile: {
 			dob: '2001-03-14T00:00:00.000Z',
 			gender: 'MALE',
-			image:
-				'/media/users/profile/jan_doe_jandoe@kitehrms.com_1669361137919.jpg',
+			image: {
+				url: '/media/users/profile/jan_doe_jandoe@kitehrms.com_1669361137919.jpg',
+			},
 			address: 'This is my Home Address. Please leave a note or letter',
 			city: 'New City',
 			phone: '08123456789',
