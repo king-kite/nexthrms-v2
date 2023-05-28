@@ -1,6 +1,6 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import {
 	FaCheckCircle,
 	FaEdit,
@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
-import { Form } from '../../components/Overtime';
+import { Form } from '../../components/overtime';
 import {
 	ADMIN_OVERTIME_OBJECT_PERMISSION_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -52,8 +52,8 @@ const Detail = ({
 	const router = useRouter();
 	const id = router.query.id as string;
 
-	const [modalVisible, setModalVisible] = useState(false);
-	const [errors, setErrors] = useState<ErrorType>();
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -73,7 +73,7 @@ const Detail = ({
 		}
 	);
 
-	const data = useMemo(() => {
+	const data = React.useMemo(() => {
 		if (overtimeData) return serializeOvertime(overtimeData);
 		return undefined;
 	}, [overtimeData]);
@@ -92,7 +92,7 @@ const Detail = ({
 			}
 		);
 
-	const [canEdit, canDelete, canGrant, canViewPermissions] = useMemo(() => {
+	const [canEdit, canDelete, canGrant, canViewPermissions] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
 		// Not Admin Page
 		// Only check object level permissions
@@ -184,7 +184,7 @@ const Detail = ({
 			},
 		});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
 			if (canEdit) updateOvertime({ id, admin, data: form });
@@ -192,7 +192,7 @@ const Detail = ({
 		[canEdit, updateOvertime, id, admin]
 	);
 
-	const actions = useMemo(() => {
+	const actions = React.useMemo(() => {
 		const buttons: ButtonType[] = [];
 		if (!data) return buttons;
 		// Regular/normal user page

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Container, Modal, TablePagination } from '../../components/common';
-import { Cards, Form, Topbar, OvertimeTable } from '../../components/Overtime';
+import { Cards, Form, Topbar, OvertimeTable } from '../../components/overtime';
 import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {

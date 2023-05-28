@@ -11,7 +11,7 @@ import {
 	Form,
 	Topbar,
 	OvertimeAdminTable,
-} from '../../../components/Overtime';
+} from '../../../components/overtime';
 import {
 	permissions,
 	samples,
