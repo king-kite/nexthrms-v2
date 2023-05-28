@@ -8,7 +8,7 @@ import {
 	GroupForm,
 	Permissions,
 	UsersGrid,
-} from '../../../components/Groups/Detail';
+} from '../../../components/groups/detail';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,

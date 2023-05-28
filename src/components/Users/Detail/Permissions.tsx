@@ -5,7 +5,7 @@ import { FaPen } from 'react-icons/fa';
 
 import PermissionsForm from './PermissionsForm';
 import { Modal, TablePagination } from '../../common';
-import { Permissions } from '../../Groups/Detail';
+import { Permissions } from '../../groups/detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {

@@ -1,3 +1,3 @@
-export { default as GroupForm } from './GroupForm';
-export { default as Permissions } from './Permissions';
-export { default as UsersGrid } from './UsersGrid';
+export { default as GroupForm } from './group-form';
+export { default as Permissions } from './permissions';
+export { default as UsersGrid } from './users-grid';

@@ -105,7 +105,7 @@ function UsersGrid({
 						bg="bg-gray-100"
 						border="border-gray-300 border"
 						name={user.firstName + ' ' + user.lastName}
-						image={{ src: user.profile?.image || DEFAULT_IMAGE }}
+						image={{ src: user.profile?.image?.url || DEFAULT_IMAGE }}
 						actions={[
 							{
 								bg: 'bg-white hover:bg-blue-100',

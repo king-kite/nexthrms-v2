@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import React from 'react';
 
-import Form from '../Form';
+import Form from '../form';
 import { useEditGroupMutation } from '../../../store/queries';
 import {
 	GroupType,
@@ -19,7 +19,7 @@ const GroupForm = ({
 	group: GroupType;
 	onSuccess: () => void;
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
+	const [errors, setErrors] = React.useState<ErrorType>();
 
 	const { mutate, isLoading } = useEditGroupMutation({
 		onSuccess,
@@ -32,7 +32,7 @@ const GroupForm = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateGroupQueryType) => {
 			mutate({ id: group.id, form });
 		},

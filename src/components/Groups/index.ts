@@ -1,3 +1,3 @@
-export { default as Form } from './Form';
-export { default as GroupTable } from './Table';
-export { default as Topbar } from './Topbar';
+export { default as Form } from './form';
+export { default as GroupTable } from './table';
+export { default as Topbar } from './topbar';

@@ -293,7 +293,7 @@ const Form = ({
 												return [
 													...total,
 													{
-														image: user.profile?.image || DEFAULT_IMAGE,
+														image: user.profile?.image?.url || DEFAULT_IMAGE,
 														title: toCapitalize(
 															user.firstName + ' ' + user.lastName
 														),

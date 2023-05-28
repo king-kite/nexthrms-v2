@@ -6,7 +6,7 @@ import {
 	Modal,
 	TablePagination,
 } from '../../../components/common';
-import { GroupTable, Form, Topbar } from '../../../components/Groups';
+import { GroupTable, Form, Topbar } from '../../../components/groups';
 import {
 	permissions,
 	samples,
