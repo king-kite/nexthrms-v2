@@ -127,14 +127,16 @@ export default auth()
 					id: req.query.id as string,
 				},
 			},
-			type: files.file.mimetype || undefined,
-			name: String(fields.name),
-			file: result.secure_url || result.url,
-			size: files.file.size,
-			storageInfo: {
-				id: result.public_id,
-				name: result.original_filename,
-				type: result.resource_type,
+			file: {
+				type: files.file.mimetype ? files.file.mimetype : 'file',
+				name: String(fields.name),
+				url: result.secure_url || result.url,
+				size: files.file.size,
+				storageInfo: {
+					id: result.public_id,
+					name: result.original_filename,
+					type: result.resource_type,
+				},
 			},
 		};
 
