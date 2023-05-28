@@ -4,7 +4,7 @@ import { InfoComp } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheckCircle, FaLock, FaUserEdit } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '..../../components/profile
+import { Container, InfoTopBar, Modal } from '../../components/common';
 import { ChangePasswordForm, UpdateForm } from '../../components/profile';
 import { DEFAULT_IMAGE, LEAVES_PAGE_URL, PROFILE_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
@@ -14,7 +14,9 @@ import { axiosInstance } from '../../utils/axios';
 import { ProfileResponseType } from '../../types';
 
 const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
-	const [formType, setFormType] = React.useState<'profile' | 'password'>('profile');
+	const [formType, setFormType] = React.useState<'profile' | 'password'>(
+		'profile'
+	);
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();

@@ -59,7 +59,9 @@ const Form = ({
 					email: data.email,
 					fullName: data.firstName + ' ' + data.lastName,
 					profile: {
-						image: data.profile?.image?.url || DEFAULT_IMAGE,
+						image: {
+							url: data.profile?.image?.url || DEFAULT_IMAGE,
+						},
 					},
 					employee: data.employee
 						? {
