@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Container } from '../../../components/common';
-import { Groups, Users } from '../../../components/Permissions/Objects';
+import { Groups, Users } from '../../../components/permissions/objects';
 import { useGetObjectPermissionsQuery } from '../../../store/queries';
 import {
 	ObjPermGroupType,

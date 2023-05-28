@@ -181,7 +181,7 @@ function UserForm({
 												return aName < bName ? -1 : aName > bName ? 1 : 0;
 											})
 											.map((user) => ({
-												image: user.profile?.image || DEFAULT_IMAGE,
+												image: user.profile?.image?.url || DEFAULT_IMAGE,
 												title: `${user.firstName} ${user.lastName}`,
 												value: user.id,
 											}))
@@ -294,7 +294,7 @@ function UserForm({
 									}}
 									name={`${user.firstName} ${user.lastName}`}
 									email={user.email}
-									image={user.profile?.image || DEFAULT_IMAGE}
+									image={user.profile?.image?.url || DEFAULT_IMAGE}
 								/>
 							))
 					)}

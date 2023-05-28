@@ -6,7 +6,7 @@ import {
 	ImportForm,
 	TablePagination,
 } from '../../../components/common';
-import { PermissionTable, Topbar } from '../../../components/Permissions';
+import { PermissionTable, Topbar } from '../../../components/permissions';
 import {
 	permissions,
 	samples,
