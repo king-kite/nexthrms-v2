@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 
 import { Container, InfoTopBar, Modal } from '../../components/common';
-import { Form } from '../../components/Leaves';
+import { Form } from '../../components/leaves';
 import {
 	ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -431,7 +431,9 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src:
+												data.createdBy.user.profile?.image?.url ||
+												DEFAULT_IMAGE,
 											alt:
 												data.createdBy.user.firstName +
 												' ' +
@@ -470,7 +472,9 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src:
+												data.approvedBy.user.profile?.image?.url ||
+												DEFAULT_IMAGE,
 											alt:
 												data.approvedBy.user.firstName +
 												' ' +

@@ -7,7 +7,7 @@ import {
 	FaSearch,
 } from 'react-icons/fa';
 
-import FilterDropdownForm from './FilterDropdownForm';
+import FilterDropdownForm from './filter-dropdown-form';
 import { ExportForm } from '../common';
 import { permissions } from '../../config';
 import { useAuthContext } from '../../store/contexts';

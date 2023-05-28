@@ -1,5 +1,5 @@
-export { default as Cards } from './Cards';
-export { default as Form } from './Form';
-export { default as LeaveTable } from './Table';
-export { default as LeaveAdminTable } from './Admin/Table';
-export { default as Topbar } from './Topbar';
+export { default as Cards } from './cards';
+export { default as Form } from './form';
+export { default as LeaveTable } from './table';
+export { default as LeaveAdminTable } from './admin/table';
+export { default as Topbar } from './topbar';

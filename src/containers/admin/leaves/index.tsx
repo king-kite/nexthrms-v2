@@ -11,7 +11,7 @@ import {
 	Form,
 	Topbar,
 	LeaveAdminTable,
-} from '../../../components/Leaves';
+} from '../../../components/leaves';
 import {
 	permissions,
 	samples,

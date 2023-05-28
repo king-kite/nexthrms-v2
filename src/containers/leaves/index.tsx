@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Container, Modal, TablePagination } from '../../components/common';
-import { Cards, Form, Topbar, LeaveTable } from '../../components/Leaves';
+import { Cards, Form, Topbar, LeaveTable } from '../../components/leaves';
 import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
