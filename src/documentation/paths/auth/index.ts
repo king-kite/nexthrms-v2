@@ -1,14 +1,14 @@
 import * as routes from '../../../config/server';
 
-import emailConfirm from './emailConfirm';
-import emailResend from './emailResend';
+import emailConfirm from './email-confirm';
+import emailResend from './email-resend';
 import login from './login';
 import logout from './logout';
-import objectPermission from './objectPermission';
-import passwordChange from './passwordChange';
-import passwordConfirm from './passwordConfirm';
-import passwordReset from './passwordReset';
-import passwordVerify from './passwordVerify';
+import objectPermission from './object-permission';
+import passwordChange from './password-change';
+import passwordConfirm from './password-confirm';
+import passwordReset from './password-reset';
+import passwordVerify from './password-verify';
 import profile from './profile';
 import register from './register';
 import user from './user';

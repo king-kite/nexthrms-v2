@@ -1,7 +1,7 @@
 import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
-import { models } from './../../../config';
+import { models } from '../../../config';
 
 const path = {
 	get: {
