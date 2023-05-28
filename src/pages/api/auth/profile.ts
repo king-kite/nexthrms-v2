@@ -49,6 +49,18 @@ export default auth()
 			form
 		);
 
+		const data: any = {
+			...valid,
+			profile: {
+				...valid.profile,
+				image: valid.profile.image
+					? {
+							url: valid.profile.image,
+					  }
+					: undefined,
+			},
+		};
+
 		if (files.image) {
 			// Upload file to cloudinary or media folder
 
@@ -69,39 +81,43 @@ export default auth()
 					type: 'image',
 				});
 
-				valid.profile.image = result.secure_url || result.url;
-				Object(valid.profile).imageStorageInfo = {
-					id: result.public_id,
+				Object(data.profile).image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 
 				// delete the old user profile image
 				if (
 					req.user.profile?.image &&
-					req.user.profile.image !== DEFAULT_IMAGE
+					req.user.profile.image.url !== DEFAULT_IMAGE
 				) {
 					const profile = await prisma.profile.findUnique({
 						where: {
 							userId: req.user.id,
 						},
 						select: {
-							imageStorageInfo: true,
+							image: {
+								select: {
+									url: true,
+									storageInfo: true,
+								},
+							},
 						},
 					});
-					if (USE_LOCAL_MEDIA_STORAGE) {
-						deleteFile(req.user.profile?.image).catch((error) => {
+					if (profile !== null && profile.image) {
+						const id = USE_LOCAL_MEDIA_STORAGE
+							? profile.image.url
+							: (profile.image.storageInfo as any).public_id;
+						deleteFile(id).catch((error) => {
 							console.log('DELETE PROFILE IMAGE FILE ERROR :>>', error);
 						});
-					} else if (
-						profile?.imageStorageInfo &&
-						(profile?.imageStorageInfo as any).public_id
-					) {
-						deleteFile((profile?.imageStorageInfo as any).public_id).catch(
-							(error) => {
-								console.log('DELETE PROFILE IMAGE FILE ERROR :>>', error);
-							}
-						);
 					}
 				}
 			} catch (error) {
@@ -115,9 +131,26 @@ export default auth()
 				id: req.user.id,
 			},
 			data: {
-				...valid,
+				...data,
 				profile: {
-					update: valid.profile,
+					upsert: {
+						create: {
+							...data.profile,
+							image: data.profile.image
+								? {
+										create: data.profile.image,
+								  }
+								: undefined,
+						},
+						update: {
+							...data.profile,
+							image: data.profile.image
+								? {
+										update: data.profile.image,
+								  }
+								: undefined,
+						},
+					},
 				},
 			},
 			select: profileSelect,
