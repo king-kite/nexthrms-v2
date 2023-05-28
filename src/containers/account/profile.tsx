@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { InfoComp } from 'kite-react-tailwind';
-import { useState } from 'react';
+import React from 'react';
 import { FaCheckCircle, FaLock, FaUserEdit } from 'react-icons/fa';
 
+import { Container, InfoTopBar, Modal } from '..../../components/profile
 import { ChangePasswordForm, UpdateForm } from '../../components/profile';
-import { Container, InfoTopBar, Modal } from '../../components/common';
 import { DEFAULT_IMAGE, LEAVES_PAGE_URL, PROFILE_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import * as tags from '../../store/tagTypes';
@@ -14,8 +14,8 @@ import { axiosInstance } from '../../utils/axios';
 import { ProfileResponseType } from '../../types';
 
 const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
-	const [formType, setFormType] = useState<'profile' | 'password'>('profile');
-	const [modalVisible, setModalVisible] = useState(false);
+	const [formType, setFormType] = React.useState<'profile' | 'password'>('profile');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
 
