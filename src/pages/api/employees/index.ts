@@ -13,7 +13,7 @@ import {
 	updateObjectPermissions,
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateEmployeeQueryType, EmployeeType } from '../../../types';
+import { EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
@@ -79,7 +79,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateEmployeeQueryType =
+		const valid =
 			await createEmployeeSchema.validateAsync(form);
 		if (!valid.user && !valid.userId) {
 			return res.status(400).json({
@@ -111,15 +111,20 @@ export default admin()
 					type: 'image',
 				});
 
-				valid.user.profile.image = result.secure_url || result.url;
-				Object(valid.user.profile).imageStorageInfo = {
-					id: result.public_id,
+				valid.user.profile.image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
-					console.log('FIREBASE EMPLOYEE IMAGE ERROR :>> ', error);
+					console.log('EMPLOYEE IMAGE ERROR :>> ', error);
 			}
 		}
 
@@ -133,7 +138,12 @@ export default admin()
 						email: valid.user.email.trim().toLowerCase(),
 						password: await hashPassword(valid.user.lastName.toUpperCase()),
 						profile: {
-							create: valid.user.profile,
+							create: {
+								...valid.user.profile,
+								image: {
+									create: valid.user.profile.image
+								}
+							},
 						},
 					},
 			  }
@@ -161,7 +171,7 @@ export default admin()
 			},
 			supervisors: valid.supervisors
 				? {
-						connect: valid.supervisors.map((id) => ({ id })),
+						connect: valid.supervisors.map((id: string) => ({ id })),
 				  }
 				: undefined,
 			user,

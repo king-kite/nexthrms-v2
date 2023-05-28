@@ -12,7 +12,7 @@ import {
 } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateEmployeeQueryType, EmployeeType } from '../../../types';
+import { EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { deleteFile, upload as uploadFile } from '../../../utils/files';
@@ -83,8 +83,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: CreateEmployeeQueryType =
-			await createEmployeeSchema.validateAsync(form);
+		const valid = await createEmployeeSchema.validateAsync(form);
 		if (!valid.user && !valid.userId) {
 			return res.status(400).json({
 				status: 'error',
@@ -115,11 +114,16 @@ export default admin()
 					type: 'image',
 				});
 
-				valid.user.profile.image = result.secure_url || result.url;
-				Object(valid.user.profile).imageStorageInfo = {
-					id: result.public_id,
+				valid.user.profile.image = {
+					url: result.secure_url || result.url,
 					name: result.original_filename,
-					type: result.resource_type,
+					size: files.image.size,
+					type: 'image',
+					storageInfo: {
+						id: result.public_id,
+						name: result.original_filename,
+						type: result.resource_type,
+					},
 				};
 
 				// delete the old employee user profile image
@@ -132,8 +136,12 @@ export default admin()
 							select: {
 								profile: {
 									select: {
-										image: true,
-										imageStorageInfo: true,
+										image: {
+											select: {
+												url: true,
+												storageInfo: true,
+											},
+										},
 									},
 								},
 							},
@@ -142,22 +150,14 @@ export default admin()
 				});
 				if (
 					employee?.user.profile?.image &&
-					employee.user.profile.image !== DEFAULT_IMAGE
+					employee.user.profile.image.url !== DEFAULT_IMAGE
 				) {
-					if (USE_LOCAL_MEDIA_STORAGE) {
-						deleteFile(employee.user.profile.image).catch((error) => {
-							console.log('DELETE EMPLOYEE IMAGE FILE ERROR :>>', error);
-						});
-					} else if (
-						employee.user.profile.imageStorageInfo &&
-						(employee.user.profile.imageStorageInfo as any).public_id
-					) {
-						deleteFile(
-							(employee.user.profile.imageStorageInfo as any).public_id
-						).catch((error) => {
-							console.log('DELETE EMPLOYEE IMAGE FILE ERROR :>>', error);
-						});
-					}
+					const id = USE_LOCAL_MEDIA_STORAGE
+						? employee.user.profile.image.url
+						: (employee.user.profile.image.storageInfo as any)?.publicc_id;
+					deleteFile(id).catch((error) => {
+						console.log('DELETE EMPLOYEE IMAGE FILE ERROR :>>', error);
+					});
 				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -173,7 +173,15 @@ export default admin()
 						...valid.user,
 						email: valid.user.email.trim().toLowerCase(),
 						profile: {
-							update: valid.user.profile,
+							update: {
+								...valid.user.profile,
+								image: {
+									upsert: {
+										create: valid.user.profile.image,
+										update: valid.user.profile.image,
+									},
+								},
+							},
 						},
 					},
 			  }
@@ -199,7 +207,7 @@ export default admin()
 			},
 			supervisors: valid.supervisors
 				? {
-						set: valid.supervisors.map((id) => ({ id })),
+						set: valid.supervisors.map((id: string) => ({ id })),
 				  }
 				: undefined,
 			user,

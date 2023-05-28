@@ -175,7 +175,10 @@ export default admin()
 							update: {
 								...valid.contact.profile,
 								image: {
-									update: valid.contact.profile.image,
+									upsert: {
+										create: valid.contact.profile.image,
+										update: valid.contact.profile.image,
+									},
 								},
 							},
 						},
