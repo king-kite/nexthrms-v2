@@ -2,7 +2,7 @@ import { Alert, Button, ButtonDropdown } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt, FaPlus } from 'react-icons/fa';
 
-import { AssetTable, Details, Form, SearchForm } from '../components/Assets';
+import { AssetTable, Details, Form, SearchForm } from '../components/assets';
 import {
 	Container,
 	ExportForm,
