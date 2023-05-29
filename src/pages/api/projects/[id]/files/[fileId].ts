@@ -66,8 +66,8 @@ export default auth()
 
 		const deleteId = USE_LOCAL_MEDIA_STORAGE
 			? projectFile.file.url
-			: (profileFile.file.storageInfo as any).public_id;
-		deleteFile(projectFile.file).catch((error) => {
+			: (projectFile.file.storageInfo as any).public_id;
+		deleteFile(deleteId).catch((error) => {
 			console.log('DELETE PROJECT FILE ERROR :>>', error);
 		});
 
