@@ -208,6 +208,11 @@ const Users = ({
 									},
 									{
 										required: false,
+										title: 'image_id',
+										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+									},
+									{
+										required: false,
 										title: 'image',
 										value: '/images/default.png',
 									},
