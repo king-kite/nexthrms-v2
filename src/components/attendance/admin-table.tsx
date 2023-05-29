@@ -129,7 +129,7 @@ const getRows = (
 						<div className="w-full">
 							<TableAvatarEmailNameCell
 								email={attendance.employee.user.email}
-								image={attendance.employee.user.profile?.image || DEFAULT_IMAGE}
+								image={attendance.employee.user.profile?.image?.url || DEFAULT_IMAGE}
 								name={`${attendance.employee.user.firstName} ${attendance.employee.user.lastName}`}
 							/>
 						</div>

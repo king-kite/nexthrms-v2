@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { FaTimes, FaFileUpload, FaRegFilePdf } from 'react-icons/fa';
 
-import Form from './AddProjectFileForm';
+import Form from './add-project-file-form';
 import { EMPLOYEE_PAGE_URL, permissions } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useDeleteProjectFileMutation } from '../../../store/queries';
