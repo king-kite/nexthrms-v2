@@ -1,7 +1,7 @@
-export { default as GroupCards } from './GroupCards';
-export { default as Groups } from './Groups';
-export { default as Permissions } from './Permissions';
-export { default as PermissionsForm } from './PermissionsForm';
-export { default as UserForm } from './UserForm';
-export { default as UserInfo } from './UserInfo';
-export { default as UserGroupsForm } from './UserGroupsForm';
+export { default as GroupCards } from './group-cards';
+export { default as Groups } from './groups';
+export { default as Permissions } from './permissions';
+export { default as PermissionsForm } from './permissions-form';
+export { default as UserForm } from './user-form';
+export { default as UserInfo } from './user-info';
+export { default as UserGroupsForm } from './user-groups-form';
