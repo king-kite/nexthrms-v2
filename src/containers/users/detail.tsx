@@ -18,7 +18,7 @@ import {
 	Permissions,
 	UserForm,
 	UserInfo,
-} from '../../components/Users';
+} from '../../components/users';
 import {
 	permissions,
 	CLIENT_PAGE_URL,

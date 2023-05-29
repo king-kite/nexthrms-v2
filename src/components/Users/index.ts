@@ -1,6 +1,6 @@
-export { default as Cards } from './Cards';
-export { default as Form } from './Form';
-export { default as UserTable } from './Table';
-export { default as Topbar } from './Topbar';
+export { default as Cards } from './cards';
+export { default as Form } from './form';
+export { default as UserTable } from './table';
+export { default as Topbar } from './topbar';
 
-export * from './Detail';
+export * from './detail';

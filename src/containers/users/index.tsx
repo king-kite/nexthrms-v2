@@ -6,7 +6,7 @@ import {
 	Modal,
 	TablePagination,
 } from '../../components/common';
-import { Cards, UserTable, Form, Topbar } from '../../components/Users';
+import { Cards, UserTable, Form, Topbar } from '../../components/users';
 import {
 	permissions,
 	samples,
