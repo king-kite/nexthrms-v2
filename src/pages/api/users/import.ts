@@ -37,11 +37,25 @@ function getUserInput(user: UserImportQueryType) {
 		profile: {
 			dob: user.dob ? new Date(user.dob) : undefined,
 			gender: user.gender || 'MALE',
-			image: user.image || DEFAULT_IMAGE,
 			address: user.address,
 			city: user.city,
 			state: user.state,
 			phone: user.phone,
+			image: user.image
+				? {
+						upsert: {
+							create: {
+								url: user.image,
+								size: 0,
+								name: `${user.first_name}_${user.last_name}_${user.email}`.toLowerCase(),
+								type: 'image',
+							},
+							update: {
+								url: user.image,
+							},
+						},
+				  }
+				: undefined,
 		},
 		permissions: user.permissions ? user.permissions.split(',') : null,
 		groups: user.groups ? user.groups.split(',') : null,

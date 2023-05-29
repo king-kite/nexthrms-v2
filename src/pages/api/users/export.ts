@@ -75,7 +75,7 @@ async function getUsersData(req: NextApiRequestExtendUser) {
 			last_name: user.lastName,
 			dob: user.profile?.dob || null,
 			gender: user.profile?.gender || null,
-			image: user.profile?.image || null,
+			image: user.profile?.image?.url || null,
 			address: user.profile?.address || null,
 			phone: user.profile?.phone || null,
 			state: user.profile?.state || null,
