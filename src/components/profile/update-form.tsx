@@ -60,7 +60,7 @@ const Form = ({
 					fullName: data.firstName + ' ' + data.lastName,
 					profile: {
 						image: {
-							id: data.profile?.image?.id,
+							id: data.profile?.image?.id || '',
 							url: data.profile?.image?.url || DEFAULT_IMAGE,
 						},
 					},
