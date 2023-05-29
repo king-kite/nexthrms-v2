@@ -44,6 +44,7 @@ export default auth()
 		const projectFile = await prisma.projectFile.findUnique({
 			where: { id: req.query.fileId as string },
 			select: {
+				id: true,
 				file: {
 					select: {
 						url: true,
