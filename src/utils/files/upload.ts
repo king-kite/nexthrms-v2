@@ -40,9 +40,10 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 						else {
 							resolve({
 								original_filename: file.originalFilename || file.newFilename,
-								public_id: (
-									file.originalFilename || file.newFilename
-								).toLowerCase(),
+								// public_id: (
+								// 	file.originalFilename || file.newFilename
+								// ).toLowerCase(),
+								public_id: newLocation,
 								resource_type: file.mimetype || type || 'file',
 								url: '/' + newLocation,
 							});

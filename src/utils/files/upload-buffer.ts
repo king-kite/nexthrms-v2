@@ -47,7 +47,8 @@ function uploadBuffer({
 						resolve({
 							bytes: buffer.byteLength,
 							original_filename: name,
-							public_id: name.toLowerCase(),
+							// public_id: name.toLowerCase(),
+							public_id: newLocation,
 							resource_type: type || 'file',
 							url: '/' + newLocation,
 						});
