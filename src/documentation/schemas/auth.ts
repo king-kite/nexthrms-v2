@@ -48,16 +48,14 @@ export const AuthUserDataModel = {
 					type: 'object',
 					nullable: true,
 					properties: {
+						id: {
+							type: 'string',
+							format: 'uuid',
+						},
 						url: {
-							example: '/images/default.png',
 							type: 'string',
 						},
 					},
-				},
-			},
-			example: {
-				image: {
-					url: '/images/default.png',
 				},
 			},
 		},
@@ -155,6 +153,7 @@ export const UserProfileDataModel = {
 			dob: '2001-03-14T00:00:00.000Z',
 			gender: 'MALE',
 			image: {
+				id: '1234th-5678-0987-23erfgbnm3',
 				url: '/media/users/profile/jan_doe_jandoe@kitehrms.com_1669361137919.jpg',
 			},
 			address: 'This is my Home Address. Please leave a note or letter',

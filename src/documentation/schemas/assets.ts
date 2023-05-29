@@ -82,6 +82,10 @@ export const AssetModel = {
 							type: 'object',
 							nullable: true,
 							properties: {
+								id: {
+									type: 'string',
+									format: 'uuid',
+								},
 								url: {
 									type: 'string',
 								},
@@ -126,6 +130,7 @@ export const AssetModel = {
 			email: 'jandoe@kitehrms.com',
 			profile: {
 				image: {
+					id: 'e0c55c26-e5b8-41a2-8269-13881ad7b563',
 					url: '/images/default.png',
 				},
 			},

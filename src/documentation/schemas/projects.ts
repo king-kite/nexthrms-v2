@@ -10,6 +10,10 @@ export const ProjectFileModel = {
 		file: {
 			type: 'object',
 			properties: {
+				id: {
+					type: 'string',
+					format: 'uuid',
+				},
 				name: {
 					type: 'string',
 				},
@@ -117,6 +121,10 @@ export const ProjectTeamModel = {
 									type: 'object',
 									nullable: true,
 									properties: {
+										id: {
+											type: 'string',
+											format: 'uuid',
+										},
 										url: {
 											example: '/images/default.png',
 											type: 'string',
@@ -194,8 +202,11 @@ export const ProjectModel = {
 									type: 'object',
 									nullable: true,
 									properties: {
+										id: {
+											type: 'string',
+											format: 'uuid',
+										},
 										url: {
-											example: '/images/default.png',
 											type: 'string',
 										},
 									},
@@ -354,8 +365,11 @@ export const ProjectTaskFollowerModel = {
 											type: 'object',
 											nullable: true,
 											properties: {
+												id: {
+													type: 'string',
+													format: 'uuid',
+												},
 												url: {
-													example: '/images/default.png',
 													type: 'string',
 												},
 											},

@@ -157,6 +157,7 @@ export const UserModel = {
 		},
 		profile: {
 			image: {
+				id: '12345678-3456-7890-12345678',
 				url: '/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
 			},
 			dob: '2001-03-10T00:00:00.000Z',

@@ -48,8 +48,11 @@ const employeeModel = {
 							type: 'object',
 							nullable: true,
 							properties: {
+								id: {
+									type: 'string',
+									format: 'uuid',
+								},
 								url: {
-									example: '/images/default.png',
 									type: 'string',
 								},
 							},

@@ -77,6 +77,10 @@ export const AttendanceModel = {
 									type: 'object',
 									nullable: true,
 									properties: {
+										id: {
+											type: 'string',
+											format: 'uuid',
+										},
 										url: {
 											type: 'string',
 										},

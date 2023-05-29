@@ -10,6 +10,10 @@ export const profileProperties = {
 				description: "The user's profile image",
 				nullable: true,
 				properties: {
+					id: {
+						type: 'string',
+						format: 'uuid',
+					},
 					url: {
 						description: "The user's profile image url",
 						example: '/images/default.png',
@@ -80,6 +84,10 @@ export const userProfileEmployeeProperties = {
 						type: 'object',
 						nullable: true,
 						properties: {
+							id: {
+								type: 'string',
+								format: 'uuid',
+							},
 							url: {
 								type: 'string',
 							},

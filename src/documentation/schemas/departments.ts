@@ -51,8 +51,11 @@ export const DepartmentModel = {
 									type: 'object',
 									nullable: true,
 									properties: {
+										id: {
+											type: 'string',
+											format: 'uuid',
+										},
 										url: {
-											example: '/images/default.png',
 											type: 'string',
 										},
 									},
@@ -99,8 +102,9 @@ export const DepartmentModel = {
 				lastName: 'Doe',
 				email: 'jandoe@kitehrms.com',
 				profile: {
-					url: {
-						image: '/images/default.png',
+					image: {
+						id: '12345678-5678-1234-12345678',
+						url: '/images/default.png',
 					},
 				},
 			},

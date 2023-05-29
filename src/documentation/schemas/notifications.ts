@@ -4,6 +4,7 @@ const userExample = {
 	email: 'johndoe@kitehrms.com',
 	profile: {
 		image: {
+			id: '23456789-4567-56789-1234567890',
 			url: '/images/default.png',
 		},
 	},
@@ -30,8 +31,11 @@ const userModel = {
 					type: 'object',
 					nullable: true,
 					properties: {
+						id: {
+							type: 'string',
+							format: 'uuid',
+						},
 						url: {
-							example: '/images/default.png',
 							type: 'string',
 						},
 					},

@@ -44,6 +44,7 @@ export const ClientModel = {
 			isActive: true,
 			profile: {
 				image: {
+					id: '1234567-5672-5678-34567890',
 					url: '/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
 				},
 				dob: '2001-03-10T00:00:00.000Z',

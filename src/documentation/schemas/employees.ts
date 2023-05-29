@@ -17,8 +17,11 @@ const commonUserProperties = {
 					type: 'object',
 					nullable: true,
 					properties: {
+						id: {
+							type: 'string',
+							format: 'uuid',
+						},
 						url: {
-							example: '/images/default.png',
 							type: 'string',
 						},
 					},
@@ -138,6 +141,7 @@ export const EmployeeModel = {
 			isActive: true,
 			profile: {
 				image: {
+					id: '123456789-7890-4567-123456789',
 					url: '/media/users/profile/johnson_davis_johnsondavis@kitehrms.com_1669584469551.jpg',
 				},
 				dob: '2001-03-10T00:00:00.000Z',
@@ -164,6 +168,7 @@ export const EmployeeModel = {
 					email: 'jandoe@kitehrms.com',
 					profile: {
 						image: {
+							id: '12345678-6789-34567-1234567890',
 							url: '/media/users/profile/jan_doe_jandoe@kitehrms.com_1671403740847.jpg',
 						},
 						dob: '2000-02-12T00:00:00.000Z',
@@ -189,6 +194,7 @@ export const EmployeeModel = {
 					email: 'priscillaandrews@kitehrms.com',
 					profile: {
 						image: {
+							id: '09876542322-5679-1234-123456789',
 							url: '/media/users/profile/priscilla_andrews_priscillaandrews@kitehrms.com_1669470278039.jpg',
 						},
 					},
