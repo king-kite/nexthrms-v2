@@ -101,6 +101,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -178,6 +179,14 @@ export default admin()
 					users: [req.user.id],
 				}),
 			];
+			// set managed files permissions
+			if (user.profile?.image) {
+				addObjectPermissions({
+					model: 'managed_files',
+					objectId: user.profile.image.id,
+					users: [req.user.id, user.id],
+				});
+			}
 			if (user.employee)
 				permissionPromises.push(
 					addObjectPermissions({

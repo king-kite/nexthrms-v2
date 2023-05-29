@@ -5,8 +5,12 @@ import {
 	DEFAULT_IMAGE,
 	USE_LOCAL_MEDIA_STORAGE,
 } from '../../../config';
-import { prisma, getClient } from '../../../db';
-import { getRecord, getUserObjectPermissions } from '../../../db/utils';
+import { prisma, getClient, clientSelectQuery as select } from '../../../db';
+import {
+	getRecord,
+	getUserObjectPermissions,
+	updateObjectPermissions,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -122,6 +126,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 
 				// delete the old client user profile image
@@ -204,6 +209,15 @@ export default admin()
 			select,
 		});
 
+		if (valid.contact && files.image && client.contact.profile?.image) {
+			// set managed files permissions
+			await updateObjectPermissions({
+				model: 'managed_files',
+				objectId: client.contact.profile.image.id,
+				users: [req.user.id, client.contact.id],
+			});
+		}
+
 		return res.status(200).json({
 			status: 'success',
 			message: 'Client updated successfully!',
@@ -238,28 +252,3 @@ export default admin()
 			message: 'Client deleted successfully!',
 		});
 	});
-
-const select = {
-	id: true,
-	company: true,
-	contact: {
-		select: {
-			firstName: true,
-			lastName: true,
-			email: true,
-			profile: {
-				select: {
-					image: true,
-					gender: true,
-					city: true,
-					address: true,
-					dob: true,
-					phone: true,
-					state: true,
-				},
-			},
-			isActive: true,
-		},
-	},
-	position: true,
-};

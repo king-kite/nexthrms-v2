@@ -4,8 +4,9 @@ import {
 	prisma,
 	profileUserSelectQuery as profileSelect,
 } from '../../../db';
+import { updateObjectPermissions } from '../../../db/utils';
 import { auth } from '../../../middlewares';
-import { ProfileUpdateType } from '../../../types';
+import { ProfileUpdateType, ProfileType } from '../../../types';
 import { deleteFile, upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { profileUpdateSchema } from '../../../validators';
@@ -91,6 +92,7 @@ export default auth()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 
 				// delete the old user profile image
@@ -126,7 +128,7 @@ export default auth()
 			}
 		}
 
-		const user = await prisma.user.update({
+		const user = (await prisma.user.update({
 			where: {
 				id: req.user.id,
 			},
@@ -147,7 +149,16 @@ export default auth()
 				},
 			},
 			select: profileSelect,
-		});
+		})) as unknown as ProfileType;
+
+		if (files.image && user.profile?.image) {
+			// set managed files permissions
+			await updateObjectPermissions({
+				model: 'managed_files',
+				objectId: user.profile.image.id,
+				users: [req.user.id],
+			});
+		}
 
 		return res.status(200).json({
 			status: 'success',

@@ -79,8 +79,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid =
-			await createEmployeeSchema.validateAsync(form);
+		const valid = await createEmployeeSchema.validateAsync(form);
 		if (!valid.user && !valid.userId) {
 			return res.status(400).json({
 				status: 'error',
@@ -121,6 +120,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -141,8 +141,8 @@ export default admin()
 							create: {
 								...valid.user.profile,
 								image: {
-									create: valid.user.profile.image
-								}
+									create: valid.user.profile.image,
+								},
 							},
 						},
 					},
@@ -192,7 +192,7 @@ export default admin()
 			}),
 		];
 
-		if (valid.user)
+		if (valid.user) {
 			creatorPromises.push(
 				// Give the creator all permissions on the user as well
 				addObjectPermissions({
@@ -201,6 +201,17 @@ export default admin()
 					users: [req.user.id],
 				})
 			);
+			if (valid.user && files.image && employee.user.profile?.image) {
+				// set managed files permissions
+				creatorPromises.push(
+					addObjectPermissions({
+						model: 'managed_files',
+						objectId: employee.user.profile.image.id,
+						users: [req.user.id, employee.user.id],
+					})
+				);
+			}
+		}
 
 		await Promise.all(creatorPromises);
 

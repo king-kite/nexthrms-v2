@@ -10,7 +10,11 @@ import {
 	getEmployee,
 	prisma,
 } from '../../../db';
-import { getRecord, getUserObjectPermissions } from '../../../db/utils';
+import {
+	getRecord,
+	getUserObjectPermissions,
+	updateObjectPermissions,
+} from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
@@ -124,6 +128,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 
 				// delete the old employee user profile image
@@ -213,13 +218,22 @@ export default admin()
 			user,
 		};
 
-		const employee = await prisma.employee.update({
+		const employee = (await prisma.employee.update({
 			where: {
 				id: req.query.id as string,
 			},
 			data,
 			select: selectQuery,
-		});
+		})) as unknown as EmployeeType;
+
+		if (valid.user && files.image && employee.user.profile?.image) {
+			// set managed files permissions
+			await updateObjectPermissions({
+				model: 'managed_files',
+				objectId: employee.user.profile.image.id,
+				users: [req.user.id, employee.user.id],
+			});
+		}
 
 		return res.status(200).json({
 			status: 'success',

@@ -10,7 +10,11 @@ import {
 	getUser,
 	prisma,
 } from '../../../../db';
-import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
+import {
+	getRecord,
+	getUserObjectPermissions,
+	updateObjectPermissions,
+} from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { UserType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
@@ -145,6 +149,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 
 				// delete the old user profile image
@@ -250,8 +255,16 @@ export default admin()
 			},
 			data,
 			select: selectQuery,
-		})) as unknown;
+		})) as unknown as UserType;
 
+		// update managed files permissions if an image was sent
+		if (files.image && user.profile?.image) {
+			await updateObjectPermissions({
+				model: 'managed_files',
+				objectId: user.profile.image.id,
+				users: [req.user.id, user.id],
+			});
+		}
 		return res.status(200).json({
 			status: 'success',
 			message: 'User was updated successfully',

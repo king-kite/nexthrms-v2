@@ -102,6 +102,7 @@ export default admin()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				};
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
@@ -151,7 +152,7 @@ export default admin()
 			}),
 		];
 
-		if (client.contact)
+		if (client.contact) {
 			creatorPromises.push(
 				addObjectPermissions({
 					model: 'users',
@@ -159,6 +160,17 @@ export default admin()
 					users: [req.user.id],
 				})
 			);
+			if (valid.contact && files.image && client.contact.profile?.image) {
+				// set managed files permissions
+				creatorPromises.push(
+					addObjectPermissions({
+						model: 'managed_files',
+						objectId: client.contact.profile.image.id,
+						users: [req.user.id, client.contact.id],
+					})
+				);
+			}
+		}
 		await Promise.all(creatorPromises);
 
 		return res.status(201).json({
