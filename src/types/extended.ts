@@ -27,6 +27,7 @@ export type RequestUserType = {
 	isEmailVerified: boolean;
 	profile: {
 		image: {
+			id: string;
 			url: string;
 		} | null;
 	} | null;

@@ -10,6 +10,7 @@ export interface AuthDataType extends UserDataType {
 	fullName: string;
 	profile: {
 		image: {
+			id: string;
 			url: string;
 		} | null;
 	} | null;
@@ -37,6 +38,7 @@ export type ProfileType = {
 		dob: Date | string | null;
 		gender: 'MALE' | 'FEMALE';
 		image: {
+			id: string;
 			url: string;
 		} | null;
 		address: string | null;
@@ -56,6 +58,7 @@ export type ProfileType = {
 					email: string;
 					profile: {
 						image: {
+							id: string;
 							url: string;
 						} | null;
 					} | null;
@@ -78,6 +81,7 @@ export type ProfileType = {
 				email: string;
 				profile: {
 					image: {
+						id: string;
 						url: string;
 					} | null;
 				} | null;

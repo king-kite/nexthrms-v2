@@ -11,6 +11,7 @@ export type ClientType = {
 		email: string;
 		profile: {
 			image: {
+				id: string;
 				url: string;
 			} | null;
 			gender: 'MALE' | 'FEMALE';

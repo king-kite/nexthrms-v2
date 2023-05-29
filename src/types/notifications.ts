@@ -8,6 +8,7 @@ export type ParticipantType = {
 	email: string;
 	profile: {
 		image: {
+			id: string;
 			url: string;
 		} | null;
 	};

@@ -6,6 +6,7 @@ type UserDataType = {
 	email: string;
 	profile: {
 		image: {
+			id: string;
 			url: string;
 		} | null;
 	} | null;
@@ -58,6 +59,7 @@ interface EmployeeUserType extends UserDataType {
 		dob: string | null;
 		gender: 'MALE' | 'FEMALE';
 		image: {
+			id: string;
 			url: string;
 		} | null;
 		address: string | null;

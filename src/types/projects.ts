@@ -21,6 +21,7 @@ export type ProjectType = {
 			email: string;
 			profile: {
 				image: {
+					id: string;
 					url: string;
 				} | null;
 			};
@@ -104,6 +105,7 @@ export type ProjectTeamType = {
 			email: string;
 			profile: {
 				image: {
+					id: string;
 					url: string;
 				} | null;
 			};
@@ -145,6 +147,7 @@ export type CreateProjectTeamResponseType = BaseResponseType;
 export type ProjectFileType = {
 	id: string;
 	file: {
+		id: string;
 		name: string;
 		url: string;
 		size: number;

@@ -14,6 +14,7 @@ export type DepartmentType = {
 			email: string;
 			profile: {
 				image: {
+					id: string;
 					url: string;
 				} | null;
 			} | null;

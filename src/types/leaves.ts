@@ -11,6 +11,7 @@ type EmployeeType = {
 		email: string;
 		profile: {
 			image: {
+				id: string;
 				url: string;
 			} | null;
 		} | null;

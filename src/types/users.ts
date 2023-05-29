@@ -14,6 +14,7 @@ export type GroupUserType = {
 	isActive: boolean;
 	profile?: {
 		image: {
+			id: string;
 			url: string;
 		} | null;
 	} | null;
@@ -191,6 +192,7 @@ export type UserType = {
 		dob: string | null;
 		gender: 'MALE' | 'FEMALE';
 		image: {
+			id: string;
 			url: string;
 		} | null;
 		address: string | null;
