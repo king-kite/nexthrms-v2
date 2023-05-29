@@ -118,7 +118,14 @@ function createUsers(
 							...data,
 							password: DEFAULT_PASSWORD,
 							profile: {
-								create: data.profile,
+								create: {
+									...data.profile,
+									image: data.profile.image
+										? {
+												create: data.profile.image.upsert.create,
+										  }
+										: undefined,
+								},
 							},
 							permissions: data.permissions
 								? {
