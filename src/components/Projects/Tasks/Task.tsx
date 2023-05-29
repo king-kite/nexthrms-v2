@@ -1,7 +1,7 @@
 import { FaCheck } from "react-icons/fa";
 
 const Task = ({ title, completed }: { completed: boolean; title: string }) => (
-	<div className={`${completed ? "bg-gray-200" : ""} rounded-b-lg py-1 flex items-center relative py-1`}>
+	<div className={`${completed ? "bg-gray-200" : ""} rounded-b-lg flex items-center relative py-1`}>
 		<div className="flex items-center justify-center w-[15%]">
 			<div
 				onClick={() => {}}

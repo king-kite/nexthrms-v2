@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import {
 	FaArrowRight,
@@ -121,8 +121,8 @@ type TableType = {
 };
 
 const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<'all' | 'ongoing' | 'completed'>(
+	const [rows, setRows] = React.useState<TableRowType[]>([]);
+	const [activeRow, setActiveRow] = React.useState<'all' | 'ongoing' | 'completed'>(
 		'all'
 	);
 
@@ -130,7 +130,7 @@ const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 	const { data: authData } = useAuthContext();
 
 	// has model permission
-	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+	const [canEdit, canDelete, canViewObjectPermissions] = React.useMemo(() => {
 		const canEdit = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.projecttask.EDIT])
@@ -181,7 +181,7 @@ const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 		},
 	});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		let finalList;
 		if (activeRow === 'ongoing') {
 			finalList = tasks.filter((task) => task.completed === false);

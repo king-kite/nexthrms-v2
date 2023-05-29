@@ -17,7 +17,7 @@ import { ProjectType, ProjectTeamType } from '../../types';
 
 const ImageBlocks = ({ team }: { team: ProjectTeamType[] }) => {
 	const images = team.slice(0, 4).map((person) => ({
-		src: person.employee.user.profile?.image || DEFAULT_IMAGE,
+		src: person.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 		alt: '',
 	}));
 

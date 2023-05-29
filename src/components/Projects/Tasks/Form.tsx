@@ -92,17 +92,6 @@ const Form = ({
 		[formErrors, resetErrors]
 	);
 
-	const handleFormChange = React.useCallback(
-		(name: 'followers' | 'leaders', value: string | string[]) => {
-			setForm((prevState) => ({
-				...prevState,
-				[name]: value,
-			}));
-			removeErrors(name);
-		},
-		[removeErrors]
-	);
-
 	React.useEffect(() => {
 		if (success) {
 			if (formRef.current) formRef.current.reset();
@@ -294,7 +283,7 @@ const Form = ({
 													...total,
 													{
 														image:
-															member.employee.user.profile?.image ||
+															member.employee.user.profile?.image?.url ||
 															DEFAULT_IMAGE,
 														title: toCapitalize(
 															member.employee.user.firstName +
@@ -388,7 +377,7 @@ const Form = ({
 													...total,
 													{
 														image:
-															member.employee.user.profile?.image ||
+															member.employee.user.profile?.image?.url ||
 															DEFAULT_IMAGE,
 														title: toCapitalize(
 															member.employee.user.firstName +

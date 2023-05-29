@@ -409,7 +409,7 @@ const Form = ({
 														...total,
 														{
 															image:
-																employee.user.profile?.image || DEFAULT_IMAGE,
+																employee.user.profile?.image?.url || DEFAULT_IMAGE,
 															title:
 																employee.user.firstName +
 																' ' +
@@ -501,7 +501,7 @@ const Form = ({
 														...total,
 														{
 															image:
-																employee.user.profile?.image || DEFAULT_IMAGE,
+																employee.user.profile?.image?.url || DEFAULT_IMAGE,
 															title:
 																employee.user.firstName +
 																' ' +
