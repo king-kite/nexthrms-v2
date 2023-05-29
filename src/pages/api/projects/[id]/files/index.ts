@@ -138,6 +138,7 @@ export default auth()
 						name: result.original_filename,
 						type: result.resource_type,
 					},
+					userId: req.user.id,
 				},
 			},
 		};
@@ -154,11 +155,18 @@ export default auth()
 			select: selectQuery,
 		})) as unknown as ProjectFileType;
 
-		await addObjectPermissions({
-			model: 'projects_files',
-			objectId: finalResult.id,
-			users: [req.user.id],
-		});
+		await Promise.all([
+			addObjectPermissions({
+				model: 'projects_files',
+				objectId: finalResult.id,
+				users: [req.user.id],
+			}),
+			addObjectPermissions({
+				model: 'managed_files',
+				objectId: finalResult.file.id,
+				users: [req.user.id],
+			}),
+		]);
 
 		const viewers = [];
 		if (project.data.client) viewers.push(project.data.client.contact.id);
