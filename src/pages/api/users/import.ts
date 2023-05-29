@@ -41,7 +41,13 @@ function getUserInput(user: UserImportQueryType) {
 			city: user.city,
 			state: user.state,
 			phone: user.phone,
-			image: user.image
+			image: user.image_id
+				? {
+						connect: {
+							id: user.image_id,
+						},
+				  }
+				: user.image
 				? {
 						upsert: {
 							create: {
@@ -101,7 +107,16 @@ function createUsers(
 						update: {
 							...data,
 							profile: {
-								update: data.profile,
+								update: {
+									...data.profile,
+									image: data.profile.image
+										? data.profile.image.connect
+											? {
+													connect: data.profile.image.connect,
+											  }
+											: data.profile.image
+										: undefined,
+								},
 							},
 							permissions: data.permissions
 								? {
@@ -121,9 +136,13 @@ function createUsers(
 								create: {
 									...data.profile,
 									image: data.profile.image
-										? {
-												create: data.profile.image.upsert.create,
-										  }
+										? data.profile.image.connect
+											? {
+													connect: data.profile.image.connect,
+											  }
+											: {
+													create: data.profile.image.upsert.create,
+											  }
 										: undefined,
 								},
 							},

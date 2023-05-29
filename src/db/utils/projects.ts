@@ -113,13 +113,19 @@ function getProjectFileInput(data: ProjectFileImportQueryType) {
 	return {
 		id: data.id && data.id.length > 0 ? data.id : undefined,
 		project: data.project_id,
-		file: {
-			type: data.type,
-			name: data.name,
-			url: data.file,
-			size: +data.size,
-			storageInfo,
-		},
+		file: data.file_id
+			? {
+					connect: {
+						id: data.file_id,
+					},
+			  }
+			: {
+					type: data.type,
+					name: data.name,
+					url: data.file,
+					size: +data.size,
+					storageInfo,
+			  },
 		employee: data.uploaded_by
 			? {
 					connect: {
@@ -156,9 +162,13 @@ export function importProjectFiles({
 						where: { id: data.id },
 						update: {
 							...data,
-							file: {
-								update: data.file,
-							},
+							file: data.file.connect
+								? {
+										connect: data.file.connect,
+								  }
+								: {
+										update: data.file,
+								  },
 							project: {
 								connect: {
 									id: projectId || data.project,
@@ -167,9 +177,13 @@ export function importProjectFiles({
 						},
 						create: {
 							...data,
-							file: {
-								create: data.file,
-							},
+							file: data.file.connect
+								? {
+										connect: data.file.connect,
+								  }
+								: {
+										create: data.file,
+								  },
 							project: {
 								connect: {
 									id: projectId || data.project,

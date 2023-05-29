@@ -218,6 +218,7 @@ export type UserImportQueryType = {
 	dob?: Date | string | null;
 	gender: 'MALE' | 'FEMALE';
 	image?: string | null;
+	image_id?: string | null;
 	address?: string | null;
 	city?: string | null;
 	state?: string | null;
