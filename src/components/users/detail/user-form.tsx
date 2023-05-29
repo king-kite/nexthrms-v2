@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import Form from '../Form';
+import Form from '../form';
 import { useEditUserMutation } from '../../../store/queries';
 import {
 	UserType,

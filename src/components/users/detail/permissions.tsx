@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { FaPen } from 'react-icons/fa';
 
-import PermissionsForm from './PermissionsForm';
+import PermissionsForm from './permissions-form';
 import { Modal, TablePagination } from '../../common';
 import { Permissions } from '../../groups/detail';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';

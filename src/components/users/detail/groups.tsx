@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { FaPen } from 'react-icons/fa';
 
-import GroupCards from './GroupCards';
-import UserGroupsForm from './UserGroupsForm';
+import GroupCards from './group-cards';
+import UserGroupsForm from './user-groups-form';
 import { Modal, TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
