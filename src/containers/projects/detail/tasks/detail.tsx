@@ -25,7 +25,7 @@ import {
 	Modal,
 	PersonCard,
 } from '../../../../components/common';
-import { TaskForm } from '../../../../components/Projects';
+import { TaskForm } from '../../../../components/projects';
 import { useAxiosInstance } from '../../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../../store/contexts';
 import {

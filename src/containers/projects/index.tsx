@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Container, Modal, TablePagination } from '../../components/common';
-import { Cards, Form, ProjectTable, Topbar } from '../../components/Projects';
+import { Cards, Form, ProjectTable, Topbar } from '../../components/projects';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,

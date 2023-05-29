@@ -11,7 +11,7 @@ import {
 	ProjectDetail,
 	ProjectFiles,
 	ProjectImages,
-} from '../../../components/Projects';
+} from '../../../components/projects';
 import {
 	permissions,
 	PROJECT_TASKS_PAGE_URL,

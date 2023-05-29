@@ -11,7 +11,7 @@ import {
 	TaskForm as Form,
 	TaskTable,
 	TaskTopbar as Topbar,
-} from '../../../../components/Projects/Tasks';
+} from '../../../../components/projects/tasks';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,
