@@ -33,13 +33,17 @@ import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
+type DataFileType = ProjectFileType & {
+	file: ProjectFileType['file'] & {
+		storageInfo?: object | null;
+	};
+};
+
 type DataType = ProjectType & {
 	client: {
 		id: string;
 	} | null;
-	files: (ProjectFileType & {
-		storageInfo?: object | null;
-	})[];
+	files: DataFileType[];
 	tasks: ProjectTaskType[];
 };
 
@@ -93,16 +97,16 @@ async function getFilesData(data: DataType['files']) {
 	const files = data.map((file) => ({
 		id: file.id,
 		project_id: file.project.id,
-		name: file.name,
-		file: file.file,
-		size: file.size,
-		storage_info_keys: file.storageInfo
-			? Object.keys(file.storageInfo).join(',')
+		name: file.file.name,
+		file: file.file.url,
+		size: file.file.size,
+		storage_info_keys: file.file.storageInfo
+			? Object.keys(file.file.storageInfo).join(',')
 			: null,
-		storage_info_values: file.storageInfo
-			? Object.values(file.storageInfo).join(',')
+		storage_info_values: file.file.storageInfo
+			? Object.values(file.file.storageInfo).join(',')
 			: null,
-		type: file.type,
+		type: file.file.type,
 		uploaded_by: file.employee ? file.employee.id : undefined,
 		updated_at: file.updatedAt,
 		created_at: file.createdAt,
@@ -181,7 +185,12 @@ async function getProjectsData(req: NextApiRequestExtendUser) {
 							: undefined,
 						select: {
 							...projectFileSelectQuery,
-							storageInfo: true,
+							file: {
+								select: {
+									...projectFileSelectQuery.file.select,
+									storageInfo: true,
+								},
+							},
 						},
 					},
 					tasks: {

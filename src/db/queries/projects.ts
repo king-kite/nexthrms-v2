@@ -256,7 +256,7 @@ export const getProject = async (id: string) => {
 
 // ******** File Queries Start **********
 
-export const projectFileSelectQuery: Prisma.ProjectFileSelect = {
+export const projectFileSelectQuery = {
 	id: true,
 	file: {
 		select: {
