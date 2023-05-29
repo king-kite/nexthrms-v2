@@ -8,7 +8,7 @@ import {
 	Select2,
 	Textarea,
 } from 'kite-react-tailwind';
-import { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
@@ -67,7 +67,7 @@ const formStaleData: {
 	supervisors: [],
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	editMode,
 	initState,
 	errors,
@@ -75,17 +75,17 @@ const Form: FC<FormProps> = ({
 	loading,
 	success,
 	onSubmit,
-}) => {
-	const [depLimit, setDepLimit] = useState(DEFAULT_PAGINATION_SIZE);
-	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
-	const [jobLimit, setJobLimit] = useState(DEFAULT_PAGINATION_SIZE);
+}: FormProps) => {
+	const [depLimit, setDepLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [jobLimit, setJobLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const [form, setForm] = useState(formStaleData);
-	const [formErrors, setErrors] = useState<ErrorType>();
+	const [form, setForm] = React.useState(formStaleData);
+	const [formErrors, setErrors] = React.useState<ErrorType>();
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (initState) {
 			setForm({
 				...formStaleData,
@@ -133,7 +133,7 @@ const Form: FC<FormProps> = ({
 	const employeesError = handleDataError(employees.error);
 	const jobsError = handleDataError(jobs.error);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (input: CreateUserQueryType) => {
 			try {
 				const valid: CreateUserQueryType = await createUserSchema.validateAsync(
@@ -162,7 +162,7 @@ const Form: FC<FormProps> = ({
 		[onSubmit]
 	);
 
-	const removeFormErrors = useCallback(
+	const removeFormErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -174,7 +174,7 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
@@ -185,7 +185,7 @@ const Form: FC<FormProps> = ({
 		[removeFormErrors]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success && !editMode) {
 			setForm(formStaleData);
 			if (formRef.current) {
@@ -511,7 +511,7 @@ const Form: FC<FormProps> = ({
 
 				{/* Employee Info Start */}
 				{form.isEmployee && (
-					<Fragment>
+					<React.Fragment>
 						<div className="w-full">
 							<Select
 								btn={{
@@ -677,7 +677,7 @@ const Form: FC<FormProps> = ({
 																...total,
 																{
 																	image:
-																		employee.user.profile?.image ||
+																		employee.user.profile?.image?.url ||
 																		DEFAULT_IMAGE,
 																	title:
 																		employee.user.firstName +
@@ -729,13 +729,13 @@ const Form: FC<FormProps> = ({
 								type="date"
 							/>
 						</div>
-					</Fragment>
+					</React.Fragment>
 				)}
 				{/* Employee Info Stop */}
 
 				{/* Client Info Start */}
 				{form.isClient && (
-					<Fragment>
+					<React.Fragment>
 						<div className="w-full">
 							<Input
 								defaultValue={initState?.client?.company}
@@ -758,7 +758,7 @@ const Form: FC<FormProps> = ({
 								placeholder="Position in Company"
 							/>
 						</div>
-					</Fragment>
+					</React.Fragment>
 				)}
 				{/* Client Info Stop */}
 			</div>
