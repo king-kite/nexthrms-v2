@@ -14,6 +14,7 @@ const userSelect: Prisma.UserSelect = {
 		select: {
 			image: {
 				select: {
+					id: true,
 					url: true,
 				},
 			},

@@ -75,6 +75,7 @@ export const userSelectQuery: Prisma.UserSelect = {
 		select: {
 			image: {
 				select: {
+					id: true,
 					url: true,
 				},
 			},

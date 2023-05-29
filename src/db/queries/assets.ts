@@ -30,6 +30,7 @@ export const assetSelectQuery: Prisma.AssetSelect = {
 				select: {
 					image: {
 						select: {
+							id: true,
 							url: true,
 						},
 					},

@@ -30,6 +30,7 @@ export const taskFollowerSelectQuery: Prisma.ProjectTaskFollowerSelect = {
 								select: {
 									image: {
 										select: {
+											id: true,
 											url: true,
 										},
 									},
@@ -68,6 +69,7 @@ export const teamSelectQuery: Prisma.ProjectTeamSelect = {
 						select: {
 							image: {
 								select: {
+									id: true,
 									url: true,
 								},
 							},
@@ -109,6 +111,7 @@ export const projectSelectQuery: Prisma.ProjectSelect = {
 						select: {
 							image: {
 								select: {
+									id: true,
 									url: true,
 								},
 							},
@@ -260,6 +263,7 @@ export const projectFileSelectQuery = {
 	id: true,
 	file: {
 		select: {
+			id: true,
 			name: true,
 			size: true,
 			type: true,

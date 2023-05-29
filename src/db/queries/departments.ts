@@ -21,6 +21,7 @@ export const departmentSelectQuery: Prisma.DepartmentSelect = {
 						select: {
 							image: {
 								select: {
+									id: true,
 									url: true,
 								},
 							},

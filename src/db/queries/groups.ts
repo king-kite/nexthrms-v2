@@ -15,6 +15,7 @@ export const groupUserSelectQuery: Prisma.UserSelect = {
 		select: {
 			image: {
 				select: {
+					id: true,
 					url: true,
 				},
 			},

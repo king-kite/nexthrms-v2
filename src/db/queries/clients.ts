@@ -17,6 +17,7 @@ export const clientSelectQuery = {
 				select: {
 					image: {
 						select: {
+							id: true,
 							url: true,
 						},
 					},

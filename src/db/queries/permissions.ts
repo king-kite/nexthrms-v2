@@ -22,6 +22,7 @@ export const objectPermissionSelectQuery = {
 				select: {
 					image: {
 						select: {
+							id: true,
 							url: true,
 						},
 					},

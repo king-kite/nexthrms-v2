@@ -15,6 +15,7 @@ const employeeSelectQuery: Prisma.EmployeeSelect = {
 				select: {
 					image: {
 						select: {
+							id: true,
 							url: true,
 						},
 					},
