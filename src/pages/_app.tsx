@@ -40,7 +40,8 @@ function App({
 	Component,
 	pageProps: { auth, errorPage, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
-	return errorPage ? (
+	// Not returning error page so the authenticated wrapper can show login page instead
+	return errorPage && errorPage.statusCode !== 401 ? (
 		<Error
 			statusCode={errorPage?.statusCode || 500}
 			title={
