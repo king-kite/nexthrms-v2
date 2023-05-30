@@ -97,7 +97,8 @@ export default admin()
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {
-						id: result.public_id,
+						location: result.location,
+						public_id: result.public_id,
 						name: result.original_filename,
 						type: result.resource_type,
 					},

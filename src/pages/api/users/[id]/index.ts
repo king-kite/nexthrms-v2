@@ -1,10 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import {
-	permissions,
-	DEFAULT_IMAGE,
-	USE_LOCAL_MEDIA_STORAGE,
-} from '../../../../config';
+import { permissions } from '../../../../config';
 import {
 	userSelectQuery as selectQuery,
 	getUser,
@@ -19,7 +15,7 @@ import { admin } from '../../../../middlewares';
 import { UserType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { deleteFile, upload as uploadFile } from '../../../../utils/files';
+import { upload as uploadFile } from '../../../../utils/files';
 import parseForm from '../../../../utils/parseForm';
 import { createUserSchema } from '../../../../validators';
 
@@ -145,35 +141,13 @@ export default admin()
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {
-						id: result.public_id,
+						location: result.location,
+						public_id: result.public_id,
 						name: result.original_filename,
 						type: result.resource_type,
 					},
 					userId: req.user.id,
 				};
-
-				// delete the old user profile image
-				const profile = await prisma.profile.findUnique({
-					where: {
-						userId: req.query.id as string,
-					},
-					select: {
-						image: {
-							select: {
-								url: true,
-								storageInfo: true,
-							},
-						},
-					},
-				});
-				if (profile?.image && profile.image.url !== DEFAULT_IMAGE) {
-					const id = USE_LOCAL_MEDIA_STORAGE
-						? profile.image.url
-						: (profile.image.storageInfo as any).public_id;
-					deleteFile(id).catch((error) => {
-						console.log('DELETE USER IMAGE FILE ERROR :>>', error);
-					});
-				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
 					console.log('EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
