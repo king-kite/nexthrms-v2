@@ -1,6 +1,6 @@
 import React from 'react';
 
-import LoginPage from '../../pages/account/login';
+import LoginPage from '../../containers/account/login';
 import { useAuthContext } from '../../store/contexts';
 
 const Authenticated = ({ children }: { children: React.ReactNode }) => {
