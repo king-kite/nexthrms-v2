@@ -17,7 +17,7 @@ function deleteFile(public_id: string, options?: any): Promise<unknown> {
 				});
 			} else {
 				cloudinary.uploader
-					.destroy(public_id, options)
+					.destroy(public_id, { public_id, ...options })
 					.then((result) => {
 						resolve(result);
 					})

@@ -11,10 +11,13 @@ type UploadFileType = {
 };
 
 function uploadFile({ file, location, type }: UploadFileType): Promise<
-	| UploadApiResponse
+	| (UploadApiResponse & {
+			location: string;
+	  })
 	| {
 			original_filename: string;
 			public_id: string;
+			location: string;
 			secure_url?: string;
 			resource_type: string;
 			url: string;
@@ -25,27 +28,15 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 			fs.readFile(file.filepath, (err, data) => {
 				if (err) reject(err);
 				else {
-					const splitText = file.originalFilename
-						? file.originalFilename.split('.')
-						: undefined;
-					const extension: string | undefined = splitText
-						? splitText[splitText.length - 1]
-						: undefined;
-
-					let newLocation = location + `_${new Date().getTime()}`;
-					if (extension) newLocation += `.${extension}`;
-
-					fs.writeFile(newLocation, data, (err) => {
+					fs.writeFile(location, data, (err) => {
 						if (err) reject(err);
 						else {
 							resolve({
 								original_filename: file.originalFilename || file.newFilename,
-								// public_id: (
-								// 	file.originalFilename || file.newFilename
-								// ).toLowerCase(),
-								public_id: newLocation,
+								public_id: location,
 								resource_type: file.mimetype || type || 'file',
-								url: '/' + newLocation,
+								location,
+								url: '/' + location,
 							});
 							fs.unlink(file.filepath, (error) => {
 								if (err)
@@ -73,7 +64,7 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 					}
 				)
 				.then((result) => {
-					resolve(result);
+					resolve({ ...result, location });
 				})
 				.catch((error) => {
 					reject(error);
