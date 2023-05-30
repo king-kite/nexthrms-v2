@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { PermissionModelChoices } from '@prisma/client';
 import Image from 'next/image';
+import Router from 'next/router';
 import React from 'react';
 import {
 	FaArchive,
@@ -32,6 +33,7 @@ import { LinkType, LinkItemType, PropsType } from './types';
 import * as routes from '../config/routes';
 import {
 	DEFAULT_IMAGE,
+	LOGIN_PAGE_URL,
 	LOGOUT_URL,
 	PermissionKeyType,
 	permissions,
@@ -114,6 +116,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 			{
 				onSuccess() {
 					logout();
+					Router.push(LOGIN_PAGE_URL);
 					queryClient.clear();
 				},
 				onError() {
