@@ -5,11 +5,6 @@ import { useAxiosInstance } from '../../hooks';
 import { useAlertContext } from '../../store/contexts';
 
 type FormProps = {
-	// remove this
-	onSubmit?: (type: any, filter: boolean) => void;
-	loading?: boolean;
-	//
-
 	filtered?: string;
 	all?: string;
 };
