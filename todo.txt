@@ -8,4 +8,3 @@
 6. Use Dynamic imports.
 7. Have anything file related to be stored in the ManagedFile table
 8. Have the filters send info the database instead. To help with exporting.
-9. Rewirte the login page instead of redirect.
