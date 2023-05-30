@@ -1,6 +1,5 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL, OVERTIME_DETAIL_PAGE_URL } from '../../../config';
 import Overtime from '../../../containers/overtime/detail';
 import { getOvertime } from '../../../db';
 import { getUserObjectPermissions } from '../../../db/utils';
@@ -33,12 +32,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: params?.id
-					? LOGIN_PAGE_URL +
-					  `?next=${OVERTIME_DETAIL_PAGE_URL(params.id as string)}`
-					: LOGIN_PAGE_URL,
-				permanent: false,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}

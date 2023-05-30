@@ -1,10 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import {
-	DEFAULT_PAGINATION_SIZE,
-	LOGIN_PAGE_URL,
-	PROJECT_TASKS_PAGE_URL,
-} from '../../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../../config';
 import Tasks from '../../../../containers/projects/detail/tasks';
 import { getProjectTasks } from '../../../../db';
 import { getRecords, hasViewPermission } from '../../../../db/utils';
@@ -37,12 +33,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: params?.id
-					? LOGIN_PAGE_URL +
-					  `?next=${PROJECT_TASKS_PAGE_URL(params.id as string)}`
-					: LOGIN_PAGE_URL,
-				permanent: true,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}

@@ -1,10 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import {
-	DEFAULT_PAGINATION_SIZE,
-	LEAVES_ADMIN_URL,
-	LOGIN_PAGE_URL,
-} from '../../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../../config';
 import Leaves from '../../../../containers/admin/leaves';
 import { getLeavesAdmin } from '../../../../db';
 import { getRecords } from '../../../../db/utils';
@@ -38,9 +34,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: LOGIN_PAGE_URL + `?next=${LEAVES_ADMIN_URL}`,
-				permanent: false,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}

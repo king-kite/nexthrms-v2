@@ -1,6 +1,5 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL, PROJECT_TEAM_PAGE_URL } from '../../../config';
 import Team from '../../../containers/projects/detail/team';
 import { getProject } from '../../../db';
 import { getRecord } from '../../../db/utils';
@@ -36,12 +35,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: params?.id
-					? LOGIN_PAGE_URL +
-					  `?next=${PROJECT_TEAM_PAGE_URL(params.id as string)}`
-					: LOGIN_PAGE_URL,
-				permanent: false,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}

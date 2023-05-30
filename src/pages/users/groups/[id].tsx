@@ -1,10 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import {
-	DEFAULT_PAGINATION_SIZE,
-	GROUP_PAGE_URL,
-	LOGIN_PAGE_URL,
-} from '../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import Group from '../../../containers/users/groups/detail';
 import { getGroup } from '../../../db';
 import { getRecord } from '../../../db/utils';
@@ -38,11 +34,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: params?.id
-					? LOGIN_PAGE_URL + `?next=${GROUP_PAGE_URL(params.id as string)}`
-					: LOGIN_PAGE_URL,
-				permanent: false,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}

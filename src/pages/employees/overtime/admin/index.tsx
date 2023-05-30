@@ -1,10 +1,6 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import {
-	ADMIN_OVERTIME_PAGE_URL,
-	DEFAULT_PAGINATION_SIZE,
-	LOGIN_PAGE_URL,
-} from '../../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../../config';
 import Overtime from '../../../../containers/admin/overtime';
 import { getAllOvertimeAdmin } from '../../../../db';
 import { getRecords } from '../../../../db/utils';
@@ -38,9 +34,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 
 	if (!req.user) {
 		return {
-			redirect: {
-				destination: LOGIN_PAGE_URL + `?next=${ADMIN_OVERTIME_PAGE_URL}`,
-				permanent: false,
+			props: {
+				auth: undefined,
+				errorPage: {
+					statusCode: 401,
+				},
 			},
 		};
 	}
