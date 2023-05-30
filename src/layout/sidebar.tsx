@@ -150,6 +150,13 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							// Check the route required permission
 							showRoute: () => true,
 						},
+						{
+							icon: FaThLarge,
+							title: 'file manager',
+							href: routes.FILE_MANAGER_PAGE_URL,
+							// Check the route required permission
+							showRoute: () => true,
+						},
 					],
 				},
 				{
