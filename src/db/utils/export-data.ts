@@ -115,7 +115,7 @@ function exportData(
 							name: uploadInfo.name,
 							size: upload.bytes,
 							storageInfo: {
-								id: upload.public_id,
+								public_id: upload.public_id,
 								name: upload.original_filename,
 								location: upload.location,
 								type: upload.resource_type,
