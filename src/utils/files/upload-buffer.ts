@@ -16,10 +16,13 @@ function uploadBuffer({
 	location,
 	type = 'auto',
 }: UploadFileType): Promise<
-	| UploadApiResponse
+	| (UploadApiResponse & {
+			location: string;
+	  })
 	| {
 			bytes?: number;
 			original_filename: string;
+			location: string;
 			public_id: string;
 			secure_url?: string;
 			resource_type: string;
@@ -29,28 +32,17 @@ function uploadBuffer({
 	return new Promise((resolve, reject) => {
 		try {
 			if (USE_LOCAL_MEDIA_STORAGE) {
-				const splitText = location.split('.');
-				const extension = splitText[splitText.length - 1] || undefined;
-
-				let newName = extension
-					? splitText.filter((text, i) => i !== splitText.length - 1).join('')
-					: location;
-
-				const date = new Date();
-				const date_str = `${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
-
-				let newLocation = newName + `_${date_str}_${new Date().getTime()}`;
-				if (extension) newLocation += `.${extension}`;
-				fs.writeFile(newLocation, buffer, (err) => {
+				fs.writeFile(location, buffer, (err) => {
 					if (err) reject(err);
 					else {
 						resolve({
 							bytes: buffer.byteLength,
 							original_filename: name,
 							// public_id: name.toLowerCase(),
-							public_id: newLocation,
+							public_id: location,
+							location,
 							resource_type: type || 'file',
-							url: '/' + newLocation,
+							url: '/' + location,
 						});
 					}
 				});
@@ -62,7 +54,7 @@ function uploadBuffer({
 							resource_type: type,
 						},
 						(error, result) => {
-							if (result) resolve(result);
+							if (result) resolve({ ...result, location });
 							else reject(error);
 						}
 					)

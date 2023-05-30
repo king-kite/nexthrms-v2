@@ -10,7 +10,11 @@ type UploadFileType = {
 	type?: 'image' | 'video' | 'raw' | 'auto';
 };
 
-function uploadFile({ file, location, type }: UploadFileType): Promise<
+function uploadFile({
+	file,
+	location: oldLocation,
+	type,
+}: UploadFileType): Promise<
 	| (UploadApiResponse & {
 			location: string;
 	  })
@@ -24,6 +28,15 @@ function uploadFile({ file, location, type }: UploadFileType): Promise<
 	  }
 > {
 	return new Promise((resolve, reject) => {
+		let location = oldLocation;
+		const splitText = file.originalFilename
+			? file.originalFilename.split('.')
+			: undefined;
+		const extension: string | undefined = splitText
+			? splitText[splitText.length - 1]
+			: undefined;
+		if (extension) location += `.${extension}`;
+
 		if (USE_LOCAL_MEDIA_STORAGE) {
 			fs.readFile(file.filepath, (err, data) => {
 				if (err) reject(err);
