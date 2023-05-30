@@ -134,8 +134,9 @@ export default auth()
 					url: result.secure_url || result.url,
 					size: files.file.size,
 					storageInfo: {
-						id: result.public_id,
 						name: result.original_filename,
+						location: result.location,
+						public_id: result.public_id,
 						type: result.resource_type,
 					},
 					userId: req.user.id,

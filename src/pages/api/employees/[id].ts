@@ -1,10 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import {
-	permissions,
-	DEFAULT_IMAGE,
-	USE_LOCAL_MEDIA_STORAGE,
-} from '../../../config';
+import { permissions } from '../../../config';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployee,
@@ -19,7 +15,7 @@ import { admin } from '../../../middlewares';
 import { EmployeeType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { deleteFile, upload as uploadFile } from '../../../utils/files';
+import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createEmployeeSchema } from '../../../validators';
 
@@ -124,46 +120,13 @@ export default admin()
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {
-						id: result.public_id,
+						location: result.location,
+						public_id: result.public_id,
 						name: result.original_filename,
 						type: result.resource_type,
 					},
 					userId: req.user.id,
 				};
-
-				// delete the old employee user profile image
-				const employee = await prisma.employee.findUnique({
-					where: {
-						id: req.query.id as string,
-					},
-					select: {
-						user: {
-							select: {
-								profile: {
-									select: {
-										image: {
-											select: {
-												url: true,
-												storageInfo: true,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				});
-				if (
-					employee?.user.profile?.image &&
-					employee.user.profile.image.url !== DEFAULT_IMAGE
-				) {
-					const id = USE_LOCAL_MEDIA_STORAGE
-						? employee.user.profile.image.url
-						: (employee.user.profile.image.storageInfo as any)?.publicc_id;
-					deleteFile(id).catch((error) => {
-						console.log('DELETE EMPLOYEE IMAGE FILE ERROR :>>', error);
-					});
-				}
 			} catch (error) {
 				if (process.env.NODE_ENV === 'development')
 					console.log('EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
