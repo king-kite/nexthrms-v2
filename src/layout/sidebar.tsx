@@ -138,7 +138,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 		const links: LinkType[] = React.useMemo(
 			() => [
 				{
-					title: 'dashboard',
+					title: 'apps',
 					links: [
 						{
 							icon: FaThLarge,
