@@ -34,7 +34,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	if (!req.user) {
 		return {
 			props: {
-				auth: undefined,
+				auth: null,
 				errorPage: {
 					statusCode: 401,
 				},
