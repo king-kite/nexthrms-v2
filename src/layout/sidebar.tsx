@@ -9,6 +9,7 @@ import {
 	FaClipboardList,
 	FaClock,
 	FaFileArchive,
+	FaFolder,
 	FaHandshake,
 	FaLock,
 	FaPeopleArrows,
@@ -151,7 +152,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							showRoute: () => true,
 						},
 						{
-							icon: FaThLarge,
+							icon: FaFolder,
 							title: 'file manager',
 							href: routes.FILE_MANAGER_PAGE_URL,
 							// Check the route required permission

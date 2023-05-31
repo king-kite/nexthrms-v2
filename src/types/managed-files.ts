@@ -1,3 +1,5 @@
+import { PaginatedResponseType } from './base';
+
 export type ManagedFileType = {
 	id: string;
 	name: string;
@@ -25,3 +27,7 @@ export type ManagedFileType = {
 	createdAt: Date | string;
 	updatedAt: Date | string;
 };
+
+export type GetManagedFilesResponseType = PaginatedResponseType<
+	ManagedFileType[]
+>;
