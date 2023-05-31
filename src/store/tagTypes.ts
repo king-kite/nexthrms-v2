@@ -10,6 +10,7 @@ export const HOLIDAYS = 'holidays';
 export const JOBS = 'jobs';
 export const LEAVES = 'leaves';
 export const LEAVES_ADMIN = 'leaves_admin';
+export const MANAGED_FILES = 'managed_files';
 export const NOTIFICATIONS = 'notifications';
 export const OVERTIME = 'overtime';
 export const OVERTIME_ADMIN = 'overtime_admin';

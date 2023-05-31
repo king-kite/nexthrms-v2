@@ -5,6 +5,9 @@ import {
 
 const ROOT_URL = '/api';
 
+// Apps URLs
+export const MANAGED_FILES_URL = `${ROOT_URL}/managed-files/`;
+
 // Authentication and User Personal Information URLs
 export const EMAIL_CONFIRM_URL = `${ROOT_URL}/auth/email/confirm/`;
 export const EMAIL_RESEND_URL = `${ROOT_URL}/auth/email/resend/`;
