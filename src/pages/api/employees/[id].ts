@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions } from '../../../config';
+import { permissions, MEDIA_PROFILE_URL } from '../../../config';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployee,
@@ -106,7 +106,7 @@ export default admin()
 					valid.user.email
 				).toLowerCase();
 
-				const location = `media/users/profile/${name}`;
+				const location = MEDIA_PROFILE_URL + name;
 
 				const result = await uploadFile({
 					file: files.image,

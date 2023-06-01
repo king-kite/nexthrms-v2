@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 
 import {
 	models,
+	MEDIA_URL,
 	OBJECT_PERMISSIONS_PAGE_URL,
 	USE_LOCAL_MEDIA_STORAGE,
 } from './config';
@@ -48,7 +49,10 @@ export function middleware(request: NextRequest) {
 	}
 
 	// Check if the url is to the /media/* folder and rewrite to /api/media/*
-	if (USE_LOCAL_MEDIA_STORAGE && request.url.includes(`${BASE_URL}/media/`)) {
+	if (
+		USE_LOCAL_MEDIA_STORAGE &&
+		request.url.includes(`${BASE_URL}/${MEDIA_URL}`)
+	) {
 		const oldUrl = new URL(request.url);
 		const url = new URL(
 			'/api' + oldUrl.pathname,
@@ -64,7 +68,7 @@ export function middleware(request: NextRequest) {
 // Supports both a single string value or an array of matchers
 export const config = {
 	matcher: [
-		'/media/:path*', // For the media files
+		`/${MEDIA_URL}:path*`, // For the media files
 		'/:path*/object-permissions', // For the object permissions
 		// '/*/object-permissions/', // For the object permissions
 	],

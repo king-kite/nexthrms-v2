@@ -1,4 +1,4 @@
-import { DEFAULT_IMAGE } from '../../../config';
+import { DEFAULT_IMAGE, MEDIA_PROFILE_URL } from '../../../config';
 import {
 	getProfile,
 	prisma,
@@ -74,7 +74,7 @@ export default auth()
 					valid.email
 				).toLowerCase();
 
-				const location = `media/users/profile/${name}`;
+				const location = MEDIA_PROFILE_URL + name;
 
 				const result = await uploadFile({
 					file: files.image,

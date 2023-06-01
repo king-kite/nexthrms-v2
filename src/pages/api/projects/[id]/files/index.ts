@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions } from '../../../../../config';
+import { permissions, MEDIA_PROJECT_URL } from '../../../../../config';
 import {
 	prisma,
 	getProject,
@@ -114,7 +114,9 @@ export default auth()
 				file: files.file,
 			});
 
-		const location = `media/projects/${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`;
+		const location =
+			MEDIA_PROJECT_URL +
+			`${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`;
 
 		const result = await uploadFile({
 			file: files.file,

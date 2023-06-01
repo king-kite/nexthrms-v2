@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Container } from '../components/common';
-import { permissions, DEFAULT_PAGINATION_SIZE } from '../config';
+import { permissions, DEFAULT_PAGINATION_SIZE, MEDIA_URL } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
 import { GetManagedFilesResponseType, ManagedFileType } from '../types';
@@ -29,7 +29,7 @@ function FileManager({
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [dir, setDir] = React.useState('media/');
+	const [dir, setDir] = React.useState(MEDIA_URL);
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -130,14 +130,14 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
-			{dir !== 'media/' && (
+			{dir !== MEDIA_URL && (
 				<p
 					className="cursor-pointer text-secondary-500 text-xl hover:underline"
 					onClick={() => {
 						setDir((prevState) => {
 							if (
-								prevState !== 'media/' &&
-								prevState.startsWith('media/') &&
+								prevState !== MEDIA_URL &&
+								prevState.startsWith(MEDIA_URL) &&
 								prevState.includes('/')
 							) {
 								const splitDir = prevState.split('/');
@@ -149,7 +149,7 @@ function FileManager({
 								newValue = newValue.endsWith('/') ? newValue : newValue + '/';
 								return newValue;
 							} else {
-								return 'media/';
+								return MEDIA_URL;
 							}
 						});
 					}}

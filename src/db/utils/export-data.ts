@@ -2,7 +2,10 @@ import excelJS from 'exceljs';
 import JSZip from 'jszip';
 
 import prisma from '../client';
-import { exportPermissionHeaders as permissionHeaders } from '../../config';
+import {
+	exportPermissionHeaders as permissionHeaders,
+	MEDIA_EXPORT_URL,
+} from '../../config';
 import { ObjectPermissionImportType } from '../../types';
 import { uploadBuffer } from '../../utils/files';
 
@@ -75,13 +78,13 @@ function exportData(
 
 						uploadInfo = {
 							buffer,
-							location: 'media/exports/' + zipTitle,
+							location: MEDIA_EXPORT_URL + zipTitle,
 							name: zipTitle,
 						};
 					} else {
 						uploadInfo = {
 							buffer: data,
-							location: 'media/exports/' + csvTitle,
+							location: MEDIA_EXPORT_URL + csvTitle,
 							name: csvTitle,
 						};
 					}
@@ -101,7 +104,7 @@ function exportData(
 					const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
 					uploadInfo = {
 						buffer,
-						location: 'media/exports/' + excelTitle,
+						location: MEDIA_EXPORT_URL + excelTitle,
 						name: excelTitle,
 					};
 				}

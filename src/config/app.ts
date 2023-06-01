@@ -23,6 +23,12 @@ export const DATA_LIFETIME = process.env.NEXT_PUBLIC_DATA_LIFETIME
 export const DEFAULT_PAGINATION_SIZE = 100;
 export const DEFAULT_PASSWORD = 'password';
 export const isServer = () => (typeof window === undefined ? true : false);
+
+export const MEDIA_URL = 'media/';
+export const MEDIA_EXPORT_URL = 'media/exports/';
+export const MEDIA_PROFILE_URL = 'media/users/profile/';
+export const MEDIA_PROJECT_URL = 'media/projects/';
+
 export const NODE_ENV = process.env.NODE_ENV || 'production';
 
 export const SHOW_QUERY_LOG_TIME = process.env.SHOW_QUERY_LOG_TIME
