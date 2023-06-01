@@ -73,22 +73,20 @@ function FileManager({
 		}
 	);
 
-	// Show the files that should be in this directory
-	const showFiles = React.useMemo(() => {
+	const displays = React.useMemo(() => {
 		if (!data) return [];
-		const result = data.result.filter((file) => {
+
+		// Get the files to show that should be in "dir" directory
+		const showFiles = data.result.filter((file) => {
 			// Get the location of the file
 			const location =
 				file.storageInfo?.location || file.storageInfo?.public_id || file.url;
 			// Check if the file location starts with the dir
 			if (location.startsWith(dir)) return file;
 		});
-		return result;
-	}, [data, dir]);
 
-	// Show what to display next. Either folder or file
-	const displays = React.useMemo(() => {
-		const data: FileType[] = showFiles.reduce((acc: FileType[], file) => {
+		// Get the data/content to display on the screen
+		const displays: FileType[] = showFiles.reduce((acc: FileType[], file) => {
 			const location =
 				file.storageInfo?.location || file.storageInfo?.public_id || file.url;
 			// Split the current and forward locations out of the previous location
@@ -118,8 +116,8 @@ function FileManager({
 				},
 			];
 		}, []);
-		return data;
-	}, [showFiles, dir]);
+		return displays;
+	}, [data, dir]);
 
 	return (
 		<Container
