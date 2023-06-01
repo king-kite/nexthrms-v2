@@ -11,6 +11,8 @@ import {
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
+const media_url = '/' + MEDIA_URL + ':path*';
+
 export function middleware(request: NextRequest) {
 	// Check to see if the url endswith object-permissions
 	// And rewrite the page to the users permissions objects [model] [objectId] page
@@ -68,7 +70,7 @@ export function middleware(request: NextRequest) {
 // Supports both a single string value or an array of matchers
 export const config = {
 	matcher: [
-		`/${MEDIA_URL}:path*`, // For the media files
+		media_url, // For the media files
 		'/:path*/object-permissions', // For the object permissions
 		// '/*/object-permissions/', // For the object permissions
 	],

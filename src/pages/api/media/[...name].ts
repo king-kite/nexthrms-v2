@@ -2,12 +2,12 @@ import fs from 'fs';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
 
-import { MEDIA_PROFILE_URL, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
+import { MEDIA_URL, USE_LOCAL_MEDIA_STORAGE } from '../../../config';
 
 async function asyncReadFile(filePath: string): Promise<Buffer> {
 	return new Promise((resolve, reject) => {
 		try {
-			const resolvedPath = path.resolve(MEDIA_PROFILE_URL + filePath);
+			const resolvedPath = path.resolve(MEDIA_URL + filePath);
 			fs.readFile(resolvedPath, (err, data) => {
 				if (err) reject(err);
 				resolve(data);
