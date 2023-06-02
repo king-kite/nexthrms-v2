@@ -1,6 +1,13 @@
 function getProfile({
 	dob = new Date(),
-	image = '/images/default.png',
+	image = {
+		create: {
+			url: '/images/default.png',
+			size: 0,
+			name: "user.png",
+			type: "image"
+		}
+	},
 	nameAddress = 'my',
 	address,
 	city = 'New City',
