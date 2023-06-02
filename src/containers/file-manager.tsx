@@ -1,48 +1,13 @@
 import { Breadcrumbs } from 'kite-react-tailwind';
 import React from 'react';
-import { FaFile, FaFolder } from 'react-icons/fa';
 
 import { Container } from '../components/common';
+import { FileComponent, Folder } from '../components/file-manager';
 import { permissions, DEFAULT_PAGINATION_SIZE, MEDIA_URL } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
 import { GetManagedFilesResponseType, ManagedFileType } from '../types';
 import { hasModelPermission } from '../utils';
-
-// Just to make sone chamges
-
-function getName(name: string, max = 15) {
-	return name.length > max ? `${name.slice(0, max)}...` : name;
-}
-
-function Folder({ name, onClick }: { name: string; onClick?: () => void }) {
-	return (
-		<div
-			onClick={onClick}
-			className="cursor-pointer flex flex-col items-center transition-all hover:scale-105"
-		>
-			<span className="text-gray-700">
-				<FaFolder className="h-[50px] text-gray-700 w-[50px]" />
-			</span>
-			<span className="font-light text-gray-500 text-sm md:text-base">
-				{getName(name)}
-			</span>
-		</div>
-	);
-}
-
-function File({ name }: ManagedFileType) {
-	return (
-		<div className="cursor-pointer flex flex-col items-center transition-all hover:scale-105">
-			<span className="text-gray-700">
-				<FaFile className="h-[50px] text-gray-700 w-[50px]" />
-			</span>
-			<span className="font-light mt-1 text-gray-500 text-sm md:text-base">
-				{getName(name)}
-			</span>
-		</div>
-	);
-}
 
 type FileType = {
 	name: string;
@@ -214,7 +179,7 @@ function FileManager({
 						/>
 					) : (
 						display.type === 'file' &&
-						display.data && <File key={index} {...display.data} />
+						display.data && <FileComponent key={index} {...display.data} />
 					)
 				)}
 			</div>
