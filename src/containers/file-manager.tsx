@@ -1,4 +1,6 @@
+import { Breadcrumbs } from 'kite-react-tailwind';
 import React from 'react';
+import { FaFile, FaFolder } from 'react-icons/fa';
 
 import { Container } from '../components/common';
 import { permissions, DEFAULT_PAGINATION_SIZE, MEDIA_URL } from '../config';
@@ -8,6 +10,39 @@ import { GetManagedFilesResponseType, ManagedFileType } from '../types';
 import { hasModelPermission } from '../utils';
 
 // Just to make sone chamges
+
+function getName(name: string, max = 15) {
+	return name.length > max ? `${name.slice(0, max)}...` : name;
+}
+
+function Folder({ name, onClick }: { name: string; onClick?: () => void }) {
+	return (
+		<div
+			onClick={onClick}
+			className="cursor-pointer flex flex-col items-center transition-all hover:scale-105"
+		>
+			<span className="text-gray-700">
+				<FaFolder className="h-[50px] text-gray-700 w-[50px]" />
+			</span>
+			<span className="font-light text-gray-500 text-sm md:text-base">
+				{getName(name)}
+			</span>
+		</div>
+	);
+}
+
+function File({ name }: ManagedFileType) {
+	return (
+		<div className="cursor-pointer flex flex-col items-center transition-all hover:scale-105">
+			<span className="text-gray-700">
+				<FaFile className="h-[50px] text-gray-700 w-[50px]" />
+			</span>
+			<span className="font-light mt-1 text-gray-500 text-sm md:text-base">
+				{getName(name)}
+			</span>
+		</div>
+	);
+}
 
 type FileType = {
 	name: string;
@@ -130,46 +165,59 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
-			{dir !== MEDIA_URL && (
-				<p
-					className="cursor-pointer text-secondary-500 text-xl hover:underline"
-					onClick={() => {
-						setDir((prevState) => {
-							if (
-								prevState !== MEDIA_URL &&
-								prevState.startsWith(MEDIA_URL) &&
-								prevState.includes('/')
-							) {
-								const splitDir = prevState.split('/');
-								let newValue = splitDir
-									.filter((value, index) => index < splitDir.length - 2)
-									.join('/');
-
-								// check the value ends with a '/'
-								newValue = newValue.endsWith('/') ? newValue : newValue + '/';
-								return newValue;
-							} else {
-								return MEDIA_URL;
+			<div className="my-3">
+				<Breadcrumbs
+					links={dir
+						.split('/')
+						.filter((i, m) => m < dir.split('/').length - 1)
+						.map((value, index, arr) => {
+							const isMedia = index === 0 && value === 'media';
+							return {
+								link: '#',
+								title: isMedia ? '..' : value,
+								renderAs: () => (
+									<span
+										onClick={() => {
+											if (isMedia) setDir(MEDIA_URL);
+											else {
+												let location = arr
+													.filter((a, j) => j <= index)
+													.join('/');
+												location = location.endsWith('/')
+													? location
+													: location + '/';
+												setDir(location);
+											}
+										}}
+										className={`cursor-pointer text-gray-500 transition-all ${
+											isMedia
+												? 'text-[23px] hover:scale-110 sm:text-[25px] md:text-[27px]'
+												: 'text-sm hover:scale-105 sm:text-base md:text-lg'
+										}`}
+									>
+										{isMedia ? '..' : value}
+									</span>
+								),
+							};
+						})}
+				/>
+			</div>
+			<div className="gap-3 grid grid-cols-4 sm:gap-y-4 sm:grid-cols-6 md:gap-y-5 md:grid-cols-8 xl:grid-cols-9">
+				{displays.map((display, index) =>
+					display.type === 'folder' ? (
+						<Folder
+							key={index}
+							name={display.name}
+							onClick={() =>
+								setDir((prevState) => prevState + display.name + '/')
 							}
-						});
-					}}
-				>
-					Back
-				</p>
-			)}
-			{displays.map((display, index) => (
-				<p
-					className="cursor-pointer text-primary-500 text-base hover:underline"
-					onClick={
-						display.type === 'folder'
-							? () => setDir((prevState) => prevState + display.name + '/')
-							: undefined
-					}
-					key={index}
-				>
-					{display.name}
-				</p>
-			))}
+						/>
+					) : (
+						display.type === 'file' &&
+						display.data && <File key={index} {...display.data} />
+					)
+				)}
+			</div>
 		</Container>
 	);
 }
