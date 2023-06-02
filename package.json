@@ -21,7 +21,7 @@
 		"schema": "./src/db/schema.prisma"
 	},
 	"engines": {
-		"node": "^18.x",
+		"node": "^16.15.0",
 		"npm": "^8.5.5"
 	},
 	"dependencies": {
