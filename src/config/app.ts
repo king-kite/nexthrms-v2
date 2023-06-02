@@ -35,7 +35,7 @@ export const SHOW_QUERY_LOG_TIME = process.env.SHOW_QUERY_LOG_TIME
 	? Boolean(Number(process.env.SHOW_QUERY_LOG_TIME))
 	: false;
 
-export const TITLE = 'Kite Human Resource Management System';
+export const TITLE = 'Kite Human Resources Management System';
 
 export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
 	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
