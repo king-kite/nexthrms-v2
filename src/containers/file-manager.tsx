@@ -123,6 +123,7 @@ function FileManager({
 
 	return (
 		<Container
+			background="bg-white"
 			heading="File Manager"
 			refresh={{
 				loading: isFetching,
@@ -168,20 +169,35 @@ function FileManager({
 				/>
 			</div>
 			<div className="gap-3 grid grid-cols-4 sm:gap-y-4 sm:grid-cols-6 md:gap-y-5 md:grid-cols-8 xl:grid-cols-9">
-				{displays.map((display, index) =>
-					display.type === 'folder' ? (
-						<Folder
-							key={index}
-							name={display.name}
-							onClick={() =>
-								setDir((prevState) => prevState + display.name + '/')
-							}
-						/>
-					) : (
-						display.type === 'file' &&
-						display.data && <FileComponent key={index} {...display.data} />
-					)
-				)}
+				{displays
+					.sort((a, b) => {
+						const aName = a.name.toLowerCase().trim();
+						const bName = b.name.toLowerCase().trim();
+						// Folder and File
+						if (a.type === 'folder' && b.type === 'file') return -1;
+						else if (a.type === 'file' && b.type === 'folder') return 1;
+
+						// Folder and Folder
+						if (a.type === 'folder' && b.type === 'folder')
+							return aName < bName ? -1 : aName > bName ? 1 : 0;
+
+						// File and File
+						return aName < bName ? -1 : aName > bName ? 1 : 0;
+					})
+					.map((display, index) =>
+						display.type === 'folder' ? (
+							<Folder
+								key={index}
+								name={display.name}
+								onClick={() =>
+									setDir((prevState) => prevState + display.name + '/')
+								}
+							/>
+						) : (
+							display.type === 'file' &&
+							display.data && <FileComponent key={index} {...display.data} />
+						)
+					)}
 			</div>
 		</Container>
 	);
