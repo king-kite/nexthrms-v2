@@ -33,8 +33,17 @@ function Files({
 		const displays: FileType[] = showFiles.reduce((acc: FileType[], file) => {
 			const location =
 				file.storageInfo?.location || file.storageInfo?.public_id || file.url;
+
 			// Split the current and forward locations out of the previous location
-			const forwardLocationString = location.split(dir)[1];
+			const _split = location.split(dir);
+			const forwardLocationString =
+				_split.length > 2
+					? _split.filter((h, i) => i !== 0).join(dir)
+					: _split[1];
+			// Did the above because a file location may have similar folder names as the split dir
+			// so it may be more than two array items and some may be empty strings so you also have to join them
+			// using the dir as well
+			// const forwardLocationString = location.split(dir)[1];
 
 			const forwardLocations = forwardLocationString.split('/');
 
