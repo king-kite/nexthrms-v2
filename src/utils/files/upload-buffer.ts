@@ -7,7 +7,7 @@ type UploadFileType = {
 	buffer: Buffer;
 	location: string;
 	name: string;
-	type?: 'auto' | 'image' | 'video' | 'raw' | 'auto';
+	type?: 'auto' | 'image' | 'video' | 'raw' | 'auto' | string;
 };
 
 function uploadBuffer({
@@ -51,10 +51,14 @@ function uploadBuffer({
 					.upload_stream(
 						{
 							public_id: location,
-							resource_type: type,
 						},
 						(error, result) => {
-							if (result) resolve({ ...result, location });
+							if (result)
+								resolve({
+									...result,
+									resource_type: result.resource_type || type || 'file',
+									location,
+								});
 							else reject(error);
 						}
 					)

@@ -17,6 +17,7 @@ function exportData(
 	headers: string[],
 	options: {
 		permissionTitle?: string;
+		name?: string;
 		title?: string;
 		type: string; // 'csv' | 'excel';
 		userId?: string;
@@ -35,6 +36,7 @@ function exportData(
 					buffer: Buffer;
 					location: string;
 					name: string;
+					type: string;
 				} | null = null;
 
 				const workbook = new excelJS.Workbook(); // Create a new workbook
@@ -80,12 +82,14 @@ function exportData(
 							buffer,
 							location: MEDIA_EXPORT_URL + zipTitle,
 							name: zipTitle,
+							type: 'zip',
 						};
 					} else {
 						uploadInfo = {
 							buffer: data,
 							location: MEDIA_EXPORT_URL + csvTitle,
 							name: csvTitle,
+							type: 'csv',
 						};
 					}
 				} else {
@@ -106,6 +110,7 @@ function exportData(
 						buffer,
 						location: MEDIA_EXPORT_URL + excelTitle,
 						name: excelTitle,
+						type: 'excel',
 					};
 				}
 				// upload the buffer
@@ -115,7 +120,7 @@ function exportData(
 					const data = await prisma.managedFile.create({
 						data: {
 							url: upload.secure_url || upload.url,
-							name: uploadInfo.name,
+							name: options.name || uploadInfo.name,
 							size: upload.bytes,
 							storageInfo: {
 								public_id: upload.public_id,

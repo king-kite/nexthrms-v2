@@ -7,7 +7,7 @@ import { USE_LOCAL_MEDIA_STORAGE } from '../../config';
 type UploadFileType = {
 	file: File;
 	location: string;
-	type?: 'image' | 'video' | 'raw' | 'auto';
+	type?: 'auto' | 'image' | 'video' | 'raw' | 'auto' | string;
 };
 
 function uploadFile({
@@ -70,14 +70,17 @@ function uploadFile({
 					file.filepath,
 					{
 						public_id: location,
-						resource_type: type,
 					},
 					(error) => {
 						if (error) reject(error);
 					}
 				)
 				.then((result) => {
-					resolve({ ...result, location });
+					resolve({
+						...result,
+						resource_type: result.resource_type || type || 'file',
+						location,
+					});
 				})
 				.catch((error) => {
 					reject(error);
