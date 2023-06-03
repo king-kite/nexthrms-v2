@@ -6,9 +6,9 @@ import {
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../../../config';
 import { getManagedFiles, prisma, managedFileSelectQuery } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { auth } from '../../../middlewares';
-import { CreateManagedFileType } from '../../../types';
+import { CreateManagedFileType, ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
@@ -69,43 +69,45 @@ export default auth()
 		// Create file if file sent
 		if (data.file) {
 			// Upload a file to the bucket using firebase admin
-			try {
-				const location =
-					MEDIA_URL +
-					data.directory +
-					`${data.name.toLowerCase()}_${new Date().getTime()}`;
 
-				const result = await uploadFile({
-					file: data.file,
-					location,
-				});
+			const location =
+				MEDIA_URL +
+				(data.directory || '') +
+				`${data.name.toLowerCase()}_${new Date().getTime()}`;
 
-				input = {
-					url: result.secure_url || result.url,
-					name: data.name,
-					size: data.file.size,
-					type: data.file.mimetype,
-					storageInfo: {
-						location: result.location,
-						public_id: result.public_id,
-						name: result.original_filename,
-						type: result.resource_type,
+			const result = await uploadFile({
+				file: data.file,
+				location,
+			});
+
+			input = {
+				url: result.secure_url || result.url,
+				name: data.name,
+				size: data.file.size,
+				type: data.file.mimetype,
+				storageInfo: {
+					location: result.location,
+					public_id: result.public_id,
+					name: result.original_filename,
+					type: result.resource_type,
+				},
+				user: {
+					connect: {
+						id: req.user.id,
 					},
-					user: {
-						connect: {
-							id: req.user.id,
-						},
-					},
-				};
-			} catch (error) {
-				if (process.env.NODE_ENV === 'development')
-					console.log('MANAGED FILE UPLOAD ERROR :>> ', error);
-			}
+				},
+			};
 
 			if (input) {
-				const result = await prisma.managedFile.create({
+				const result = (await prisma.managedFile.create({
 					data: input,
 					select: managedFileSelectQuery,
+				})) as unknown as ManagedFileType;
+
+				await addObjectPermissions({
+					model: 'managed_files',
+					objectId: result.id,
+					users: [req.user.id],
 				});
 
 				return res.status(201).json({
@@ -117,7 +119,7 @@ export default auth()
 		}
 
 		// Create folder is not file is sent, just directory
-		const location = MEDIA_URL + data.directory + MEDIA_HIDDEN_FILE_NAME;
+		const location = MEDIA_URL + data.directory || '' + MEDIA_HIDDEN_FILE_NAME;
 
 		const upload = await uploadBuffer({
 			buffer: Buffer.from([]),
@@ -125,7 +127,7 @@ export default auth()
 			name: data.name,
 		});
 
-		const result = await prisma.managedFile.create({
+		const result = (await prisma.managedFile.create({
 			data: {
 				url: upload.secure_url || upload.url,
 				name: data.name,
@@ -144,6 +146,12 @@ export default auth()
 				},
 			},
 			select: managedFileSelectQuery,
+		})) as unknown as ManagedFileType;
+
+		await addObjectPermissions({
+			model: 'managed_files',
+			objectId: result.id,
+			users: [req.user.id],
 		});
 
 		return res.status(201).json({

@@ -30,7 +30,7 @@ export type ManagedFileType = {
 
 export type CreateManagedFileType = {
 	name: string;
-	directory: string;
+	directory: string; // '' if empty
 	file?: any; // File
 	type: 'file' | 'folder';
 };

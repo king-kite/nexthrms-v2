@@ -49,7 +49,7 @@ const path = {
 				'multipart/form-data': {
 					schema: {
 						type: 'object',
-						required: ['name', 'directory', 'type'],
+						required: ['name', 'type'],
 						properties: {
 							file: {
 								nullable: true,
