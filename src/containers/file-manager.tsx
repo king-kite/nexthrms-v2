@@ -2,7 +2,7 @@ import { Breadcrumbs } from 'kite-react-tailwind';
 import React from 'react';
 
 import { Container } from '../components/common';
-import { FileComponent, Folder } from '../components/file-manager';
+import { FileComponent, Folder, Topbar } from '../components/file-manager';
 import { permissions, DEFAULT_PAGINATION_SIZE, MEDIA_URL } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
@@ -168,6 +168,7 @@ function FileManager({
 						})}
 				/>
 			</div>
+			{canCreate && <Topbar />}
 			<div className="gap-3 grid grid-cols-4 sm:gap-y-4 sm:grid-cols-6 md:gap-y-5 md:grid-cols-8 xl:grid-cols-9">
 				{displays
 					.sort((a, b) => {
