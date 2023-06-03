@@ -12,6 +12,7 @@ import { CreateManagedFileType, ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
+import parseForm from '../../../utils/parseForm';
 import { managedFileCreateSchema } from '../../../validators';
 
 export const config = {
@@ -46,16 +47,27 @@ export default auth()
 		};
 	})
 	.post(async (req, res) => {
-		const hasPerm = hasModelPermission(req.user.allPermissions, [
-			permissions.managedfile.CREATE,
-		]);
+		const hasPerm =
+			req.user.isSuperUser ||
+			hasModelPermission(req.user.allPermissions, [
+				permissions.managedfile.CREATE,
+			]);
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateManagedFileType =
-			await managedFileCreateSchema.validateAsync({
-				...req.body,
-			});
+		const { fields, files } = (await parseForm(req)) as {
+			files: any;
+			fields: any;
+		};
+
+		const data: CreateManagedFileType = {
+			directory: fields.directory || '',
+			file: files.file,
+			name: fields.name,
+			type: fields.type,
+		};
+
+		await managedFileCreateSchema.validateAsync(data);
 
 		if (data.type === 'file' && !data.file) {
 			return res.status(400).json({
@@ -72,8 +84,11 @@ export default auth()
 
 			const location =
 				MEDIA_URL +
-				(data.directory || '') +
-				`${data.name.toLowerCase()}_${new Date().getTime()}`;
+				data.directory +
+				`${data.name
+					.toLowerCase()
+					.trim()
+					.replaceAll(' ', '-')}_${new Date().getTime()}`;
 
 			const result = await uploadFile({
 				file: data.file,
@@ -118,8 +133,9 @@ export default auth()
 			}
 		}
 
-		// Create folder is not file is sent, just directory
-		const location = MEDIA_URL + data.directory || '' + MEDIA_HIDDEN_FILE_NAME;
+		// Create folder if file is not sent, just directory
+		const location =
+			MEDIA_URL + data.directory + data.name + '/' + MEDIA_HIDDEN_FILE_NAME;
 
 		const upload = await uploadBuffer({
 			buffer: Buffer.from([]),

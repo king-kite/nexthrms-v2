@@ -25,7 +25,7 @@ type NameKey =
 	| 'powerpoint'
 	| 'zip';
 
-function getName(name: string, max = 26) {
+function getName(name: string, max = 22) {
 	return name.length > max ? `${name.slice(0, max)}...` : name;
 }
 
