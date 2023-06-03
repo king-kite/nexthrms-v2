@@ -28,6 +28,13 @@ export type ManagedFileType = {
 	updatedAt: Date | string;
 };
 
+export type CreateManagedFileType = {
+	name: string;
+	directory: string;
+	file?: any; // File
+	type: 'file' | 'folder';
+};
+
 export type GetManagedFilesResponseType = PaginatedResponseType<
 	ManagedFileType[]
 >;
