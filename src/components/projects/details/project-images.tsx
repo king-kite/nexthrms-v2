@@ -62,7 +62,6 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 							</div>
 							<Form
 								accept="image/*"
-								type="image"
 								label="Image"
 								projectId={id || ''}
 								onClose={() => setVisible(false)}

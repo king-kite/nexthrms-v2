@@ -60,8 +60,6 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 								</div>
 							</div>
 							<Form
-								accept=".doc,.docx,.pdf"
-								type="application"
 								label="File"
 								projectId={id}
 								onClose={() => setVisible(false)}

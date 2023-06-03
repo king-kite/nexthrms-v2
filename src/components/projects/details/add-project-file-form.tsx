@@ -11,13 +11,11 @@ const AddProjectFileForm = ({
 	projectId,
 	onClose,
 	label,
-	type,
 }: {
 	accept?: string;
 	label?: string;
 	projectId: string;
 	onClose: () => void;
-	type: 'application' | 'image';
 }) => {
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [imageName, setImageName] = React.useState<string>();
@@ -46,11 +44,6 @@ const AddProjectFileForm = ({
 	const handleSubmit = React.useCallback(
 		async (form: { name: string; file: File }) => {
 			setFormErrors(undefined);
-			if (form.file.type.split('/')[0] !== type) {
-				return setFormErrors({
-					file: 'Invalid file! Unable to upload data.',
-				});
-			}
 			try {
 				const valid = await projectFileCreateSchema.validateAsync({
 					name: form.name,
@@ -75,7 +68,7 @@ const AddProjectFileForm = ({
 				});
 			}
 		},
-		[createProjectFile, projectId, type]
+		[createProjectFile, projectId]
 	);
 
 	const removeErrors = React.useCallback(
