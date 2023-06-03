@@ -11,8 +11,8 @@ function Folder({ name, onClick }: { name: string; onClick?: () => void }) {
 			className="cursor-pointer flex flex-col items-center no-underline transition-all hover:scale-105"
 			title={name}
 		>
-			<span className="text-gray-700">
-				<FaFolder className="h-[50px] text-gray-700 w-[50px]" />
+			<span className="text-primary-700">
+				<FaFolder className="h-[50px] text-primary-700 w-[50px]" />
 			</span>
 			<span className="font-light text-gray-500 text-center text-sm md:text-base">
 				{getName(name)}

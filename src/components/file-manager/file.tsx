@@ -151,10 +151,10 @@ function FileComponent({ name, type, url }: ManagedFileType) {
 			title={name}
 			className="cursor-pointer flex flex-col items-center no-underline transition-all hover:scale-105"
 		>
-			<span className="text-gray-700">
-				<Icon className="h-[50px] text-gray-700 w-[50px]" />
+			<span className="text-primary-700">
+				<Icon className="h-[50px] text-primary-700 w-[50px]" />
 			</span>
-			<span className="font-light mt-1 text-center text-gray-500 text-sm md:text-base">
+			<span className="font-light mt-1 text-center text-primary-500 text-sm md:text-base">
 				{getName(name)}
 			</span>
 		</abbr>
