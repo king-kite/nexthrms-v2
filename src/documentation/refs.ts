@@ -5,6 +5,9 @@ const PATH = '#/components/schemas/';
 export const BASE = PATH + 'BaseModel';
 export const BASE_ERROR_REDIRECT = PATH + 'BaseErrorRedirectModel';
 
+// App Section
+export const MANAGED_FILE = PATH + 'ManagedFileModel';
+
 // Authentication and User Personal Information
 export const AUTH_USER_DATA = PATH + 'AuthUserDataModel';
 export const LOGIN_ERROR = PATH + 'LoginErrorModel';

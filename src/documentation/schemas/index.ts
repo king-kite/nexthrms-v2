@@ -9,6 +9,7 @@ export * from './groups';
 export * from './holidays';
 export * from './jobs';
 export * from './leaves';
+export * from './managed-files';
 export * from './notifications';
 export * from './overtime';
 export * from './permissions';

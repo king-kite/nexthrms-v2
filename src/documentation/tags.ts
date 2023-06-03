@@ -6,6 +6,7 @@ export const Departments = 'Departments';
 export const Employees = 'Employees';
 export const Groups = 'Groups';
 export const Holidays = 'Holidays';
+export const ManagedFiles = 'File Manager';
 export const Notifications = 'Notifications';
 export const Jobs = 'Jobs';
 export const Leaves = 'Leaves';
