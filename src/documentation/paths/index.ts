@@ -8,6 +8,7 @@ import groups from './groups';
 import holidays from './holidays';
 import jobs from './jobs';
 import leaves from './leaves';
+import managed_files from './managed-files';
 import notifications from './notifications';
 import overtime from './overtime';
 import permissions from './permissions';
@@ -25,11 +26,12 @@ const paths = {
 	...holidays,
 	...jobs,
 	...leaves,
+	...managed_files,
 	...notifications,
 	...overtime,
 	...permissions,
 	...projects,
-	...users
-}
+	...users,
+};
 
-export default paths
+export default paths;
