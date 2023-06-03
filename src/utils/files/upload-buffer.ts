@@ -32,6 +32,13 @@ function uploadBuffer({
 	return new Promise((resolve, reject) => {
 		try {
 			if (USE_LOCAL_MEDIA_STORAGE) {
+				const _split = location.split('/');
+				const dir = _split.filter((i, j) => j < _split.length - 1).join('/');
+
+				if (!fs.existsSync(dir)) {
+					fs.mkdirSync(dir, { recursive: true });
+				}
+
 				fs.writeFile(location, buffer, (err) => {
 					if (err) reject(err);
 					else {

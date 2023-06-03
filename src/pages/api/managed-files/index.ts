@@ -140,15 +140,15 @@ export default auth()
 		const upload = await uploadBuffer({
 			buffer: Buffer.from([]),
 			location,
-			name: data.name,
+			name: MEDIA_HIDDEN_FILE_NAME,
 		});
 
 		const result = (await prisma.managedFile.create({
 			data: {
 				url: upload.secure_url || upload.url,
-				name: data.name,
+				name: MEDIA_HIDDEN_FILE_NAME,
 				size: upload.bytes || 0,
-				type: 'file',
+				type: 'hidden',
 				storageInfo: {
 					location: upload.location,
 					public_id: upload.public_id,
