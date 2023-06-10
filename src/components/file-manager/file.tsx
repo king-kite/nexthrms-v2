@@ -29,14 +29,17 @@ function getName(name: string, max = 22) {
 	return name.length > max ? `${name.slice(0, max)}...` : name;
 }
 
-function getExtension(name: string) {
+export function getExtension(name: string) {
 	const _split = name.toLowerCase().split('.');
+	if (_split.length <= 1) return null;
 	const extension = _split[_split.length - 1];
 	return extension;
 }
 
-function getTypeFromName(name: string) {
+function getTypeFromLocation(name: string) {
 	const extension = getExtension(name);
+
+	if (!extension) return null;
 
 	const types = {
 		audio: {
@@ -116,8 +119,12 @@ function getType(_type: string): NameKey | 'file' {
 	return 'file';
 }
 
-function getIcon(_type: string, url: string, name: string): IconType {
-	const type = getTypeFromName(url) || getTypeFromName(name) || getType(_type);
+export function getFileType(type: string, url: string, name: string) {
+	return getTypeFromLocation(url) || getTypeFromLocation(name) || getType(type);
+}
+
+export function getIcon(_type: string, url: string, name: string): IconType {
+	const type = getFileType(_type, name, url);
 
 	switch (type) {
 		case 'audio':
