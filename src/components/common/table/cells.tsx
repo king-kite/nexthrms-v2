@@ -1,4 +1,32 @@
 import Image from 'next/image';
+import { IconType } from 'react-icons';
+
+export function TableIconNameCell({
+	bg = 'bg-primary-500',
+	name,
+	icon: Icon,
+}: {
+	bg?: string;
+	name: string;
+	icon: IconType;
+}) {
+	return (
+		<abbr title={name} className="flex items-center no-underline py-2">
+			<section className="flex-shrink-0 h-[35px] w-[35px]">
+				<span
+					className={`${bg} h-[35px] inline-flex items-center justify-center relative rounded-full text-gray-100 w-[35px]`}
+				>
+					<Icon className="h-[15px] text-gray-100 w-[15px]" />
+				</span>
+			</section>
+			<section className="ml-2 text-left">
+				<div className="normal-case text-sm font-medium text-gray-900">
+					{name}
+				</div>
+			</section>
+		</abbr>
+	);
+}
 
 export function TableAvatarEmailNameCell({
 	email,
