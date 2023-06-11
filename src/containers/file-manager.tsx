@@ -88,12 +88,12 @@ function FileManager({
 		{
 			bg: 'bg-gray-500',
 			icon: FaPlus,
-			title: 'New File'
+			title: 'New File',
 		},
 		{
 			bg: 'bg-gray-500',
 			icon: FaFolderPlus,
-			title: 'New Folder'
+			title: 'New Folder',
 		},
 		{
 			bg: 'bg-violet-500',
@@ -105,13 +105,13 @@ function FileManager({
 			icon: FaCloudDownloadAlt,
 			title: 'Export',
 		},
-	]
+	];
 
 	const accesses = [
 		{
 			bg: 'bg-indigo-500',
 			icon: FaFolderOpen,
-			title: 'all'
+			title: 'all',
 		},
 		{
 			bg: 'bg-blue-500',
@@ -215,7 +215,9 @@ function FileManager({
 
 			<Breadcrumbs dir={dir} setDir={setDir} />
 			{canCreate && <Topbar />}
-			{data?.result && <Files data={data.result} dir={dir} setDir={setDir} />}
+			{data?.result && (
+				<Files data={data.result.slice(0, 5)} dir={dir} setDir={setDir} />
+			)}
 		</Container>
 	);
 }
