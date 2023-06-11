@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
 
 export { default as Breadcrumbs } from './breadcrumbs';
 export { default as FileComponent } from './file';
@@ -60,11 +59,7 @@ function BoxGridItem({ bg, icon: Icon, onClick, title }: ActionType) {
 	);
 }
 
-function Container(
-	props: ActionType & {
-		children: React.ReactNode;
-	}
-) {
+function Container(props: ActionType) {
 	if (props.link)
 		return (
 			<Link href={props.link}>

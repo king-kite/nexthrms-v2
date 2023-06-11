@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React from 'react';
 import {
 	FaClock,
@@ -6,6 +7,7 @@ import {
 	FaFile,
 	FaFolderOpen,
 	FaFolderPlus,
+	FaLongArrowAltLeft,
 	FaMusic,
 	FaPlus,
 	FaVideo,
@@ -25,6 +27,7 @@ import { getFileType, type NameKey } from '../components/file-manager/file';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,
+	FILE_MANAGER_PAGE_URL,
 	MEDIA_URL,
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../config';
@@ -46,12 +49,22 @@ function FileManager({
 		to?: string;
 	}>();
 
+	const { query, push } = useRouter();
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const [dir, setDir] = React.useState(MEDIA_URL);
 
-	const [type, setType] = React.useState<NameKey | 'document' | 'recent' | null>(null);
+	const { title, type } = React.useMemo(() => {
+		const type = query?.type?.toString() || 'recent';
+		const title = type === 'recent' ? 'recent' : `${type}s`;
+
+		return {
+			title,
+			type,
+		};
+	}, [query]);
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -110,14 +123,14 @@ function FileManager({
 		// recent
 		if (type === 'recent') {
 			_files = _files.slice(0, 5);
-		} else if (type !== null && ['audio', 'image', 'video'].includes(type)) {
+		} else if (['audio', 'image', 'video'].includes(type)) {
 			// audio, image, video
 			_files = _files.filter((file) => {
 				const fileType = getFileType(file.type, file.url, file.name);
 				if (type === fileType) return true;
 				return false;
 			});
-		} else if (type !== null && type === 'document') {
+		} else if (type === 'document') {
 			// files e.g. word, zip, pdf
 			// if file is not an audio, image, video
 			_files = _files.filter((file) => {
@@ -153,44 +166,47 @@ function FileManager({
 		},
 	];
 
-	const accesses = React.useMemo(() => [
-		{
-			bg: 'bg-indigo-500',
-			icon: FaFolderOpen,
-			onClick: () => setType(null),
-			title: 'all',
-		},
-		{
-			bg: 'bg-blue-500',
-			icon: FaImages,
-			onClick: () => setType('image'),
-			title: 'images',
-		},
-		{
-			bg: 'bg-purple-500',
-			icon: FaMusic,
-			onClick: () => setType('audio'),
-			title: 'audios',
-		},
-		{
-			bg: 'bg-green-500',
-			icon: FaVideo,
-			onClick: () => setType('video'),
-			title: 'videos',
-		},
-		{
-			bg: 'bg-yellow-500',
-			icon: FaFile,
-			onClick: () => setType('document'),
-			title: 'documents',
-		},
-		{
-			bg: 'bg-sky-500',
-			icon: FaClock,
-			onClick: () => setType('recent'),
-			title: 'recent',
-		},
-	], []);
+	const accesses = React.useMemo(
+		() => [
+			{
+				bg: 'bg-indigo-500',
+				icon: FaFolderOpen,
+				link: `${FILE_MANAGER_PAGE_URL}?type=all`,
+				title: 'all',
+			},
+			{
+				bg: 'bg-blue-500',
+				icon: FaImages,
+				link: `${FILE_MANAGER_PAGE_URL}?type=image`,
+				title: 'images',
+			},
+			{
+				bg: 'bg-purple-500',
+				icon: FaMusic,
+				link: `${FILE_MANAGER_PAGE_URL}?type=audio`,
+				title: 'audios',
+			},
+			{
+				bg: 'bg-green-500',
+				icon: FaVideo,
+				link: `${FILE_MANAGER_PAGE_URL}?type=video`,
+				title: 'videos',
+			},
+			{
+				bg: 'bg-yellow-500',
+				icon: FaFile,
+				link: `${FILE_MANAGER_PAGE_URL}?type=document`,
+				title: 'documents',
+			},
+			{
+				bg: 'bg-sky-500',
+				icon: FaClock,
+				link: FILE_MANAGER_PAGE_URL,
+				title: 'recent',
+			},
+		],
+		[]
+	);
 
 	return (
 		<Container
@@ -202,19 +218,31 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
-			<div className="my-2 md:my-4">
-				<BoxTitle title="quick actions" />
-				<BoxGrid actions={actions} />
-			</div>
+			{type && type !== 'all' && type !== 'recent' && (
+				<div
+					onClick={() => push(FILE_MANAGER_PAGE_URL)}
+					className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center my-4 rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:h-[30px] md:w-[30px]"
+				>
+					<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
+				</div>
+			)}
 
-			<div className="my-2 md:my-4">
-				<BoxTitle title="quick access" />
-				<BoxGrid actions={accesses} />
-			</div>
+			{(!type || type === 'recent') && (
+				<>
+					<div className="my-2 md:my-4">
+						<BoxTitle title="quick actions" />
+						<BoxGrid actions={actions} />
+					</div>
+					<div className="my-2 md:my-4">
+						<BoxTitle title="quick access" />
+						<BoxGrid actions={accesses} />
+					</div>
+				</>
+			)}
 
 			<div className="my-2 md:my-4">
 				<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
-					Recent Files
+					{title}
 				</h3>
 				<div className="bg-gray-200 h-[1px] my-5 w-full">
 					<div className="bg-primary-500 h-[1px] w-1/5" />
