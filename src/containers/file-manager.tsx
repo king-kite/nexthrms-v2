@@ -57,8 +57,8 @@ function FileManager({
 	const [dir, setDir] = React.useState(MEDIA_URL);
 
 	const { title, type } = React.useMemo(() => {
-		const type = query?.type?.toString() || 'recent';
-		const title = type === 'recent' ? 'recent' : `${type}s`;
+		const type = query?.type?.toString() || null;
+		const title = !type || type === 'recent' ? 'recent' : `${type}s`;
 
 		return {
 			title,
@@ -89,7 +89,7 @@ function FileManager({
 		return [canCreate, canView];
 	}, [authData]);
 
-	const { data, isFetching, refetch } = useGetManagedFilesQuery(
+	const { data, isFetching, isLoading, refetch } = useGetManagedFilesQuery(
 		{
 			limit,
 			offset,
@@ -121,9 +121,12 @@ function FileManager({
 		});
 
 		// recent
-		if (type === 'recent') {
+		if (type === null) {
+			// i.e. Home/File Dashboard Route
 			_files = _files.slice(0, 5);
-		} else if (['audio', 'image', 'video'].includes(type)) {
+		} else if (type === 'recent') {
+			_files = _files.slice(0, 20);
+		} else if (type !== null && ['audio', 'image', 'video'].includes(type)) {
 			// audio, image, video
 			_files = _files.filter((file) => {
 				const fileType = getFileType(file.type, file.url, file.name);
@@ -201,7 +204,7 @@ function FileManager({
 			{
 				bg: 'bg-sky-500',
 				icon: FaClock,
-				link: FILE_MANAGER_PAGE_URL,
+				link: `${FILE_MANAGER_PAGE_URL}?type=recent`,
 				title: 'recent',
 			},
 		],
@@ -211,6 +214,7 @@ function FileManager({
 	return (
 		<Container
 			background="bg-white"
+			disabledLoading={isLoading}
 			heading="File Manager"
 			refresh={{
 				loading: isFetching,
@@ -218,7 +222,7 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
-			{type && type !== 'all' && type !== 'recent' && (
+			{type !== null && (
 				<div
 					onClick={() => push(FILE_MANAGER_PAGE_URL)}
 					className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center my-4 rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:h-[30px] md:w-[30px]"
@@ -227,7 +231,7 @@ function FileManager({
 				</div>
 			)}
 
-			{(!type || type === 'recent') && (
+			{type === null && (
 				<>
 					<div className="my-2 md:my-4">
 						<BoxTitle title="quick actions" />
@@ -240,21 +244,28 @@ function FileManager({
 				</>
 			)}
 
-			<div className="my-2 md:my-4">
-				<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
-					{title}
-				</h3>
-				<div className="bg-gray-200 h-[1px] my-5 w-full">
-					<div className="bg-primary-500 h-[1px] w-1/5" />
+			{type === 'all' ? (
+				data?.result && data?.result?.length <= 0 ? (
+					<FileEmpty />
+				) : (
+					<>
+						<Breadcrumbs dir={dir} setDir={setDir} />
+						<Files data={data?.result || []} dir={dir} setDir={setDir} />
+					</>
+				)
+			) : (
+				<div className="my-2 md:my-4">
+					<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
+						{title}
+					</h3>
+					<div className="bg-gray-200 h-[1px] my-5 w-full">
+						<div className="bg-primary-500 h-[1px] w-1/5" />
+					</div>
+					<div className="my-3 py-2">
+						{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
+					</div>
 				</div>
-				<div className="my-3 py-2">
-					{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
-				</div>
-			</div>
-
-			{/* <Breadcrumbs dir={dir} setDir={setDir} />
-			{canCreate && <Topbar />}
-			{data?.result && <Files data={data.result} dir={dir} setDir={setDir} />} */}
+			)}
 		</Container>
 	);
 }
