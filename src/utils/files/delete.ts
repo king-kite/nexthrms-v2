@@ -11,10 +11,14 @@ function deleteFile(public_id: string, options?: any): Promise<unknown> {
 				const resolvedPath = path.resolve(
 					public_id.startsWith('/') ? public_id.slice(1) : public_id
 				);
-				fs.unlink(resolvedPath, (err) => {
-					if (err) reject(err);
+				// if file path does not exist
+				if (!fs.existsSync(resolvedPath)) {
 					resolve(undefined);
-				});
+				} else
+					fs.unlink(resolvedPath, (err) => {
+						if (err) reject(err);
+						resolve(undefined);
+					});
 			} else {
 				cloudinary.uploader
 					.destroy(public_id, { public_id, ...options })
