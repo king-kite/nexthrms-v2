@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import React from 'react';
+
 export { default as Breadcrumbs } from './breadcrumbs';
 export { default as FileComponent } from './file';
 export { default as Files } from './files';
@@ -18,37 +21,57 @@ export function BoxTitle({ title }: { title: string }) {
 	);
 }
 
-export function BoxGrid({
-	actions = [],
-}: {
-	actions: {
-		bg: string;
-		icon: (props: any) => JSX.Element;
-		onClick?: () => void;
-		title: string;
-	}[];
-}) {
+type ActionType = {
+	bg: string;
+	icon: (props: any) => JSX.Element;
+	link?: string;
+	onClick?: () => void;
+	title: string;
+};
+
+export function BoxGrid({ actions = [] }: { actions: ActionType[] }) {
 	return (
 		<div className="gap-4 grid grid-cols-2 my-3 py-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-			{actions.map(({ bg, icon: Icon, onClick, title }, index) => (
-				<abbr
-					key={index}
-					title={title}
-					className="block cursor-pointer no-underline transition transform hover:scale-105"
-					onClick={onClick}
-				>
-					<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
-						<span
-							className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full text-primary-700 w-[60px]`}
-						>
-							<Icon className="h-[20px] text-gray-50 w-[20px]" />
-						</span>
-					</div>
-					<p className="capitalize my-2 text-center text-gray-700 text-sm tracking-wide md:text-base">
-						{title}
-					</p>
-				</abbr>
+			{actions.map((action, index) => (
+				<Container key={index} {...action} />
 			))}
 		</div>
 	);
+}
+
+function BoxGridItem({ bg, icon: Icon, onClick, title }: ActionType) {
+	return (
+		<abbr
+			title={title}
+			className="block cursor-pointer no-underline transition transform hover:scale-105"
+			onClick={onClick}
+		>
+			<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
+				<span
+					className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full text-primary-700 w-[60px]`}
+				>
+					<Icon className="h-[20px] text-gray-50 w-[20px]" />
+				</span>
+			</div>
+			<p className="capitalize my-2 text-center text-gray-700 text-sm tracking-wide md:text-base">
+				{title}
+			</p>
+		</abbr>
+	);
+}
+
+function Container(
+	props: ActionType & {
+		children: React.ReactNode;
+	}
+) {
+	if (props.link)
+		return (
+			<Link href={props.link}>
+				<a>
+					<BoxGridItem {...props} />
+				</a>
+			</Link>
+		);
+	return <BoxGridItem {...props} />;
 }
