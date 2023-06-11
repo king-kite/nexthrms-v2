@@ -1,9 +1,19 @@
 import { Alert } from 'kite-react-tailwind';
+import React from 'react';
 
 import { AlertMessageType, useAlertContext } from '../../store/contexts/alert';
 
 function AlertMessage(props: AlertMessageType) {
 	const { close } = useAlertContext();
+
+	React.useEffect(() => {
+		let timeout = setTimeout(() => {
+			close();
+		}, 10 * 1000);
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, [close]);
 
 	return (
 		<div className="alert-animation px-3 py-1 w-full sm:px-4 md:px-7 lg:px-8">
