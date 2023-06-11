@@ -14,7 +14,7 @@ import {
 
 import { ManagedFileType } from '../../types';
 
-type NameKey =
+export type NameKey =
 	| 'audio'
 	| 'image'
 	| 'word'
@@ -36,7 +36,7 @@ export function getExtension(name: string) {
 	return extension;
 }
 
-function getTypeFromLocation(name: string) {
+export function getTypeFromLocation(name: string) {
 	const extension = getExtension(name);
 
 	if (!extension) return null;

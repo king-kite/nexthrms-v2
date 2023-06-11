@@ -1,13 +1,15 @@
 import Image from 'next/image';
 import { IconType } from 'react-icons';
 
-export function TableIconNameCell({
+export function TableIconNameSizeCell({
 	bg = 'bg-primary-500',
 	name,
+	size,
 	icon: Icon,
 }: {
 	bg?: string;
 	name: string;
+	size?: string | number;
 	icon: IconType;
 }) {
 	return (
@@ -23,6 +25,11 @@ export function TableIconNameCell({
 				<div className="normal-case text-sm font-medium text-gray-900">
 					{name}
 				</div>
+				{size && (
+					<div className="font-normal text-sm text-gray-500 uppercase">
+						{size}
+					</div>
+				)}
 			</section>
 		</abbr>
 	);

@@ -4,12 +4,8 @@ import { IconType } from 'react-icons';
 import { FaArrowRight, FaTrash } from 'react-icons/fa';
 
 import { getIcon, getFileType, getExtension } from './file';
-import { TableIconNameCell, TableAvatarEmailNameCell } from '../common';
-import {
-	permissions,
-	DEFAULT_IMAGE,
-	MEDIA_HIDDEN_FILE_NAME,
-} from '../../config';
+import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
+import { permissions, DEFAULT_IMAGE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { useDeleteManagedFileMutation } from '../../store/queries';
 import { ManagedFileType } from '../../types';
@@ -31,7 +27,6 @@ const heads: TableHeadType = [
 		},
 		value: 'name',
 	},
-	{ value: 'size' },
 	{
 		style,
 		value: 'modified',
@@ -101,12 +96,16 @@ const getRows = (
 
 						return (
 							<span className="cursor-pointer inline-block px-4 w-full hover:bg-gray-100 hover:even:bg-gray-300">
-								<TableIconNameCell bg={color} icon={icon} name={name} />
+								<TableIconNameSizeCell
+									bg={color}
+									icon={icon}
+									name={name}
+									size={file.size || '-----'}
+								/>
 							</span>
 						);
 					},
 				},
-				{ value: file.size },
 				{
 					value: file.updatedAt ? getStringedDate(file.updatedAt) : '---',
 				},
@@ -162,16 +161,8 @@ const FileTable = ({ files }: TableType) => {
 	}, [authData]);
 
 	React.useEffect(() => {
-		const data = files.filter((file) => {
-			if (
-				file.name.includes(MEDIA_HIDDEN_FILE_NAME) ||
-				file.url.includes(MEDIA_HIDDEN_FILE_NAME)
-			)
-				return false;
-			return true;
-		});
 		// const data = files.filter((file) => file.name !== MEDIA_HIDDEN_FILE_NAME);
-		setRows(getRows(data, { deleteFile: canDelete ? deleteFile : undefined }));
+		setRows(getRows(files, { deleteFile: canDelete ? deleteFile : undefined }));
 	}, [canDelete, deleteFile, files]);
 
 	return <Table heads={heads} rows={rows} sn={false} />;
