@@ -3,6 +3,7 @@ import {
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
 	FaFile,
+	FaFolderOpen,
 	FaFolderPlus,
 	FaMusic,
 	FaPlus,
@@ -107,6 +108,11 @@ function FileManager({
 	]
 
 	const accesses = [
+		{
+			bg: 'bg-indigo-500',
+			icon: FaFolderOpen,
+			title: 'all'
+		},
 		{
 			bg: 'bg-blue-500',
 			icon: FaImages,
