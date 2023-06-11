@@ -223,11 +223,18 @@ function FileManager({
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
 			{type !== null && (
-				<div
-					onClick={() => push(FILE_MANAGER_PAGE_URL)}
-					className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center my-4 rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:h-[30px] md:w-[30px]"
-				>
-					<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
+				<div className="flex flex-col sm:flex-row">
+					<div
+						onClick={() => push(FILE_MANAGER_PAGE_URL)}
+						className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center my-4 rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:h-[30px] md:w-[30px]"
+					>
+						<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
+					</div>
+					{type === 'all' && (
+						<div className="relative sm:bottom-[0.35rem] sm:ml-4 md:bottom-[0.25rem]">
+							<Breadcrumbs dir={dir} setDir={setDir} />
+						</div>
+					)}
 				</div>
 			)}
 
@@ -249,7 +256,6 @@ function FileManager({
 					<FileEmpty />
 				) : (
 					<>
-						<Breadcrumbs dir={dir} setDir={setDir} />
 						<Files data={data?.result || []} dir={dir} setDir={setDir} />
 					</>
 				)
