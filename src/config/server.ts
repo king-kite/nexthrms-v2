@@ -7,6 +7,8 @@ const ROOT_URL = '/api';
 
 // Apps URLs
 export const MANAGED_FILES_URL = `${ROOT_URL}/managed-files/`;
+export const MANAGED_FILE_URL = (id: string) =>
+	`${ROOT_URL}/managed-files/${id}/`;
 
 // Authentication and User Personal Information URLs
 export const EMAIL_CONFIRM_URL = `${ROOT_URL}/auth/email/confirm/`;

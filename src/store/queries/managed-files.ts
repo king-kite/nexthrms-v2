@@ -1,9 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
+import React from 'react';
 
 import * as tags from '../tagTypes';
-import { MANAGED_FILES_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
-import { GetManagedFilesResponseType, ManagedFileType } from '../../types';
+import {
+	MANAGED_FILES_URL,
+	MANAGED_FILE_URL,
+	DEFAULT_PAGINATION_SIZE,
+} from '../../config';
+import { useAlertModalContext } from '../../store/contexts';
+import {
+	BaseResponseType,
+	GetManagedFilesResponseType,
+	ManagedFileType,
+} from '../../types';
 import { axiosInstance } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
@@ -57,4 +67,79 @@ export function useGetManagedFilesQuery(
 		}
 	);
 	return query;
+}
+
+// delete managed file mutation
+export function useDeleteManagedFileMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(id: string) =>
+			axiosInstance
+				.delete(MANAGED_FILE_URL(id))
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess() {
+				queryClient.invalidateQueries([tags.MANAGED_FILES]);
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message || 'An error occurred. Unable to delete file.',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteFile = React.useCallback(
+		(id: string) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: 'Delete File?',
+				color: 'danger',
+				message: 'Do you want to delete this file?',
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(id);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { deleteFile, ...mutation };
 }
