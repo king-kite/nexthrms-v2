@@ -19,11 +19,11 @@ import {
 	Breadcrumbs,
 	BoxGrid,
 	BoxTitle,
+	FileEmpty,
 	FileTable,
 	Files,
-	Topbar,
 } from '../components/file-manager';
-import { getFileType, type NameKey } from '../components/file-manager/file';
+import { getFileType } from '../components/file-manager/file';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,
@@ -248,7 +248,7 @@ function FileManager({
 					<div className="bg-primary-500 h-[1px] w-1/5" />
 				</div>
 				<div className="my-3 py-2">
-					<FileTable files={files} />
+					{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
 				</div>
 			</div>
 
