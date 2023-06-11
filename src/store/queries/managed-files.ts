@@ -8,7 +8,7 @@ import {
 	MANAGED_FILE_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../../config';
-import { useAlertModalContext } from '../../store/contexts';
+import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
 	BaseResponseType,
 	GetManagedFilesResponseType,
@@ -84,6 +84,8 @@ export function useDeleteManagedFileMutation(
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
 
+	const { open } = useAlertContext();
+
 	const queryClient = useQueryClient();
 
 	const { mutate, ...mutation } = useMutation(
@@ -95,6 +97,12 @@ export function useDeleteManagedFileMutation(
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.MANAGED_FILES]);
 				if (options?.onSuccess) options.onSuccess();
+				else {
+					open({
+						message: 'File deleted successfully!',
+						type: 'success',
+					});
+				}
 			},
 			async onError(err) {
 				if (options?.onError) {
@@ -102,6 +110,13 @@ export function useDeleteManagedFileMutation(
 					options.onError({
 						message:
 							error?.message || 'An error occurred. Unable to delete file.',
+					});
+				} else {
+					const error = handleAxiosErrors(err);
+					open({
+						message:
+							error?.message || 'An error occurred. Unable to delete file.',
+						type: 'danger',
 					});
 				}
 			},

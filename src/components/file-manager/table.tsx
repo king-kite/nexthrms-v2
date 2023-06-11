@@ -1,10 +1,11 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import { useEffect, useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaTrash } from 'react-icons/fa';
 
 import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameCell, TableAvatarEmailNameCell } from '../common';
 import { DEFAULT_IMAGE, MEDIA_HIDDEN_FILE_NAME } from '../../config';
+import { useDeleteManagedFileMutation } from '../../store/queries';
 import { ManagedFileType } from '../../types';
 import { getStringedDate } from '../../utils';
 
@@ -39,7 +40,14 @@ const heads: TableHeadType = [
 	{ type: 'actions', value: 'view' },
 ];
 
-const getRows = (data: ManagedFileType[]): TableRowType[] =>
+const getRows = (
+	data: ManagedFileType[],
+	{
+		deleteFile,
+	}: {
+		deleteFile: (id: string) => void;
+	}
+): TableRowType[] =>
 	data.map((file) => ({
 		id: file.id,
 		rows: [
@@ -107,6 +115,11 @@ const getRows = (data: ManagedFileType[]): TableRowType[] =>
 						color: 'primary',
 						icon: FaArrowRight,
 					},
+					{
+						color: 'danger',
+						icon: FaTrash,
+						onClick: () => deleteFile(file.id),
+					},
 				],
 			},
 		],
@@ -119,6 +132,8 @@ type TableType = {
 const FileTable = ({ files }: TableType) => {
 	const [rows, setRows] = useState<TableRowType[]>([]);
 
+	const { deleteFile } = useDeleteManagedFileMutation();
+
 	useEffect(() => {
 		const data = files.filter((file) => {
 			if (
@@ -129,8 +144,8 @@ const FileTable = ({ files }: TableType) => {
 			return true;
 		});
 		// const data = files.filter((file) => file.name !== MEDIA_HIDDEN_FILE_NAME);
-		setRows(getRows(data));
-	}, [files]);
+		setRows(getRows(data, { deleteFile }));
+	}, [deleteFile, files]);
 
 	return <Table heads={heads} rows={rows} sn={false} />;
 };
