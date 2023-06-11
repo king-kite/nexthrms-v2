@@ -43,7 +43,15 @@ export function FileEmpty() {
 	);
 }
 
-function BoxGridItem({ bg, icon: Icon, onClick, title }: ActionType) {
+export function BoxGridItem({ 
+  bg, 
+  caps = true,
+  icon: Icon, 
+  onClick, 
+  title 
+}: ActionType & {
+  caps?: boolean;
+}) {
 	return (
 		<abbr
 			title={title}
@@ -57,7 +65,10 @@ function BoxGridItem({ bg, icon: Icon, onClick, title }: ActionType) {
 					<Icon className="h-[20px] text-gray-50 w-[20px]" />
 				</span>
 			</div>
-			<p className="capitalize my-2 text-center text-gray-700 text-sm tracking-wide md:text-base">
+			<p className={`${caps 
+        ? 'capitalize' : 'normal-case'
+        } my-2 text-center text-gray-700 text-sm tracking-wide md:text-base`}
+      >
 				{title}
 			</p>
 		</abbr>

@@ -12,6 +12,8 @@ import {
 	FaImage,
 } from 'react-icons/fa';
 
+import { BoxGridItem } from './box-items';
+import { MEDIA_HIDDEN_FILE_NAME } from '../../config';
 import { ManagedFileType } from '../../types';
 
 export type NameKey =
@@ -151,21 +153,33 @@ export function getIcon(_type: string, url: string, name: string): IconType {
 }
 
 function FileComponent({ name, type, url }: ManagedFileType) {
-	const Icon = getIcon(type, url, name);
+	if (
+		name.includes(MEDIA_HIDDEN_FILE_NAME) ||
+		url.includes(MEDIA_HIDDEN_FILE_NAME)
+	) return null;
+	
+	const icon = getIcon(type, url, name);
+	const fileType = getFileType(type, url, name);
 
-	return (
-		<abbr
-			title={name}
-			className="cursor-pointer flex flex-col items-center no-underline transition-all hover:scale-105"
-		>
-			<span className="text-primary-700">
-				<Icon className="h-[50px] text-primary-700 w-[50px]" />
-			</span>
-			<span className="font-light mt-1 text-center text-primary-500 text-sm md:text-base">
-				{getName(name)}
-			</span>
-		</abbr>
-	);
+	const bg =
+		fileType === 'image'
+			? 'bg-blue-500'
+			: fileType === 'audio'
+			? 'bg-purple-500'
+			: fileType === 'video'
+			? 'bg-green-500'
+			: fileType === 'word'
+			? 'bg-blue-600'
+			: fileType === 'excel'
+			? 'bg-green-600'
+			: fileType === 'zip'
+			? 'bg-yellow-700'
+			: fileType === 'pdf'
+			? 'bg-red-500'
+			: 'bg-gray-500';
+
+	// getName(name)
+	return <BoxGridItem bg={bg} caps={false} icon={icon} title={name} />;
 }
 
 export default FileComponent;

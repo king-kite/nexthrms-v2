@@ -73,7 +73,7 @@ function Files({
 	}, [data, dir]);
 
 	return (
-		<div className="gap-3 grid grid-cols-4 py-3 sm:gap-y-4 sm:grid-cols-6 md:gap-y-5 md:grid-cols-8 xl:grid-cols-9">
+		<div className="gap-4 grid grid-cols-2 my-3 py-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
 			{displays
 				.sort((a, b) => {
 					const aName = a.name.toLowerCase().trim();
