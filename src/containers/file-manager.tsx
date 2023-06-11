@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	FaClock,
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
 	FaFile,
@@ -14,11 +15,19 @@ import {
 import { Container } from '../components/common';
 import {
 	Breadcrumbs,
+	BoxGrid,
+	BoxTitle,
 	FileTable,
 	Files,
 	Topbar,
 } from '../components/file-manager';
-import { permissions, DEFAULT_PAGINATION_SIZE, MEDIA_URL } from '../config';
+import { getFileType, type NameKey } from '../components/file-manager/file';
+import {
+	permissions,
+	DEFAULT_PAGINATION_SIZE,
+	MEDIA_URL,
+	MEDIA_HIDDEN_FILE_NAME,
+} from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
 import { GetManagedFilesResponseType } from '../types';
@@ -41,6 +50,8 @@ function FileManager({
 	const { data: authData } = useAuthContext();
 
 	const [dir, setDir] = React.useState(MEDIA_URL);
+
+	const [type, setType] = React.useState<NameKey | 'document' | 'recent' | null>(null);
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -84,6 +95,41 @@ function FileManager({
 		}
 	);
 
+	const files = React.useMemo(() => {
+		if (!data) return [];
+
+		let _files = data.result.filter((file) => {
+			if (
+				file.name.includes(MEDIA_HIDDEN_FILE_NAME) ||
+				file.url.includes(MEDIA_HIDDEN_FILE_NAME)
+			)
+				return false;
+			return true;
+		});
+
+		// recent
+		if (type === 'recent') {
+			_files = _files.slice(0, 5);
+		} else if (type !== null && ['audio', 'image', 'video'].includes(type)) {
+			// audio, image, video
+			_files = _files.filter((file) => {
+				const fileType = getFileType(file.type, file.url, file.name);
+				if (type === fileType) return true;
+				return false;
+			});
+		} else if (type !== null && type === 'document') {
+			// files e.g. word, zip, pdf
+			// if file is not an audio, image, video
+			_files = _files.filter((file) => {
+				const fileType = getFileType(file.type, file.url, file.name);
+				if (!['audio', 'image', 'video'].includes(fileType)) return true;
+				return false;
+			});
+		}
+
+		return _files;
+	}, [data, type]);
+
 	const actions = [
 		{
 			bg: 'bg-gray-500',
@@ -107,33 +153,44 @@ function FileManager({
 		},
 	];
 
-	const accesses = [
+	const accesses = React.useMemo(() => [
 		{
 			bg: 'bg-indigo-500',
 			icon: FaFolderOpen,
+			onClick: () => setType(null),
 			title: 'all',
 		},
 		{
 			bg: 'bg-blue-500',
 			icon: FaImages,
+			onClick: () => setType('image'),
 			title: 'images',
 		},
 		{
 			bg: 'bg-purple-500',
 			icon: FaMusic,
+			onClick: () => setType('audio'),
 			title: 'audios',
 		},
 		{
 			bg: 'bg-green-500',
 			icon: FaVideo,
+			onClick: () => setType('video'),
 			title: 'videos',
 		},
 		{
 			bg: 'bg-yellow-500',
 			icon: FaFile,
+			onClick: () => setType('document'),
 			title: 'documents',
 		},
-	];
+		{
+			bg: 'bg-sky-500',
+			icon: FaClock,
+			onClick: () => setType('recent'),
+			title: 'recent',
+		},
+	], []);
 
 	return (
 		<Container
@@ -146,59 +203,13 @@ function FileManager({
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
 			<div className="my-2 md:my-4">
-				<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
-					quick actions
-				</h3>
-				<div className="bg-gray-200 h-[1px] my-5 w-full">
-					<div className="bg-primary-500 h-[1px] w-1/5" />
-				</div>
-				<div className="gap-4 grid grid-cols-2 my-3 py-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-					{actions.map(({ bg, icon: Icon, title }, index) => (
-						<div
-							key={index}
-							className="cursor-pointer transition transform hover:scale-105"
-						>
-							<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
-								<span
-									className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full text-primary-700 w-[60px]`}
-								>
-									<Icon className="h-[20px] text-gray-50 w-[20px]" />
-								</span>
-							</div>
-							<p className="capitalize my-2 text-center text-gray-700 text-sm tracking-wide md:text-base">
-								{title}
-							</p>
-						</div>
-					))}
-				</div>
+				<BoxTitle title="quick actions" />
+				<BoxGrid actions={actions} />
 			</div>
 
 			<div className="my-2 md:my-4">
-				<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
-					quick access
-				</h3>
-				<div className="bg-gray-200 h-[1px] my-5 w-full">
-					<div className="bg-primary-500 h-[1px] w-1/5" />
-				</div>
-				<div className="gap-4 grid grid-cols-2 my-3 py-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-					{accesses.map(({ bg, icon: Icon, title }, index) => (
-						<div
-							key={index}
-							className="cursor-pointer transition transform hover:scale-105"
-						>
-							<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
-								<span
-									className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full text-primary-700 w-[60px]`}
-								>
-									<Icon className="h-[20px] text-gray-50 w-[20px]" />
-								</span>
-							</div>
-							<p className="capitalize my-2 text-center text-gray-700 text-sm tracking-wide md:text-base">
-								{title}
-							</p>
-						</div>
-					))}
-				</div>
+				<BoxTitle title="quick access" />
+				<BoxGrid actions={accesses} />
 			</div>
 
 			<div className="my-2 md:my-4">
@@ -209,15 +220,13 @@ function FileManager({
 					<div className="bg-primary-500 h-[1px] w-1/5" />
 				</div>
 				<div className="my-3 py-2">
-					<FileTable files={data?.result || []} />
+					<FileTable files={files} />
 				</div>
 			</div>
 
-			<Breadcrumbs dir={dir} setDir={setDir} />
+			{/* <Breadcrumbs dir={dir} setDir={setDir} />
 			{canCreate && <Topbar />}
-			{data?.result && (
-				<Files data={data.result.slice(0, 5)} dir={dir} setDir={setDir} />
-			)}
+			{data?.result && <Files data={data.result} dir={dir} setDir={setDir} />} */}
 		</Container>
 	);
 }

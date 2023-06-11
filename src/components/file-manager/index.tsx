@@ -33,6 +33,7 @@ export function BoxGrid({
 			{actions.map(({ bg, icon: Icon, onClick, title }, index) => (
 				<abbr
 					key={index}
+					title={title}
 					className="block cursor-pointer no-underline transition transform hover:scale-105"
 					onClick={onClick}
 				>
