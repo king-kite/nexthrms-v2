@@ -11,8 +11,10 @@ import {
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
 	BaseResponseType,
+	CreateManagedFileErrorType,
 	GetManagedFilesResponseType,
 	ManagedFileType,
+	SuccessResponseType,
 } from '../../types';
 import { axiosInstance } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
@@ -67,6 +69,54 @@ export function useGetManagedFilesQuery(
 		}
 	);
 	return query;
+}
+
+// create employee mutation
+export function useCreateManagedFileMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (err: {
+			status: number;
+			data?: CreateManagedFileErrorType | undefined;
+			message: string;
+		}) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: ManagedFileType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(data: FormData) =>
+			axiosInstance
+				.post(MANAGED_FILES_URL, data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) =>
+						response.data.data
+				),
+		{
+			async onSuccess() {
+				queryClient.invalidateQueries([tags.MANAGED_FILES]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					if (options?.onError) {
+						const error = handleAxiosErrors<CreateManagedFileErrorType>(err);
+						if (error) options.onError(error);
+					}
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
 }
 
 // delete managed file mutation
