@@ -4,7 +4,6 @@ import {
 	FaClock,
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
-	FaEdit,
 	FaFile,
 	FaFolderOpen,
 	FaFolderPlus,
@@ -242,15 +241,9 @@ function FileManager({
 						)}
 					</div>
 					{type === 'all' && (
-						<div className="flex items-center justify-between my-1 w-[15rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
+						<div className="flex items-center justify-between my-1 w-[10rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
 							<FileAction title="File" icon={FaPlus} />
 							<FileAction title="Folder" icon={FaFolderPlus} />
-							<FileAction
-								border="border-indigo-500"
-								color="text-indigo-500"
-								title="Rename"
-								icon={FaEdit}
-							/>
 							<FileAction
 								border="border-red-500"
 								color="text-red-500"
