@@ -13,6 +13,7 @@ function Crumbs({
 	return (
 		<div className="my-3">
 			<Breadcrumbs
+				key=">"
 				links={dir
 					.split('/')
 					.filter((i, m) => m < dir.split('/').length - 1)
@@ -20,7 +21,7 @@ function Crumbs({
 						const isMedia = index === 0 && value === 'media';
 						return {
 							link: '#',
-							title: isMedia ? '..' : value,
+							title: isMedia ? 'home' : value,
 							renderAs: () => (
 								<span
 									onClick={() => {
@@ -33,13 +34,9 @@ function Crumbs({
 											setDir(location);
 										}
 									}}
-									className={`cursor-pointer text-gray-500 transition-all ${
-										isMedia
-											? 'text-[23px] hover:scale-110 sm:text-[25px] md:text-[27px]'
-											: 'text-sm hover:scale-105 sm:text-base md:text-lg'
-									}`}
+									className="cursor-pointer text-gray-500 text-sm tracking-wide transition-all uppercase hover:scale-105 sm:text-base md:text-lg"
 								>
-									{isMedia ? '..' : value}
+									{isMedia ? 'home' : value}
 								</span>
 							),
 						};
