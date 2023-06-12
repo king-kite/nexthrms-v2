@@ -1,6 +1,8 @@
 import { Alert, Button, File, Input } from 'kite-react-tailwind';
 import React from 'react';
 
+import { useAlertContext } from '../../store/contexts';
+import { useCreateManagedFileMutation } from '../../store/queries';
 import { CreateManagedFileType, CreateManagedFileErrorType } from '../../types';
 import { managedFileCreateSchema, handleJoiErrors } from '../../validators';
 
@@ -26,6 +28,27 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 
 	const formRef = React.useRef<HTMLFormElement>(null);
 
+	const { open } = useAlertContext();
+
+	const { mutate } = useCreateManagedFileMutation({
+		onSuccess() {
+			open({
+				message:
+					type === 'file'
+						? 'File add successfully!'
+						: 'Folder added successfully!',
+				type: 'success',
+			});
+			onSuccess();
+		},
+		onError(error) {
+			setErrors((prevState) => ({
+				...error?.data,
+				message: error.message,
+			}));
+		},
+	});
+
 	const handleSubmit = React.useCallback(
 		async (input: CreateManagedFileType) => {
 			setErrors(undefined);
@@ -43,7 +66,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				form.append('type', valid.type);
 				valid.directory && form.append('directory', valid.directory);
 				valid.file && form.append('file', valid.file);
-				// onSubmit(form);
+				mutate(form);
 			} catch (error) {
 				const err = handleJoiErrors<CreateManagedFileErrorType>(error);
 				if (err) {
@@ -54,7 +77,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				}
 			}
 		},
-		[]
+		[mutate]
 	);
 
 	const removeError = React.useCallback(
@@ -75,10 +98,10 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				e.preventDefault();
 				if (formRef.current) {
 					handleSubmit({
-						file: formRef.current?.file.files[0] || undefined,
-						directory: formRef.current?.directory.value,
+						file: type === 'file' ? formRef.current?.file.files[0] : undefined,
+						directory: directory || formRef.current?.directory.value,
 						name: formRef.current?.fileName.value,
-						type: formRef.current?.type.value,
+						type,
 					});
 				}
 			}}
