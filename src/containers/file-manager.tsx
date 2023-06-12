@@ -4,14 +4,16 @@ import {
 	FaClock,
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
+	FaEdit,
 	FaFile,
 	FaFolderOpen,
 	FaFolderPlus,
+	FaFolderMinus,
+	FaImages,
 	FaLongArrowAltLeft,
 	FaMusic,
 	FaPlus,
 	FaVideo,
-	FaImages,
 } from 'react-icons/fa';
 
 import { Container } from '../components/common';
@@ -19,6 +21,7 @@ import {
 	Breadcrumbs,
 	BoxGrid,
 	BoxTitle,
+	FileAction,
 	FileEmpty,
 	FileTable,
 	Files,
@@ -224,16 +227,36 @@ function FileManager({
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
 			{type !== null && (
-				<div className="flex flex-col my-4 sm:flex-row">
-					<div
-						onClick={() => push(FILE_MANAGER_PAGE_URL)}
-						className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:h-[30px] md:w-[30px]"
-					>
-						<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
+				<div className="flex flex-col my-4 sm:flex-row sm:justify-between">
+					<div className="flex flex-col sm:flex-row">
+						<div
+							onClick={() => push(FILE_MANAGER_PAGE_URL)}
+							className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-105 hover:text-gray-600 md:h-[30px] md:w-[30px]"
+						>
+							<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
+						</div>
+						{type === 'all' && (
+							<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem] lg:bottom-[0.65rem]">
+								<Breadcrumbs dir={dir} setDir={setDir} />
+							</div>
+						)}
 					</div>
 					{type === 'all' && (
-						<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem] lg:bottom-[0.65rem]">
-							<Breadcrumbs dir={dir} setDir={setDir} />
+						<div className="flex items-center justify-between my-1 w-[15rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
+							<FileAction title="File" icon={FaPlus} />
+							<FileAction title="Folder" icon={FaFolderPlus} />
+							<FileAction
+								border="border-indigo-500"
+								color="text-indigo-500"
+								title="Rename"
+								icon={FaEdit}
+							/>
+							<FileAction
+								border="border-red-500"
+								color="text-red-500"
+								title="Delete"
+								icon={FaFolderMinus}
+							/>
 						</div>
 					)}
 				</div>
@@ -256,9 +279,7 @@ function FileManager({
 				data?.result && data?.result?.length <= 0 ? (
 					<FileEmpty />
 				) : (
-					<>
-						<Files data={data?.result || []} dir={dir} setDir={setDir} />
-					</>
+					<Files data={data?.result || []} dir={dir} setDir={setDir} />
 				)
 			) : (
 				<div className="my-2 md:my-4">

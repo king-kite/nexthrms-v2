@@ -156,8 +156,9 @@ function FileComponent({ name, type, url }: ManagedFileType) {
 	if (
 		name.includes(MEDIA_HIDDEN_FILE_NAME) ||
 		url.includes(MEDIA_HIDDEN_FILE_NAME)
-	) return null;
-	
+	)
+		return null;
+
 	const icon = getIcon(type, url, name);
 	const fileType = getFileType(type, url, name);
 
@@ -180,6 +181,32 @@ function FileComponent({ name, type, url }: ManagedFileType) {
 
 	// getName(name)
 	return <BoxGridItem bg={bg} caps={false} icon={icon} title={name} />;
+}
+
+export function FileAction({
+	border = 'border-gray-400',
+	color = 'text-gray-400',
+	icon: Icon,
+	title,
+}: {
+	border?: string;
+	color?: string;
+	icon: IconType;
+	title: string;
+}) {
+	return (
+		<abbr
+			className="cursor-pointer flex flex-col items-center no-underline"
+			title={title}
+		>
+			<span
+				className={`bg-gray-50 border ${border} ${color} duration-500 flex h-[30px] items-center justify-center rounded-md transform transition-all w-[30px] hover:scale-105`}
+			>
+				<Icon className="h-[13px] w-[13px]" />
+			</span>
+			<p className="mt-[0.1rem] text-gray-400 text-xs md:text-sm">{title}</p>
+		</abbr>
+	);
 }
 
 export default FileComponent;

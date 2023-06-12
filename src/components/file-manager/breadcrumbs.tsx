@@ -34,7 +34,7 @@ function Crumbs({
 											setDir(location);
 										}
 									}}
-									className="cursor-pointer text-gray-500 text-sm tracking-wide transition-all uppercase hover:scale-105 sm:text-base md:text-lg"
+									className="cursor-pointer text-gray-500 text-sm tracking-wide transition-all uppercase hover:scale-105 md:text-base"
 								>
 									{isMedia ? 'home' : value}
 								</span>
