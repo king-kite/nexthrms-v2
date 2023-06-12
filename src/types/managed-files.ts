@@ -35,6 +35,13 @@ export type CreateManagedFileType = {
 	type: 'file' | 'folder';
 };
 
+export type CreateManagedFileErrorType = {
+	name?: string;
+	directory?: string;
+	file?: string;
+	type?: string;
+};
+
 export type GetManagedFilesResponseType = PaginatedResponseType<
 	ManagedFileType[]
 >;

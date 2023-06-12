@@ -187,16 +187,19 @@ export function FileAction({
 	border = 'border-gray-400',
 	color = 'text-gray-400',
 	icon: Icon,
+	onClick,
 	title,
 }: {
 	border?: string;
 	color?: string;
 	icon: IconType;
+	onClick?: () => void;
 	title: string;
 }) {
 	return (
 		<abbr
 			className="cursor-pointer flex flex-col items-center no-underline transform transition-all hover:scale-105"
+			onClick={onClick}
 			title={title}
 		>
 			<span

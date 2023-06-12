@@ -15,7 +15,7 @@ import {
 	FaVideo,
 } from 'react-icons/fa';
 
-import { Container } from '../components/common';
+import { Container, Modal } from '../components/common';
 import {
 	Breadcrumbs,
 	BoxGrid,
@@ -24,6 +24,7 @@ import {
 	FileEmpty,
 	FileTable,
 	Files,
+	Form,
 } from '../components/file-manager';
 import { getFileType } from '../components/file-manager/file';
 import {
@@ -50,6 +51,7 @@ function FileManager({
 		from?: string;
 		to?: string;
 	}>();
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { query, push } = useRouter();
 
@@ -57,6 +59,7 @@ function FileManager({
 	const { data: authData } = useAuthContext();
 
 	const [dir, setDir] = React.useState(MEDIA_URL);
+	const [formType, setFormType] = React.useState<'file' | 'folder'>('file');
 
 	const { title, type } = React.useMemo(() => {
 		const type = query?.type?.toString() || null;
@@ -148,28 +151,39 @@ function FileManager({
 		return _files;
 	}, [data, type]);
 
-	const actions = [
-		{
-			bg: 'bg-gray-500',
-			icon: FaPlus,
-			title: 'New File',
-		},
-		{
-			bg: 'bg-gray-500',
-			icon: FaFolderPlus,
-			title: 'New Folder',
-		},
-		{
-			bg: 'bg-violet-500',
-			icon: FaCloudUploadAlt,
-			title: 'Import',
-		},
-		{
-			bg: 'bg-sky-500',
-			icon: FaCloudDownloadAlt,
-			title: 'Export',
-		},
-	];
+	const actions = React.useMemo(
+		() => [
+			{
+				bg: 'bg-gray-500',
+				icon: FaPlus,
+				onClick() {
+					setFormType('file');
+					setModalVisible(true);
+				},
+				title: 'New File',
+			},
+			{
+				bg: 'bg-gray-500',
+				icon: FaFolderPlus,
+				onClick() {
+					setFormType('folder');
+					setModalVisible(true);
+				},
+				title: 'New Folder',
+			},
+			{
+				bg: 'bg-violet-500',
+				icon: FaCloudUploadAlt,
+				title: 'Import',
+			},
+			{
+				bg: 'bg-sky-500',
+				icon: FaCloudDownloadAlt,
+				title: 'Export',
+			},
+		],
+		[]
+	);
 
 	const accesses = React.useMemo(
 		() => [
@@ -242,8 +256,22 @@ function FileManager({
 					</div>
 					{type === 'all' && (
 						<div className="flex items-center justify-between my-1 w-[10rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
-							<FileAction title="File" icon={FaPlus} />
-							<FileAction title="Folder" icon={FaFolderPlus} />
+							<FileAction
+								onClick={() => {
+									setFormType('file');
+									setModalVisible(true);
+								}}
+								title="File"
+								icon={FaPlus}
+							/>
+							<FileAction
+								onClick={() => {
+									setFormType('folder');
+									setModalVisible(true);
+								}}
+								title="Folder"
+								icon={FaFolderPlus}
+							/>
 							<FileAction
 								border="border-red-500"
 								color="text-red-500"
@@ -287,6 +315,22 @@ function FileManager({
 					</div>
 				</div>
 			)}
+			<Modal
+				close={() => setModalVisible(false)}
+				keepVisible
+				component={
+					<Form
+						directory={type === 'all' ? dir : undefined}
+						onSuccess={() => {
+							setModalVisible(false);
+						}}
+						type={formType}
+					/>
+				}
+				description={`Add a new ${formType}`}
+				title={formType === 'file' ? 'New File' : 'New Folder'}
+				visible={modalVisible}
+			/>
 		</Container>
 	);
 }
