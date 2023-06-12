@@ -196,11 +196,11 @@ export function FileAction({
 }) {
 	return (
 		<abbr
-			className="cursor-pointer flex flex-col items-center no-underline"
+			className="cursor-pointer flex flex-col items-center no-underline transform transition-all hover:scale-105"
 			title={title}
 		>
 			<span
-				className={`bg-gray-50 border ${border} ${color} duration-500 flex h-[30px] items-center justify-center rounded-md transform transition-all w-[30px] hover:scale-105`}
+				className={`bg-gray-50 border ${border} ${color} duration-500 flex h-[30px] items-center justify-center rounded-md w-[30px]`}
 			>
 				<Icon className="h-[13px] w-[13px]" />
 			</span>
