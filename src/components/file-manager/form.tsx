@@ -107,7 +107,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				if (formRef.current) {
 					handleSubmit({
 						file: type === 'file' ? formRef.current?.file.files[0] : undefined,
-						directory: directory || formRef.current?.directory.value,
+						directory: directory !== undefined ? directory : formRef.current?.directory.value,
 						name: formRef.current?.fileName.value,
 						type,
 					});
