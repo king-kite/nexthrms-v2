@@ -30,7 +30,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 
 	const { open } = useAlertContext();
 
-	const { mutate } = useCreateManagedFileMutation({
+	const { mutate, isLoading } = useCreateManagedFileMutation({
 		onSuccess() {
 			open({
 				message:
@@ -40,6 +40,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				type: 'success',
 			});
 			onSuccess();
+			if (formRef.current) formRef.current.reset();
 		},
 		onError(error) {
 			setErrors((prevState) => ({
@@ -121,7 +122,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 					<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
 						<div className="w-full md:w-1/2 lg:w-1/3">
 							<File
-								// disabled={loading}
+								disabled={isLoading}
 								error={formErrors?.file}
 								label="File"
 								name="file"
@@ -143,7 +144,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				)}
 				<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
 					<Input
-						// disabled={loading}
+						disabled={isLoading}
 						error={formErrors?.name}
 						label="Name"
 						name="fileName"
@@ -151,10 +152,10 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 						placeholder={type === 'file' ? 'File name' : 'Folder name'}
 					/>
 				</div>
-				{!directory && (
+				{directory === undefined && (
 					<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
 						<Input
-							// disabled={loading}
+							disabled={isLoading}
 							error={formErrors?.directory}
 							label="Directory"
 							name="directory"
@@ -167,7 +168,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 			<div className="flex items-center justify-center my-4 sm:my-5 md:mt-8">
 				<div className="w-full sm:w-1/2 md:w-1/3">
 					<Button
-						// disabled={loading}
+						disabled={isLoading}
 						title={type === 'file' ? 'Upload' : 'Create'}
 						type="submit"
 					/>

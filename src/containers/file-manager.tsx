@@ -61,15 +61,22 @@ function FileManager({
 	const [dir, setDir] = React.useState(MEDIA_URL);
 	const [formType, setFormType] = React.useState<'file' | 'folder'>('file');
 
-	const { title, type } = React.useMemo(() => {
+	const { title, type, uploadDir } = React.useMemo(() => {
 		const type = query?.type?.toString() || null;
 		const title = !type || type === 'recent' ? 'recent' : `${type}s`;
+
+		const _split = dir.split(MEDIA_URL);
+		const uploadDir =
+			_split.length > 2
+				? _split.filter((h, i) => i !== 0).join(dir)
+				: _split[1];
 
 		return {
 			title,
 			type,
+			uploadDir,
 		};
-	}, [query]);
+	}, [query, dir]);
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -112,6 +119,8 @@ function FileManager({
 			initialData: initialData ? () => initialData : undefined,
 		}
 	);
+
+	console.log(uploadDir)
 
 	const files = React.useMemo(() => {
 		if (!data) return [];
@@ -320,7 +329,7 @@ function FileManager({
 				keepVisible
 				component={
 					<Form
-						directory={type === 'all' ? dir : undefined}
+						directory={type === 'all' ? uploadDir : undefined}
 						onSuccess={() => {
 							setModalVisible(false);
 						}}
