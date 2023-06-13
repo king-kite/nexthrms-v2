@@ -21,6 +21,7 @@ export const DATA_LIFETIME = process.env.NEXT_PUBLIC_DATA_LIFETIME
 	? +process.env.NEXT_PUBLIC_DATA_LIFETIME
 	: 6000;
 export const DEFAULT_PAGINATION_SIZE = 100;
+export const DEFAULT_MEDIA_PAGINAITON_SIZE = 1000;
 export const DEFAULT_PASSWORD = 'password';
 export const isServer = () => (typeof window === undefined ? true : false);
 

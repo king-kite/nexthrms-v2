@@ -1,4 +1,4 @@
-import { DEFAULT_PAGINATION_SIZE } from '../config';
+import { DEFAULT_MEDIA_PAGINAITON_SIZE } from '../config';
 import FileManager from '../containers/file-manager';
 import { getManagedFiles } from '../db';
 import { getRecords } from '../db/utils';
@@ -48,7 +48,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		perm: 'managedfile',
 		user: req.user,
 		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
+			limit: DEFAULT_MEDIA_PAGINAITON_SIZE,
 			offset: 0,
 			search: '',
 		},

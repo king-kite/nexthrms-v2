@@ -29,7 +29,7 @@ import {
 import { getFileType } from '../components/file-manager/file';
 import {
 	permissions,
-	DEFAULT_PAGINATION_SIZE,
+	DEFAULT_MEDIA_PAGINAITON_SIZE,
 	FILE_MANAGER_PAGE_URL,
 	MEDIA_URL,
 	MEDIA_HIDDEN_FILE_NAME,
@@ -45,7 +45,7 @@ function FileManager({
 	files?: GetManagedFilesResponseType['data'];
 }) {
 	const [offset, setOffset] = React.useState(0);
-	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [limit, setLimit] = React.useState(DEFAULT_MEDIA_PAGINAITON_SIZE);
 	const [searchForm, setSearchForm] = React.useState<{
 		search?: string;
 		from?: string;
