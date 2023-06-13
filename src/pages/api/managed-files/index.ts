@@ -207,7 +207,7 @@ export default auth()
 
 		const promise = new Promise(async (resolve, reject) => {
 			try {
-				let folder = valid.folder ? valid.folder.trim() : null;
+				let folder = valid.folder ? MEDIA_URL + valid.folder.trim() : null;
 				folder = folder ? (folder.endsWith('/') ? folder : folder + '/') : null;
 				const files = folder
 					? await prisma.managedFile.findMany({

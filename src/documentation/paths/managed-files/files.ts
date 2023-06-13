@@ -135,6 +135,77 @@ const path = {
 		summary: 'Create new file or folder',
 		tags: [tags.ManagedFiles],
 	},
+	delete: {
+		requestBody: {
+			required: true,
+			content: {
+				'application/json': {
+					schema: {
+						type: 'object',
+						properties: {
+							files: {
+								nullable: true,
+								type: 'array',
+								items: {
+									type: 'string',
+									format: 'uuid',
+								},
+							},
+							folder: {
+								nullable: true,
+								type: 'string',
+								example: 'users/profile/',
+							},
+						},
+					},
+				},
+			},
+		},
+		responses: {
+			...responses,
+			'200': {
+				content: {
+					'application/json': {
+						schema: {
+							$ref: refs.BASE,
+						},
+					},
+				},
+			},
+			'400': {
+				content: {
+					'application/json': {
+						schema: {
+							allOf: [
+								{ $ref: refs.BASE },
+								{
+									type: 'object',
+									properties: {
+										error: {
+											type: 'object',
+											nullable: true,
+											properties: {
+												files: {
+													type: 'string',
+													nullable: true,
+												},
+												folder: {
+													type: 'string',
+													nullable: true,
+												},
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+		},
+		summary: 'Delete multiple files',
+		tags: [tags.ManagedFiles],
+	},
 };
 
 export default path;
