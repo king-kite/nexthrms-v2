@@ -35,12 +35,13 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 			open({
 				message:
 					type === 'file'
-						? 'File add successfully!'
+						? 'File added successfully!'
 						: 'Folder added successfully!',
 				type: 'success',
 			});
 			onSuccess();
 			if (formRef.current) formRef.current.reset();
+			setForm({ file: '' })
 		},
 		onError(error) {
 			setErrors((prevState) => ({
@@ -65,7 +66,13 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				const form = new FormData();
 				form.append('name', valid.name);
 				form.append('type', valid.type);
-				valid.directory && form.append('directory', valid.directory);
+				
+				if (valid.directory) {
+					// make sure if dir !== '', it should end with a '/' directory end
+					let dir = valid.directory.trim()
+					if (dir !== '' && !dir.endsWith('/'))	dir += '/'
+					form.append('directory', dir);
+				}
 				valid.file && form.append('file', valid.file);
 				mutate(form);
 			} catch (error) {
@@ -153,15 +160,24 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 					/>
 				</div>
 				{directory === undefined && (
-					<div className="w-full md:col-span-2 md:flex md:flex-col md:justify-end">
-						<Input
-							disabled={isLoading}
-							error={formErrors?.directory}
-							label="Directory"
-							name="directory"
-							onChange={() => removeError('directory')}
-							placeholder="e.g. home/users/pictures/"
-						/>
+					<div className="w-full md:col-span-2">
+						<label class="mb-2 text-gray-600 text-xs md:text-sm block font-semibold" for="directory">
+							Directory<span class="text-red-500 mx-1">*</span>
+						</label>
+						<div className="flex items-center w-full">
+							<span className="bg-gray-200 font-semibold inline-block px-3 py-2 rounded-l rounded-r-none text-gray-500 text-xs w-[3.5rem] md:text-sm">
+								home/
+							</span>
+							<Input
+								disabled={isLoading}
+								error={formErrors?.directory}
+								name="directory"
+								rounded="rounded-r rounded-l-none"
+								onChange={() => removeError('directory')}
+								placeholder="users/pictures/"
+								required={false}
+							/>
+						</div>
 					</div>
 				)}
 			</div>

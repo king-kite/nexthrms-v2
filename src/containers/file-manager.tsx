@@ -120,8 +120,6 @@ function FileManager({
 		}
 	);
 
-	console.log(uploadDir)
-
 	const files = React.useMemo(() => {
 		if (!data) return [];
 
