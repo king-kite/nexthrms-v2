@@ -6,14 +6,23 @@ import {
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../../../config';
 import { getManagedFiles, prisma, managedFileSelectQuery } from '../../../db';
-import { addObjectPermissions, getRecords } from '../../../db/utils';
+import {
+	addObjectPermissions,
+	createNotification,
+	getRecords,
+	getUserObjects,
+} from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { CreateManagedFileType, ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { managedFileCreateSchema } from '../../../validators';
+import {
+	deleteManagedFilesSchema,
+	handlePrismaErrors,
+	managedFileCreateSchema,
+} from '../../../validators';
 
 export const config = {
 	api: {
@@ -174,5 +183,122 @@ export default auth()
 			status: 'success',
 			message: 'Added new folder successfully!',
 			data: result,
+		});
+	})
+	.delete(async (req, res) => {
+		const valid: {
+			files?: string[];
+			folder?: string;
+		} = await deleteManagedFilesSchema.validateAsync({ ...req.body });
+
+		if (!valid.files && !valid.folder) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'Provide a folder or a files array.',
+			});
+		}
+
+		if (valid.files && valid.files.length <= 0) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'No file was sent.',
+			});
+		}
+
+		const promise = new Promise(async (resolve, reject) => {
+			try {
+				let folder = valid.folder ? valid.folder.trim() : null;
+				folder = folder ? (folder.endsWith('/') ? folder : folder + '/') : null;
+				const files = folder
+					? await prisma.managedFile.findMany({
+							where: {
+								OR: [
+									{
+										storageInfo: {
+											path: ['location'],
+											string_starts_with: folder,
+										},
+									},
+									{
+										storageInfo: {
+											path: ['public_id'],
+											string_starts_with: folder,
+										},
+									},
+								],
+							},
+							select: { id: true },
+					  })
+					: valid.files?.map((item) => ({ id: item }));
+
+				if (!files) {
+					await createNotification({
+						message: 'No files found',
+						recipient: req.user.id,
+						title: folder
+							? 'Failed to delete folder'
+							: 'Failed to delete files',
+						type: 'ERROR',
+					});
+					return reject({
+						message: 'No files found',
+					});
+				}
+
+				const hasPerm =
+					req.user.isSuperUser ||
+					hasModelPermission(req.user.allPermissions, [
+						permissions.managedfile.DELETE,
+					]);
+
+				let validFiles: string[] = [];
+
+				if (hasPerm) validFiles = files.map((item) => item.id);
+				else {
+					// get user objects
+					const validObjects = await getUserObjects({
+						modelName: 'managed_files',
+						userId: req.user.id,
+						permission: 'DELETE',
+					});
+					const fileIds = validObjects.map((item) => item.objectId);
+					// check that every file in the files array is in the fileIds array
+					validFiles = files
+						.filter((item) => fileIds.includes(item.id))
+						.map((item) => item.id);
+				}
+
+				// if validFiles.length !== files.length, it means not all files are authorized;
+				if (validFiles.length !== files.length)
+					await createNotification({
+						message:
+							'You do not have permission to delete some of the requested files.',
+						recipient: req.user.id,
+						title: 'Authorization Failed',
+						type: 'ERROR',
+					});
+
+				console.log(files);
+				await createNotification({
+					message: '',
+					recipient: req.user.id,
+					title: folder
+						? 'Folder Deleted Successfully!'
+						: 'Files Deleted Successfully!',
+					type: 'SUCCESS',
+				});
+				resolve(undefined);
+			} catch (error) {
+				const err = handlePrismaErrors(error);
+				reject({
+					message: err.message,
+				});
+			}
+		});
+
+		return res.status(200).json({
+			status: 'success',
+			message:
+				'A notification will be sent to you when the task is completed. \nDo note that only files you are authorized to remove will be deleted.',
 		});
 	});
