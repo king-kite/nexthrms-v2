@@ -7,7 +7,7 @@ import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
 import { permissions, DEFAULT_IMAGE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import { useDeleteManagedFileMutation } from '../../store/queries';
+import { useDeleteManagedFileMutation, useDeleteMultipleManagedFileMutation } from '../../store/queries';
 import { ManagedFileType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
 
@@ -150,6 +150,8 @@ const FileTable = ({ files }: TableType) => {
 
 	const { deleteFile } = useDeleteManagedFileMutation();
 
+	const { deleteFiles } = useDeleteMultipleManagedFileMutation({ type: 'files' });
+
 	const [canDelete] = React.useMemo(() => {
 		if (!authData) return [false];
 		const canDelete =
@@ -165,7 +167,23 @@ const FileTable = ({ files }: TableType) => {
 		setRows(getRows(files, { deleteFile: canDelete ? deleteFile : undefined }));
 	}, [canDelete, deleteFile, files]);
 
-	return <Table heads={heads} rows={rows} sn={false} />;
+	return (
+		<Table 
+			actions={{
+				actions: [
+					{
+						title: 'Delete selected files',
+						value: 'delete_selected',
+						onSubmit: (files) => deleteFiles({ files })
+					}
+				]
+			}}
+			heads={heads} 
+			rows={rows} 
+			sn={false} 
+			tick 
+		/>
+	);
 };
 
 export default FileTable;

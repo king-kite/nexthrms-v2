@@ -186,12 +186,14 @@ export default auth()
 		});
 	})
 	.delete(async (req, res) => {
+		const { fields } = (await parseForm(req)) as { fields: any };
+
 		const valid: {
 			files?: string[];
 			folder?: string;
-		} = await deleteManagedFilesSchema.validateAsync({ ...req.body });
+		} = await deleteManagedFilesSchema.validateAsync({ ...fields });
 
-		if (!valid.files && !valid.folder) {
+		if (!valid.files && valid.folder === null && valid.folder === undefined) {
 			return res.status(400).json({
 				status: 'error',
 				message: 'Provide a folder or a files array.',
@@ -278,9 +280,17 @@ export default auth()
 						type: 'ERROR',
 					});
 
-				console.log(files);
+				// Only delete valid files
+				await prisma.managedFile.deleteMany({
+					where: {
+						id: {
+							in: validFiles
+						}
+					}
+				})
+
 				await createNotification({
-					message: '',
+					message: folder ? 'Folder was deleted successfully.' : 'Files were deleted successfully.',
 					recipient: req.user.id,
 					title: folder
 						? 'Folder Deleted Successfully!'

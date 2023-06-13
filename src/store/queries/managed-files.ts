@@ -208,3 +208,97 @@ export function useDeleteManagedFileMutation(
 
 	return { deleteFile, ...mutation };
 }
+
+// delete multiple managed file mutation
+export function useDeleteMultipleManagedFileMutation(
+	options?: {
+		type?: 'folder' | 'file'
+		onSuccess?: () => void;
+		onError?: (error: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (response: BaseResponseType) => void;
+	}
+) {
+	const { open: openModal, close, showLoader } = useAlertModalContext();
+
+	const { open } = useAlertContext();
+
+	const queryClient = useQueryClient();
+
+	const { mutate, ...mutation } = useMutation(
+		(data: { files?: string[]; folder?: string }) => 
+			axiosInstance({
+				url: MANAGED_FILES_URL,
+				method: 'DELETE',
+				data,
+			})
+				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+		{
+			async onSuccess() {
+				queryClient.invalidateQueries([tags.MANAGED_FILES]);
+				if (options?.onSuccess) options.onSuccess();
+				else {
+					open({
+						message: options?.type === 'folder' ? 'Folder deleted successfully!' : 'Files deleted successfully!',
+						type: 'success',
+					});
+				}
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message || `An error occurred. Unable to delete ${options?.type === 'folder' ? 'folder' : 'files'}.`,
+					});
+				} else {
+					const error = handleAxiosErrors(err);
+					open({
+						message:
+							error?.message || `An error occurred. Unable to delete ${options?.type === 'folder' ? 'folder' : 'files'}.`,
+						type: 'danger',
+					});
+				}
+			},
+			async onSettled() {
+				close();
+			},
+			...queryOptions,
+		}
+	);
+
+	const deleteFiles = React.useCallback(
+		(data: { files?: string[]; folder?: string }) => {
+			openModal({
+				closeOnButtonClick: false,
+				header: data.files ? 'Delete Files?' : 'Delete Folder?',
+				color: 'danger',
+				message: `Do you want to delete ${data.folder ? 'this folder' : 'these files'}?`,
+				decisions: [
+					{
+						bg: 'bg-gray-600 hover:bg-gray-500',
+						caps: true,
+						onClick: close,
+						title: 'cancel',
+					},
+					{
+						bg: 'bg-red-600 hover:bg-red-500',
+						caps: true,
+						onClick: () => {
+							showLoader();
+							mutate(data);
+						},
+						title: 'proceed',
+					},
+				],
+			});
+		},
+		[openModal, close, mutate, showLoader]
+	);
+
+	return { deleteFiles, ...mutation };
+}
