@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 import {
-	FaClock,
 	FaCloudDownloadAlt,
 	FaCloudUploadAlt,
 	FaFile,
@@ -12,6 +11,7 @@ import {
 	FaLongArrowAltLeft,
 	FaMusic,
 	FaPlus,
+	FaServer,
 	FaVideo,
 } from 'react-icons/fa';
 
@@ -63,7 +63,7 @@ function FileManager({
 
 	const { title, type, uploadDir } = React.useMemo(() => {
 		const type = query?.type?.toString() || null;
-		const title = !type || type === 'recent' ? 'recent' : `${type}s`;
+		const title = !type ? 'recent' : type === 'all' ? 'all' : `${type}s`;
 
 		const _split = dir.split(MEDIA_URL);
 		const uploadDir =
@@ -135,8 +135,6 @@ function FileManager({
 		// recent
 		if (type === null) {
 			// i.e. Home/File Dashboard Route
-			_files = _files.slice(0, 5);
-		} else if (type === 'recent') {
 			_files = _files.slice(0, 20);
 		} else if (type !== null && ['audio', 'image', 'video'].includes(type)) {
 			// audio, image, video
@@ -227,9 +225,9 @@ function FileManager({
 			},
 			{
 				bg: 'bg-sky-500',
-				icon: FaClock,
-				link: `${FILE_MANAGER_PAGE_URL}?type=recent`,
-				title: 'recent',
+				icon: FaServer,
+				link: `${FILE_MANAGER_PAGE_URL}?type=storage`,
+				title: 'storage',
 			},
 		],
 		[]
@@ -255,13 +253,13 @@ function FileManager({
 						>
 							<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
 						</div>
-						{type === 'all' && (
+						{type === 'storage' && (
 							<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem] lg:bottom-[0.65rem]">
 								<Breadcrumbs dir={dir} setDir={setDir} />
 							</div>
 						)}
 					</div>
-					{type === 'all' && (
+					{type === 'storage' && (
 						<div className="flex items-center justify-between my-1 w-[10rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
 							<FileAction
 								onClick={() => {
@@ -303,7 +301,7 @@ function FileManager({
 				</>
 			)}
 
-			{type === 'all' ? (
+			{type === 'storage' ? (
 				data?.result && data?.result?.length <= 0 ? (
 					<FileEmpty />
 				) : (
@@ -327,7 +325,7 @@ function FileManager({
 				keepVisible
 				component={
 					<Form
-						directory={type === 'all' ? uploadDir : undefined}
+						directory={type === 'storage' ? uploadDir : undefined}
 						onSuccess={() => {
 							setModalVisible(false);
 						}}
