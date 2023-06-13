@@ -161,11 +161,16 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				</div>
 				{directory === undefined && (
 					<div className="w-full md:col-span-2">
-						<label class="mb-2 text-gray-600 text-xs md:text-sm block font-semibold" for="directory">
+						<label 
+							className="mb-2 text-gray-600 text-xs md:text-sm block font-semibold" 
+							htmlFor="directory"
+						>
 							Directory
 						</label>
 						<div className="flex items-center w-full">
-							<span className="bg-gray-200 font-semibold inline-block px-3 py-2 rounded-l rounded-r-none text-gray-500 text-xs w-[3.5rem] md:text-sm">
+							<span 
+								className="bg-gray-200 font-semibold inline-block px-3 py-2 rounded-l rounded-r-none text-gray-500 text-xs w-[3.5rem] md:text-sm"
+							>
 								home/
 							</span>
 							<Input
