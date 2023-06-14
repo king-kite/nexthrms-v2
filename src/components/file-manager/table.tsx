@@ -150,7 +150,7 @@ const FileTable = ({ files }: TableType) => {
 
 	const { deleteFile } = useDeleteManagedFileMutation();
 
-	const { deleteFiles } = useDeleteMultipleManagedFileMutation({ type: 'files' });
+	const { deleteFiles } = useDeleteMultipleManagedFileMutation({ type: 'file' });
 
 	const [canDelete] = React.useMemo(() => {
 		if (!authData) return [false];
