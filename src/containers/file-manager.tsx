@@ -35,7 +35,10 @@ import {
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
-import { useGetManagedFilesQuery } from '../store/queries';
+import {
+	useGetManagedFilesQuery,
+	useDeleteMultipleManagedFileMutation,
+} from '../store/queries';
 import { GetManagedFilesResponseType } from '../types';
 import { hasModelPermission } from '../utils';
 
@@ -66,10 +69,18 @@ function FileManager({
 		const title = !type ? 'recent' : type === 'all' ? 'all' : `${type}s`;
 
 		const _split = dir.split(MEDIA_URL);
-		const uploadDir =
-			_split.length > 2
-				? _split.filter((h, i) => i !== 0).join(dir)
-				: _split[1];
+		// skip the last item in the split array if every item is empty i.e. 'media/media/' => ['', '', '']
+		const skipLast = _split.every((item) => item === '');
+		const uploadDir = _split.reduce(
+			(acc: string, item: string, index: number) => {
+				if (index === 0) return acc;
+				// Last item and skipLast
+				if (index === _split.length - 1 && skipLast) return acc;
+				if (item === '') return acc + MEDIA_URL;
+				return acc + item;
+			},
+			''
+		);
 
 		return {
 			title,
@@ -77,6 +88,10 @@ function FileManager({
 			uploadDir,
 		};
 	}, [query, dir]);
+
+	const { deleteFiles } = useDeleteMultipleManagedFileMutation({
+		type: 'folder',
+	});
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -281,6 +296,7 @@ function FileManager({
 								border="border-red-500"
 								color="text-red-500"
 								title="Delete"
+								onClick={() => deleteFiles({ folder: uploadDir })}
 								icon={FaFolderMinus}
 							/>
 						</div>

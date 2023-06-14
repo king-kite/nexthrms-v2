@@ -243,7 +243,7 @@ export function useDeleteMultipleManagedFileMutation(
 				if (options?.onSuccess) options.onSuccess();
 				else {
 					open({
-						message: options?.type === 'folder' ? 'Folder deleted successfully!' : 'Files deleted successfully!',
+						message: 'A notification will be sent to you when the task is completed. \nDo note that only files you are authorized to remove will be deleted.',
 						type: 'success',
 					});
 				}

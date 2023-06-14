@@ -211,6 +211,9 @@ export default auth()
 			try {
 				let folder = valid.folder ? MEDIA_URL + valid.folder.trim() : null;
 				folder = folder ? (folder.endsWith('/') ? folder : folder + '/') : null;
+
+				console.log(folder);
+				
 				const files = folder
 					? await prisma.managedFile.findMany({
 							where: {
