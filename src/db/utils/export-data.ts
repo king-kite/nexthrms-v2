@@ -16,21 +16,22 @@ function exportData(
 	},
 	headers: string[],
 	options: {
-		permissionTitle?: string;
-		name?: string;
 		title?: string;
 		type: string; // 'csv' | 'excel';
 		userId?: string;
 	} = {
+		title: 'Data',
 		type: 'csv',
 	}
 ) {
 	return new Promise<{ file: string; size: number | null }>(
 		async (resolve, reject) => {
 			try {
-				const csvTitle = (options.title || 'Data').toLowerCase() + '.csv';
-				const excelTitle = (options.title || 'Data').toLowerCase() + '.xlsx';
-				const zipTitle = (options.title || 'Data').toLowerCase() + '.zip';
+				const date = new Date();
+				const title =
+					(options.title || 'data') +
+					`_${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}` +
+					`;${date.getHours()};${date.getMinutes()};${date.getSeconds()}`;
 
 				let uploadInfo: {
 					buffer: Buffer;
@@ -40,7 +41,8 @@ function exportData(
 				} | null = null;
 
 				const workbook = new excelJS.Workbook(); // Create a new workbook
-				const worksheet = workbook.addWorksheet(options.title || 'Data'); // New Worksheet
+				const worksheet = workbook.addWorksheet('Data'); // New Worksheet
+				// const worksheet = workbook.addWorksheet(options.title || 'Data'); // New Worksheet
 
 				// Add the headers
 				worksheet.columns = headers.map((key) => ({
@@ -71,7 +73,7 @@ function exportData(
 						);
 
 						const zip = new JSZip();
-						zip.file(csvTitle, data);
+						zip.file('data.csv', data);
 						zip.file('permissions.csv', permissions);
 
 						const buffer = Buffer.from(
@@ -80,15 +82,15 @@ function exportData(
 
 						uploadInfo = {
 							buffer,
-							location: MEDIA_EXPORT_URL + zipTitle,
-							name: zipTitle,
+							location: MEDIA_EXPORT_URL + `${title}.zip`,
+							name: title,
 							type: 'zip',
 						};
 					} else {
 						uploadInfo = {
 							buffer: data,
-							location: MEDIA_EXPORT_URL + csvTitle,
-							name: csvTitle,
+							location: MEDIA_EXPORT_URL + `${title}.csv`,
+							name: title,
 							type: 'csv',
 						};
 					}
@@ -108,8 +110,8 @@ function exportData(
 					const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
 					uploadInfo = {
 						buffer,
-						location: MEDIA_EXPORT_URL + excelTitle,
-						name: excelTitle,
+						location: MEDIA_EXPORT_URL + `${title}.xlsx`,
+						name: title,
 						type: 'excel',
 					};
 				}
@@ -120,7 +122,7 @@ function exportData(
 					const data = await prisma.managedFile.create({
 						data: {
 							url: upload.secure_url || upload.url,
-							name: options.name || uploadInfo.name,
+							name: uploadInfo.name,
 							size: upload.bytes,
 							storageInfo: {
 								public_id: upload.public_id,
