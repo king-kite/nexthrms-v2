@@ -27,10 +27,6 @@ export type NameKey =
 	| 'powerpoint'
 	| 'zip';
 
-function getName(name: string, max = 22) {
-	return name.length > max ? `${name.slice(0, max)}...` : name;
-}
-
 export function getExtension(name: string) {
 	const _split = name.toLowerCase().split('.');
 	if (_split.length <= 1) return null;
@@ -179,7 +175,6 @@ function FileComponent({ name, type, url }: ManagedFileType) {
 			? 'bg-red-500'
 			: 'bg-gray-500';
 
-	// getName(name)
 	return <BoxGridItem bg={bg} caps={false} icon={icon} title={name} />;
 }
 

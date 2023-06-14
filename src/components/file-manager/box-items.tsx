@@ -67,7 +67,7 @@ export function BoxGridItem({
 			</div>
 			<p className={`${caps 
         ? 'capitalize' : 'normal-case'
-        } my-2 text-center text-gray-700 text-sm tracking-wide md:text-base`}
+        } my-2 text-center text-gray-700 text-sm tracking-wide truncate md:text-base`}
       >
 				{title}
 			</p>
