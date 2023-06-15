@@ -36,7 +36,8 @@ function uploadFile({
 			splitText && splitText.length > 1
 				? splitText[splitText.length - 1]
 				: undefined;
-		if (extension) location += `.${extension}`;
+		if (extension && !location.endsWith(`.${extension}`))
+			location += `.${extension}`;
 
 		if (USE_LOCAL_MEDIA_STORAGE) {
 			const _split = location.split('/');
@@ -49,7 +50,7 @@ function uploadFile({
 			fs.readFile(file.filepath, (err, data) => {
 				if (err) reject(err);
 				else {
-					fs.writeFile(location, data, (err) => {
+					fs.writeFile(location.toLowerCase(), data, (err) => {
 						if (err) reject(err);
 						else {
 							resolve({
