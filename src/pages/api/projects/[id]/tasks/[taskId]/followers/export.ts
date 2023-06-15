@@ -71,6 +71,7 @@ export default admin()
 		getData(req)
 			.then((data) => {
 				return exportData(data, headers, {
+					title: 'task followers',
 					type: (req.query.type as string) || 'csv',
 					userId: req.user.id,
 				});

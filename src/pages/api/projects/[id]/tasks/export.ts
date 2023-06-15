@@ -108,6 +108,7 @@ export default admin()
 			// Destructure the followers and export the tasks first
 			.then(({ followers, ...data }) =>
 				exportData(data, headers, {
+					title: 'tasks',
 					type: (req.query.type as string) || 'csv',
 					userId: req.user.id,
 				})
@@ -133,6 +134,7 @@ export default admin()
 					type: 'DOWNLOAD',
 				});
 				return exportData({ data: followers }, followerHeaders, {
+					title: 'task followers',
 					type: (req.query.type as string) || 'csv',
 					userId: req.user.id,
 				});

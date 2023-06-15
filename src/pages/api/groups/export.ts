@@ -66,6 +66,7 @@ export default admin().get(async (req, res) => {
 	getGroupsData(req)
 		.then((data) => {
 			return exportData(data, headers, {
+				title: 'groups',
 				type: (req.query.type as string) || 'csv',
 				userId: req.user.id,
 			});

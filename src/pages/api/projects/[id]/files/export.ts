@@ -22,7 +22,7 @@ import { handlePrismaErrors } from '../../../../../validators';
 type DataType = ProjectFileType & {
 	file: ProjectFileType['file'] & {
 		storageInfo?: object | null;
-	}
+	};
 };
 
 async function getData(req: NextApiRequestExtendUser) {
@@ -51,8 +51,8 @@ async function getData(req: NextApiRequestExtendUser) {
 							size: true,
 							type: true,
 							storageInfo: true,
-						}
-					}
+						},
+					},
 				},
 			});
 		},
@@ -113,6 +113,7 @@ export default admin()
 		getData(req)
 			.then((data) => {
 				return exportData(data, headers, {
+					title: 'project files',
 					type: (req.query.type as string) || 'csv',
 					userId: req.user.id,
 				});

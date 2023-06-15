@@ -69,6 +69,7 @@ export default admin().get(async (req, res) => {
 	getData(req)
 		.then((data) => {
 			return exportData(data, headers, {
+				title: 'clients',
 				type: (req.query.type as string) || 'csv',
 				userId: req.user.id,
 			});

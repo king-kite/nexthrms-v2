@@ -78,6 +78,7 @@ export default admin().get(async (req, res) => {
 	getAssetsData(req)
 		.then((data) => {
 			return exportData(data, headers, {
+				title: 'assets',
 				type: (req.query.type as string) || 'csv',
 				userId: req.user.id,
 			});

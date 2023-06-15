@@ -286,6 +286,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 
 		// export projects
 		const projectData = await exportData(projects, headers, {
+			title: 'projects',
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
@@ -309,6 +310,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 
 		// export project files
 		const fileData = await exportData(files, fileHeaders, {
+			title: 'project files',
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
@@ -330,6 +332,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 
 		// export project team
 		const teamData = await exportData(team, teamHeaders, {
+			title: 'team',
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
@@ -351,6 +354,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 
 		// export project tasks
 		const taskData = await exportData(tasks, taskHeaders, {
+			title: 'tasks',
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
@@ -372,6 +376,7 @@ async function handleDataExport(req: NextApiRequestExtendUser) {
 
 		// export project task followers
 		const followerData = await exportData(followers, followerHeaders, {
+			title: 'task followers',
 			type: (req.query.type as string) || 'csv',
 			userId: req.user.id,
 		});
