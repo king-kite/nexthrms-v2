@@ -114,7 +114,7 @@ export default admin()
 
 				Object(valid.contact.profile).image = {
 					url: result.secure_url || result.url,
-					name: result.original_filename,
+					name,
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {

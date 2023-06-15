@@ -32,9 +32,10 @@ function uploadFile({
 		const splitText = file.originalFilename
 			? file.originalFilename.split('.')
 			: undefined;
-		const extension: string | undefined = splitText
-			? splitText[splitText.length - 1]
-			: undefined;
+		const extension: string | undefined =
+			splitText && splitText.length > 1
+				? splitText[splitText.length - 1]
+				: undefined;
 		if (extension) location += `.${extension}`;
 
 		if (USE_LOCAL_MEDIA_STORAGE) {

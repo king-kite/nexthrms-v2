@@ -1,4 +1,4 @@
-import { DEFAULT_IMAGE, MEDIA_PROFILE_URL } from '../../../config';
+import { MEDIA_PROFILE_URL } from '../../../config';
 import {
 	getProfile,
 	prisma,
@@ -84,7 +84,7 @@ export default auth()
 
 				Object(data.profile).image = {
 					url: result.secure_url || result.url,
-					name: result.original_filename,
+					name,
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {

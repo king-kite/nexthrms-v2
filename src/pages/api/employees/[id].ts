@@ -116,7 +116,7 @@ export default admin()
 
 				valid.user.profile.image = {
 					url: result.secure_url || result.url,
-					name: result.original_filename,
+					name,
 					size: files.image.size,
 					type: 'image',
 					storageInfo: {
