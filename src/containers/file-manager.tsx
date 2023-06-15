@@ -269,7 +269,7 @@ function FileManager({
 							<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
 						</div>
 						{type === 'storage' && (
-							<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem] lg:bottom-[0.65rem]">
+							<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem]">
 								<Breadcrumbs dir={dir} setDir={setDir} />
 							</div>
 						)}
