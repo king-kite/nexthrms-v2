@@ -1,44 +1,22 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCloudDownloadAlt,
-	FaCloudUploadAlt,
-	FaFile,
-	FaFolderOpen,
-	FaFolderPlus,
-	FaFolderMinus,
-	FaImages,
-	FaLongArrowAltLeft,
-	FaMusic,
-	FaPlus,
-	FaServer,
-	FaVideo,
-} from 'react-icons/fa';
 
 import { Container, Modal } from '../components/common';
 import {
-	Breadcrumbs,
-	BoxGrid,
-	BoxTitle,
-	FileAction,
-	FileEmpty,
-	FileTable,
+	FileActions,
 	Files,
 	Form,
+	QuickActions,
 } from '../components/file-manager';
 import { getFileType } from '../components/file-manager/file';
 import {
 	permissions,
 	DEFAULT_MEDIA_PAGINAITON_SIZE,
-	FILE_MANAGER_PAGE_URL,
 	MEDIA_URL,
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
-import {
-	useGetManagedFilesQuery,
-	useDeleteMultipleManagedFileMutation,
-} from '../store/queries';
+import { useGetManagedFilesQuery } from '../store/queries';
 import { GetManagedFilesResponseType } from '../types';
 import { hasModelPermission } from '../utils';
 
@@ -56,7 +34,7 @@ function FileManager({
 	}>();
 	const [modalVisible, setModalVisible] = React.useState(false);
 
-	const { query, push } = useRouter();
+	const { query } = useRouter();
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -64,9 +42,8 @@ function FileManager({
 	const [dir, setDir] = React.useState(MEDIA_URL);
 	const [formType, setFormType] = React.useState<'file' | 'folder'>('file');
 
-	const { title, type, uploadDir } = React.useMemo(() => {
+	const { type, uploadDir } = React.useMemo(() => {
 		const type = query?.type?.toString() || null;
-		const title = !type ? 'recent' : type === 'all' ? 'all' : `${type}s`;
 
 		const _split = dir.split(MEDIA_URL);
 		// skip the last item in the split array if every item is empty i.e. 'media/media/' => ['', '', '']
@@ -83,15 +60,10 @@ function FileManager({
 		);
 
 		return {
-			title,
 			type,
 			uploadDir,
 		};
 	}, [query, dir]);
-
-	const { deleteFiles } = useDeleteMultipleManagedFileMutation({
-		type: 'folder',
-	});
 
 	const [canCreate, canView] = React.useMemo(() => {
 		const canCreate = authData
@@ -171,83 +143,6 @@ function FileManager({
 		return _files;
 	}, [data, type]);
 
-	const actions = React.useMemo(
-		() => [
-			{
-				bg: 'bg-gray-500',
-				icon: FaPlus,
-				onClick() {
-					setFormType('file');
-					setModalVisible(true);
-				},
-				title: 'New File',
-			},
-			{
-				bg: 'bg-gray-500',
-				icon: FaFolderPlus,
-				onClick() {
-					setFormType('folder');
-					setModalVisible(true);
-				},
-				title: 'New Folder',
-			},
-			{
-				bg: 'bg-violet-500',
-				icon: FaCloudUploadAlt,
-				title: 'Import',
-			},
-			{
-				bg: 'bg-sky-500',
-				icon: FaCloudDownloadAlt,
-				title: 'Export',
-			},
-		],
-		[]
-	);
-
-	const accesses = React.useMemo(
-		() => [
-			{
-				bg: 'bg-indigo-500',
-				icon: FaFolderOpen,
-				link: `${FILE_MANAGER_PAGE_URL}?type=all`,
-				onClick: () => setDir(MEDIA_URL),
-				title: 'all',
-			},
-			{
-				bg: 'bg-blue-500',
-				icon: FaImages,
-				link: `${FILE_MANAGER_PAGE_URL}?type=image`,
-				title: 'images',
-			},
-			{
-				bg: 'bg-purple-500',
-				icon: FaMusic,
-				link: `${FILE_MANAGER_PAGE_URL}?type=audio`,
-				title: 'audios',
-			},
-			{
-				bg: 'bg-green-500',
-				icon: FaVideo,
-				link: `${FILE_MANAGER_PAGE_URL}?type=video`,
-				title: 'videos',
-			},
-			{
-				bg: 'bg-yellow-500',
-				icon: FaFile,
-				link: `${FILE_MANAGER_PAGE_URL}?type=document`,
-				title: 'documents',
-			},
-			{
-				bg: 'bg-sky-500',
-				icon: FaServer,
-				link: `${FILE_MANAGER_PAGE_URL}?type=storage`,
-				title: 'storage',
-			},
-		],
-		[]
-	);
-
 	return (
 		<Container
 			background="bg-white"
@@ -260,82 +155,35 @@ function FileManager({
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
 			{type !== null && (
-				<div className="flex flex-col my-4 sm:flex-row sm:justify-between">
-					<div className="flex flex-col sm:flex-row">
-						<div
-							onClick={() => push(FILE_MANAGER_PAGE_URL)}
-							className="cursor-pointer duration-500 flex h-[20px] w-[20px] items-center justify-center rounded-full text-gray-700 transform transition-all hover:bg-gray-200 hover:scale-105 hover:text-gray-600 md:h-[30px] md:w-[30px]"
-						>
-							<FaLongArrowAltLeft className="h-[10px] w-[10px] md:h-[15px] md:w-[15px]" />
-						</div>
-						{type === 'storage' && (
-							<div className="relative sm:bottom-[0.8rem] sm:ml-4 md:bottom-[0.5rem]">
-								<Breadcrumbs dir={dir} setDir={setDir} />
-							</div>
-						)}
-					</div>
-					{type === 'storage' && (
-						<div className="flex items-center justify-between my-1 w-[10rem] sm:bottom-[0.8rem] sm:my-0 sm:relative md:bottom-[0.5rem] lg:bottom-[0.65rem]">
-							<FileAction
-								onClick={() => {
-									setFormType('file');
-									setModalVisible(true);
-								}}
-								title="File"
-								icon={FaPlus}
-							/>
-							<FileAction
-								onClick={() => {
-									setFormType('folder');
-									setModalVisible(true);
-								}}
-								title="Folder"
-								icon={FaFolderPlus}
-							/>
-							<FileAction
-								border="border-red-500"
-								color="text-red-500"
-								title="Delete"
-								onClick={() => deleteFiles({ folder: uploadDir })}
-								icon={FaFolderMinus}
-							/>
-						</div>
-					)}
-				</div>
+				<FileActions
+					dir={dir}
+					openModal={(type) => {
+						setFormType(type);
+						setModalVisible(true);
+					}}
+					setDir={setDir}
+					showAction={type === 'storage'}
+					uploadDir={uploadDir}
+				/>
 			)}
 
 			{type === null && (
-				<>
-					<div className="my-2 md:my-4">
-						<BoxTitle title="quick actions" />
-						<BoxGrid actions={actions} />
-					</div>
-					<div className="my-2 md:my-4">
-						<BoxTitle title="quick access" />
-						<BoxGrid actions={accesses} />
-					</div>
-				</>
+				<QuickActions
+					openModal={(type) => {
+						setFormType(type);
+						setModalVisible(true);
+					}}
+					setDir={setDir}
+				/>
 			)}
 
-			{type === 'storage' ? (
-				data?.result && data?.result?.length <= 0 ? (
-					<FileEmpty />
-				) : (
-					<Files data={data?.result || []} dir={dir} setDir={setDir} />
-				)
-			) : (
-				<div className="my-2 md:my-4">
-					<h3 className="capitalize my-3 py-2 text-gray-700 text-lg md:text-xl lg:text-2xl">
-						{title}
-					</h3>
-					<div className="bg-gray-200 h-[1px] my-5 w-full">
-						<div className="bg-primary-500 h-[1px] w-1/5" />
-					</div>
-					<div className="my-3 py-2">
-						{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
-					</div>
-				</div>
-			)}
+			<Files
+				data={data?.result}
+				dir={dir}
+				setDir={setDir}
+				showStorage={type === 'storage'}
+				type={type}
+			/>
 			<Modal
 				close={() => setModalVisible(false)}
 				keepVisible
