@@ -8,12 +8,10 @@ import {
 	Form,
 	QuickActions,
 } from '../components/file-manager';
-import { getFileType } from '../components/file-manager/file';
 import {
 	permissions,
 	DEFAULT_MEDIA_PAGINAITON_SIZE,
 	MEDIA_URL,
-	MEDIA_HIDDEN_FILE_NAME,
 } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
@@ -106,42 +104,6 @@ function FileManager({
 			initialData: initialData ? () => initialData : undefined,
 		}
 	);
-
-	const files = React.useMemo(() => {
-		if (!data) return [];
-
-		let _files = data.result.filter((file) => {
-			if (
-				file.name.includes(MEDIA_HIDDEN_FILE_NAME) ||
-				file.url.includes(MEDIA_HIDDEN_FILE_NAME)
-			)
-				return false;
-			return true;
-		});
-
-		// recent
-		if (type === null) {
-			// i.e. Home/File Dashboard Route
-			_files = _files.slice(0, 20);
-		} else if (type !== null && ['audio', 'image', 'video'].includes(type)) {
-			// audio, image, video
-			_files = _files.filter((file) => {
-				const fileType = getFileType(file.type, file.url, file.name);
-				if (type === fileType) return true;
-				return false;
-			});
-		} else if (type === 'document') {
-			// files e.g. word, zip, pdf
-			// if file is not an audio, image, video
-			_files = _files.filter((file) => {
-				const fileType = getFileType(file.type, file.url, file.name);
-				if (!['audio', 'image', 'video'].includes(fileType)) return true;
-				return false;
-			});
-		}
-
-		return _files;
-	}, [data, type]);
 
 	return (
 		<Container
