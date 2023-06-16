@@ -62,7 +62,7 @@ function Actions({
 				title: 'storage',
 			},
 		],
-		[]
+		[setDir]
 	);
 	const actions = React.useMemo(
 		() => [
@@ -89,7 +89,7 @@ function Actions({
 				title: 'Export',
 			},
 		],
-		[]
+		[openModal]
 	);
 	return (
 		<>

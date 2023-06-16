@@ -20,11 +20,6 @@ function Files({
 	showStorage: boolean;
 	type: string | null;
 }) {
-	if (showStorage) {
-		if (!data || data.length <= 0) return <FileEmpty />;
-		return <FileStorage data={data} dir={dir} setDir={setDir} />;
-	}
-
 	const { files, title } = React.useMemo(() => {
 		const title = !type ? 'recent' : type === 'all' ? 'all' : `${type}s`;
 
@@ -62,6 +57,11 @@ function Files({
 
 		return { files, title };
 	}, [data, type]);
+
+	if (showStorage) {
+		if (!data || data.length <= 0) return <FileEmpty />;
+		return <FileStorage data={data} dir={dir} setDir={setDir} />;
+	}
 
 	return (
 		<div className="my-2 md:my-4">
