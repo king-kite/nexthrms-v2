@@ -15,6 +15,7 @@ const samples = {
 	holiday: getSamples('holiday'),
 	jobs: getSamples('jobs'),
 	leaves: getSamples('leaves'),
+	managedFiles: getSamples('file_manager'),
 	overtime: getSamples('overtime'),
 	permissions: getSamples('permissions'),
 	projects: getSamples('projects'),

@@ -7,6 +7,8 @@ const ROOT_URL = '/api';
 
 // Apps URLs
 export const MANAGED_FILES_URL = `${ROOT_URL}/managed-files/`;
+export const MANAGED_FILES_EXPORT_URL = `${ROOT_URL}/managed-files/export/`;
+export const MANAGED_FILES_IMPORT_URL = `${ROOT_URL}/managed-files/import/`;
 export const MANAGED_FILE_URL = (id: string) =>
 	`${ROOT_URL}/managed-files/${id}/`;
 

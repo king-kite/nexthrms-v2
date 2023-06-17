@@ -82,6 +82,19 @@ export const leaveHeaders = [
 	'updated_at',
 ];
 
+export const managedFileHeaders = [
+	'id',
+	'name',
+	'url',
+	'size',
+	'storage_info_keys',
+	'storage_info_values',
+	'type',
+	'user_id',
+	'created_at',
+	'updated_at',
+];
+
 export const overtimeHeaders = [
 	'id',
 	'employee_id',
