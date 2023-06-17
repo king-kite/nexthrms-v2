@@ -117,7 +117,7 @@ function Actions({
 			data.push({
 				bg: 'bg-violet-500',
 				icon: FaCloudUploadAlt,
-				onClick: () => {},
+				onClick: () => setModalVisible(true),
 				title: 'Import',
 			});
 
