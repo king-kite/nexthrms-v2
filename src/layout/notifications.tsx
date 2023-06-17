@@ -10,7 +10,7 @@ import {
 	useMarkNotificationMutation,
 } from '../store/queries';
 import { NotificationType } from '../types';
-import { downloadFile } from '../utils';
+import { downloadFile, getStringDateTime } from '../utils';
 
 interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;
@@ -103,10 +103,6 @@ const Notification = ({
 			: FaClock;
 
 	const _date = new Date(date);
-	const minutes = _date.getMinutes().toString();
-	const hours = _date.getHours();
-	const _hour = hours > 12 ? hours - 12 : hours;
-	const AM_PM = hours > 12 ? 'PM' : 'AM';
 
 	React.useEffect(() => {
 		let timeout: NodeJS.Timeout | null = null;
@@ -166,8 +162,7 @@ const Notification = ({
 					</div>
 				)}
 				<p className={`italic ${colors.text} text-xs`}>
-					{_date.toDateString()},{' '}
-					{`${_hour}:${minutes.length < 2 ? `0${minutes}` : minutes} ${AM_PM}`}
+					{getStringDateTime(_date)}
 				</p>
 			</div>
 

@@ -12,6 +12,28 @@ export function getStringedDate(_date?: Date | string) {
 	return `${year}-${month}-${day}`;
 }
 
+export function getStringDateTime(_date?: Date | string) {
+	const date = _date
+		? typeof _date === 'string'
+			? new Date(_date)
+			: _date
+		: new Date();
+	return `${date.toDateString()}, ${getStringTime(date)}`;
+}
+
+export function getStringTime(_date?: Date | string) {
+	const date = _date
+		? typeof _date === 'string'
+			? new Date(_date)
+			: _date
+		: new Date();
+	const _hour = date.getHours();
+	const hour = _hour === 0 ? 12 : _hour > 12 ? _hour - 12 : _hour;
+	const minutes = date.getMinutes().toString().padStart(2, '0');
+	const suffix = _hour > 11 ? 'pm' : 'am';
+	return `${hour}:${minutes} ${suffix.toUpperCase()}`;
+}
+
 export const getDate = (
 	dateString?: string | Date,
 	str = false

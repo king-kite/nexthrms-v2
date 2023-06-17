@@ -8,9 +8,12 @@ import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
 import { permissions, DEFAULT_IMAGE, USER_PAGE_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import { useDeleteManagedFileMutation, useDeleteMultipleManagedFileMutation } from '../../store/queries';
+import {
+	useDeleteManagedFileMutation,
+	useDeleteMultipleManagedFileMutation,
+} from '../../store/queries';
 import { ManagedFileType } from '../../types';
-import { getStringedDate, hasModelPermission } from '../../utils';
+import { getStringDateTime, hasModelPermission } from '../../utils';
 
 const style = {
 	paddingLeft: '1rem',
@@ -108,7 +111,14 @@ const getRows = (
 					},
 				},
 				{
-					value: file.updatedAt ? getStringedDate(file.updatedAt) : '---',
+					component: file.updatedAt
+						? () => (
+								<span className="normal-case">
+									{getStringDateTime(file.updatedAt)}
+								</span>
+						  )
+						: undefined,
+					value: !file.updatedAt ? '---' : undefined,
 				},
 				{
 					options: {
@@ -153,7 +163,9 @@ const FileTable = ({ files }: TableType) => {
 
 	const { deleteFile } = useDeleteManagedFileMutation();
 
-	const { deleteFiles } = useDeleteMultipleManagedFileMutation({ type: 'file' });
+	const { deleteFiles } = useDeleteMultipleManagedFileMutation({
+		type: 'file',
+	});
 
 	const [canDelete] = React.useMemo(() => {
 		if (!authData) return [false];
@@ -171,20 +183,20 @@ const FileTable = ({ files }: TableType) => {
 	}, [canDelete, deleteFile, files]);
 
 	return (
-		<Table 
+		<Table
 			actions={{
 				actions: [
 					{
 						title: 'Delete selected files',
 						value: 'delete_selected',
-						onSubmit: (files) => deleteFiles({ files })
-					}
-				]
+						onSubmit: (files) => deleteFiles({ files }),
+					},
+				],
 			}}
-			heads={heads} 
-			rows={rows} 
-			sn={false} 
-			tick 
+			heads={heads}
+			rows={rows}
+			sn={false}
+			tick
 		/>
 	);
 };
