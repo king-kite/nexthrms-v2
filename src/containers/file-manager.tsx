@@ -26,7 +26,6 @@ function FileManager({
 }: {
 	files?: GetManagedFilesResponseType['data'];
 }) {
-	const [offset, setOffset] = React.useState(0);
 	const [limit, setLimit] = React.useState(DEFAULT_MEDIA_PAGINAITON_SIZE);
 	const [searchForm, setSearchForm] = React.useState<{
 		search?: string;
@@ -93,8 +92,10 @@ function FileManager({
 	const { data, isFetching, isLoading, refetch } = useGetManagedFilesQuery(
 		{
 			limit,
-			offset,
-			...debouncedSearchForm,
+			offset: 0,
+			search: debouncedSearchForm?.search,
+			from: searchForm?.from,
+			to: searchForm?.to,
 			onError(error) {
 				open({
 					message: error.message || 'Fetch Error. Unable to get files!',

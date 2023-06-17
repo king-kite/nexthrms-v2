@@ -43,7 +43,7 @@ export function useGetManagedFilesQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.MANAGED_FILES, { limit, offset, search }],
+		[tags.MANAGED_FILES, { limit, offset, search, from, to }],
 		() => {
 			let url =
 				MANAGED_FILES_URL + `?limit=${limit}&offset=${offset}&search=${search}`;
@@ -212,7 +212,7 @@ export function useDeleteManagedFileMutation(
 // delete multiple managed file mutation
 export function useDeleteMultipleManagedFileMutation(
 	options?: {
-		type?: 'folder' | 'file'
+		type?: 'folder' | 'file';
 		onSuccess?: () => void;
 		onError?: (error: { message: string }) => void;
 	},
@@ -230,20 +230,20 @@ export function useDeleteMultipleManagedFileMutation(
 	const queryClient = useQueryClient();
 
 	const { mutate, ...mutation } = useMutation(
-		(data: { files?: string[]; folder?: string }) => 
+		(data: { files?: string[]; folder?: string }) =>
 			axiosInstance({
 				url: MANAGED_FILES_URL,
 				method: 'DELETE',
 				data,
-			})
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+			}).then((response: AxiosResponse<BaseResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.MANAGED_FILES]);
 				if (options?.onSuccess) options.onSuccess();
 				else {
 					open({
-						message: 'A notification will be sent to you when the task is completed. \nDo note that only files you are authorized to remove will be deleted.',
+						message:
+							'A notification will be sent to you when the task is completed. \nDo note that only files you are authorized to remove will be deleted.',
 						type: 'success',
 					});
 				}
@@ -253,13 +253,19 @@ export function useDeleteMultipleManagedFileMutation(
 					const error = handleAxiosErrors(err);
 					options.onError({
 						message:
-							error?.message || `An error occurred. Unable to delete ${options?.type === 'folder' ? 'folder' : 'files'}.`,
+							error?.message ||
+							`An error occurred. Unable to delete ${
+								options?.type === 'folder' ? 'folder' : 'files'
+							}.`,
 					});
 				} else {
 					const error = handleAxiosErrors(err);
 					open({
 						message:
-							error?.message || `An error occurred. Unable to delete ${options?.type === 'folder' ? 'folder' : 'files'}.`,
+							error?.message ||
+							`An error occurred. Unable to delete ${
+								options?.type === 'folder' ? 'folder' : 'files'
+							}.`,
 						type: 'danger',
 					});
 				}
@@ -277,7 +283,9 @@ export function useDeleteMultipleManagedFileMutation(
 				closeOnButtonClick: false,
 				header: data.files ? 'Delete Files?' : 'Delete Folder?',
 				color: 'danger',
-				message: `Do you want to delete ${data.folder ? 'this folder' : 'these files'}?`,
+				message: `Do you want to delete ${
+					data.folder ? 'this folder' : 'these files'
+				}?`,
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
