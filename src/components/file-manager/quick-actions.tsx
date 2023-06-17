@@ -13,7 +13,9 @@ import {
 } from 'react-icons/fa';
 
 import { BoxGrid, BoxTitle } from './box-items';
-import { FILE_MANAGER_PAGE_URL, MEDIA_URL } from '../../config';
+import { permissions, FILE_MANAGER_PAGE_URL, MEDIA_URL } from '../../config';
+import { useAuthContext } from '../../store/contexts';
+import { hasModelPermission } from '../../utils';
 
 function Actions({
 	openModal,
@@ -22,6 +24,8 @@ function Actions({
 	openModal: (type: 'file' | 'folder') => void;
 	setDir: React.Dispatch<React.SetStateAction<string>>;
 }) {
+	const { data: authData } = useAuthContext();
+
 	const accesses = React.useMemo(
 		() => [
 			{
@@ -64,8 +68,23 @@ function Actions({
 		],
 		[setDir]
 	);
-	const actions = React.useMemo(
-		() => [
+	const actions = React.useMemo(() => {
+		const canExport = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.managedfile.EXPORT,
+					]))
+			: false;
+		const canImport = authData
+			? authData.isSuperUser ||
+			  (authData.isAdmin &&
+					hasModelPermission(authData.permissions, [
+						permissions.managedfile.CREATE,
+					]))
+			: false;
+
+		const data = [
 			{
 				bg: 'bg-gray-500',
 				icon: FaPlus,
@@ -78,19 +97,25 @@ function Actions({
 				onClick: () => openModal('folder'),
 				title: 'New Folder',
 			},
-			{
+		];
+		if (canImport)
+			data.push({
 				bg: 'bg-violet-500',
 				icon: FaCloudUploadAlt,
+				onClick: () => {},
 				title: 'Import',
-			},
-			{
+			});
+
+		if (canExport)
+			data.push({
 				bg: 'bg-sky-500',
 				icon: FaCloudDownloadAlt,
+				onClick: () => {},
 				title: 'Export',
-			},
-		],
-		[openModal]
-	);
+			});
+
+		return data;
+	}, [authData, openModal]);
 	return (
 		<>
 			<div className="my-2 md:my-4">
