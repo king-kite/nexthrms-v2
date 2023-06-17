@@ -44,7 +44,7 @@ export function useGetManagedFilesQuery(
 ) {
 	const query = useQuery(
 		[tags.MANAGED_FILES, { limit, offset, search, from, to }],
-		() => {
+		async () => {
 			let url =
 				MANAGED_FILES_URL + `?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) url += `&from=${from}&to=${to}`;

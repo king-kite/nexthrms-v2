@@ -105,7 +105,7 @@ function Files({
 									search: value,
 								}));
 							}}
-							placeholder="Search..."
+							placeholder="Search by file name or by user..."
 							required={false}
 							rounded="rounded"
 							type="search"

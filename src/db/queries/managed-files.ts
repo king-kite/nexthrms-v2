@@ -51,38 +51,40 @@ export const getManagedFilesQuery = ({
 		where:
 			search || (from && to)
 				? {
-						OR: [
-							{
-								name: {
-									contains: search,
-									mode: 'insensitive',
-								},
-							},
-							{
-								user: {
-									OR: [
-										{
-											firstName: {
-												contains: search,
-												mode: 'insensitive',
-											},
+						OR: search
+							? [
+									{
+										name: {
+											contains: search,
+											mode: 'insensitive',
 										},
-										{
-											lastName: {
-												contains: search,
-												mode: 'insensitive',
-											},
+									},
+									{
+										user: {
+											OR: [
+												{
+													firstName: {
+														contains: search,
+														mode: 'insensitive',
+													},
+												},
+												{
+													lastName: {
+														contains: search,
+														mode: 'insensitive',
+													},
+												},
+												{
+													email: {
+														contains: search,
+														mode: 'insensitive',
+													},
+												},
+											],
 										},
-										{
-											email: {
-												contains: search,
-												mode: 'insensitive',
-											},
-										},
-									],
-								},
-							},
-						],
+									},
+							  ]
+							: undefined,
 						AND:
 							from && to
 								? [
