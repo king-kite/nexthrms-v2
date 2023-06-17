@@ -1,5 +1,7 @@
+import { Button } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { FaDownload } from 'react-icons/fa';
 
 import { Container, Modal } from '../components/common';
 import {
@@ -13,6 +15,7 @@ import {
 	DEFAULT_MEDIA_PAGINAITON_SIZE,
 	MEDIA_URL,
 } from '../config';
+import { useDebounce } from '../hooks';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
 import { GetManagedFilesResponseType } from '../types';
@@ -31,6 +34,7 @@ function FileManager({
 		to?: string;
 	}>();
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const debouncedSearchForm = useDebounce(searchForm, 500);
 
 	const { query } = useRouter();
 
@@ -90,9 +94,7 @@ function FileManager({
 		{
 			limit,
 			offset,
-			search: searchForm?.search,
-			from: searchForm?.from,
-			to: searchForm?.to,
+			...debouncedSearchForm,
 			onError(error) {
 				open({
 					message: error.message || 'Fetch Error. Unable to get files!',
@@ -116,6 +118,24 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
+
+			{data && data.result.length < data.total && (
+				<div className={`flex justify-end py-2 w-full ${type === 'storage' ? 'sm:pb-5' : ''}`}>
+					<div className="w-[11rem]">
+						<Button 
+							bg="bg-transparent active:relative active:top-[2px] hover:bg-gray-50"
+							border="border border-gray-400"
+							color={isFetching ? 'text-gray-100' : 'text-gray-700'}
+							disabled={isFetching}
+							iconRight={FaDownload}
+							iconSize="bottom-[0.5px] relative text-xs"
+							onClick={() => setLimit((prevState) => prevState + DEFAULT_MEDIA_PAGINAITON_SIZE)}
+							title={isFetching ? 'Loading...' : `Loaded ${data.result.length}/${data.total}`}
+						/>
+					</div>
+				</div>
+			)}
+
 			{type !== null && (
 				<FileActions
 					dir={dir}
@@ -142,7 +162,9 @@ function FileManager({
 			<Files
 				data={data?.result}
 				dir={dir}
+				searchForm={searchForm}
 				setDir={setDir}
+				setSearchForm={setSearchForm}
 				showStorage={type === 'storage'}
 				type={type}
 			/>

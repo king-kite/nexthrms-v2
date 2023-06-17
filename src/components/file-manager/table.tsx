@@ -1,11 +1,12 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
+import Link from 'next/link';
 import React from 'react';
 import { IconType } from 'react-icons';
 import { FaArrowRight, FaTrash } from 'react-icons/fa';
 
 import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
-import { permissions, DEFAULT_IMAGE } from '../../config';
+import { permissions, DEFAULT_IMAGE, USER_PAGE_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { useDeleteManagedFileMutation, useDeleteMultipleManagedFileMutation } from '../../store/queries';
 import { ManagedFileType } from '../../types';
@@ -118,17 +119,19 @@ const getRows = (
 				},
 				{
 					component: () => (
-						<span className="inline-block px-2 w-full hover:bg-gray-100 hover:even:bg-gray-300">
-							<TableAvatarEmailNameCell
-								email={file.user ? file.user.email : '-------------'}
-								image={file.user?.profile?.image?.url || DEFAULT_IMAGE}
-								name={
-									file.user
-										? `${file.user.firstName} ${file.user.lastName}`
-										: 'Anonymous'
-								}
-							/>
-						</span>
+						<Link href={file.user ? USER_PAGE_URL(file.user.id) : '#'}>
+							<a className="cursor-pointer inline-block px-2 w-full hover:bg-gray-100 hover:even:bg-gray-300">
+								<TableAvatarEmailNameCell
+									email={file.user ? file.user.email : '-------------'}
+									image={file.user?.profile?.image?.url || DEFAULT_IMAGE}
+									name={
+										file.user
+											? `${file.user.firstName} ${file.user.lastName}`
+											: 'Anonymous'
+									}
+								/>
+							</a>
+						</Link>
 					),
 				},
 				{

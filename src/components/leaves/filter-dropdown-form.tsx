@@ -19,10 +19,11 @@ function Form({ form, setForm, loading }: FormProps) {
 			onSubmit={(event) => {
 				event.preventDefault();
 				if (formRef.current) {
-					setForm({
+					setForm(prevState => ({
+						...prevState,
 						from: formRef.current.fromDate.value || undefined,
 						to: formRef.current.toDate.value || undefined,
-					});
+					}));
 				}
 			}}
 			className="p-2 w-full"
@@ -35,7 +36,7 @@ function Form({ form, setForm, loading }: FormProps) {
 					name="fromDate"
 					padding="px-3 py-1"
 					required={false}
-					rounded="rounded-lg"
+					rounded="rounded"
 					type="date"
 				/>
 			</div>
@@ -46,7 +47,7 @@ function Form({ form, setForm, loading }: FormProps) {
 					name="toDate"
 					padding="px-3 py-1"
 					required={false}
-					rounded="rounded-lg"
+					rounded="rounded"
 					type="date"
 				/>
 			</div>
@@ -58,7 +59,7 @@ function Form({ form, setForm, loading }: FormProps) {
 						loader
 						loading={loading}
 						padding="px-4 py-1"
-						rounded="rounded-lg"
+						rounded="rounded"
 						type="submit"
 						title="filter"
 					/>
@@ -68,9 +69,13 @@ function Form({ form, setForm, loading }: FormProps) {
 						bg="bg-red-600 hover:bg-red-500"
 						caps
 						disabled={loading}
-						onClick={() => setForm(undefined)}
+						onClick={() => setForm(prevState => ({
+							...prevState,
+							from: undefined,
+							to: undefined,
+						}))}
 						padding="px-4 py-1"
-						rounded="rounded-lg"
+						rounded="rounded"
 						type="reset"
 						title="Reset"
 					/>

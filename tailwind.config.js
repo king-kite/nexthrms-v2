@@ -58,7 +58,7 @@ module.exports = {
   },
   variants: {
     animation: ["responsive", "motion-safe", "motion-reduce"],
-    backgroundColor: ["responsive", "odd", "hover", "focus", "even"],
+    backgroundColor: ["responsive", "odd", "hover", "focus", "even", "active"],
     borderWidth: ["responsive", "hover", "focus"],
     fontSize: ["responsive", "hover", "focus"],
     extend: {},
