@@ -4,9 +4,9 @@ import { FaCalendar, FaSearch } from 'react-icons/fa';
 
 import { FileEmpty } from './box-items';
 import { getFileType } from './file';
+import FilterDropdownForm from './filter-date';
 import FileStorage from './file-storage';
 import FileTable from './table';
-import FilterDropdownForm from '../leaves/filter-dropdown-form';
 import { MEDIA_HIDDEN_FILE_NAME } from '../../config';
 import { ManagedFileType } from '../../types';
 
@@ -27,13 +27,18 @@ function Files({
 		from?: string;
 		to?: string;
 		search?: string;
-	}
+	};
 	setDir: React.Dispatch<React.SetStateAction<string>>;
-	setSearchForm: React.Dispatch<React.SetStateAction<{
-		from?: string;
-		to?: string;
-		search?: string;
-	}>>
+	setSearchForm: React.Dispatch<
+		React.SetStateAction<
+			| {
+					from?: string;
+					to?: string;
+					search?: string;
+			  }
+			| undefined
+		>
+	>;
 	showStorage: boolean;
 	type: string | null;
 }) {
@@ -89,41 +94,44 @@ function Files({
 				<div className="bg-primary-500 h-[1px] w-1/5" />
 			</div>
 			<div className="my-3 py-2">
-				{files.length <= 0 ? <FileEmpty /> : (
-					<>
-						<div className="flex flex-wrap items-end py-2 w-full sm:mb-2 md:mb-4">
-							<div className="mb-2 w-full sm:mb-0 sm:w-1/2">
-								<Input 
-									icon={FaSearch}
-									label="Search"
-									onChange={({ target: { value } }) => {
-										setSearchForm(prevState => ({
-											...prevState,
-											search: value
-										}))
-									}}
-									placeholder="Search file by name e.g. clients"
-									rounded="rounded"
-									type="search"
-									value={searchForm?.search || ''}
+				<div className="flex flex-wrap items-end py-2 w-full sm:mb-2 md:mb-4">
+					<div className="mb-2 w-full sm:mb-0 sm:w-1/2">
+						<Input
+							icon={FaSearch}
+							label="Search"
+							onChange={({ target: { value } }) => {
+								setSearchForm((prevState) => ({
+									...prevState,
+									search: value,
+								}));
+							}}
+							placeholder="Search..."
+							required={false}
+							rounded="rounded"
+							type="search"
+							value={searchForm?.search || ''}
+						/>
+					</div>
+					<div className="my-2 w-full sm:mx-4 sm:my-0 sm:w-1/3 lg:w-1/4">
+						<ButtonDropdown
+							component={() => (
+								<FilterDropdownForm
+									searchForm={searchForm}
+									setSearchForm={setSearchForm}
+									loading={loading}
 								/>
-							</div>
-							<div className="my-2 w-full sm:mx-4 sm:my-0 sm:w-1/3 lg:w-1/4">
-								<ButtonDropdown
-									component={() => <FilterDropdownForm form={searchForm} setForm={setSearchForm} loading={loading} />}
-									props={{
-										iconLeft: FaCalendar,
-										margin: 'lg:mr-6',
-										padding: 'px-3 py-2 md:px-6',
-										rounded: 'rounded',
-										title: 'Filter by Date',
-									}}
-								/>
-							</div>
-						</div>
-						<FileTable files={files} />
-					</>
-				)}
+							)}
+							props={{
+								iconLeft: FaCalendar,
+								margin: 'lg:mr-6',
+								padding: 'px-3 py-2 md:px-6',
+								rounded: 'rounded',
+								title: 'Filter by Date',
+							}}
+						/>
+					</div>
+				</div>
+				{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
 			</div>
 		</div>
 	);

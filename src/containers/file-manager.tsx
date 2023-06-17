@@ -118,19 +118,30 @@ function FileManager({
 			}}
 			error={!canView && !canCreate ? { statusCode: 403 } : undefined}
 		>
-
 			{data && data.result.length < data.total && (
-				<div className={`flex justify-end py-2 w-full ${type === 'storage' ? 'sm:pb-5' : ''}`}>
+				<div
+					className={`flex justify-end py-2 w-full ${
+						type === 'storage' ? 'sm:pb-5' : ''
+					}`}
+				>
 					<div className="w-[11rem]">
-						<Button 
+						<Button
 							bg="bg-transparent active:relative active:top-[2px] hover:bg-gray-50"
 							border="border border-gray-400"
 							color={isFetching ? 'text-gray-100' : 'text-gray-700'}
 							disabled={isFetching}
 							iconRight={FaDownload}
 							iconSize="bottom-[0.5px] relative text-xs"
-							onClick={() => setLimit((prevState) => prevState + DEFAULT_MEDIA_PAGINAITON_SIZE)}
-							title={isFetching ? 'Loading...' : `Loaded ${data.result.length}/${data.total}`}
+							onClick={() =>
+								setLimit(
+									(prevState) => prevState + DEFAULT_MEDIA_PAGINAITON_SIZE
+								)
+							}
+							title={
+								isFetching
+									? 'Loading...'
+									: `Loaded ${data.result.length}/${data.total}`
+							}
 						/>
 					</div>
 				</div>
@@ -162,6 +173,7 @@ function FileManager({
 			<Files
 				data={data?.result}
 				dir={dir}
+				loading={isFetching}
 				searchForm={searchForm}
 				setDir={setDir}
 				setSearchForm={setSearchForm}

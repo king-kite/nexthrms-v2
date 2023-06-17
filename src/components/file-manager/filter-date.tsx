@@ -3,40 +3,46 @@ import React from 'react';
 import { getDate } from '../../utils';
 
 type FormProps = {
-	form: { from?: string; to?: string } | undefined;
-	setForm: React.Dispatch<
+	searchForm?: { from?: string; to?: string };
+	setSearchForm: React.Dispatch<
 		React.SetStateAction<{ from?: string; to?: string } | undefined>
 	>;
 	loading: boolean;
 };
 
-function Form({ form, setForm, loading }: FormProps) {
-	const formRef = React.useRef<HTMLFormElement | null>(null);
+function Form({ searchForm, setSearchForm, loading }: FormProps) {
+	const [form, setForm] = React.useState<
+		| {
+				from?: string;
+				to?: string;
+		  }
+		| undefined
+	>(searchForm);
 
 	return (
 		<form
-			ref={formRef}
 			onSubmit={(event) => {
 				event.preventDefault();
-				if (formRef.current) {
-					setForm({
-						from: formRef.current.fromDate.value || undefined,
-						to: formRef.current.toDate.value || undefined,
-					});
-				}
+				setSearchForm(form);
 			}}
 			className="p-2 w-full"
 		>
 			<div className="mb-2 w-full">
 				<Input
-					defaultValue={getDate(undefined, true) as string}
 					disabled={loading}
 					label="From"
 					name="fromDate"
 					padding="px-3 py-1"
+					onChange={({ target: { value } }) =>
+						setForm((prevState) => ({
+							...prevState,
+							from: getDate(value, true) as string,
+						}))
+					}
 					required={false}
-					rounded="rounded-lg"
+					rounded="rounded"
 					type="date"
+					value={form?.from ? (getDate(form.from, true) as string) : ''}
 				/>
 			</div>
 			<div className="mb-2 w-full">
@@ -45,9 +51,16 @@ function Form({ form, setForm, loading }: FormProps) {
 					label="To"
 					name="toDate"
 					padding="px-3 py-1"
+					onChange={({ target: { value } }) =>
+						setForm((prevState) => ({
+							...prevState,
+							to: getDate(value, true) as string,
+						}))
+					}
 					required={false}
-					rounded="rounded-lg"
+					rounded="rounded"
 					type="date"
+					value={form?.to ? (getDate(form.to, true) as string) : ''}
 				/>
 			</div>
 			<div className="flex flex-wrap gap-2 justify-between mb-3 mt-4 w-full">
@@ -58,7 +71,7 @@ function Form({ form, setForm, loading }: FormProps) {
 						loader
 						loading={loading}
 						padding="px-4 py-1"
-						rounded="rounded-lg"
+						rounded="rounded"
 						type="submit"
 						title="filter"
 					/>
@@ -68,9 +81,16 @@ function Form({ form, setForm, loading }: FormProps) {
 						bg="bg-red-600 hover:bg-red-500"
 						caps
 						disabled={loading}
-						onClick={() => setForm(undefined)}
+						onClick={() => {
+							setForm(undefined);
+							setSearchForm((prevState) => ({
+								...prevState,
+								from: undefined,
+								to: undefined,
+							}));
+						}}
 						padding="px-4 py-1"
-						rounded="rounded-lg"
+						rounded="rounded"
 						type="reset"
 						title="Reset"
 					/>
