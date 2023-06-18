@@ -1,11 +1,4 @@
-import {
-	FC,
-	ReactNode,
-	createContext,
-	useCallback,
-	useContext,
-	useState,
-} from 'react';
+import React from 'react';
 
 import { AuthDataType } from '../../types';
 
@@ -17,26 +10,26 @@ export type AuthContextType = {
 	logout: () => void;
 };
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = React.createContext<AuthContextType | null>(null);
 
 export const useAuthContext = () => {
-	return useContext(AuthContext) as AuthContextType;
+	return React.useContext(AuthContext) as AuthContextType;
 };
 
-const AuthProvider: FC<{
-	children: ReactNode;
+const AuthProvider: React.FC<{
+	children: React.ReactNode;
 }> = ({ children }) => {
-	const [data, setData] = useState<AuthDataType>();
-	const [loading, setLoading] = useState(true);
-	const [auth, setAuth] = useState(false);
+	const [data, setData] = React.useState<AuthDataType>();
+	const [loading, setLoading] = React.useState(true);
+	const [auth, setAuth] = React.useState(false);
 
-	const login = useCallback((userData: AuthDataType) => {
+	const login = React.useCallback((userData: AuthDataType) => {
 		setData(userData);
 		setLoading(false);
 		setAuth(true);
 	}, []);
 
-	const logout = useCallback(() => {
+	const logout = React.useCallback(() => {
 		setLoading(false);
 		setAuth(false);
 		setData(undefined);

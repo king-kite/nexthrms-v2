@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React from "react";
 import { FaTimes } from "react-icons/fa"
 
 const wrapperStyle =
@@ -25,11 +25,11 @@ const Modal = ({
 	visible,
 	title,
 }: ModalProps) => {
-	const [reset, setReset] = useState<boolean>(false);
+	const [reset, setReset] = React.useState<boolean>(false);
 
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = React.useRef<HTMLDivElement>(null);
 
-	const handleMouseClick = useCallback(
+	const handleMouseClick = React.useCallback(
 		({ target }: Event) =>
 			!keepVisible &&
 			typeof close === "function" &&
@@ -38,11 +38,11 @@ const Modal = ({
 		[close, keepVisible]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (visible) setReset(false);
 	}, [visible]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (keepVisible === false)
 			document.addEventListener("click", handleMouseClick, true);
 		else document.removeEventListener("click", handleMouseClick, true);
