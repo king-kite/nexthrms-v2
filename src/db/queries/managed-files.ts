@@ -28,6 +28,16 @@ export const managedFileSelectQuery: Prisma.ManagedFileSelect = {
 			},
 		},
 	},
+	profile: {
+		select: {
+			id: true,
+		}
+	},
+	projectFile: {
+		select: {
+			id: true,
+		}
+	},
 	updatedAt: true,
 	createdAt: true,
 };

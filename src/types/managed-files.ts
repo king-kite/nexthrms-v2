@@ -35,6 +35,12 @@ export type ManagedFileImportQueryType = {
 	size: number;
 	storage_info_keys?: string | null;
 	storage_info_values?: string | null;
+	profile?: {
+		id: string;
+	} | null;
+	projectFile?: {
+		id: string;
+	} | null;
 	type: string;
 	user_id?: string | null;
 	created_at?: Date | string | null;

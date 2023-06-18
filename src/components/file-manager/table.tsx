@@ -2,7 +2,7 @@ import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import React from 'react';
 import { IconType } from 'react-icons';
-import { FaArrowRight, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash } from 'react-icons/fa';
 
 import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
@@ -61,7 +61,7 @@ const getRows = (
 		}[] = [
 			{
 				color: 'primary',
-				icon: FaArrowRight,
+				icon: FaEye,
 			},
 		];
 		if (deleteFile) {
@@ -122,10 +122,14 @@ const getRows = (
 				},
 				{
 					options: {
-						bg: 'success',
+						bg: file.projectFile
+							? 'warning'
+							: file.profile
+							? 'success'
+							: 'info',
 					},
 					type: 'badge',
-					value: 'profile',
+					value: file.projectFile ? 'project' : file.profile ? 'profile' : '-----',
 				},
 				{
 					component: () => (

@@ -313,7 +313,7 @@ const Employee = ({
 											data.leaves.length > 0
 												? 'warning'
 												: data.user.isActive
-												? 'green'
+												? 'success'
 												: 'danger',
 									},
 								},
