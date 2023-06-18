@@ -1,3 +1,4 @@
+import { Button, Loader } from 'kite-react-tailwind';
 import React from 'react';
 import {
 	FaCloudDownloadAlt,
@@ -19,8 +20,10 @@ import {
 	samples,
 	FILE_MANAGER_PAGE_URL,
 	MANAGED_FILES_IMPORT_URL,
+	MANAGED_FILES_EXPORT_URL,
 	MEDIA_URL,
 } from '../../config';
+import { useAxiosInstance, useOutClick } from '../../hooks';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { hasModelPermission } from '../../utils';
 
@@ -32,9 +35,20 @@ function Actions({
 	setDir: React.Dispatch<React.SetStateAction<string>>;
 }) {
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const { ref, setVisible, visible } = useOutClick<HTMLDivElement>();
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
+
+	const { execute, loading: executeLoading } = useAxiosInstance({
+		onSettled(response) {
+			open({
+				type: response.status === 'success' ? 'success' : 'danger',
+				message: response.message,
+			});
+			setVisible(false);
+		},
+	});
 
 	const { canExport, canImport } = React.useMemo(
 		() => ({
@@ -99,7 +113,7 @@ function Actions({
 		[setDir]
 	);
 	const actions = React.useMemo(() => {
-		const data = [
+		const data: any = [
 			{
 				bg: 'bg-gray-500',
 				icon: FaPlus,
@@ -125,12 +139,64 @@ function Actions({
 			data.push({
 				bg: 'bg-sky-500',
 				icon: FaCloudDownloadAlt,
-				onClick: () => {},
+				onClick: () => setVisible((prevState) => !prevState),
 				title: 'Export',
+				component: ({ children }: { children: React.ReactNode }) => (
+					<div ref={ref} className="relative">
+						{children}
+						<div
+							className={`${
+								visible ? 'block' : 'hidden'
+							} absolute bg-gray-50 left-0 p-2 top-0 w-full`}
+						>
+							<div className="w-full">
+								<Button
+									bg="bg-transparent active:relative active:top-[2px] hover:bg-gray-50"
+									border="border border-gray-400"
+									color={executeLoading ? 'text-gray-100' : 'text-gray-700'}
+									disabled={executeLoading}
+									iconSize="bottom-[0.5px] relative text-xs"
+									onClick={() =>
+										execute(MANAGED_FILES_EXPORT_URL + '?type=csv')
+									}
+									title="Export as CSV"
+								/>
+							</div>
+							<div className="mt-2 w-full">
+								<Button
+									bg="bg-transparent active:relative active:top-[2px] hover:bg-gray-50"
+									border="border border-green-400"
+									color={executeLoading ? 'text-gray-100' : 'text-gray-700'}
+									disabled={executeLoading}
+									iconSize="bottom-[0.5px] relative text-xs"
+									onClick={() =>
+										execute(MANAGED_FILES_EXPORT_URL + '?type=excel')
+									}
+									title="Export as Excel"
+								/>
+							</div>
+							{executeLoading && (
+								<div className="absolute bg-dark-transparent flex h-full items-center justify-center left-0 rounded-md top-0 w-full">
+									<Loader size={4} />
+								</div>
+							)}
+						</div>
+					</div>
+				),
 			});
 
 		return data;
-	}, [canImport, canExport, openModal]);
+	}, [
+		canImport,
+		canExport,
+		visible,
+		ref,
+		execute,
+		executeLoading,
+		setVisible,
+		openModal,
+	]);
+
 	return (
 		<>
 			<div className="my-2 md:my-4">
