@@ -2,18 +2,22 @@ import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import React from 'react';
 import { IconType } from 'react-icons';
-import { FaEye, FaTrash } from 'react-icons/fa';
+import { FaDownload, FaEye, FaTrash } from 'react-icons/fa';
 
 import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
 import { permissions, DEFAULT_IMAGE, USER_PAGE_URL } from '../../config';
-import { useAuthContext } from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteManagedFileMutation,
 	useDeleteMultipleManagedFileMutation,
 } from '../../store/queries';
 import { ManagedFileType } from '../../types';
-import { getStringDateTime, hasModelPermission } from '../../utils';
+import {
+	downloadFile,
+	getStringDateTime,
+	hasModelPermission,
+} from '../../utils';
 
 const style = {
 	paddingLeft: '1rem',
@@ -36,7 +40,10 @@ const heads: TableHeadType = [
 		value: 'modified',
 	},
 	{
-		style,
+		style: {
+			paddingLeft: '1.5rem',
+			paddingRight: '1.5rem',
+		},
 		value: 'label',
 	},
 	{
@@ -49,11 +56,16 @@ const getRows = (
 	data: ManagedFileType[],
 	{
 		deleteFile,
+		download,
 	}: {
 		deleteFile?: (id: string) => void;
+		download: (url: string, name: string) => void;
 	}
 ): TableRowType[] =>
 	data.map((file) => {
+		const extension = getExtension(file.url) || getExtension(file.name) || null;
+		const name = extension ? `${file.name}.${extension}` : file.name;
+
 		const actions: {
 			color: string;
 			icon: IconType;
@@ -63,7 +75,13 @@ const getRows = (
 				color: 'primary',
 				icon: FaEye,
 			},
+			{
+				color: 'success',
+				icon: FaDownload,
+				onClick: () => download(file.url, name),
+			},
 		];
+
 		if (deleteFile) {
 			actions.push({
 				color: 'danger',
@@ -71,6 +89,7 @@ const getRows = (
 				onClick: () => deleteFile(file.id),
 			});
 		}
+
 		return {
 			id: file.id,
 			rows: [
@@ -94,10 +113,6 @@ const getRows = (
 								: fileType === 'pdf'
 								? 'bg-red-500'
 								: 'bg-gray-500';
-						const extension =
-							getExtension(file.url) || getExtension(file.name) || null;
-						const name = extension ? `${file.name}.${extension}` : file.name;
-
 						return (
 							<span className="cursor-pointer inline-block px-4 w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableIconNameSizeCell
@@ -128,8 +143,12 @@ const getRows = (
 							? 'success'
 							: 'info',
 					},
-					type: 'badge',
-					value: file.projectFile ? 'project' : file.profile ? 'profile' : '-----',
+					type: file.projectFile || file.profile ? 'badge' : undefined,
+					value: file.projectFile
+						? 'project'
+						: file.profile
+						? 'profile'
+						: '-----',
 				},
 				{
 					component: () => (
@@ -163,6 +182,7 @@ type TableType = {
 const FileTable = ({ files }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
 
+	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const { deleteFile } = useDeleteManagedFileMutation();
@@ -170,6 +190,21 @@ const FileTable = ({ files }: TableType) => {
 	const { deleteFiles } = useDeleteMultipleManagedFileMutation({
 		type: 'file',
 	});
+
+	const download = React.useCallback(
+		async (url: string, name: string) => {
+			const data = await downloadFile({ name, url });
+			if (data !== undefined && data.status !== 200) {
+				open({
+					type: 'danger',
+					message: String(
+						data.data?.message || data.data || 'Unable to download file'
+					),
+				});
+			}
+		},
+		[open]
+	);
 
 	const [canDelete] = React.useMemo(() => {
 		if (!authData) return [false];
@@ -183,8 +218,13 @@ const FileTable = ({ files }: TableType) => {
 
 	React.useEffect(() => {
 		// const data = files.filter((file) => file.name !== MEDIA_HIDDEN_FILE_NAME);
-		setRows(getRows(files, { deleteFile: canDelete ? deleteFile : undefined }));
-	}, [canDelete, deleteFile, files]);
+		setRows(
+			getRows(files, {
+				deleteFile: canDelete ? deleteFile : undefined,
+				download,
+			})
+		);
+	}, [canDelete, deleteFile, download, files]);
 
 	return (
 		<Table
