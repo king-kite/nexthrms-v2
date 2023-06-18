@@ -2,6 +2,7 @@ import React from 'react';
 
 import FileComponent from './file';
 import Folder from './folder';
+import { useFileDetailContext } from '../../containers/file-manager';
 import { ManagedFileType } from '../../types';
 
 type FileType = {
@@ -19,6 +20,8 @@ function FileStorage({
 	dir: string;
 	setDir: React.Dispatch<React.SetStateAction<string>>;
 }) {
+	const { showDetail } = useFileDetailContext();
+
 	const displays = React.useMemo(() => {
 		// Get the files to show that should be in "dir" directory
 		const showFiles = data.filter((file) => {
@@ -100,7 +103,15 @@ function FileStorage({
 						/>
 					) : (
 						display.type === 'file' &&
-						display.data && <FileComponent key={index} {...display.data} />
+						display.data && (
+							<FileComponent
+								key={index}
+								onClick={
+									showDetail ? () => showDetail(display.data) : undefined
+								}
+								{...display.data}
+							/>
+						)
 					)
 				)}
 		</div>

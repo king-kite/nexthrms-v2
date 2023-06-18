@@ -6,6 +6,7 @@ import { FaDownload } from 'react-icons/fa';
 import { Container, Modal } from '../components/common';
 import {
 	FileActions,
+	FileDetail,
 	Files,
 	Form,
 	QuickActions,
@@ -18,8 +19,18 @@ import {
 import { useDebounce } from '../hooks';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries';
-import { GetManagedFilesResponseType } from '../types';
+import { GetManagedFilesResponseType, ManagedFileType } from '../types';
 import { hasModelPermission } from '../utils';
+
+const FileDetailContext = React.createContext<{
+	showDetail: (file: ManagedFileType) => void;
+} | null>(null);
+
+export function useFileDetailContext() {
+	return React.useContext(FileDetailContext) as {
+		showDetail: (file: ManagedFileType | null) => void | null;
+	};
+}
 
 function FileManager({
 	files: initialData,
@@ -33,15 +44,17 @@ function FileManager({
 		to?: string;
 	}>();
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const debouncedSearchForm = useDebounce(searchForm, 500);
+	const [dir, setDir] = React.useState(MEDIA_URL);
+	const [formType, setFormType] = React.useState<'file' | 'folder'>('file');
+	const [fileDetail, setFileDetail] = React.useState<ManagedFileType | null>(
+		null
+	);
 
+	const debouncedSearchForm = useDebounce(searchForm, 500);
 	const { query } = useRouter();
 
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
-
-	const [dir, setDir] = React.useState(MEDIA_URL);
-	const [formType, setFormType] = React.useState<'file' | 'folder'>('file');
 
 	const { type, uploadDir } = React.useMemo(() => {
 		const type = query?.type?.toString() || null;
@@ -171,30 +184,52 @@ function FileManager({
 				/>
 			)}
 
-			<Files
-				data={data?.result}
-				dir={dir}
-				loading={isFetching}
-				searchForm={searchForm}
-				setDir={setDir}
-				setSearchForm={setSearchForm}
-				showStorage={type === 'storage'}
-				type={type}
-			/>
+			<FileDetailContext.Provider
+				value={{
+					showDetail: (file) => {
+						setFileDetail(file);
+						setModalVisible(true);
+					},
+				}}
+			>
+				<Files
+					data={data?.result}
+					dir={dir}
+					loading={isFetching}
+					searchForm={searchForm}
+					setDir={setDir}
+					setSearchForm={setSearchForm}
+					showStorage={type === 'storage'}
+					type={type}
+				/>
+			</FileDetailContext.Provider>
 			<Modal
-				close={() => setModalVisible(false)}
+				close={() => {
+					setModalVisible(false);
+					if (fileDetail) setFileDetail(null);
+				}}
 				keepVisible
 				component={
-					<Form
-						directory={type === 'storage' ? uploadDir : undefined}
-						onSuccess={() => {
-							setModalVisible(false);
-						}}
-						type={formType}
-					/>
+					fileDetail ? (
+						<FileDetail {...fileDetail} />
+					) : (
+						<Form
+							directory={type === 'storage' ? uploadDir : undefined}
+							onSuccess={() => {
+								setModalVisible(false);
+							}}
+							type={formType}
+						/>
+					)
 				}
-				description={`Add a new ${formType}`}
-				title={formType === 'file' ? 'New File' : 'New Folder'}
+				description={fileDetail ? undefined : `Add a new ${formType}`}
+				title={
+					fileDetail
+						? undefined
+						: formType === 'file'
+						? 'New File'
+						: 'New Folder'
+				}
 				visible={modalVisible}
 			/>
 		</Container>

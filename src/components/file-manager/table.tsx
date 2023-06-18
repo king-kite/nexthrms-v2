@@ -7,6 +7,7 @@ import { FaDownload, FaEye, FaTrash } from 'react-icons/fa';
 import { getIcon, getFileType, getExtension } from './file';
 import { TableIconNameSizeCell, TableAvatarEmailNameCell } from '../common';
 import { permissions, DEFAULT_IMAGE, USER_PAGE_URL } from '../../config';
+import { useFileDetailContext } from '../../containers/file-manager';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteManagedFileMutation,
@@ -57,9 +58,11 @@ const getRows = (
 	{
 		deleteFile,
 		download,
+		showDetail,
 	}: {
 		deleteFile?: (id: string) => void;
 		download: (url: string, name: string) => void;
+		showDetail: (file: ManagedFileType) => void | null;
 	}
 ): TableRowType[] =>
 	data.map((file) => {
@@ -74,6 +77,7 @@ const getRows = (
 			{
 				color: 'primary',
 				icon: FaEye,
+				onClick: showDetail ? () => showDetail(file) : undefined,
 			},
 			{
 				color: 'success',
@@ -185,6 +189,8 @@ const FileTable = ({ files }: TableType) => {
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
+	const { showDetail } = useFileDetailContext();
+
 	const { deleteFile } = useDeleteManagedFileMutation();
 
 	const { deleteFiles } = useDeleteMultipleManagedFileMutation({
@@ -222,9 +228,10 @@ const FileTable = ({ files }: TableType) => {
 			getRows(files, {
 				deleteFile: canDelete ? deleteFile : undefined,
 				download,
+				showDetail,
 			})
 		);
-	}, [canDelete, deleteFile, download, files]);
+	}, [canDelete, deleteFile, download, files, showDetail]);
 
 	return (
 		<Table

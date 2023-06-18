@@ -148,7 +148,14 @@ export function getIcon(_type: string, url: string, name: string): IconType {
 	}
 }
 
-function FileComponent({ name, type, url }: ManagedFileType) {
+function FileComponent({
+	onClick,
+	name,
+	type,
+	url,
+}: ManagedFileType & {
+	onClick?: () => void;
+}) {
 	if (
 		name.includes(MEDIA_HIDDEN_FILE_NAME) ||
 		url.includes(MEDIA_HIDDEN_FILE_NAME)
@@ -175,7 +182,15 @@ function FileComponent({ name, type, url }: ManagedFileType) {
 			? 'bg-red-500'
 			: 'bg-gray-500';
 
-	return <BoxGridItem bg={bg} caps={false} icon={icon} title={name} />;
+	return (
+		<BoxGridItem
+			bg={bg}
+			caps={false}
+			icon={icon}
+			onClick={onClick}
+			title={name}
+		/>
+	);
 }
 
 export function FileAction({
