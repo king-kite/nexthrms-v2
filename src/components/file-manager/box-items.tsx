@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import React from 'react';
 import { FaFolder } from 'react-icons/fa';
 
 export function BoxTitle({ title }: { title: string }) {
@@ -43,35 +44,40 @@ export function FileEmpty() {
 	);
 }
 
-export function BoxGridItem({ 
-  bg, 
-  caps = true,
-  icon: Icon, 
-  onClick, 
-  title 
+export function BoxGridItem({
+	bg,
+	caps = true,
+	component: Component = ({ children }) => <>{children}</>,
+	icon: Icon,
+	onClick,
+	title,
 }: ActionType & {
-  caps?: boolean;
+	caps?: boolean;
+	component?: (props: { children: React.ReactNode }) => JSX.Element;
 }) {
 	return (
-		<abbr
-			title={title}
-			className="block cursor-pointer no-underline transition transform hover:scale-105"
-			onClick={onClick}
-		>
-			<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
-				<span
-					className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full w-[60px]`}
+		<Component>
+			<abbr
+				title={title}
+				className="block cursor-pointer no-underline transition transform hover:scale-105"
+				onClick={onClick}
+			>
+				<div className="bg-white border border-gray-200 flex justify-center p-4 rounded-md hover:bg-gray-50">
+					<span
+						className={`${bg} h-[60px] inline-flex items-center justify-center rounded-full w-[60px]`}
+					>
+						<Icon className="h-[20px] text-gray-50 w-[20px]" />
+					</span>
+				</div>
+				<p
+					className={`${
+						caps ? 'capitalize' : 'normal-case'
+					} my-2 text-center text-gray-700 text-sm tracking-wide truncate md:text-base`}
 				>
-					<Icon className="h-[20px] text-gray-50 w-[20px]" />
-				</span>
-			</div>
-			<p className={`${caps 
-        ? 'capitalize' : 'normal-case'
-        } my-2 text-center text-gray-700 text-sm tracking-wide truncate md:text-base`}
-      >
-				{title}
-			</p>
-		</abbr>
+					{title}
+				</p>
+			</abbr>
+		</Component>
 	);
 }
 
