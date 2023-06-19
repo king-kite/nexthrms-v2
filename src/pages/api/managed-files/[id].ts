@@ -1,12 +1,38 @@
 import { permissions } from '../../../config';
-import { managedFileSelectQuery, prisma } from '../../../db';
-import { hasObjectPermission } from '../../../db/utils';
+import { getManagedFile, managedFileSelectQuery, prisma } from '../../../db';
+import { getRecord, hasObjectPermission } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { deleteFile } from '../../../utils/files';
 
 export default auth()
+	.get(async (req, res) => {
+		const record = await getRecord({
+			model: 'managed_files',
+			perm: 'managedfile',
+			permission: 'VIEW',
+			user: req.user,
+			objectId: req.query.id as string,
+			getData() {
+				return getManagedFile(req.query.id as string);
+			},
+		});
+
+		if (!record) throw new NextApiErrorMessage(403);
+
+		if (!record.data)
+			return res.status(404).json({
+				status: '404',
+				message: 'File record with the specified ID was not found',
+			});
+
+		return res.status(200).json({
+			status: 'success',
+			message: 'Fetched data successfully!',
+			data: record.data,
+		});
+	})
 	.put(async (req, res) => {
 		let hasPerm =
 			req.user.isSuperUser ||
