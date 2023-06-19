@@ -1,5 +1,5 @@
 import path from 'path';
-import { permissions } from '../../../config';
+import { permissions, MEDIA_URL } from '../../../config';
 import { getManagedFile, managedFileSelectQuery, prisma } from '../../../db';
 import { getRecord, hasObjectPermission } from '../../../db/utils';
 import { auth } from '../../../middlewares';
@@ -74,20 +74,65 @@ export default auth()
 			});
 		}
 
-		const location =
-			file.storageInfo?.location || file.storageInfo?.public_id || file.url;
+		let location = file.storageInfo
+			? path.dirname(
+					file.storageInfo?.location || file.storageInfo?.public_id || ''
+			  )
+			: undefined;
+		if (!location) {
+			// get the location from the url
+			const _split = file.url.split(MEDIA_URL);
+			// skip the last item in the split array if every item is empty i.e. 'media/media/' => ['', '', '']
+			const skipLast = _split.every((item) => item === '');
+			location = path.dirname(
+				_split.reduce((acc: string, item: string, index: number) => {
+					if (index === 0) return acc;
+					// Last item and skipLast
+					if (index === _split.length - 1 && skipLast) return acc;
+					if (item === '') return acc + MEDIA_URL;
+					return acc + item;
+				}, '')
+			);
+		}
+		if (!location.endsWith('/')) location += '/';
 
-		console.log(path.dirname(location));
+		// check if a file with the same name already exists in that location
+		const exists = await prisma.managedFile.findFirst({
+			where: {
+				name,
+				OR: [
+					{
+						storageInfo: {
+							path: ['location'],
+							string_starts_with: location,
+						},
+					},
+					{
+						storageInfo: {
+							path: ['public_id'],
+							string_starts_with: location,
+						},
+					},
+				],
+			},
+			select: { id: true },
+		});
 
-		// const data = await prisma.managedFile.update({
-		// 	where: {
-		// 		id: req.query.id as string,
-		// 	},
-		// 	data: {
-		// 		name,
-		// 	},
-		// 	select: managedFileSelectQuery,
-		// });
+		if (exists && exists.id !== file.id)
+			return res.status(400).json({
+				status: 'error',
+				message: 'A file with specified name already exists!',
+			});
+
+		const data = await prisma.managedFile.update({
+			where: {
+				id: req.query.id as string,
+			},
+			data: {
+				name,
+			},
+			select: managedFileSelectQuery,
+		});
 
 		return res.status(200).json({
 			status: 'success',
