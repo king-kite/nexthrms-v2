@@ -1,7 +1,9 @@
+import path from 'path';
 import { permissions } from '../../../config';
 import { getManagedFile, managedFileSelectQuery, prisma } from '../../../db';
 import { getRecord, hasObjectPermission } from '../../../db/utils';
 import { auth } from '../../../middlewares';
+import { ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { deleteFile } from '../../../utils/files';
@@ -60,15 +62,32 @@ export default auth()
 			});
 		}
 
-		const data = await prisma.managedFile.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data: {
-				name,
-			},
+		const file = (await prisma.managedFile.findUnique({
+			where: { id: req.query.id as string },
 			select: managedFileSelectQuery,
-		});
+		})) as unknown as ManagedFileType;
+
+		if (!file) {
+			return res.status(404).json({
+				status: 'error',
+				message: 'File with the specified ID does not exist!',
+			});
+		}
+
+		const location =
+			file.storageInfo?.location || file.storageInfo?.public_id || file.url;
+
+		console.log(path.dirname(location));
+
+		// const data = await prisma.managedFile.update({
+		// 	where: {
+		// 		id: req.query.id as string,
+		// 	},
+		// 	data: {
+		// 		name,
+		// 	},
+		// 	select: managedFileSelectQuery,
+		// });
 
 		return res.status(200).json({
 			status: 'success',

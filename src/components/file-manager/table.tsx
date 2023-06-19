@@ -118,7 +118,10 @@ const getRows = (
 								? 'bg-red-500'
 								: 'bg-gray-500';
 						return (
-							<span className="cursor-pointer inline-block px-4 w-full hover:bg-gray-100 hover:even:bg-gray-300">
+							<span
+								className="cursor-pointer inline-block px-4 w-full hover:bg-gray-100 hover:even:bg-gray-300"
+								onClick={showDetail ? () => showDetail(file) : undefined}
+							>
 								<TableIconNameSizeCell
 									bg={color}
 									icon={icon}
