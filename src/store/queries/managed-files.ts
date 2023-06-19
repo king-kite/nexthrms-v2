@@ -310,3 +310,48 @@ export function useDeleteMultipleManagedFileMutation(
 
 	return { deleteFiles, ...mutation };
 }
+
+// edit managed file mutation
+export function useEditManagedFileMutation(
+	options?: {
+		onSuccess?: () => void;
+		onError?: (err: { message: string }) => void;
+	},
+	queryOptions?: {
+		onError?: (e: unknown) => void;
+		onMutate?: () => void;
+		onSettled?: () => void;
+		onSuccess?: (data: ManagedFileType) => void;
+	}
+) {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation(
+		(params: { id: string; data: { name: string } }) =>
+			axiosInstance
+				.put(MANAGED_FILE_URL(params.id), params.data)
+				.then(
+					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) =>
+						response.data.data
+				),
+		{
+			async onSuccess() {
+				queryClient.invalidateQueries([tags.MANAGED_FILES]);
+
+				if (options?.onSuccess) options.onSuccess();
+			},
+			async onError(err) {
+				if (options?.onError) {
+					const error = handleAxiosErrors(err);
+					options.onError({
+						message:
+							error?.message || 'An error occurred. Unable to edit file.',
+					});
+				}
+			},
+			...queryOptions,
+		}
+	);
+
+	return mutation;
+}

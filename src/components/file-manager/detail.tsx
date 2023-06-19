@@ -1,11 +1,12 @@
-import { Button, InfoComp, Input } from 'kite-react-tailwind';
+import { Alert, Button, InfoComp, Input } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheck, FaPen, FaTrash } from 'react-icons/fa';
 
 import { getExtension, getFileType } from './file';
 import { DEFAULT_IMAGE } from '../../config';
-import { useAlertContext, useAuthContext } from '../../store/contexts';
+import { useAuthContext } from '../../store/contexts';
 import {
+	useEditManagedFileMutation,
 	useDeleteManagedFileMutation,
 	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
@@ -15,8 +16,12 @@ import { getStringDateTime } from '../../utils';
 function Detail(file: ManagedFileType) {
 	const [edit, setEdit] = React.useState(false);
 	const [name, setName] = React.useState(file.name);
+	const [alert, setAlert] = React.useState<{
+		message: string;
+		type: 'danger' | 'success';
+		visible: boolean;
+	}>();
 
-	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const { type, extension } = React.useMemo(() => {
@@ -30,9 +35,28 @@ function Detail(file: ManagedFileType) {
 		modelName: 'managed_files',
 		objectId: file.id,
 		onError({ message }) {
-			open({
+			setAlert({
+				visible: true,
 				type: 'danger',
 				message,
+			});
+		},
+	});
+
+	const { mutate, isLoading } = useEditManagedFileMutation({
+		onSuccess() {
+			setEdit(false);
+			setAlert({
+				type: 'success',
+				message: 'File name updated successfully.',
+				visible: true,
+			});
+		},
+		onError({ message }) {
+			setAlert({
+				type: 'danger',
+				message,
+				visible: true,
 			});
 		},
 	});
@@ -48,6 +72,11 @@ function Detail(file: ManagedFileType) {
 
 	return (
 		<div>
+			{alert?.visible && (
+				<div className="my-3 w-full">
+					<Alert onClose={() => setAlert(undefined)} {...alert} />
+				</div>
+			)}
 			{(canEdit || canDelete) && (
 				<div className="flex items-center justify-end gap-4 my-3 w-full">
 					{canDelete && (
@@ -72,18 +101,25 @@ function Detail(file: ManagedFileType) {
 									className="flex items-start justify-between"
 									onSubmit={(e) => {
 										e.preventDefault();
-										setEdit(false);
+										if (name.trim() !== '')
+											mutate({ id: file.id, data: { name } });
 									}}
 								>
 									<div className="pr-2 w-full">
 										<Input
+											disabled={isLoading}
 											onChange={({ target: { value } }) => setName(value)}
 											value={name}
 										/>
 									</div>
 									<button
 										onClick={() => setEdit((prevState) => !prevState)}
-										className="cursor-pointer duration-500 inline-block p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+										disabled={isLoading}
+										className={`${
+											isLoading
+												? 'bg-gray-500 text-gray-50'
+												: 'text-primary-500 hover:bg-gray-200 hover:scale-110 hover:text-gray-600'
+										} cursor-pointer duration-500 inline-block p-2 rounded-full text-xs transform transition-all md:text-sm`}
 										type="submit"
 									>
 										<FaCheck className="text-xs sm:text-sm" />
