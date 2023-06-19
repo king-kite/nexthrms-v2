@@ -11,7 +11,7 @@ import {
 	useGetUserObjectPermissionsQuery,
 } from '../../store/queries';
 import { ManagedFileType } from '../../types';
-import { getStringDateTime } from '../../utils';
+import { getByteSize, getStringDateTime } from '../../utils';
 
 function Detail(data: ManagedFileType) {
 	const [detail, setDetail] = React.useState<ManagedFileType>();
@@ -84,7 +84,7 @@ function Detail(data: ManagedFileType) {
 					},
 					{
 						title: 'Size',
-						value: file.size,
+						value: file.size ? getByteSize(file.size) : '----',
 					},
 					{
 						title: 'Type',

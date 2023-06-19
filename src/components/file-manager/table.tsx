@@ -16,6 +16,7 @@ import {
 import { ManagedFileType } from '../../types';
 import {
 	downloadFile,
+	getByteSize,
 	getStringDateTime,
 	hasModelPermission,
 } from '../../utils';
@@ -129,7 +130,7 @@ const getRows = (
 									bg={color}
 									icon={icon}
 									name={name}
-									size={file.size || '-----'}
+									size={file.size ? getByteSize(file.size) : '-----'}
 								/>
 							</span>
 						);
