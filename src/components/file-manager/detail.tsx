@@ -1,10 +1,10 @@
-import { Alert, Button, InfoComp, Input } from 'kite-react-tailwind';
+import { Button, InfoComp, Input } from 'kite-react-tailwind';
 import React from 'react';
 import { FaCheck, FaPen, FaTrash } from 'react-icons/fa';
 
 import { getExtension, getFileType } from './file';
 import { DEFAULT_IMAGE } from '../../config';
-import { useAuthContext } from '../../store/contexts';
+import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useEditManagedFileMutation,
 	useDeleteManagedFileMutation,
@@ -13,15 +13,15 @@ import {
 import { ManagedFileType } from '../../types';
 import { getStringDateTime } from '../../utils';
 
-function Detail(file: ManagedFileType) {
-	const [edit, setEdit] = React.useState(false);
-	const [name, setName] = React.useState(file.name);
-	const [alert, setAlert] = React.useState<{
-		message: string;
-		type: 'danger' | 'success';
-		visible: boolean;
-	}>();
+function Detail(data: ManagedFileType) {
+	const [detail, setDetail] = React.useState<ManagedFileType>();
 
+	const file = React.useMemo(() => {
+		if (detail) return detail;
+		return data;
+	}, [data, detail]);
+
+	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	const { type, extension } = React.useMemo(() => {
@@ -31,52 +31,28 @@ function Detail(file: ManagedFileType) {
 		};
 	}, [file]);
 
-	const { data } = useGetUserObjectPermissionsQuery({
+	const { data: objPerm } = useGetUserObjectPermissionsQuery({
 		modelName: 'managed_files',
 		objectId: file.id,
 		onError({ message }) {
-			setAlert({
-				visible: true,
+			open({
 				type: 'danger',
 				message,
-			});
-		},
-	});
-
-	const { mutate, isLoading } = useEditManagedFileMutation({
-		onSuccess() {
-			setEdit(false);
-			setAlert({
-				type: 'success',
-				message: 'File name updated successfully.',
-				visible: true,
-			});
-		},
-		onError({ message }) {
-			setAlert({
-				type: 'danger',
-				message,
-				visible: true,
 			});
 		},
 	});
 
 	const [canEdit, canDelete] = React.useMemo(() => {
 		return [
-			authData?.isSuperUser || data?.edit,
-			authData?.isSuperUser || data?.delete,
+			authData?.isSuperUser || objPerm?.edit,
+			authData?.isSuperUser || objPerm?.delete,
 		];
-	}, [authData, data]);
+	}, [authData, objPerm]);
 
 	const { deleteFile } = useDeleteManagedFileMutation();
 
 	return (
 		<div>
-			{alert?.visible && (
-				<div className="my-3 w-full">
-					<Alert onClose={() => setAlert(undefined)} {...alert} />
-				</div>
-			)}
 			{(canEdit || canDelete) && (
 				<div className="flex items-center justify-end gap-4 my-3 w-full">
 					{canDelete && (
@@ -95,51 +71,14 @@ function Detail(file: ManagedFileType) {
 			<InfoComp
 				infos={[
 					{
-						component: () =>
-							edit && canEdit ? (
-								<form
-									className="flex items-start justify-between"
-									onSubmit={(e) => {
-										e.preventDefault();
-										if (name.trim() !== '')
-											mutate({ id: file.id, data: { name } });
-									}}
-								>
-									<div className="pr-2 w-full">
-										<Input
-											disabled={isLoading}
-											onChange={({ target: { value } }) => setName(value)}
-											value={name}
-										/>
-									</div>
-									<button
-										onClick={() => setEdit((prevState) => !prevState)}
-										disabled={isLoading}
-										className={`${
-											isLoading
-												? 'bg-gray-500 text-gray-50'
-												: 'text-primary-500 hover:bg-gray-200 hover:scale-110 hover:text-gray-600'
-										} cursor-pointer duration-500 inline-block p-2 rounded-full text-xs transform transition-all md:text-sm`}
-										type="submit"
-									>
-										<FaCheck className="text-xs sm:text-sm" />
-									</button>
-								</form>
-							) : (
-								<div className="flex items-start justify-between">
-									<span className="text-sm text-gray-700 sm:mt-0 md:text-base">
-										{file.name}
-									</span>
-									{canEdit && (
-										<div
-											onClick={() => setEdit((prevState) => !prevState)}
-											className="cursor-pointer duration-500 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
-										>
-											<FaPen className="text-xs sm:text-sm" />
-										</div>
-									)}
-								</div>
-							),
+						component: () => (
+							<NameComponent
+								showDetail={setDetail}
+								canEdit={canEdit}
+								id={file.id}
+								name={file.name}
+							/>
+						),
 						title: 'Name',
 						value: '',
 					},
@@ -200,6 +139,107 @@ function Detail(file: ManagedFileType) {
 				title="File Information"
 			/>
 		</div>
+	);
+}
+
+function NameComponent({
+	canEdit,
+	id: fileId,
+	name: fileName,
+	showDetail,
+}: {
+	canEdit?: boolean;
+	id: string;
+	name: string;
+	showDetail: (detail: ManagedFileType) => void;
+}) {
+	const [edit, setEdit] = React.useState(false);
+
+	if (edit && canEdit)
+		return (
+			<NameForm
+				fileId={fileId}
+				originalFileName={fileName}
+				onSuccess={(data) => {
+					setEdit(false);
+					if (data) showDetail(data);
+				}}
+			/>
+		);
+	return (
+		<div className="flex items-start justify-between">
+			<span className="text-sm text-gray-700 sm:mt-0 md:text-base">
+				{fileName}
+			</span>
+			{canEdit && (
+				<div
+					onClick={() => setEdit((prevState) => !prevState)}
+					className="cursor-pointer duration-500 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+				>
+					<FaPen className="text-xs sm:text-sm" />
+				</div>
+			)}
+		</div>
+	);
+}
+
+function NameForm({
+	fileId,
+	originalFileName,
+	onSuccess,
+}: {
+	fileId: string;
+	originalFileName: string;
+	onSuccess: (detail?: ManagedFileType) => void;
+}) {
+	const [name, setName] = React.useState(originalFileName);
+	const [error, setError] = React.useState('');
+
+	const { mutate, isLoading } = useEditManagedFileMutation({
+		onSuccess(data) {
+			onSuccess(data);
+		},
+		onError({ message }) {
+			setError(message);
+		},
+	});
+
+	return (
+		<form
+			className="flex items-start justify-between"
+			onSubmit={(e) => {
+				e.preventDefault();
+				if (error) setError('');
+				const value = name.trim();
+				if (value !== '') {
+					if (value === originalFileName) onSuccess();
+					else mutate({ id: fileId, data: { name: value } });
+				}
+			}}
+		>
+			<div className="pr-2 w-full">
+				<Input
+					disabled={isLoading}
+					error={error}
+					onChange={({ target: { value } }) => {
+						if (error) setError('');
+						setName(value);
+					}}
+					value={name}
+				/>
+			</div>
+			<button
+				disabled={isLoading}
+				className={`${
+					isLoading
+						? 'bg-gray-500 text-gray-50'
+						: 'text-primary-500 hover:bg-gray-200 hover:scale-110 hover:text-gray-600'
+				} cursor-pointer duration-500 inline-block p-2 rounded-full text-xs transform transition-all md:text-sm`}
+				type="submit"
+			>
+				<FaCheck className="text-xs sm:text-sm" />
+			</button>
+		</form>
 	);
 }
 
