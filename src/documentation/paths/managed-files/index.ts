@@ -1,3 +1,4 @@
+import file from './file';
 import files from './files';
 import { getExportResponse, getImportResponse } from '../../responses';
 import * as tags from '../../tags';
@@ -5,6 +6,7 @@ import * as routes from '../../../config/server';
 
 const paths = {
 	[routes.MANAGED_FILES_URL]: files,
+	[routes.MANAGED_FILE_URL('{id}')]: file,
 	[routes.MANAGED_FILES_EXPORT_URL]: getExportResponse({
 		parameters: [
 			{
