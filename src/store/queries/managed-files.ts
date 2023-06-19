@@ -314,7 +314,7 @@ export function useDeleteMultipleManagedFileMutation(
 // edit managed file mutation
 export function useEditManagedFileMutation(
 	options?: {
-		onSuccess?: () => void;
+		onSuccess?: (data: ManagedFileType) => void;
 		onError?: (err: { message: string }) => void;
 	},
 	queryOptions?: {
@@ -335,10 +335,10 @@ export function useEditManagedFileMutation(
 						response.data.data
 				),
 		{
-			async onSuccess() {
+			async onSuccess(data) {
 				queryClient.invalidateQueries([tags.MANAGED_FILES]);
 
-				if (options?.onSuccess) options.onSuccess();
+				if (options?.onSuccess) options.onSuccess(data);
 			},
 			async onError(err) {
 				if (options?.onError) {
