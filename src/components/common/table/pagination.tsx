@@ -8,7 +8,6 @@ import {
 } from 'react-icons/fa';
 
 import { Button, PageButton } from './components';
-// import { usePagination } from "../../../hooks";
 
 export type PaginationProps = PaginationType & {
 	disabled?: boolean;
