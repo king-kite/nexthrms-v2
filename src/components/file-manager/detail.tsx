@@ -67,7 +67,7 @@ function Detail(file: ManagedFileType) {
 				infos={[
 					{
 						component: () =>
-							edit ? (
+							edit && canEdit ? (
 								<form
 									className="flex items-start justify-between"
 									onSubmit={(e) => {
@@ -94,12 +94,14 @@ function Detail(file: ManagedFileType) {
 									<span className="text-sm text-gray-700 sm:mt-0 md:text-base">
 										{file.name}
 									</span>
-									<div
-										onClick={() => setEdit((prevState) => !prevState)}
-										className="cursor-pointer duration-500 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
-									>
-										<FaPen className="text-xs sm:text-sm" />
-									</div>
+									{canEdit && (
+										<div
+											onClick={() => setEdit((prevState) => !prevState)}
+											className="cursor-pointer duration-500 p-2 rounded-full text-primary-500 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
+										>
+											<FaPen className="text-xs sm:text-sm" />
+										</div>
+									)}
 								</div>
 							),
 						title: 'Name',
