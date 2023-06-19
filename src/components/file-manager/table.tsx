@@ -37,7 +37,10 @@ const heads: TableHeadType = [
 		value: 'name',
 	},
 	{
-		style,
+		style: {
+			...style,
+			minWidth: '140px',
+		},
 		value: 'modified',
 	},
 	{

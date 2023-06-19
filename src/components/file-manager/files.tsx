@@ -7,7 +7,8 @@ import { getFileType } from './file';
 import FilterDropdownForm from './filter-date';
 import FileStorage from './file-storage';
 import FileTable from './table';
-import { MEDIA_HIDDEN_FILE_NAME } from '../../config';
+import { TablePagination } from '../common';
+import { DEFAULT_PAGINATION_SIZE, MEDIA_HIDDEN_FILE_NAME } from '../../config';
 import { ManagedFileType } from '../../types';
 
 function Files({
@@ -42,7 +43,10 @@ function Files({
 	showStorage: boolean;
 	type: string | null;
 }) {
-	const { files, title } = React.useMemo(() => {
+	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [offset, setOffset] = React.useState(0);
+
+	const { files, total, title } = React.useMemo(() => {
 		const title = !type ? 'recent' : type === 'all' ? 'all' : `${type}s`;
 
 		if (!data) return { files: [], title };
@@ -77,8 +81,13 @@ function Files({
 			});
 		}
 
-		return { files, title };
-	}, [data, type]);
+		const total = files.length;
+		if (type !== 'storage') {
+			files = files.slice(offset, limit);
+		}
+
+		return { files, title, total };
+	}, [data, type, limit, offset]);
 
 	if (showStorage) {
 		if (!data || data.length <= 0) return <FileEmpty />;
@@ -131,7 +140,19 @@ function Files({
 						/>
 					</div>
 				</div>
-				{files.length <= 0 ? <FileEmpty /> : <FileTable files={files} />}
+				<FileTable files={files} />
+				{total && total > 0 && (
+					<TablePagination
+						disabled={loading}
+						totalItems={total}
+						onChange={(pageNo: number) => {
+							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+							offset !== value && setOffset(value * limit);
+						}}
+						onSizeChange={(size) => setLimit(size)}
+						pageSize={limit}
+					/>
+				)}
 			</div>
 		</div>
 	);
