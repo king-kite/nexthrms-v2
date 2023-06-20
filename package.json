@@ -21,8 +21,8 @@
 		"schema": "./src/db/schema.prisma"
 	},
 	"engines": {
-		"node": "^16.15.0",
-		"npm": "^8.5.5"
+		"node": "^18.16.0",
+		"npm": "^9.5.1"
 	},
 	"dependencies": {
 		"@next/bundle-analyzer": "^13.3.0",
