@@ -81,13 +81,12 @@ function Files({
 			});
 		}
 
-		const total = files.length;
-		if (type !== 'storage') {
-			files = files.slice(offset, limit);
-		}
-
-		return { files, title, total };
+		return { files, title, total: files.length };
 	}, [data, type, limit, offset]);
+
+	const paginatedFiles = React.useMemo(() => {
+		return files.slice(offset, limit + offset);
+	}, [files, limit, offset]);
 
 	if (showStorage) {
 		if (!data || data.length <= 0) return <FileEmpty />;
@@ -140,7 +139,7 @@ function Files({
 						/>
 					</div>
 				</div>
-				<FileTable files={files} />
+				<FileTable files={paginatedFiles} />
 				{total && total > 0 && (
 					<TablePagination
 						disabled={loading}
@@ -149,7 +148,11 @@ function Files({
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => setLimit(size)}
+						onSizeChange={(size) => {
+							// Reset offset when limit changes
+							setOffset(0);
+							setLimit(size);
+						}}
 						pageSize={limit}
 					/>
 				)}
