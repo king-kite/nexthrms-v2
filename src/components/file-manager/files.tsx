@@ -82,7 +82,7 @@ function Files({
 		}
 
 		return { files, title, total: files.length };
-	}, [data, type, limit, offset]);
+	}, [data, type]);
 
 	const paginatedFiles = React.useMemo(() => {
 		return files.slice(offset, limit + offset);
