@@ -25,6 +25,7 @@
 		"npm": "^9.5.1"
 	},
 	"dependencies": {
+		"@heroicons/react": "^2.0.18",
 		"@prisma/client": "^4.15.0",
 		"@tanstack/react-query": "^4.2.1",
 		"@tanstack/react-query-devtools": "^4.2.3",
@@ -48,7 +49,8 @@
 		"react-dom": "18.2.0",
 		"react-icons": "^4.4.0",
 		"sharp": "^0.31.1",
-		"swagger-ui-react": "^4.15.5"
+		"swagger-ui-react": "^4.15.5",
+		"yup": "^1.2.0"
 	},
 	"devDependencies": {
 		"@next/bundle-analyzer": "^13.4.7",
