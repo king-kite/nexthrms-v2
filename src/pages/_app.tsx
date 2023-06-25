@@ -51,7 +51,9 @@ function App({
 			}
 		/>
 	) : Component.noWrapper ? (
-		<Component {...pageProps} />
+		<GlobalContextProvider>
+			<Component {...pageProps} />
+		</GlobalContextProvider>
 	) : (
 		<GlobalContextProvider>
 			<QueryClientProvider client={queryClient}>
