@@ -1,81 +1,90 @@
-import { GetStaticProps, InferGetStaticPropsType } from 'next';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { createSwaggerSpec } from 'next-swagger-doc';
-import { Button } from 'kite-react-tailwind';
 import 'swagger-ui-react/swagger-ui.css';
 
-import { HOME_PAGE_URL } from '../config';
-import { paths, schemas } from '../documentation';
-import { Title } from '../utils';
+import { permissions } from '../config';
+import { authPage } from '../middlewares';
+import { ExtendedGetServerSideProps } from '../types';
+import { hasModelPermission, Title } from '../utils';
+import { serializeUserData } from '../utils/serializers';
 
-const SwaggerUI = dynamic<any>(import('swagger-ui-react'), { ssr: false });
+const DynamicDocComponent = dynamic<any>(import('../containers/docs'), {
+	ssr: false,
+});
 
-function ApiDoc({ spec }: InferGetStaticPropsType<typeof getStaticProps>) {
+function ApiDoc() {
 	return (
 		<>
 			<Title title="KiteHRMS Swagger Documentation" />
-			<div className="container mx-auto">
-				<div className="flex justify-end px-2 py-4">
-					<div>
-						<Button
-							bg="bg-[#7eaf04] hover:bg-[#5a7d03]"
-							link={HOME_PAGE_URL}
-							padding="px-4 py-2 md:px-8 py-4"
-							renderLinkAs={({ children, link, ...props }) => (
-								<Link href={link}>
-									<a {...props}>{children}</a>
-								</Link>
-							)}
-							title="Go to Dashboard"
-							titleSize="text-base md:text-lg"
-						/>
-					</div>
-				</div>
-				<SwaggerUI spec={spec} />
-			</div>
+			<DynamicDocComponent />
 		</>
 	);
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-	const spec: Record<string, any> = createSwaggerSpec({
-		apiFolder: 'pages/api',
-		definition: {
-			openapi: '3.0.0',
-			info: {
-				description:
-					'Kite Human Resource Management System. A human resource management system built using NextJs and Typescript',
-				title: 'Kite HRMS',
-				version: '1.0',
-				contact: {
-					name: 'Emmanuel (Kite)',
-					email: 'emmanuel.kolade1@gmail.com',
-					url: 'https://github.com/king-kite',
+export const getServerSideProps: ExtendedGetServerSideProps = async ({
+	req,
+	res,
+}) => {
+	try {
+		try {
+			await authPage().run(req, res);
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development')
+				console.log('DOCS PAGE :>> ', error);
+		}
+
+		if (!req.user) {
+			return {
+				props: {
+					auth: null,
+					errorPage: {
+						statusCode: 401,
+					},
+				},
+			};
+		}
+
+		const auth = await serializeUserData(req.user);
+
+		if (!req.user.isSuperUser && !req.user.isAdmin) {
+			return {
+				props: {
+					auth,
+					errorPage: {
+						statusCode: 403,
+					},
+				},
+			};
+		}
+
+		if (
+			!req.user.isSuperUser &&
+			!hasModelPermission(req.user.allPermissions, [permissions.apidoc.VIEW])
+		) {
+			return {
+				props: {
+					auth,
+					errorPage: {
+						statusCode: 403,
+					},
+				},
+			};
+		}
+
+		return {
+			props: {
+				auth,
+			},
+		};
+	} catch (error) {
+		return {
+			props: {
+				errorPage: {
+					statusCode: 500,
+					message: (error as any)?.message,
 				},
 			},
-			paths,
-			components: {
-				schemas,
-				// securitySchemes: {
-				// 	cookieAuth: {
-				// 		type: 'apiKey',
-				// 		in: 'cookie',
-				// 		name: ACCESS_TOKEN
-				// 	}
-				// }
-			},
-			// security: [
-			// 	{ cookieAuth: [] }
-			// ]
-		},
-	});
-
-	return {
-		props: {
-			spec,
-		},
-	};
+		};
+	}
 };
 
 ApiDoc.noWrapper = true;
