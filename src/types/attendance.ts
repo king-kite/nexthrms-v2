@@ -66,8 +66,10 @@ export type AttendanceCreateErrorType = {
 	employee?: string;
 	punchIn?: string;
 	punchOut?: string;
-	hours?: string;
-	reason?: string;
+	overtime?: {
+		hours?: string;
+		reason?: string;
+	};
 };
 
 export type GetAttendanceResponseType = SuccessResponseType<{

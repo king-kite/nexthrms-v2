@@ -110,8 +110,12 @@ function AttendanceAdmin({
 			setForm((prevState) => ({
 				...prevState,
 				overtime: {
-					hours: name === 'hours' ? parseInt(value) : 0,
-					reason: name === 'reason' ? String(value) : '',
+					hours: name === 'hours' 
+						? +value 
+						: prevState.overtime?.hours || 0,
+					reason: name === 'reason' 
+						? String(value) 
+						: prevState.overtime?.reason || '',
 				},
 			}));
 		} else {

@@ -1,5 +1,5 @@
-import { parametersWithSearch as parameters } from "../../parameters"
-import responses from "../../responses";
+import { parametersWithSearch as parameters } from '../../parameters';
+import responses from '../../responses';
 
 import * as refs from '../../refs';
 import * as tags from '../../tags';
@@ -9,9 +9,9 @@ const path = {
 		parameters,
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -22,74 +22,74 @@ const path = {
 											type: 'object',
 											properties: {
 												total: {
-													type: 'number'
+													type: 'number',
 												},
 												result: {
 													type: 'array',
 													items: {
-														$ref: refs.ATTENDANCE
-													}
+														$ref: refs.ATTENDANCE,
+													},
 												},
-											}
-										}
-									}
+											},
+										},
+									},
 								},
-							]
-						}
-					}
-				}
+							],
+						},
+					},
+				},
 			},
 		},
 		summary: 'Get All Admin Attendance',
-		tags: [tags.Attendance]
+		tags: [tags.Attendance],
 	},
 	post: {
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							employee: {
 								type: 'string',
-								format: 'uuid'
+								format: 'uuid',
 							},
 							date: {
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							punchIn: {
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							punchOut: {
 								nullable: true,
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							overtime: {
 								type: 'object',
 								nullable: true,
 								properties: {
 									hours: {
-										type: 'number'
+										type: 'number',
 									},
 									reason: {
-										type: 'string'
-									}
-								}
+										type: 'string',
+									},
+								},
 							},
 						},
 						example: {
-							employee: "aace576f-ad6e-4166-ab05-9751f922e3f0",
-							date: "2022-12-10T00:00:00.224Z",
-							punchIn: "1970-01-01T07:00:00.224Z",
-							punchOut: "1970-01-01T17:00:00.224Z",
+							employee: 'aace576f-ad6e-4166-ab05-9751f922e3f0',
+							date: '2022-12-10T00:00:00.224Z',
+							punchIn: '1970-01-01T07:00:00.224Z',
+							punchOut: '1970-01-01T17:00:00.224Z',
 							overtime: {
 								hours: 10,
-								reason: "This is the reason for this leave."
-							}
+								reason: 'This is the reason for this leave.',
+							},
 						},
 					},
 				},
@@ -97,9 +97,9 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"201": {
+			'201': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -107,18 +107,18 @@ const path = {
 									type: 'object',
 									properties: {
 										data: {
-											$ref: refs.ATTENDANCE
-										}
-									}
-								}
-							]
-						}
-					}
-				}
+											$ref: refs.ATTENDANCE,
+										},
+									},
+								},
+							],
+						},
+					},
+				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -130,41 +130,47 @@ const path = {
 											properties: {
 												date: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												employee: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												punchIn: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												punchOut: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
-												hours: {
+												overtime: {
+													type: 'object',
 													nullable: true,
-													type: 'string'
+													properties: {
+														hours: {
+															nullable: true,
+															type: 'string',
+														},
+														reason: {
+															nullable: true,
+															type: 'string',
+														},
+													},
 												},
-												reason: {
-													nullable: true,
-													type: 'string'
-												},
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				}
-			}
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
 		},
 		summary: 'Admin Create Attendance',
-		tags: [tags.Attendance]
-	}
-}
+		tags: [tags.Attendance],
+	},
+};
 
 export default path;

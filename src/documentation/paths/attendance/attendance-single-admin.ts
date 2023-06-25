@@ -1,6 +1,6 @@
-import responses from "../../responses";
-import * as refs from "../../refs";
-import * as tags from "../../tags";
+import responses from '../../responses';
+import * as refs from '../../refs';
+import * as tags from '../../tags';
 
 const path = {
 	get: {
@@ -11,15 +11,15 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -28,26 +28,26 @@ const path = {
 									properties: {
 										data: {
 											$ref: refs.ATTENDANCE,
-										}
-									}
-								}
+										},
+									},
+								},
 							],
 						},
 					},
 				},
-				description: "Get Single Attendance Information",
+				description: 'Get Single Attendance Information',
 			},
-			"404": {
+			'404': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
-						}
-					}
-				}
-			}
+							$ref: refs.BASE,
+						},
+					},
+				},
+			},
 		},
-		summary: "Get Single Attendance",
+		summary: 'Get Single Attendance',
 		tags: [tags.Attendance],
 	},
 	put: {
@@ -58,56 +58,56 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		requestBody: {
 			required: true,
 			content: {
-				"application/json": {
+				'application/json': {
 					schema: {
-						type: "object",
+						type: 'object',
 						properties: {
 							employee: {
 								type: 'string',
-								format: 'uuid'
+								format: 'uuid',
 							},
 							date: {
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							punchIn: {
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							punchOut: {
 								nullable: true,
 								type: 'string',
-								format: 'date-time'
+								format: 'date-time',
 							},
 							overtime: {
 								type: 'object',
 								nullable: true,
 								properties: {
 									hours: {
-										type: 'number'
+										type: 'number',
 									},
 									reason: {
-										type: 'string'
-									}
-								}
+										type: 'string',
+									},
+								},
 							},
 						},
 						example: {
-							employee: "aace576f-ad6e-4166-ab05-9751f922e3f0",
-							date: "2022-12-10T00:00:00.224Z",
-							punchIn: "1970-01-01T07:00:00.224Z",
-							punchOut: "1970-01-01T17:00:00.224Z",
+							employee: 'aace576f-ad6e-4166-ab05-9751f922e3f0',
+							date: '2022-12-10T00:00:00.224Z',
+							punchIn: '1970-01-01T07:00:00.224Z',
+							punchOut: '1970-01-01T17:00:00.224Z',
 							overtime: {
 								hours: 10,
-								reason: "This is the reason for this leave."
-							}
+								reason: 'This is the reason for this leave.',
+							},
 						},
 					},
 				},
@@ -115,14 +115,14 @@ const path = {
 		},
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
 								{
-									type: "object",
+									type: 'object',
 									properties: {
 										data: {
 											$ref: refs.ATTENDANCE,
@@ -134,9 +134,9 @@ const path = {
 					},
 				},
 			},
-			"400": {
+			'400': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
 							allOf: [
 								{ $ref: refs.BASE },
@@ -148,39 +148,45 @@ const path = {
 											properties: {
 												date: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												employee: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												punchIn: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
 												punchOut: {
 													nullable: true,
-													type: 'string'
+													type: 'string',
 												},
-												hours: {
+												overtime: {
+													type: 'object',
 													nullable: true,
-													type: 'string'
+													properties: {
+														hours: {
+															nullable: true,
+															type: 'string',
+														},
+														reason: {
+															nullable: true,
+															type: 'string',
+														},
+													},
 												},
-												reason: {
-													nullable: true,
-													type: 'string'
-												},
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				}
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
 			},
 		},
-		summary: "Updated Single Attendance",
+		summary: 'Updated Single Attendance',
 		tags: [tags.Attendance],
 	},
 	delete: {
@@ -191,25 +197,25 @@ const path = {
 				required: true,
 				schema: {
 					type: 'string',
-					format: 'uuid'
-				}
-			}
+					format: 'uuid',
+				},
+			},
 		],
 		responses: {
 			...responses,
-			"200": {
+			'200': {
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: {
-							$ref: refs.BASE
-						}
-					}
-				}
-			}
+							$ref: refs.BASE,
+						},
+					},
+				},
+			},
 		},
-		summary: "Delete Single Attendance",
-		tags: [tags.Attendance]
-	}
+		summary: 'Delete Single Attendance',
+		tags: [tags.Attendance],
+	},
 };
 
 export default path;
