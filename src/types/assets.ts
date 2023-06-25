@@ -1,4 +1,4 @@
-import { SuccessResponseType } from './base';
+import { ValidatorErrorType, SuccessResponseType } from './base';
 import { AssetCreateType } from '../validators/assets';
 
 export type AssetType = {
@@ -59,22 +59,8 @@ export type AssetImportQueryType = {
 	created_at?: Date | string;
 };
 
-export type CreateAssetErrorResponseType = {
-	assetId?: string;
-	condition?: string;
-	description?: string;
-	model?: string;
-	manufacturer?: string;
-	name?: string;
-	purchaseDate?: string;
-	purchaseFrom?: string;
-	serialNo?: string;
-	status?: string;
-	supplier?: string;
-	warranty?: string;
-	value?: string;
-	userId?: string;
-};
+export type CreateAssetErrorResponseType =
+	ValidatorErrorType<AssetCreateQueryType>;
 
 export type CreateAssetResponseType = SuccessResponseType<AssetType>;
 

@@ -1,6 +1,6 @@
 import { LeaveStatus, OvertimeChoices } from '@prisma/client';
 
-import { SuccessResponseType } from './base';
+import { ValidatorErrorType, SuccessResponseType } from './base';
 import { OvertimeCreateType } from '../validators/overtime';
 
 type EmployeeType = {
@@ -63,10 +63,5 @@ export type GetAllOvertimeResponseType = SuccessResponseType<{
 
 export type CreateOvertimeQueryType = OvertimeCreateType;
 
-export type CreateOvertimeErrorResponseType = {
-	type?: string;
-	reason?: string;
-	hours?: string;
-	date?: string;
-	employee?: string;
-};
+export type CreateOvertimeErrorResponseType =
+	ValidatorErrorType<CreateOvertimeQueryType>;

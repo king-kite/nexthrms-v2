@@ -1,4 +1,4 @@
-import { SuccessResponseType } from './base';
+import { ValidatorErrorType, SuccessResponseType } from './base';
 import { AttendanceCreateType as ValidatorAttendanceCreateType } from '../validators/attendance';
 export type { AttendanceActionType } from '../validators/attendance';
 
@@ -52,24 +52,22 @@ export type AttendanceInfoType = {
 	} | null;
 };
 
-export type AttendanceCreateType = Omit<
-	ValidatorAttendanceCreateType,
-	'date' | 'punchIn' | 'punchOut'
-> & {
+interface AttendanceCreateType
+	extends Omit<ValidatorAttendanceCreateType, 'date' | 'punchIn' | 'punchOut'> {
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut?: Date | string | null;
-};
+}
 
-export type AttendanceCreateErrorType = {
-	date?: string;
-	employee?: string;
-	punchIn?: string;
-	punchOut?: string;
-	overtime?: {
-		hours?: string;
-		reason?: string;
-	};
+type CreateAttendanceErrorType = ValidatorErrorType<
+	Omit<AttendanceCreateType, 'overtime'>
+>;
+type CreateAttendanceOvertimeType = ValidatorErrorType<
+	AttendanceCreateType['overtime']
+>;
+
+export type AttendanceCreateErrorType = CreateAttendanceErrorType & {
+	overtime?: CreateAttendanceOvertimeType;
 };
 
 export type GetAttendanceResponseType = SuccessResponseType<{
