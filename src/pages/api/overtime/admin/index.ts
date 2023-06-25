@@ -12,14 +12,10 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import {
-	CreateOvertimeQueryType,
-	GetAllOvertimeResponseType,
-	OvertimeType,
-} from '../../../../types';
+import { GetAllOvertimeResponseType, OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { overtimeCreateSchema } from '../../../../validators';
+import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default admin()
 	.get(async (req, res) => {
@@ -54,10 +50,12 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateOvertimeQueryType =
-			await overtimeCreateSchema.validateAsync({
+		const data = await overtimeCreateSchema.validate(
+			{
 				...req.body,
-			});
+			},
+			{ abortEarly: false }
+		);
 
 		if (!data.employee) {
 			return res.status(400).json({

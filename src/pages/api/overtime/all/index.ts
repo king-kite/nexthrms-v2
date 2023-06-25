@@ -11,10 +11,11 @@ import {
 	updateObjectPermissions,
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { CreateOvertimeQueryType, OvertimeType } from '../../../../types';
+import { OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { overtimeCreateSchema, validateParams } from '../../../../validators';
+import { validateParams } from '../../../../validators';
+import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default employee()
 	.get(async (req, res) => {
@@ -55,10 +56,12 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateOvertimeQueryType =
-			await overtimeCreateSchema.validateAsync({
+		const data = await overtimeCreateSchema.validate(
+			{
 				...req.body,
-			});
+			},
+			{ abortEarly: false }
+		);
 
 		// TODO: Check if the user has an approved/pending overtime
 

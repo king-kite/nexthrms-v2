@@ -7,13 +7,13 @@ import {
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import { CreateOvertimeQueryType, OvertimeType } from '../../../../types';
+import { OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import {
 	overtimeApprovalSchema,
 	overtimeCreateSchema,
-} from '../../../../validators';
+} from '../../../../validators/overtime';
 
 export default admin()
 	.get(async (req, res) => {
@@ -74,11 +74,10 @@ export default admin()
 				message: 'Overtime record with specified ID was not found!',
 			});
 
-		const {
-			approval,
-		}: {
-			approval: 'APPROVED' | 'DENIED';
-		} = await overtimeApprovalSchema.validateAsync({ ...req.body });
+		const { approval } = await overtimeApprovalSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const date =
 			typeof overtime.date === 'string'
@@ -168,10 +167,12 @@ export default admin()
 			(currentDate.getTime() <= date.getTime() &&
 				overtime.status !== 'APPROVED')
 		) {
-			const { employee, ...data }: CreateOvertimeQueryType =
-				await overtimeCreateSchema.validateAsync({
+			const { employee, ...data } = await overtimeCreateSchema.validate(
+				{
 					...req.body,
-				});
+				},
+				{ abortEarly: false }
+			);
 
 			if (!employee) {
 				return res.status(400).json({

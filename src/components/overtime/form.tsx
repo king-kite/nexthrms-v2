@@ -9,7 +9,8 @@ import {
 	OvertimeType,
 } from '../../types';
 import { getDate, toCapitalize } from '../../utils';
-import { overtimeCreateSchema, handleJoiErrors } from '../../validators';
+import { handleYupErrors } from '../../validators';
+import { overtimeCreateSchema } from '../../validators/overtime';
 
 type FormProps = {
 	adminView?: boolean;
@@ -64,11 +65,10 @@ const Form = ({
 		async (form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
 			try {
-				const valid: CreateOvertimeQueryType =
-					await overtimeCreateSchema.validateAsync(form);
+				const valid = await overtimeCreateSchema.validate(form);
 				onSubmit(valid);
 			} catch (error) {
-				const err = handleJoiErrors<CreateOvertimeErrorResponseType>(error);
+				const err = handleYupErrors<CreateOvertimeErrorResponseType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,

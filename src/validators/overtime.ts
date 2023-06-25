@@ -1,19 +1,23 @@
-import Joi from 'joi';
+import { InferType, ISchema, date, number, object, string } from 'yup';
 
-export const overtimeCreateSchema = Joi.object({
-	employee: Joi.string().uuid().optional().allow('').label('Employee ID'),
-	reason: Joi.string().required().label('Reason'),
-	date: Joi.date().required().label('Date'),
-	hours: Joi.number().required().label('Hours'),
-	type: Joi.string()
+export const overtimeCreateSchema = object({
+	employee: string()
+		.uuid('Employee ID is not valid.')
+		.nullable()
+		.optional()
+		.label('Employee ID'),
+	reason: string().trim().required().label('Reason'),
+	date: date().required().label('Date'),
+	hours: number().min(0).required().label('Hours'),
+	type: string()
+		.oneOf(['COMPULSORY', 'HOLIDAY', 'VOLUNTARY'])
 		.required()
-		.valid('COMPULSORY', 'HOLIDAY', 'VOLUNTARY')
-		.label('Leave Type'),
+		.label('Type'),
 });
 
-export const overtimeApprovalSchema = Joi.object({
-	approval: Joi.string()
-		.required()
-		.valid('APPROVED', 'DENIED')
-		.label('Approval'),
+export const overtimeApprovalSchema = object({
+	approval: string().required().oneOf(['APPROVED', 'DENIED']).label('Approval'),
 });
+
+export type OvertimeCreateType = InferType<typeof overtimeCreateSchema>;
+export type OvertimeApprovalType = InferType<typeof overtimeApprovalSchema>;

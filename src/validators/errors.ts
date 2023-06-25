@@ -1,12 +1,39 @@
 import { Prisma } from '@prisma/client';
 import { AxiosError } from 'axios';
 import Joi from 'joi';
+import { ValidationError } from 'yup';
 import {
 	BaseResponseType,
 	ErrorResponseType,
 	RedirectResponseType,
 	SuccessResponseType,
 } from '../types';
+
+export function handleYupErrors<T = { [key: string]: string }>(
+	err: any
+): T | undefined {
+	if (err instanceof ValidationError) {
+		let errors: T | {} = {};
+		if (err.inner.length > 0) {
+			err.inner.forEach((error: ValidationError) => {
+				const { path, message } = error;
+				if (path)
+					errors = {
+						...errors,
+						[path]: message,
+					};
+			});
+			return errors as T;
+		} else {
+			errors = {
+				...errors,
+				[err.path || 'message']: err.errors[0] || err.message,
+			};
+			return errors as T;
+		}
+	}
+	return undefined;
+}
 
 export function handleAxiosErrors<T = any>(
 	error: unknown

@@ -5,9 +5,8 @@ import {
 } from '../../../../db';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { CreateOvertimeQueryType } from '../../../../types';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { overtimeCreateSchema } from '../../../../validators';
+import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default employee()
 	.get(async (req, res) => {
@@ -78,10 +77,12 @@ export default employee()
 		// As long as the overtime is the current date or greater than the current date
 		// The user can update it
 		if (oldDate.getTime() >= currentDate.getTime()) {
-			const { employee, ...data }: CreateOvertimeQueryType =
-				await overtimeCreateSchema.validateAsync({
+			const { employee, ...data } = await overtimeCreateSchema.validate(
+				{
 					...req.body,
-				});
+				},
+				{ abortEarly: false }
+			);
 
 			const date = new Date(data.date);
 			date.setHours(0, 0, 0, 0);
