@@ -9,6 +9,23 @@ import {
 	SuccessResponseType,
 } from '../types';
 
+function getYupError(path: string, value: string) {
+	const keys = path.split('.');
+	const result: { [key: string]: any } = {};
+
+	let currentObj = result;
+	keys.forEach((key, index) => {
+		currentObj[key] = {};
+
+		if (index === keys.length - 1) {
+			currentObj[key] = value;
+		}
+
+		currentObj = currentObj[key];
+	});
+	return result;
+}
+
 export function handleYupErrors<T = { [key: string]: string }>(
 	err: any
 ): T | undefined {
@@ -17,17 +34,23 @@ export function handleYupErrors<T = { [key: string]: string }>(
 		if (err.inner.length > 0) {
 			err.inner.forEach((error: ValidationError) => {
 				const { path, message } = error;
+				const parsedError = getYupError(path || 'message', message);
+
 				if (path)
 					errors = {
 						...errors,
-						[path]: message,
+						...parsedError,
 					};
 			});
 			return errors as T;
 		} else {
+			const parsedError = getYupError(
+				err.path || 'message',
+				err.errors[0] || err.message
+			);
 			errors = {
 				...errors,
-				[err.path || 'message']: err.errors[0] || err.message,
+				...parsedError,
 			};
 			return errors as T;
 		}
