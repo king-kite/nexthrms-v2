@@ -4,11 +4,8 @@ import { useCallback, useRef, useState } from 'react';
 
 import { PASSWORD_CHANGE_URL } from '../../config';
 import { axiosInstance } from '../../utils/axios';
-import {
-	handleAxiosErrors,
-	handleJoiErrors,
-	passwordChangeSchema,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { passwordChangeSchema } from '../../validators/auth';
 
 type ErrorType = {
 	message?: string;
@@ -58,7 +55,9 @@ const Form = ({ onSuccess }: { onSuccess: () => void }) => {
 		}) => {
 			try {
 				setErrors(undefined);
-				const valid = await passwordChangeSchema.validateAsync(data);
+				const valid = await passwordChangeSchema.validate(data, {
+					abortEarly: false,
+				});
 				if (valid.newPassword1 !== valid.newPassword2) {
 					setErrors((prevState) => ({
 						...prevState,
@@ -66,7 +65,7 @@ const Form = ({ onSuccess }: { onSuccess: () => void }) => {
 					}));
 				} else changePassword(valid);
 			} catch (err) {
-				const error = handleJoiErrors<ErrorType>(err);
+				const error = handleYupErrors<ErrorType>(err);
 				setErrors((prevState) => {
 					if (error)
 						return {

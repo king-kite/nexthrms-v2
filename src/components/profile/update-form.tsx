@@ -14,11 +14,8 @@ import {
 } from '../../types';
 import { getStringedDate } from '../../utils';
 import { axiosInstance } from '../../utils/axios';
-import {
-	handleAxiosErrors,
-	handleJoiErrors,
-	profileUpdateSchema,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { profileUpdateSchema } from '../../validators/auth';
 
 interface ErrorType extends ProfileUpdateErrorResponseType {
 	message?: string;
@@ -101,16 +98,19 @@ const Form = ({
 		async (form: ProfileUpdateType) => {
 			try {
 				setErrors(undefined);
-				const valid = await profileUpdateSchema.validateAsync(form);
+				const valid = await profileUpdateSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (valid) {
 					const form = new FormData();
-					valid.profile.image && form.append('image', valid.profile.image);
+					valid.profile.image &&
+						form.append('image', valid.profile.image as string);
 					const formJsonData = JSON.stringify(valid);
 					form.append('form', formJsonData);
 					updateProfile(form);
 				}
 			} catch (err) {
-				const error = handleJoiErrors<ProfileUpdateErrorResponseType>(err);
+				const error = handleYupErrors<ProfileUpdateErrorResponseType>(err);
 				setErrors((prevState) => {
 					if (error)
 						return {
@@ -169,7 +169,7 @@ const Form = ({
 					<div className="w-full md:w-1/2 lg:w-1/3">
 						<File
 							disabled={loading}
-							error={formErrors?.image}
+							error={formErrors?.profile?.image}
 							label="Image"
 							name="image"
 							onChange={({ target: { files } }) => {
@@ -222,7 +222,7 @@ const Form = ({
 					<Select
 						defaultValue={profile.profile?.gender}
 						disabled={loading}
-						error={formErrors?.gender}
+						error={formErrors?.profile?.gender}
 						label="Gender"
 						name="gender"
 						onChange={() => removeError('gender')}
@@ -236,7 +236,7 @@ const Form = ({
 					<Input
 						defaultValue={profile.profile?.phone || undefined}
 						disabled={loading}
-						error={formErrors?.phone}
+						error={formErrors?.profile?.phone}
 						label="Phone Number"
 						name="phone"
 						onChange={() => removeError('phone')}
@@ -248,7 +248,7 @@ const Form = ({
 					<Input
 						defaultValue={profile.profile?.state || undefined}
 						disabled={loading}
-						error={formErrors?.state}
+						error={formErrors?.profile?.state}
 						label="State"
 						name="state"
 						onChange={() => removeError('state')}
@@ -259,7 +259,7 @@ const Form = ({
 					<Input
 						defaultValue={profile.profile?.city || undefined}
 						disabled={loading}
-						error={formErrors?.city}
+						error={formErrors?.profile?.city}
 						label="City"
 						name="city"
 						onChange={() => removeError('city')}
@@ -274,7 +274,7 @@ const Form = ({
 								: undefined
 						}
 						disabled={loading}
-						error={formErrors?.dob}
+						error={formErrors?.profile?.dob}
 						label="Date Of Birth"
 						name="dob"
 						onChange={() => removeError('dob')}
@@ -286,7 +286,7 @@ const Form = ({
 					<Textarea
 						defaultValue={profile.profile?.address || undefined}
 						disabled={loading}
-						error={formErrors?.address}
+						error={formErrors?.profile?.address}
 						label="Address"
 						name="address"
 						onChange={() => removeError('address')}

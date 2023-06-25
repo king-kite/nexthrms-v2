@@ -44,5 +44,13 @@ export type PaginatedResponseType<DataType = unknown> = SuccessResponseType<{
 }>;
 
 export type ValidatorErrorType<T> = {
-	[K in keyof T]?: T[K] extends object ? ValidatorErrorType<T[K]> : string;
+	[K in keyof T]?: T[K] extends Date | number
+		? string
+		: T[K] extends object
+		? ValidatorErrorType<T[K]>
+		: string;
 };
+
+// export type ValidatorErrorType<T> = {
+// 	[K in keyof T]?: T[K] extends object ? ValidatorErrorType<T[K]> : string;
+// };
