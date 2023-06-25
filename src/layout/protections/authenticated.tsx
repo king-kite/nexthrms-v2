@@ -1,7 +1,21 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import LoginPage from '../../containers/account/login';
 import { useAuthContext } from '../../store/contexts';
+
+const DynamicLoginPage = dynamic<any>(
+	() => import('../../containers/account/login'),
+	{
+		loading: () => (
+			<div className="flex items-center justify-center min-h-[100vh] w-full">
+				<p className="text-gray-500 text-center text-sm md:text-base">
+					Loading Authentication Page...
+				</p>
+			</div>
+		),
+		ssr: false,
+	}
+);
 
 const Authenticated = ({ children }: { children: React.ReactNode }) => {
 	const { auth: isAuthenticated, loading: isLoading } = useAuthContext();
@@ -9,7 +23,7 @@ const Authenticated = ({ children }: { children: React.ReactNode }) => {
 	return isLoading === false && isAuthenticated ? (
 		<React.Fragment>{children}</React.Fragment>
 	) : isLoading === false && isAuthenticated === false ? (
-		<LoginPage />
+		<DynamicLoginPage />
 	) : (
 		<></>
 	);
