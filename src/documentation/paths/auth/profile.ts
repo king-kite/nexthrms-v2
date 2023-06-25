@@ -160,33 +160,39 @@ const path = {
 													type: 'string',
 													nullable: true,
 												},
-												phone: {
-													type: 'string',
+												profile: {
+													type: 'object',
 													nullable: true,
-												},
-												image: {
-													type: 'string',
-													nullable: true,
-												},
-												gender: {
-													type: 'string',
-													nullable: true,
-												},
-												address: {
-													type: 'string',
-													nullable: true,
-												},
-												state: {
-													type: 'string',
-													nullable: true,
-												},
-												city: {
-													type: 'string',
-													nullable: true,
-												},
-												dob: {
-													type: 'string',
-													nullable: true,
+													properties: {
+														phone: {
+															type: 'string',
+															nullable: true,
+														},
+														image: {
+															type: 'string',
+															nullable: true,
+														},
+														gender: {
+															type: 'string',
+															nullable: true,
+														},
+														address: {
+															type: 'string',
+															nullable: true,
+														},
+														state: {
+															type: 'string',
+															nullable: true,
+														},
+														city: {
+															type: 'string',
+															nullable: true,
+														},
+														dob: {
+															type: 'string',
+															nullable: true,
+														},
+													},
 												},
 											},
 										},
