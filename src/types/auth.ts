@@ -3,8 +3,15 @@ import {
 	PermissionObjectChoices,
 } from '@prisma/client';
 
-import { BaseResponseType, SuccessResponseType } from './base';
+import {
+	BaseResponseType,
+	ValidatorErrorType,
+	SuccessResponseType,
+} from './base';
 import { PermissionType } from './users';
+import type { ProfileUpdateType as ValidatorProfileUpdateType } from '../validators/auth';
+
+export type { PasswordResetType } from '../validators/auth';
 
 export interface AuthDataType extends UserDataType {
 	fullName: string;
@@ -103,32 +110,15 @@ export type ProfileType = {
 	} | null;
 };
 
-export type ProfileUpdateType = {
-	firstName: string;
-	lastName: string;
-	email: string;
-	profile: {
-		phone: string;
-		image: string;
-		gender: 'MALE' | 'FEMALE';
-		address: string;
-		state: string;
-		city: string;
-		dob: string;
-	};
-};
+export type ProfileUpdateType = ValidatorProfileUpdateType;
+
+type ProfileErrorType = ValidatorErrorType<ProfileUpdateType['profile']>;
 
 export type ProfileUpdateErrorResponseType = {
 	firstName?: string;
 	lastName?: string;
 	email?: string;
-	phone?: string;
-	image?: string;
-	gender?: string;
-	address?: string;
-	state?: string;
-	city?: string;
-	dob?: string;
+	profile?: ProfileErrorType;
 };
 
 export type UserDataType = {

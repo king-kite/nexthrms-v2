@@ -7,7 +7,7 @@ import {
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../../../../config';
 import { prisma } from '../../../../../db';
-import { verifyUidTokenSchema } from '../../../../../validators';
+import { verifyUidTokenSchema } from '../../../../../validators/auth';
 
 function Page() {
 	return <SplashScreen />;
@@ -23,10 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		const { uid, token } = params as IParams;
 
 		// validate the request params
-		const valid: {
-			uid: string;
-			token: string;
-		} = await verifyUidTokenSchema.validateAsync({ uid, token });
+		const valid = await verifyUidTokenSchema.validate({ uid, token });
 
 		// Get the token provided in the request body
 		const savedToken = await prisma.token.findUnique({

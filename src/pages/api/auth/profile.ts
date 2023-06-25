@@ -6,10 +6,10 @@ import {
 } from '../../../db';
 import { updateObjectPermissions } from '../../../db/utils';
 import { auth } from '../../../middlewares';
-import { ProfileUpdateType, ProfileType } from '../../../types';
+import { ProfileType } from '../../../types';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { profileUpdateSchema } from '../../../validators';
+import { profileUpdateSchema } from '../../../validators/auth';
 
 export const config = {
 	api: {
@@ -46,9 +46,9 @@ export default auth()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid: ProfileUpdateType = await profileUpdateSchema.validateAsync(
-			form
-		);
+		const valid = await profileUpdateSchema.validate(form, {
+			abortEarly: false,
+		});
 
 		const data: any = {
 			...valid,

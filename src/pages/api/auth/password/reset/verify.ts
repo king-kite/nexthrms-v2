@@ -2,11 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { prisma } from '../../../../../db';
 import { BaseResponseType } from '../../../../../types';
-import {
-	handleJoiErrors,
-	handlePrismaErrors,
-	verifyUidTokenSchema,
-} from '../../../../../validators';
+import { handleYupErrors, handlePrismaErrors } from '../../../../../validators';
+import { verifyUidTokenSchema } from '../../../../../validators/auth';
 
 async function handler(
 	req: NextApiRequest,
@@ -30,10 +27,7 @@ async function handler(
 
 	try {
 		// validate the request body
-		const valid: {
-			uid: string;
-			token: string;
-		} = await verifyUidTokenSchema.validateAsync({ ...req.body });
+		const valid = await verifyUidTokenSchema.validate({ ...req.body });
 
 		// Get the token provided in the request body
 		const savedToken = await prisma.token.findUnique({
@@ -71,7 +65,7 @@ async function handler(
 			message: 'Token is valid',
 		});
 	} catch (err) {
-		const joiError = handleJoiErrors<{
+		const joiError = handleYupErrors<{
 			uid?: string;
 			token?: string;
 		}>(err);

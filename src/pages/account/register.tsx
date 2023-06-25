@@ -5,11 +5,8 @@ import React from 'react';
 import { REQUEST_EMAIL_VERIFY_PAGE_URL, REGISTER_URL } from '../../config';
 import Register from '../../containers/account/register';
 import { axiosInstance, Title } from '../../utils';
-import {
-	registerSchema,
-	handleJoiErrors,
-	handleAxiosErrors,
-} from '../../validators';
+import { handleYupErrors, handleAxiosErrors } from '../../validators';
+import { registerSchema } from '../../validators/auth';
 
 const Page = () => {
 	const [errors, setErrors] = React.useState<{
@@ -51,10 +48,10 @@ const Page = () => {
 		async (form: { email: string; password: string }) => {
 			try {
 				setErrors(undefined);
-				const valid = await registerSchema.validateAsync(form);
+				const valid = await registerSchema.validate(form);
 				signUp(valid);
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					email?: string;
 					password?: string;
 				}>(error);

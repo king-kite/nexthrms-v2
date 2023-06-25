@@ -52,12 +52,14 @@ export type AttendanceInfoType = {
 	} | null;
 };
 
-interface AttendanceCreateType
-	extends Omit<ValidatorAttendanceCreateType, 'date' | 'punchIn' | 'punchOut'> {
+export type AttendanceCreateType = Omit<
+	ValidatorAttendanceCreateType,
+	'date' | 'punchIn' | 'punchOut'
+> & {
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut?: Date | string | null;
-}
+};
 
 type CreateAttendanceErrorType = ValidatorErrorType<
 	Omit<AttendanceCreateType, 'overtime'>

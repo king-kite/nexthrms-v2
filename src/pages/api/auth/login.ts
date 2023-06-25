@@ -12,11 +12,8 @@ import { AuthDataType, BaseResponseType } from '../../../types';
 import { comparePassword } from '../../../utils/bcrypt';
 import { serializeUserData } from '../../../utils/serializers';
 import { createJWT, setTokens } from '../../../utils/tokens';
-import {
-	handleJoiErrors,
-	handlePrismaErrors,
-	loginSchema,
-} from '../../../validators';
+import { handleYupErrors, handlePrismaErrors } from '../../../validators';
+import { loginSchema } from '../../../validators/auth';
 
 async function handler(
 	req: NextApiRequest,
@@ -39,7 +36,7 @@ async function handler(
 		});
 	}
 	try {
-		const valid = await loginSchema.validateAsync(
+		const valid = await loginSchema.validate(
 			{ ...req.body },
 			{
 				abortEarly: false,
@@ -129,7 +126,7 @@ async function handler(
 			},
 		});
 	} catch (err) {
-		const joiError = handleJoiErrors<{
+		const joiError = handleYupErrors<{
 			email?: string;
 			password?: string;
 		}>(err);

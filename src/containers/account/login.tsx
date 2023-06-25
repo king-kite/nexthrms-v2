@@ -7,11 +7,8 @@ import { Login as LoginComponent } from '../../components/account';
 import { useAuthContext } from '../../store/contexts';
 import { AuthDataType, SuccessResponseType } from '../../types';
 import { axiosInstance } from '../../utils';
-import {
-	loginSchema,
-	handleJoiErrors,
-	handleAxiosErrors,
-} from '../../validators';
+import { handleYupErrors, handleAxiosErrors } from '../../validators';
+import { loginSchema } from '../../validators/auth';
 
 const Login = () => {
 	const [errors, setErrors] = React.useState<{
@@ -62,10 +59,10 @@ const Login = () => {
 		async (form: { email: string; password: string }) => {
 			try {
 				setErrors(undefined);
-				const valid = await loginSchema.validateAsync(form);
+				const valid = await loginSchema.validate(form, { abortEarly: false });
 				signIn(valid);
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					email?: string;
 					password?: string;
 				}>(error);

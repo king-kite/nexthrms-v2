@@ -11,13 +11,16 @@ import {
 } from '../../../../../../config';
 import PasswordConfirm from '../../../../../../containers/account/password/confirm';
 import { prisma } from '../../../../../../db';
+import { PasswordResetType } from '../../../../../../types';
 import { axiosInstance, Title } from '../../../../../../utils';
 import {
 	handleAxiosErrors,
-	handleJoiErrors,
+	handleYupErrors,
+} from '../../../../../../validators';
+import {
 	passwordResetSchema,
 	verifyUidTokenSchema,
-} from '../../../../../../validators';
+} from '../../../../../../validators/auth';
 
 const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 	const [errors, setErrors] = React.useState<{
@@ -26,7 +29,7 @@ const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 	}>();
 
 	const { mutate: resetEmail, isLoading: loading } = useMutation(
-		(form: { email: string }) =>
+		(form: PasswordResetType) =>
 			axiosInstance.post(PASSWORD_RESET_CONFIRM_URL, form, {
 				headers: {
 					Accept: 'application/json',
@@ -59,7 +62,7 @@ const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 		async (form: { password1: string; password2: string }) => {
 			try {
 				setErrors(undefined);
-				const valid = await passwordResetSchema.validateAsync({
+				const valid = await passwordResetSchema.validate({
 					...form,
 					uid,
 					token,
@@ -74,7 +77,7 @@ const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 					resetEmail(valid);
 				}
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					password1?: string;
 					password2?: string;
 				}>(error);
@@ -124,10 +127,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		const { uid, token } = params as IParams;
 
 		// validate the request params
-		const valid: {
-			uid: string;
-			token: string;
-		} = await verifyUidTokenSchema.validateAsync({ uid, token });
+		const valid = await verifyUidTokenSchema.validate({ uid, token });
 
 		// Get the token provided in the request body
 		const savedToken = await prisma.token.findUnique({

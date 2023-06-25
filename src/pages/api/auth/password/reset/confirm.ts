@@ -3,11 +3,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../../../db';
 import { BaseResponseType } from '../../../../../types';
 import { comparePassword, hashPassword } from '../../../../../utils/bcrypt';
-import {
-	handleJoiErrors,
-	handlePrismaErrors,
-	passwordResetSchema,
-} from '../../../../../validators';
+import { handleYupErrors, handlePrismaErrors } from '../../../../../validators';
+import { passwordResetSchema } from '../../../../../validators/auth';
 
 async function handler(
 	req: NextApiRequest,
@@ -33,12 +30,7 @@ async function handler(
 
 	try {
 		// validate the request body
-		const valid: {
-			uid: string;
-			token: string;
-			password1: string;
-			password2: string;
-		} = await passwordResetSchema.validateAsync({ ...req.body });
+		const valid = await passwordResetSchema.validate({ ...req.body });
 
 		// Check if both passwords are the same
 		if (valid.password1 !== valid.password2) {
@@ -147,7 +139,7 @@ async function handler(
 			message: 'Password reset was successful.',
 		});
 	} catch (err) {
-		const joiError = handleJoiErrors<{
+		const joiError = handleYupErrors<{
 			uid?: string;
 			token?: string;
 			password1?: string;

@@ -7,11 +7,8 @@ import { createToken } from '../../../db/utils';
 import { RegisterResponseType } from '../../../types';
 import { hashPassword } from '../../../utils/bcrypt';
 import { sendMail } from '../../../utils/emails';
-import {
-	handleJoiErrors,
-	handlePrismaErrors,
-	registerSchema,
-} from '../../../validators';
+import { handleYupErrors, handlePrismaErrors } from '../../../validators';
+import { registerSchema } from '../../../validators/auth';
 
 async function handler(
 	req: NextApiRequest,
@@ -30,7 +27,7 @@ async function handler(
 			password: string;
 			firstName?: string;
 			lastName?: string;
-		} = await registerSchema.validateAsync(
+		} = await registerSchema.validate(
 			{ ...req.body },
 			{
 				abortEarly: false,
@@ -106,7 +103,7 @@ async function handler(
 			status: 'success',
 		});
 	} catch (err) {
-		const joiError = handleJoiErrors(err);
+		const joiError = handleYupErrors(err);
 		if (joiError)
 			return res.status(400).json({
 				message: 'Invalid Data',

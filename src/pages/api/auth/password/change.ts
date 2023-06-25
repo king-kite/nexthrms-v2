@@ -1,10 +1,10 @@
 import { prisma } from '../../../../db';
 import { auth } from '../../../../middlewares';
 import { hashPassword } from '../../../../utils/bcrypt';
-import { passwordChangeSchema } from '../../../../validators';
+import { passwordChangeSchema } from '../../../../validators/auth';
 
 export default auth().post(async (req, res) => {
-	const valid = await passwordChangeSchema.validateAsync(
+	const valid = await passwordChangeSchema.validate(
 		{ ...req.body },
 		{ abortEarly: false }
 	);
