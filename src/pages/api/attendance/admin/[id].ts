@@ -8,10 +8,9 @@ import {
 } from '../../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
-import { AttendanceCreateType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { attendanceCreateSchema } from '../../../../validators';
+import { attendanceCreateSchema } from '../../../../validators/attendance';
 
 export default admin()
 	.get(async (req, res) => {
@@ -59,8 +58,10 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: AttendanceCreateType =
-			await attendanceCreateSchema.validateAsync({ ...req.body });
+		const data = await attendanceCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const date = new Date(data.date);
 		date.setHours(0, 0, 0, 0);

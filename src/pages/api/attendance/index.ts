@@ -15,7 +15,7 @@ import { employee } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { attendanceActionSchema } from '../../../validators';
+import { attendanceActionSchema } from '../../../validators/attendance';
 
 export default employee()
 	.get(async (req, res) => {
@@ -54,8 +54,7 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const { action }: { action: 'IN' | 'OUT' } =
-			await attendanceActionSchema.validateAsync({ ...req.body });
+		const { action } = await attendanceActionSchema.validate({ ...req.body });
 
 		const date = new Date();
 		date.setHours(0, 0, 0, 0);

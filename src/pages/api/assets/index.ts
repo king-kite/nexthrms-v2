@@ -6,10 +6,10 @@ import {
 } from '../../../db';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { AssetCreateQueryType, AssetType } from '../../../types';
+import { AssetType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createAssetSchema } from '../../../validators';
+import { createAssetSchema } from '../../../validators/assets';
 
 export default admin()
 	.get(async (req, res) => {
@@ -41,7 +41,7 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const valid: AssetCreateQueryType = await createAssetSchema.validateAsync(
+		const valid = await createAssetSchema.validate(
 			{ ...req.body },
 			{
 				abortEarly: false,
