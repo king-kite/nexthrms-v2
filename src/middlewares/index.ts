@@ -8,7 +8,7 @@ import {
 	NextApiRequestExtendEmployee,
 } from '../types';
 import { NextApiErrorMessage } from '../utils/classes';
-import { handleJoiErrors, handlePrismaErrors } from '../validators';
+import { handleJoiErrors, handleYupErrors, handlePrismaErrors } from '../validators';
 
 export function auth() {
 	return nextConnect<NextApiRequestExtendUser, NextApiResponse>({
@@ -30,6 +30,13 @@ export function auth() {
 					status: 'error',
 					message: 'Invalid Data!',
 					error: joiError,
+				});
+			const yupError = handleYupErrors(err);
+			if (yupError) 
+				return res.status(400).json({
+					status: 'error',
+					message: 'Invalid Data!',
+					error: yupError,
 				});
 			const error = handlePrismaErrors(err);
 			return res.status(error.code || 500).json(error);

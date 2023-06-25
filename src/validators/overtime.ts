@@ -1,4 +1,4 @@
-import { InferType, ISchema, date, number, object, string } from 'yup';
+import { InferType, date, number, object, string } from 'yup';
 
 export const overtimeCreateSchema = object({
 	employee: string()
