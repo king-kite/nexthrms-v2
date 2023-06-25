@@ -8,11 +8,9 @@ import {
 	useGetEmployeesQuery,
 } from '../../store/queries';
 import { AttendanceCreateType, AttendanceCreateErrorType } from '../../types';
-import {
-	attendanceCreateSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { getDate } from '../../utils';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { attendanceCreateSchema } from '../../validators/attendance';
 
 type FormProps = {
 	form: AttendanceCreateType;
@@ -94,15 +92,16 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		async (form: AttendanceCreateType) => {
 			try {
 				setError(undefined);
-				const data: AttendanceCreateType =
-					await attendanceCreateSchema.validateAsync(form);
+				const data = await attendanceCreateSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (editId) {
 					editAttendance({ id: editId, data });
 				} else {
 					createAttendance(data);
 				}
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					name?: string;
 					hod?: string;
 				}>(error);
@@ -120,8 +119,16 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 				setError(undefined);
 
 				const punchIn = new Date(1970, 0, 1);
-				punchIn.setHours(parseInt(form.punchIn.split(':')[0]));
-				punchIn.setMinutes(parseInt(form.punchIn.split(':')[1]));
+				punchIn.setHours(
+					typeof form.punchIn === 'string'
+						? parseInt(form.punchIn.split(':')[0])
+						: form.punchIn.getHours()
+				);
+				punchIn.setMinutes(
+					typeof form.punchIn === 'string'
+						? parseInt(form.punchIn.split(':')[1])
+						: form.punchIn.getMinutes()
+				);
 				punchIn.setSeconds(0);
 
 				const data: AttendanceCreateType = {
@@ -131,8 +138,16 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 				};
 				if (form.punchOut) {
 					const punchOut = new Date(1970, 0, 1);
-					punchOut.setHours(parseInt(form.punchOut.split(':')[0]));
-					punchOut.setMinutes(parseInt(form.punchOut.split(':')[1]));
+					punchOut.setHours(
+						typeof form.punchOut === 'string'
+							? parseInt(form.punchOut.split(':')[0])
+							: form.punchOut.getHours()
+					);
+					punchOut.setMinutes(
+						typeof form.punchOut === 'string'
+							? parseInt(form.punchOut.split(':')[1])
+							: form.punchOut.getMinutes()
+					);
 					punchOut.setSeconds(0);
 					data.punchOut = punchOut.toString();
 				}
@@ -227,7 +242,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						rounded="rounded-md"
 						textSize="text-sm md:text-base"
 						type="date"
-						value={form.date}
+						value={getDate(form.date, true) as string}
 					/>
 				</div>
 				<div className="flex flex-col items-start justify-end w-full">
@@ -251,7 +266,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						rounded="rounded-md"
 						textSize="text-sm md:text-base"
 						type="time"
-						value={form.punchIn}
+						value={typeof form.punchIn !== 'object' ? form.punchIn : ''}
 					/>
 				</div>
 				<div className="flex flex-col items-start justify-end w-full">
@@ -276,7 +291,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						rounded="rounded-md"
 						textSize="text-sm md:text-base"
 						type="time"
-						value={form.punchOut}
+						value={typeof form.punchOut !== 'object' ? form.punchOut : ''}
 					/>
 				</div>
 				<div className="flex flex-col items-start justify-end w-full md:col-span-2">

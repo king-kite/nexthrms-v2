@@ -8,12 +8,9 @@ import {
 	AssetCreateQueryType,
 	CreateAssetErrorResponseType,
 } from '../../types';
-import { toCapitalize } from '../../utils';
-import {
-	createAssetSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { getDate, toCapitalize } from '../../utils';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createAssetSchema } from '../../validators/assets';
 
 type ErrorType = CreateAssetErrorResponseType & {
 	message?: string;
@@ -57,11 +54,13 @@ const Form = ({
 	const handleSubmit = React.useCallback(
 		async (input: AssetCreateQueryType) => {
 			try {
-				const valid: AssetCreateQueryType =
-					await createAssetSchema.validateAsync({ ...input });
+				const valid = await createAssetSchema.validate(
+					{ ...input },
+					{ abortEarly: false }
+				);
 				onSubmit(valid);
 			} catch (err) {
-				const error = handleJoiErrors<CreateAssetErrorResponseType>(err);
+				const error = handleYupErrors<CreateAssetErrorResponseType>(err);
 				setErrors((prevState) => {
 					if (error)
 						return {
@@ -131,7 +130,7 @@ const Form = ({
 						onChange={onChange}
 						placeholder="Purchase Date"
 						type="date"
-						value={form?.purchaseDate}
+						value={getDate(form?.purchaseDate, true) as string}
 					/>
 				</div>
 				<div className="w-full">
@@ -165,7 +164,7 @@ const Form = ({
 						onChange={onChange}
 						placeholder="Model"
 						required={false}
-						value={form?.model}
+						value={form?.model || ''}
 					/>
 				</div>
 				<div className="w-full">
@@ -276,7 +275,7 @@ const Form = ({
 						onChange={onChange}
 						placeholder="Description"
 						required={false}
-						value={form?.description}
+						value={form?.description || ''}
 					/>
 				</div>
 				<div className="w-full">

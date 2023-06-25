@@ -1,4 +1,5 @@
 import { SuccessResponseType } from './base';
+import { AssetCreateType } from '../validators/assets';
 
 export type AssetType = {
 	id: string;
@@ -34,21 +35,8 @@ export type AssetType = {
 	createdAt: Date | string;
 };
 
-export type AssetCreateQueryType = {
-	assetId: string;
-	condition: 'BAD' | 'GOOD' | 'EXCELLENT';
-	description?: string;
-	model?: string;
-	manufacturer: string;
-	name: string;
-	purchaseDate: string;
-	purchaseFrom: string;
-	serialNo: string;
-	status: 'APPROVED' | 'DENIED' | 'PENDING' | 'RETURNED';
-	supplier: string;
-	warranty: number;
-	value: number;
-	userId: string;
+export type AssetCreateQueryType = Omit<AssetCreateType, 'purchaseDate'> & {
+	purchaseDate: Date | string;
 };
 
 export type AssetImportQueryType = {

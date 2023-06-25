@@ -1,19 +1,22 @@
-import Joi from 'joi';
+import { InferType, date, number, object, string } from 'yup';
 
-export const attendanceActionSchema = Joi.object({
-	action: Joi.string().valid('IN', 'OUT').required().label('Action'),
+export const attendanceActionSchema = object({
+	action: string().oneOf(['IN', 'OUT']).required().label('Action'),
 });
 
-export const attendanceCreateSchema = Joi.object({
-	employee: Joi.string().uuid().required().label('Employee ID'),
-	date: Joi.date().required().label('Date'),
-	punchIn: Joi.date().required().label('Punch In'),
-	punchOut: Joi.date().optional().allow('').label('Punch Out'),
-	overtime: Joi.object({
-		hours: Joi.number().required().label('Overtime Hours'),
-		reason: Joi.string().required().label('Overtime Reason'),
+export const attendanceCreateSchema = object({
+	employee: string().uuid().required().label('Employee ID'),
+	date: date().required().label('Date'),
+	punchIn: date().required().label('Punch In'),
+	punchOut: date().nullable().optional().label('Punch Out'),
+	overtime: object({
+		hours: number().required().label('Overtime Hours'),
+		reason: string().required().label('Overtime Reason'),
 	})
+		.nullable()
 		.optional()
-		.allow('')
 		.label('Overtime'),
 });
+
+export type AttendanceCreateType = InferType<typeof attendanceCreateSchema>;
+export type AttendanceActionType = InferType<typeof attendanceActionSchema>;

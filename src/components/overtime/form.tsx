@@ -65,7 +65,9 @@ const Form = ({
 		async (form: CreateOvertimeQueryType) => {
 			setErrors(undefined);
 			try {
-				const valid = await overtimeCreateSchema.validate(form);
+				const valid = await overtimeCreateSchema.validate(form, {
+					abortEarly: false,
+				});
 				onSubmit(valid);
 			} catch (error) {
 				const err = handleYupErrors<CreateOvertimeErrorResponseType>(error);

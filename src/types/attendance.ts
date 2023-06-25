@@ -1,4 +1,6 @@
 import { SuccessResponseType } from './base';
+import { AttendanceCreateType as ValidatorAttendanceCreateType } from '../validators/attendance';
+export type { AttendanceActionType } from '../validators/attendance';
 
 export type AttendanceType = {
 	id: string;
@@ -50,15 +52,13 @@ export type AttendanceInfoType = {
 	} | null;
 };
 
-export type AttendanceCreateType = {
-	employee: string;
-	date: string;
-	punchIn: string;
-	punchOut?: string;
-	overtime?: {
-		hours: number;
-		reason: string;
-	};
+export type AttendanceCreateType = Omit<
+	ValidatorAttendanceCreateType,
+	'date' | 'punchIn' | 'punchOut'
+> & {
+	date: Date | string;
+	punchIn: Date | string;
+	punchOut?: Date | string | null;
 };
 
 export type AttendanceCreateErrorType = {

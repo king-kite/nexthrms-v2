@@ -153,7 +153,9 @@ const Form = ({
 		async (form: CreateLeaveQueryType) => {
 			setErrors(undefined);
 			try {
-				const valid = await leaveCreateSchema.validate(form);
+				const valid = await leaveCreateSchema.validate(form, {
+					abortEarly: false,
+				});
 				onSubmit(valid);
 			} catch (error) {
 				const err = handleYupErrors<CreateLeaveErrorResponseType>(error);
