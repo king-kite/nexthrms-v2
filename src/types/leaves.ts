@@ -1,6 +1,7 @@
 import { LeaveChoices, LeaveStatus } from '@prisma/client';
 
 import { SuccessResponseType } from './base';
+import { LeaveCreateType } from '../validators/leaves';
 
 type EmployeeType = {
 	id: string;
@@ -67,19 +68,12 @@ export type GetLeavesResponseType = SuccessResponseType<{
 	result: LeaveType[];
 }>;
 
-export type CreateLeaveQueryType = {
-	employee?: string;
-	startDate: string;
-	endDate: string;
-	reason: string;
-	type:
-		| 'ANNUAL'
-		| 'CASUAL'
-		| 'HOSPITALIZATION'
-		| 'LOP'
-		| 'MATERNITY'
-		| 'PATERNITY'
-		| 'SICK';
+export type CreateLeaveQueryType = Omit<
+	LeaveCreateType,
+	'startDate' | 'endDate'
+> & {
+	startDate: Date | string;
+	endDate: Date | string;
 };
 
 export type CreateLeaveErrorResponseType = {

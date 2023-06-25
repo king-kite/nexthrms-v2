@@ -5,9 +5,8 @@ import {
 } from '../../../../db';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { CreateLeaveQueryType } from '../../../../types';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { leaveCreateSchema } from '../../../../validators';
+import { leaveCreateSchema } from '../../../../validators/leaves';
 
 export default employee()
 	.get(async (req, res) => {
@@ -86,10 +85,12 @@ export default employee()
 		// As long as the leave is still pending, the user can edit as he/she likes
 		// Also if the startDate has not yet been reached
 		if (oldStartDate.getTime() >= currentDate.getTime()) {
-			const { employee, ...data }: CreateLeaveQueryType =
-				await leaveCreateSchema.validateAsync({
+			const { employee, ...data } = await leaveCreateSchema.validate(
+				{
 					...req.body,
-				});
+				},
+				{ abortEarly: false }
+			);
 
 			const startDate = new Date(data.startDate);
 			startDate.setHours(0, 0, 0, 0);

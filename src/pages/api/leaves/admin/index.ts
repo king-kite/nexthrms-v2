@@ -12,14 +12,10 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import {
-	CreateLeaveQueryType,
-	GetLeavesResponseType,
-	LeaveType,
-} from '../../../../types';
+import { GetLeavesResponseType, LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { leaveCreateSchema } from '../../../../validators';
+import { leaveCreateSchema } from '../../../../validators/leaves';
 
 export default admin()
 	.get(async (req, res) => {
@@ -52,9 +48,12 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateLeaveQueryType = await leaveCreateSchema.validateAsync({
-			...req.body,
-		});
+		const data = await leaveCreateSchema.validate(
+			{
+				...req.body,
+			},
+			{ abortEarly: false }
+		);
 
 		if (!data.employee) {
 			return res.status(400).json({

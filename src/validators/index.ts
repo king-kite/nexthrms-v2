@@ -8,7 +8,6 @@ export * from './employees';
 export * from './errors';
 export * from './holidays';
 export * from './jobs';
-export * from './leaves';
 export * from './managed-files';
 export * from './notifications';
 export * from './pagination';

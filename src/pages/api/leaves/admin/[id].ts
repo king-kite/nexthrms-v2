@@ -7,10 +7,13 @@ import {
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import { CreateLeaveQueryType, LeaveType } from '../../../../types';
+import { LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { leaveApprovalSchema, leaveCreateSchema } from '../../../../validators';
+import {
+	leaveApprovalSchema,
+	leaveCreateSchema,
+} from '../../../../validators/leaves';
 
 export default admin()
 	.get(async (req, res) => {
@@ -70,11 +73,10 @@ export default admin()
 				message: 'Leave with specified ID was not found!',
 			});
 
-		const {
-			approval,
-		}: {
-			approval: 'APPROVED' | 'DENIED';
-		} = await leaveApprovalSchema.validateAsync({ ...req.body });
+		const { approval } = await leaveApprovalSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const startDate =
 			typeof leave.startDate === 'string'
@@ -168,10 +170,12 @@ export default admin()
 			(currentDate.getTime() <= startDate.getTime() &&
 				leave.status === 'PENDING')
 		) {
-			const { employee, ...data }: CreateLeaveQueryType =
-				await leaveCreateSchema.validateAsync({
+			const { employee, ...data } = await leaveCreateSchema.validate(
+				{
 					...req.body,
-				});
+				},
+				{ abortEarly: false }
+			);
 
 			if (!employee) {
 				return res.status(400).json({

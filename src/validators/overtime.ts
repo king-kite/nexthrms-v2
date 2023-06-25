@@ -2,7 +2,7 @@ import { InferType, date, number, object, string } from 'yup';
 
 export const overtimeCreateSchema = object({
 	employee: string()
-		.uuid('Employee ID is not valid.')
+		.uuid('Employee ID is invalid.')
 		.nullable()
 		.optional()
 		.label('Employee ID'),

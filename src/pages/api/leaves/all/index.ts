@@ -11,10 +11,11 @@ import {
 	updateObjectPermissions,
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { CreateLeaveQueryType, LeaveType } from '../../../../types';
+import { LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { leaveCreateSchema, validateParams } from '../../../../validators';
+import { validateParams } from '../../../../validators';
+import { leaveCreateSchema } from '../../../../validators/leaves';
 
 export default employee()
 	.get(async (req, res) => {
@@ -53,9 +54,12 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateLeaveQueryType = await leaveCreateSchema.validateAsync({
-			...req.body,
-		});
+		const data = await leaveCreateSchema.validate(
+			{
+				...req.body,
+			},
+			{ abortEarly: false }
+		);
 
 		const startDate = new Date(data.startDate);
 		startDate.setHours(0, 0, 0, 0);

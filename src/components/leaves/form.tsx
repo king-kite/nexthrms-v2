@@ -1,5 +1,5 @@
 import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
-import { FC, useCallback, useEffect, useState } from 'react';
+import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetEmployeesQuery } from '../../store/queries';
@@ -9,7 +9,8 @@ import {
 	LeaveType,
 } from '../../types';
 import { getDate, getNextDate, getNoOfDays, toCapitalize } from '../../utils';
-import { leaveCreateSchema, handleJoiErrors } from '../../validators';
+import { handleYupErrors } from '../../validators';
+import { leaveCreateSchema } from '../../validators/leaves';
 
 type FormProps = {
 	adminView?: boolean;
@@ -22,16 +23,16 @@ type FormProps = {
 	onSubmit: (form: CreateLeaveQueryType) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	adminView,
 	initState,
 	errors,
 	loading,
 	onSubmit,
 	success,
-}) => {
-	const [empLimit, setEmpLimit] = useState(DEFAULT_PAGINATION_SIZE);
-	const [form, setForm] = useState<
+}: FormProps) => {
+	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [form, setForm] = React.useState<
 		CreateLeaveQueryType & {
 			noOfDays: number;
 		}
@@ -60,7 +61,8 @@ const Form: FC<FormProps> = ({
 			  }
 	);
 
-	const [formErrors, setErrors] = useState<CreateLeaveErrorResponseType>();
+	const [formErrors, setErrors] =
+		React.useState<CreateLeaveErrorResponseType>();
 
 	const employees = useGetEmployeesQuery(
 		{ limit: empLimit, offset: 0, search: '' },
@@ -71,7 +73,7 @@ const Form: FC<FormProps> = ({
 
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (success)
 			setForm({
 				endDate: getNextDate(getDate(), 1, true) as string,
@@ -85,7 +87,7 @@ const Form: FC<FormProps> = ({
 			});
 	}, [success]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (getDate(form.startDate) < getDate()) {
 			setErrors((prevState) => ({
 				...prevState,
@@ -102,7 +104,7 @@ const Form: FC<FormProps> = ({
 		}
 	}, [form]);
 
-	const handleChange = useCallback(
+	const handleChange = React.useCallback(
 		(name: string, value: string) => {
 			setForm((prevState) => ({
 				...prevState,
@@ -147,15 +149,14 @@ const Form: FC<FormProps> = ({
 		[form, formErrors]
 	);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: CreateLeaveQueryType) => {
 			setErrors(undefined);
 			try {
-				const valid: CreateLeaveQueryType =
-					await leaveCreateSchema.validateAsync(form);
+				const valid = await leaveCreateSchema.validate(form);
 				onSubmit(valid);
 			} catch (error) {
-				const err = handleJoiErrors<CreateLeaveErrorResponseType>(error);
+				const err = handleYupErrors<CreateLeaveErrorResponseType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,
@@ -304,7 +305,11 @@ const Form: FC<FormProps> = ({
 						}
 						placeholder="Enter Date"
 						type="date"
-						value={form.startDate}
+						value={
+							typeof form.startDate === 'object'
+								? (getDate(form.endDate, true) as string)
+								: form.startDate
+						}
 					/>
 				</div>
 				<div className="w-full">
@@ -316,7 +321,11 @@ const Form: FC<FormProps> = ({
 						onChange={({ target: { value } }) => handleChange('endDate', value)}
 						placeholder="Enter Date"
 						type="date"
-						value={form.endDate}
+						value={
+							typeof form.endDate === 'object'
+								? (getDate(form.endDate, true) as string)
+								: form.endDate
+						}
 					/>
 				</div>
 				<div className="w-full md:col-span-2">
