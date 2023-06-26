@@ -18,11 +18,11 @@ import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
+import { handlePrismaErrors } from '../../../validators';
 import {
 	deleteManagedFilesSchema,
-	handlePrismaErrors,
 	managedFileCreateSchema,
-} from '../../../validators';
+} from '../../../validators/managed-files';
 
 export const config = {
 	api: {
@@ -69,14 +69,14 @@ export default auth()
 			fields: any;
 		};
 
-		const data: CreateManagedFileType = {
-			directory: fields.directory || '',
+		let data: CreateManagedFileType = {
+			directory: fields.directory || null,
 			file: files.file,
 			name: fields.name,
 			type: fields.type,
 		};
 
-		await managedFileCreateSchema.validateAsync(data);
+		data = await managedFileCreateSchema.validate(data, { abortEarly: false });
 
 		if (data.type === 'file' && !data.file) {
 			return res.status(400).json({
@@ -100,15 +100,15 @@ export default auth()
 					.replaceAll(' ', '-')}_${new Date().getTime()}`;
 
 			const result = await uploadFile({
-				file: data.file,
+				file: data.file as any,
 				location,
 			});
 
 			input = {
 				url: result.secure_url || result.url,
 				name: data.name,
-				size: data.file.size,
-				type: data.file.mimetype,
+				size: (data.file as any).size,
+				type: (data.file as any).mimetype,
 				storageInfo: {
 					location: result.location,
 					public_id: result.public_id,
@@ -188,10 +188,10 @@ export default auth()
 	.delete(async (req, res) => {
 		const { fields } = (await parseForm(req)) as { fields: any };
 
-		const valid: {
-			files?: string[];
-			folder?: string;
-		} = await deleteManagedFilesSchema.validateAsync({ ...fields });
+		const valid = await deleteManagedFilesSchema.validate(
+			{ ...fields },
+			{ abortEarly: false }
+		);
 
 		if (!valid.files && valid.folder === null && valid.folder === undefined) {
 			return res.status(400).json({
@@ -285,13 +285,15 @@ export default auth()
 				await prisma.managedFile.deleteMany({
 					where: {
 						id: {
-							in: validFiles
-						}
-					}
-				})
+							in: validFiles,
+						},
+					},
+				});
 
 				await createNotification({
-					message: folder ? 'Folder was deleted successfully.' : 'Files were deleted successfully.',
+					message: folder
+						? 'Folder was deleted successfully.'
+						: 'Files were deleted successfully.',
 					recipient: req.user.id,
 					title: folder
 						? 'Folder Deleted Successfully!'

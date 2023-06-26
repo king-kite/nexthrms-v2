@@ -4,7 +4,8 @@ import React from 'react';
 import { useAlertContext } from '../../store/contexts';
 import { useCreateManagedFileMutation } from '../../store/queries';
 import { CreateManagedFileType, CreateManagedFileErrorType } from '../../types';
-import { managedFileCreateSchema, handleJoiErrors } from '../../validators';
+import { handleYupErrors } from '../../validators';
+import { managedFileCreateSchema } from '../../validators/managed-files';
 
 interface ErrorType extends CreateManagedFileErrorType {
 	message?: string;
@@ -41,7 +42,7 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 			});
 			onSuccess();
 			if (formRef.current) formRef.current.reset();
-			setForm({ file: '' })
+			setForm({ file: '' });
 		},
 		onError(error) {
 			setErrors((prevState) => ({
@@ -56,27 +57,26 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 			setErrors(undefined);
 
 			try {
-				const valid: CreateManagedFileType =
-					await managedFileCreateSchema.validateAsync(
-						{ ...input },
-						{
-							abortEarly: false,
-						}
-					);
+				const valid = await managedFileCreateSchema.validate(
+					{ ...input },
+					{
+						abortEarly: false,
+					}
+				);
 				const form = new FormData();
 				form.append('name', valid.name);
 				form.append('type', valid.type);
-				
+
 				if (valid.directory) {
 					// make sure if dir !== '', it should end with a '/' directory end
-					let dir = valid.directory.trim()
-					if (dir !== '' && !dir.endsWith('/'))	dir += '/'
+					let dir = valid.directory.trim();
+					if (dir !== '' && !dir.endsWith('/')) dir += '/';
 					form.append('directory', dir);
 				}
-				valid.file && form.append('file', valid.file);
+				valid.file && form.append('file', valid.file as any);
 				mutate(form);
 			} catch (error) {
-				const err = handleJoiErrors<CreateManagedFileErrorType>(error);
+				const err = handleYupErrors<CreateManagedFileErrorType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,
@@ -107,7 +107,10 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				if (formRef.current) {
 					handleSubmit({
 						file: type === 'file' ? formRef.current?.file.files[0] : undefined,
-						directory: directory !== undefined ? directory : formRef.current?.directory.value,
+						directory:
+							directory !== undefined
+								? directory
+								: formRef.current?.directory.value,
 						name: formRef.current?.fileName.value,
 						type,
 					});
@@ -161,16 +164,14 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 				</div>
 				{directory === undefined && (
 					<div className="w-full md:col-span-2">
-						<label 
-							className="mb-2 text-gray-600 text-xs md:text-sm block font-semibold" 
+						<label
+							className="mb-2 text-gray-600 text-xs md:text-sm block font-semibold"
 							htmlFor="directory"
 						>
 							Directory
 						</label>
 						<div className="flex items-center w-full">
-							<span 
-								className="bg-gray-200 font-semibold inline-block px-3 py-2 rounded-l rounded-r-none text-gray-500 text-xs w-[3.5rem] md:text-sm"
-							>
+							<span className="bg-gray-200 font-semibold inline-block px-3 py-2 rounded-l rounded-r-none text-gray-500 text-xs w-[3.5rem] md:text-sm">
 								home/
 							</span>
 							<Input

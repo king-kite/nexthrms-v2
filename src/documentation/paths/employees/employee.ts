@@ -219,46 +219,59 @@ const path = {
 											type: 'object',
 											nullable: true,
 											properties: {
-												firstName: {
-													type: 'string',
+												user: {
+													type: 'object',
 													nullable: true,
+													properties: {
+														firstName: {
+															type: 'string',
+															nullable: true,
+														},
+														lastName: {
+															type: 'string',
+															nullable: true,
+														},
+														email: {
+															type: 'string',
+															nullable: true,
+														},
+														profile: {
+															type: 'object',
+															nullable: true,
+															properties: {
+																phone: {
+																	type: 'string',
+																	nullable: true,
+																},
+																image: {
+																	type: 'string',
+																	nullable: true,
+																},
+																gender: {
+																	type: 'string',
+																	nullable: true,
+																},
+																address: {
+																	type: 'string',
+																	nullable: true,
+																},
+																state: {
+																	type: 'string',
+																	nullable: true,
+																},
+																city: {
+																	type: 'string',
+																	nullable: true,
+																},
+																dob: {
+																	type: 'string',
+																	nullable: true,
+																},
+															},
+														},
+													},
 												},
-												lastName: {
-													type: 'string',
-													nullable: true,
-												},
-												email: {
-													type: 'string',
-													nullable: true,
-												},
-												phone: {
-													type: 'string',
-													nullable: true,
-												},
-												image: {
-													type: 'string',
-													nullable: true,
-												},
-												gender: {
-													type: 'string',
-													nullable: true,
-												},
-												address: {
-													type: 'string',
-													nullable: true,
-												},
-												state: {
-													type: 'string',
-													nullable: true,
-												},
-												city: {
-													type: 'string',
-													nullable: true,
-												},
-												dob: {
-													type: 'string',
-													nullable: true,
-												},
+
 												isActive: {
 													type: 'string',
 													nullable: true,

@@ -1,4 +1,7 @@
-import { PaginatedResponseType } from './base';
+import { PaginatedResponseType, ValidatorErrorType } from './base';
+import type { CreateManagedFileType as ManagedFileCreateType } from '../validators/managed-files';
+
+export type { DeleteManagedFilesType } from '../validators/managed-files';
 
 export type ManagedFileType = {
 	id: string;
@@ -47,19 +50,9 @@ export type ManagedFileImportQueryType = {
 	updated_at?: Date | string | null;
 };
 
-export type CreateManagedFileType = {
-	name: string;
-	directory: string; // '' if empty
-	file?: any; // File
-	type: 'file' | 'folder';
-};
-
-export type CreateManagedFileErrorType = {
-	name?: string;
-	directory?: string;
-	file?: string;
-	type?: string;
-};
+export type CreateManagedFileType = ManagedFileCreateType;
+export type CreateManagedFileErrorType =
+	ValidatorErrorType<CreateManagedFileType>;
 
 export type GetManagedFilesResponseType = PaginatedResponseType<
 	ManagedFileType[]

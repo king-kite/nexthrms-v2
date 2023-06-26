@@ -1,13 +1,20 @@
-import Joi from 'joi';
+import { InferType, array, object, string } from 'yup';
 
-export const managedFileCreateSchema = Joi.object({
-	name: Joi.string().required().label('Name'),
-	directory: Joi.string().optional().allow('').label('Directory'),
-	file: Joi.object().unknown().optional().allow(null).label('File'),
-	type: Joi.string().valid('file', 'folder').required().label('Type'),
+export const managedFileCreateSchema = object({
+	name: string().required().label('Name'),
+	directory: string().nullable().optional().label('Directory'),
+	file: object().unknown().nullable().optional().label('File'),
+	type: string().oneOf(['file', 'folder']).required().label('Type'),
 });
 
-export const deleteManagedFilesSchema = Joi.object({
-	folder: Joi.string().optional().allow('', null).label('Folder'),
-	files: Joi.array().items(Joi.string().uuid()).optional().label('Files'),
+export const deleteManagedFilesSchema = object({
+	folder: string().nullable().optional().label('Folder'),
+	files: array()
+		.of(string().uuid().required())
+		.nullable()
+		.optional()
+		.label('Files'),
 });
+
+export type CreateManagedFileType = InferType<typeof managedFileCreateSchema>;
+export type DeleteManagedFilesType = InferType<typeof deleteManagedFilesSchema>;

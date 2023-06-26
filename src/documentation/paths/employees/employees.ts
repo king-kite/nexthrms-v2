@@ -210,43 +210,75 @@ const path = {
 											type: 'object',
 											nullable: true,
 											properties: {
-												firstName: {
+												user: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														firstName: {
+															type: 'string',
+															nullable: true,
+														},
+														lastName: {
+															type: 'string',
+															nullable: true,
+														},
+														email: {
+															type: 'string',
+															nullable: true,
+														},
+														profile: {
+															type: 'object',
+															nullable: true,
+															properties: {
+																phone: {
+																	type: 'string',
+																	nullable: true,
+																},
+																image: {
+																	type: 'string',
+																	nullable: true,
+																},
+																gender: {
+																	type: 'string',
+																	nullable: true,
+																},
+																address: {
+																	type: 'string',
+																	nullable: true,
+																},
+																state: {
+																	type: 'string',
+																	nullable: true,
+																},
+																city: {
+																	type: 'string',
+																	nullable: true,
+																},
+																dob: {
+																	type: 'string',
+																	nullable: true,
+																},
+															},
+														},
+													},
+												},
+												isActive: {
 													type: 'string',
 													nullable: true,
 												},
-												lastName: {
+												isAdmin: {
 													type: 'string',
 													nullable: true,
 												},
-												email: {
+												isEmailVerified: {
 													type: 'string',
 													nullable: true,
 												},
-												phone: {
+												isSuperUser: {
 													type: 'string',
 													nullable: true,
 												},
-												image: {
-													type: 'string',
-													nullable: true,
-												},
-												gender: {
-													type: 'string',
-													nullable: true,
-												},
-												address: {
-													type: 'string',
-													nullable: true,
-												},
-												state: {
-													type: 'string',
-													nullable: true,
-												},
-												city: {
-													type: 'string',
-													nullable: true,
-												},
-												dob: {
+												createdAt: {
 													type: 'string',
 													nullable: true,
 												},
@@ -266,7 +298,11 @@ const path = {
 													type: 'string',
 													nullable: true,
 												},
-												userId: {
+												company: {
+													type: 'string',
+													nullable: true,
+												},
+												position: {
 													type: 'string',
 													nullable: true,
 												},
