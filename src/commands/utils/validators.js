@@ -1,61 +1,88 @@
-const Joi = require("joi");
-const JoiPasswordComplexity = require("joi-password-complexity");
-const prompt = require("prompt-sync")({ sigint: true });
+const { string, ValidationError } = require('yup');
+const prompt = require('prompt-sync')({ sigint: true });
 
-const logger = require("./logger.js");
+const logger = require('./logger.js');
 
-const passwordComplexityOptions = {
-	min: 6,
-	max: 30,
-	lowerCase: 1,
-	upperCase: 1,
-	numeric: 1,
-	symbol: 1,
-	requirementCount: 6,
-};
+const passwordOptions = string()
+	.min(6, 'Password must be at least 6 characters')
+	.max(30, 'Password must not exceed 30 characters')
+	.matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+	.matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+	.matches(/[0-9]/, 'Password must contain at least one numeric character')
+	.matches(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol');
 
-function handleJoiError(err) {
-	if (err instanceof Joi.ValidationError) {
-		const data = new Object();
-		err.details.forEach((item) => {
-			if (item.context) {
-				const label = item.context.label
-					? item.context.label.toLowerCase().replace(" ", "_")
-					: "detail";
-				Object.assign(data, {
-					[item.context.key || label]: item.context.message || item.message,
-				});
-			}
-		});
-		return data;
+function getYupError(path, value) {
+	const keys = path.split('.');
+	const result = {};
+
+	let currentObj = result;
+	keys.forEach((key, index) => {
+		currentObj[key] = {};
+
+		if (index === keys.length - 1) {
+			currentObj[key] = value;
+		}
+
+		currentObj = currentObj[key];
+	});
+	return result;
+}
+
+function handleYupError(err) {
+	if (err instanceof ValidationError) {
+		let errors = {};
+		if (err.inner.length > 0) {
+			err.inner.forEach((error) => {
+				const { path, message } = error;
+				const parsedError = getYupError(path || 'message', message);
+
+				if (path)
+					errors = {
+						...errors,
+						...parsedError,
+					};
+			});
+			return errors;
+		} else {
+			const parsedError = getYupError(
+				err.path || 'message',
+				err.errors[0] || err.message
+			);
+			errors = {
+				...errors,
+				...parsedError,
+			};
+			return errors;
+		}
 	}
 	return undefined;
 }
 
 async function validatePassword(value) {
-	const message = "Password does not meet all security requirements. Ignore and continue, Y/N ? ";
-	const errorMessage = "An error occurred. Cannot save password. Please try again!"
+	const message =
+		'Password does not meet all security requirements. Ignore and continue, Y/N ? ';
+	const errorMessage =
+		'An error occurred. Cannot save password. Please try again!';
 
 	try {
-		const validate = JoiPasswordComplexity(passwordComplexityOptions, 'password')
-			.required()
-			.label('password')
+		const validate = passwordOptions.required().label('password');
 
-		const valid = await validate.validateAsync(value);
+		const valid = await validate.validate(value);
 		return { valid: true, message: valid };
 	} catch (err) {
-		const joiError = handleJoiError(err);
-		if (joiError) {
+		const yupError = handleYupError(err);
+		if (yupError) {
 			// ask question
 			const ignore = prompt(message);
-			if (ignore.trim().toLowerCase() === 'y') return { valid: true, message: value };
+			if (ignore.trim().toLowerCase() === 'y')
+				return { valid: true, message: value };
 			else if (ignore.trim().toLowerCase() === 'n') {
-				return { valid: false, message: "Create Super user action cancelled!" };
+				return { valid: false, message: 'Create Super user action cancelled!' };
 			} else {
-				logger.warn("Invalid Entry. Enter 'Y' / 'N' ") // Add a new line
-				return await validatePassword(value)
+				logger.warn("Invalid Entry. Enter 'Y' / 'N' "); // Add a new line
+				return await validatePassword(value);
 			}
-		} else errorMessage = err.message || errorMessage
+		} else errorMessage = err.message || errorMessage;
 	}
 
 	return { valid: false, message: errorMessage };
@@ -63,18 +90,15 @@ async function validatePassword(value) {
 
 async function validateEmail(value) {
 	let isValid = false;
-	let message = "E-mail is not valid. Please try again!";
+	let message = 'E-mail is not valid. Please try again!';
 
 	try {
-		const validate = Joi.string()
-			.email({ tlds: { allow: false } })
-			.required()
-			.label("email");
+		const validate = string().email().required().label('email');
 
-		const valid = await validate.validateAsync(value);
+		const valid = await validate.validate(value);
 		return [true, valid];
 	} catch (err) {
-		const errorMessage = handleJoiError(err);
+		const errorMessage = handleYupError(err);
 		if (errorMessage) message = errorMessage.email || message;
 		else if (err.message) message = err.message;
 		isValid = false;
@@ -84,33 +108,32 @@ async function validateEmail(value) {
 }
 
 async function getEmail() {
-	const email = prompt("Enter e-mail: ");
+	const email = prompt('Enter e-mail: ');
 	const [isValid, value] = await validateEmail(email.trim());
 	if (!isValid) {
-		return getEmail()
+		return getEmail();
 	}
 	return value;
 }
 
 async function getPassword() {
-	const password1 = prompt("Enter password: ", "", { echo: "*" });
-	const password2 = prompt("Enter password again: ", "", { echo: "*" });
+	const password1 = prompt('Enter password: ', '', { echo: '*' });
+	const password2 = prompt('Enter password again: ', '', { echo: '*' });
 
 	if (password1 !== password2) {
-		logger.error("\nPasswords do not match. Please try again!\n");
+		logger.error('\nPasswords do not match. Please try again!\n');
 		return await getPassword();
 	} else {
-		const {valid, message} = await validatePassword(password1);
+		const { valid, message } = await validatePassword(password1);
 		if (!valid && message) {
-			logger.error(message + " A fail " + valid);
+			logger.error(message + ' A fail ' + valid);
 		}
-		return message
-	};
+		return message;
+	}
 }
-
 
 module.exports = {
-	handleJoiError,
+	handleYupError,
 	getEmail,
-	getPassword
-}
+	getPassword,
+};

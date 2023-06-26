@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 import { AxiosError } from 'axios';
-import Joi from 'joi';
 import { ValidationError } from 'yup';
 import {
 	BaseResponseType,
@@ -83,24 +82,6 @@ export function handleAxiosErrors<T = any>(
 				};
 			}
 		}
-	}
-	return undefined;
-}
-
-export function handleJoiErrors<T = any>(err: any): T | undefined {
-	if (err instanceof Joi.ValidationError) {
-		const data: any = new Object();
-		err.details.forEach((item) => {
-			if (item.context) {
-				const label = item.context.label
-					? item.context.label.toLowerCase().replace(' ', '_')
-					: 'detail';
-				Object.assign(data, {
-					[item.context.key || label]: item.context.message || item.message,
-				});
-			}
-		});
-		return data;
 	}
 	return undefined;
 }
