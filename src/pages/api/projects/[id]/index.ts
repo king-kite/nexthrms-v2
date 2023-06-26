@@ -13,14 +13,10 @@ import {
 } from '../../../../db/utils';
 import { auth } from '../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../middlewares/api';
-import {
-	CreateProjectQueryType,
-	ProjectType,
-	ProjectTeamType,
-} from '../../../../types';
+import { ProjectType, ProjectTeamType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { projectCreateSchema } from '../../../../validators';
+import { projectCreateSchema } from '../../../../validators/projects';
 
 export default auth()
 	.get(async (req, res) => {
@@ -75,8 +71,10 @@ export default auth()
 				message: 'Project with the specified ID does not exist',
 			});
 
-		const valid: CreateProjectQueryType =
-			await projectCreateSchema.validateAsync({ ...req.body });
+		const valid = await projectCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const { team, ...data } = valid;
 
@@ -210,6 +208,7 @@ export default auth()
 			where: { id: req.query.id as string },
 			data: {
 				...data,
+				description: data.description || '',
 				client: data.client
 					? {
 							connect: {

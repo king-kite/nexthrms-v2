@@ -11,13 +11,10 @@ import {
 	updateObjectPermissions,
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
-import {
-	CreateProjectTaskQueryType,
-	ProjectTaskType,
-} from '../../../../../types';
+import { ProjectTaskType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import { taskCreateSchema } from '../../../../../validators';
+import { taskCreateSchema } from '../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -89,8 +86,10 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateProjectTaskQueryType =
-			await taskCreateSchema.validateAsync({ ...req.body });
+		const data = await taskCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		// Have Distinct followers.
 		const filteredFollowers = data.followers?.reduce(
@@ -126,6 +125,7 @@ export default auth()
 		const task = (await prisma.projectTask.create({
 			data: {
 				...data,
+				description: data.description || '',
 				project: {
 					connect: {
 						id: req.query.id as string,

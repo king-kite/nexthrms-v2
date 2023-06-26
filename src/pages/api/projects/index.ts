@@ -12,10 +12,10 @@ import {
 } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
-import { CreateProjectQueryType, ProjectType } from '../../../types';
+import { ProjectType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { projectCreateSchema } from '../../../validators';
+import { projectCreateSchema } from '../../../validators/projects';
 
 export default auth()
 	.get(async (req, res) => {
@@ -47,8 +47,10 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateProjectQueryType =
-			await projectCreateSchema.validateAsync({ ...req.body });
+		const data = await projectCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		// Have Distinct Project Team Member.
 		const filteredMembers = data.team?.reduce(
@@ -114,6 +116,7 @@ export default auth()
 		const project = (await prisma.project.create({
 			data: {
 				...data,
+				description: data.description ? data.description : '',
 				client: data.client
 					? {
 							connect: {

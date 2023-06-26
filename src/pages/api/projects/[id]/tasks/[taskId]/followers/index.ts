@@ -13,10 +13,8 @@ import { auth } from '../../../../../../../middlewares';
 import { CreateProjectTaskFollowersQueryType } from '../../../../../../../types';
 import { hasModelPermission } from '../../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
-import {
-	projectTaskFollowersCreateSchema,
-	validateParams,
-} from '../../../../../../../validators';
+import { validateParams } from '../../../../../../../validators';
+import { projectTaskFollowersCreateSchema } from '../../../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -70,8 +68,10 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage();
 
-		const data: CreateProjectTaskFollowersQueryType =
-			await projectTaskFollowersCreateSchema.validateAsync({ ...req.body });
+		const data = await projectTaskFollowersCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		// Have Distinct followers.
 		const filteredFollowers = data.team?.reduce(

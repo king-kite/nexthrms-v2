@@ -4,7 +4,8 @@ import React from 'react';
 import { useAlertModalContext } from '../../../store/contexts';
 import { useCreateProjectFileMutation } from '../../../store/queries';
 import { CreateProjectFileErrorResponseType } from '../../../types';
-import { handleJoiErrors, projectFileCreateSchema } from '../../../validators';
+import { handleYupErrors } from '../../../validators';
+import { projectFileCreateSchema } from '../../../validators/projects';
 
 const AddProjectFileForm = ({
 	accept = 'application/*, image/*',
@@ -45,16 +46,19 @@ const AddProjectFileForm = ({
 		async (form: { name: string; file: File }) => {
 			setFormErrors(undefined);
 			try {
-				const valid = await projectFileCreateSchema.validateAsync({
-					name: form.name,
-					file: form.file,
-				});
+				const valid = await projectFileCreateSchema.validate(
+					{
+						name: form.name,
+						file: form.file,
+					},
+					{ abortEarly: false }
+				);
 				createProjectFile({
 					projectId,
 					data: valid,
 				});
 			} catch (error) {
-				const err = handleJoiErrors<CreateProjectFileErrorResponseType>(error);
+				const err = handleYupErrors<CreateProjectFileErrorResponseType>(error);
 				setFormErrors((prevState) => {
 					if (err)
 						return {

@@ -4,7 +4,15 @@ import {
 	BaseResponseType,
 	PaginatedResponseType,
 	SuccessResponseType,
+	ValidatorErrorType,
 } from './base';
+import type {
+	ProjectCreateType,
+	ProjectFileCreateType,
+	ProjectTeamCreateType,
+	ProjectTaskCreateType,
+	ProjectTaskFollowersCreateType,
+} from '../validators/projects';
 
 // ****** Project ******
 
@@ -56,34 +64,10 @@ export type ProjectImportQueryType = {
 	updated_at: Date | string;
 };
 
-export type CreateProjectQueryType = {
-	name: string;
-	description: string;
-	priority: ProjectPriority;
-	initialCost: number;
-	rate: number;
-	startDate: string;
-	endDate: string;
-	team?: {
-		employeeId: string;
-		isLeader: boolean;
-	}[];
-	client?: string;
-	completed?: boolean;
-};
+export type CreateProjectQueryType = ProjectCreateType;
 
-export type CreateProjectErrorResponseType = {
-	name?: string;
-	client?: string;
-	completed?: string;
-	description?: string;
-	startDate?: string;
-	endDate?: string;
-	initialCost?: string;
-	rate?: string;
-	priority?: string;
-	team?: string;
-};
+export type CreateProjectErrorResponseType =
+	ValidatorErrorType<CreateProjectQueryType>;
 
 export type GetProjectsResponseType = SuccessResponseType<{
 	result: ProjectType[];
@@ -132,12 +116,7 @@ export type GetProjectTeamResponseType = PaginatedResponseType<
 	ProjectTeamType[]
 >;
 
-export type CreateProjectTeamQueryType = {
-	team: {
-		employeeId: string;
-		isLeader: boolean;
-	}[];
-};
+export type CreateProjectTeamQueryType = ProjectTeamCreateType;
 
 export type CreateProjectTeamResponseType = BaseResponseType;
 // ****** Project Team ******
@@ -185,14 +164,13 @@ export type ProjectFileImportQueryType = {
 	updated_at?: Date | string | null;
 };
 
-export type CreateProjectFileQueryType = {
-	name: string;
-	file: any; //File
-};
+export type CreateProjectFileQueryType = ProjectFileCreateType;
 
-export type CreateProjectFileErrorResponseType = {
+export type CreateProjectFileErrorResponseType = Omit<
+	ValidatorErrorType<ProjectFileCreateType>,
+	'file'
+> & {
 	message?: string;
-	name?: string;
 	file?: string;
 };
 
@@ -261,32 +239,13 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 	};
 }>;
 
-export type CreateProjectTaskQueryType = {
-	name: string;
-	description: string;
-	dueDate: Date | string;
-	priority: ProjectPriority;
-	followers?: {
-		memberId: string; // -> Project Team (Member) ID
-		isLeader?: boolean;
-	}[];
-	completed?: boolean;
-};
+export type CreateProjectTaskQueryType = ProjectTaskCreateType;
 
-export type CreateProjectTaskErrorResponseType = {
-	message?: string;
-	name?: string;
-	description?: string;
-	dueDate?: string;
-	priority?: string;
-	followers?: string;
-	completed?: string;
-};
+export type CreateProjectTaskErrorResponseType =
+	ValidatorErrorType<ProjectTaskCreateType> & {
+		message?: string;
+	};
 
-export type CreateProjectTaskFollowersQueryType = {
-	team: {
-		memberId: string;
-		isLeader: boolean;
-	}[];
-};
+export type CreateProjectTaskFollowersQueryType =
+	ProjectTaskFollowersCreateType;
 // ****** Project Tasks ******

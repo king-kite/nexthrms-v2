@@ -7,13 +7,10 @@ import {
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../../middlewares/api';
-import { CreateProjectTeamQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import {
-	projectTeamCreateSchema,
-	validateParams,
-} from '../../../../../validators';
+import { validateParams } from '../../../../../validators';
+import { projectTeamCreateSchema } from '../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -61,8 +58,10 @@ export default auth()
 
 		if (!project) throw new NextApiErrorMessage(404);
 
-		const data: CreateProjectTeamQueryType =
-			await projectTeamCreateSchema.validateAsync({ ...req.body });
+		const data = await projectTeamCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		// Check that the employee the user is adding in are ones the user can view
 		// to avoid guessing

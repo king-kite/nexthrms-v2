@@ -12,13 +12,10 @@ import {
 	updateObjectPermissions,
 } from '../../../../../../db/utils';
 import { auth } from '../../../../../../middlewares';
-import {
-	CreateProjectTaskQueryType,
-	ProjectTaskType,
-} from '../../../../../../types';
+import { ProjectTaskType } from '../../../../../../types';
 import { hasModelPermission } from '../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../utils/classes';
-import { taskCreateSchema } from '../../../../../../validators';
+import { taskCreateSchema } from '../../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -85,8 +82,10 @@ export default auth()
 				message: 'Task with the specified ID does not exist',
 			});
 
-		const valid: CreateProjectTaskQueryType =
-			await taskCreateSchema.validateAsync({ ...req.body });
+		const valid = await taskCreateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const { followers, ...data } = valid;
 
@@ -145,6 +144,7 @@ export default auth()
 			where: { id: req.query.taskId as string },
 			data: {
 				...data,
+				description: data.description || '',
 				followers:
 					filteredFollowers && filteredFollowers.length > 0
 						? {

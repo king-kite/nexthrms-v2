@@ -16,7 +16,8 @@ import {
 	ProjectType,
 } from '../../types';
 import { getStringedDate, toCapitalize } from '../../utils';
-import { handleJoiErrors, projectCreateSchema } from '../../validators';
+import { handleYupErrors } from '../../validators';
+import { projectCreateSchema } from '../../validators/projects';
 
 interface ErrorType extends CreateProjectErrorResponseType {
 	message?: string;
@@ -120,10 +121,12 @@ const Form = ({
 		async (form: CreateProjectQueryType) => {
 			try {
 				setErrors(undefined);
-				const valid = await projectCreateSchema.validateAsync(form);
+				const valid = await projectCreateSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (valid) onSubmit(form);
 			} catch (error) {
-				const err = handleJoiErrors<CreateProjectErrorResponseType>(error);
+				const err = handleYupErrors<CreateProjectErrorResponseType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,
@@ -409,7 +412,8 @@ const Form = ({
 														...total,
 														{
 															image:
-																employee.user.profile?.image?.url || DEFAULT_IMAGE,
+																employee.user.profile?.image?.url ||
+																DEFAULT_IMAGE,
 															title:
 																employee.user.firstName +
 																' ' +
@@ -501,7 +505,8 @@ const Form = ({
 														...total,
 														{
 															image:
-																employee.user.profile?.image?.url || DEFAULT_IMAGE,
+																employee.user.profile?.image?.url ||
+																DEFAULT_IMAGE,
 															title:
 																employee.user.firstName +
 																' ' +

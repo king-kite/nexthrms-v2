@@ -15,15 +15,12 @@ import {
 	updateObjectPermissions,
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
-import {
-	CreateProjectFileQueryType,
-	ProjectFileType,
-} from '../../../../../types';
+import { ProjectFileType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { upload as uploadFile } from '../../../../../utils/files';
 import parseForm from '../../../../../utils/parseForm';
-import { projectFileCreateSchema } from '../../../../../validators';
+import { projectFileCreateSchema } from '../../../../../validators/projects';
 
 export const config = {
 	api: {
@@ -108,11 +105,13 @@ export default auth()
 			});
 		}
 
-		const form: CreateProjectFileQueryType =
-			await projectFileCreateSchema.validateAsync({
+		const form = await projectFileCreateSchema.validate(
+			{
 				...fields,
 				file: files.file,
-			});
+			},
+			{ abortEarly: false }
+		);
 
 		const location =
 			MEDIA_PROJECT_URL +

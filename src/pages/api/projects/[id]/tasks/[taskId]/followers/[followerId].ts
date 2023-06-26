@@ -11,7 +11,7 @@ import {
 import { auth } from '../../../../../../../middlewares';
 import { hasModelPermission } from '../../../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
-import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators';
+import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -67,10 +67,10 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage();
 
-		const data: {
-			memberId: string;
-			isLeader?: boolean;
-		} = await projectTaskFollowerUpdateSchema.validateAsync({ ...req.body });
+		const data = await projectTaskFollowerUpdateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const follower = await prisma.projectTaskFollower.update({
 			where: { id: req.query.followerId as string },

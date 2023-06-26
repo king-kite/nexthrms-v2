@@ -14,7 +14,7 @@ import { adminMiddleware as admin } from '../../../../../middlewares/api';
 import { ProjectTeamType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import { projectTeamMemberUpdateSchema } from '../../../../../validators';
+import { projectTeamMemberUpdateSchema } from '../../../../../validators/projects';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -60,10 +60,10 @@ export default auth()
 
 		if (!hasPerm) throw new NextApiErrorMessage();
 
-		const data: {
-			employeeId: string;
-			isLeader?: boolean;
-		} = await projectTeamMemberUpdateSchema.validateAsync({ ...req.body });
+		const data = await projectTeamMemberUpdateSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const member = (await prisma.projectTeam.update({
 			where: { id: req.query.teamId as string },

@@ -17,7 +17,8 @@ import {
 	ProjectTaskType,
 } from '../../../types';
 import { getStringedDate, toCapitalize } from '../../../utils';
-import { handleJoiErrors, taskCreateSchema } from '../../../validators';
+import { handleYupErrors } from '../../../validators';
+import { taskCreateSchema } from '../../../validators/projects';
 
 type ErrorType = CreateProjectTaskErrorResponseType;
 
@@ -103,10 +104,12 @@ const Form = ({
 		async (form: CreateProjectTaskQueryType) => {
 			try {
 				setErrors(undefined);
-				const valid = await taskCreateSchema.validateAsync(form);
+				const valid = await taskCreateSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (valid) onSubmit(form);
 			} catch (error) {
-				const err = handleJoiErrors<CreateProjectTaskErrorResponseType>(error);
+				const err = handleYupErrors<CreateProjectTaskErrorResponseType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,
