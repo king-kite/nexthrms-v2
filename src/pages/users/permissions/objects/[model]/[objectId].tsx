@@ -62,7 +62,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	}
 
 	try {
-		await uuidSchema.validateAsync(params?.objectId);
+		await uuidSchema.validate(params?.objectId);
 	} catch (error) {
 		return {
 			notFound: true,

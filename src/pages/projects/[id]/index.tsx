@@ -52,7 +52,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 	const auth = await serializeUserData(req.user);
 
 	try {
-		await uuidSchema.validateAsync(params?.id);
+		await uuidSchema.validate(params?.id);
 	} catch (error) {
 		return {
 			notFound: true,
