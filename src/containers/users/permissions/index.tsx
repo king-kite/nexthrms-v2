@@ -15,7 +15,7 @@ import {
 	PERMISSIONS_IMPORT_URL,
 } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
-import { useGetPermissionsQuery } from '../../../store/queries';
+import { useGetPermissionsQuery } from '../../../store/queries/permissions';
 import { GetPermissionsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 

@@ -8,7 +8,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteHolidayMutation,
 	useDeleteHolidaysMutation,
-} from '../../store/queries';
+} from '../../store/queries/holidays';
 import { HolidayType } from '../../types';
 import { hasModelPermission, getStringedDate } from '../../utils';
 
@@ -139,7 +139,7 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 			heads={heads}
 			rows={rows}
 			tick
-		/>		
+		/>
 	);
 };
 

@@ -21,7 +21,7 @@ import {
 import {
 	useDeleteDepartmentMutation,
 	useDeleteDepartmentsMutation,
-} from '../../store/queries';
+} from '../../store/queries/departments';
 import { DepartmentType } from '../../types/departments';
 import { hasModelPermission, toCapitalize } from '../../utils';
 
@@ -270,7 +270,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 									onSubmit: handleDeleteMultiple,
 								},
 							],
-						}
+					  }
 					: undefined
 			}
 		/>

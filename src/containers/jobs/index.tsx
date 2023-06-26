@@ -28,7 +28,7 @@ import {
 	useAlertModalContext,
 	useAuthContext,
 } from '../../store/contexts';
-import { useGetJobsQuery } from '../../store/queries';
+import { useGetJobsQuery } from '../../store/queries/jobs';
 import { JobType } from '../../types';
 import { hasModelPermission } from '../../utils';
 

@@ -1,7 +1,10 @@
 import { Button, Input } from 'kite-react-tailwind';
 import React from 'react';
 
-import { useCreateJobMutation, useEditJobMutation } from '../../store/queries';
+import {
+	useCreateJobMutation,
+	useEditJobMutation,
+} from '../../store/queries/jobs';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { createJobSchema } from '../../validators/jobs';
 

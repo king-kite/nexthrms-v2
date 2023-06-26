@@ -3,7 +3,7 @@ import React from 'react';
 import Form from './form';
 import { permissions } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import { useEditClientMutation } from '../../store/queries';
+import { useEditClientMutation } from '../../store/queries/clients';
 import { hasModelPermission } from '../../utils';
 import { ClientType, CreateClientErrorResponseType } from '../../types';
 

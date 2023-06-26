@@ -5,7 +5,7 @@ import React from 'react';
 
 import { Container } from '../../../components/common';
 import { Groups, Users } from '../../../components/permissions/objects';
-import { useGetObjectPermissionsQuery } from '../../../store/queries';
+import { useGetObjectPermissionsQuery } from '../../../store/queries/permissions';
 import {
 	ObjPermGroupType,
 	ObjPermUser,

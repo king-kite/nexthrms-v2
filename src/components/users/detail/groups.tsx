@@ -11,7 +11,7 @@ import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
 	useEditUserGroupsMutation,
 	useGetUserGroupsQuery,
-} from '../../../store/queries';
+} from '../../../store/queries/users';
 import { UserGroupType } from '../../../types';
 
 function UserGroups({

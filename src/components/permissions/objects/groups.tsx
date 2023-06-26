@@ -8,7 +8,7 @@ import GroupForm, { FormType } from './group-form';
 import GroupTable from './group-table';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
-import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
 import { ObjPermGroupType } from '../../../types';
 
 function Groups({

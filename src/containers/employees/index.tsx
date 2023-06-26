@@ -18,7 +18,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useCreateEmployeeMutation,
 	useGetEmployeesQuery,
-} from '../../store/queries';
+} from '../../store/queries/employees';
 import {
 	CreateEmployeeErrorResponseType,
 	GetEmployeesResponseType,

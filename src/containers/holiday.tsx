@@ -15,7 +15,7 @@ import {
 	samples,
 } from '../config';
 import { useAlertContext, useAuthContext } from '../store/contexts';
-import { useGetHolidaysQuery } from '../store/queries';
+import { useGetHolidaysQuery } from '../store/queries/holidays';
 import { GetHolidaysResponseType } from '../types';
 import { hasModelPermission } from '../utils';
 

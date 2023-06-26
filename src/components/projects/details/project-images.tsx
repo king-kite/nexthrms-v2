@@ -8,7 +8,7 @@ import { FaTimes, FaFileUpload } from 'react-icons/fa';
 import Form from './add-project-file-form';
 import { EMPLOYEE_PAGE_URL, permissions } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
-import { useDeleteProjectFileMutation } from '../../../store/queries';
+import { useDeleteProjectFileMutation } from '../../../store/queries/projects';
 import { ProjectFileType } from '../../../types';
 import { downloadFile, hasModelPermission } from '../../../utils';
 

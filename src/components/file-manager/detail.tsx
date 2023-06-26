@@ -8,8 +8,8 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useEditManagedFileMutation,
 	useDeleteManagedFileMutation,
-	useGetUserObjectPermissionsQuery,
-} from '../../store/queries';
+} from '../../store/queries/managed-files';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import { ManagedFileType } from '../../types';
 import { getByteSize, getStringDateTime } from '../../utils';
 

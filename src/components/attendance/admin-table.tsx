@@ -1,12 +1,7 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import React from 'react';
-import {
-	FaEye,
-	FaPen,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
+import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
 import {
@@ -15,7 +10,7 @@ import {
 	permissions,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import { useDeleteAttendanceMutation } from '../../store/queries';
+import { useDeleteAttendanceMutation } from '../../store/queries/attendance';
 import { AttendanceCreateType, AttendanceType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
 
@@ -129,7 +124,9 @@ const getRows = (
 						<div className="w-full">
 							<TableAvatarEmailNameCell
 								email={attendance.employee.user.email}
-								image={attendance.employee.user.profile?.image?.url || DEFAULT_IMAGE}
+								image={
+									attendance.employee.user.profile?.image?.url || DEFAULT_IMAGE
+								}
 								name={`${attendance.employee.user.firstName} ${attendance.employee.user.lastName}`}
 							/>
 						</div>

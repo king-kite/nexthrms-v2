@@ -19,11 +19,11 @@ import {
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetOvertimeQuery,
-	useGetUserObjectPermissionsQuery,
 	useApproveOvertimeMutation,
 	useDeleteOvertimeMutation,
 	useRequestOvertimeUpdateMutation,
-} from '../../store/queries';
+} from '../../store/queries/overtime';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import {
 	CreateOvertimeErrorResponseType,
 	CreateOvertimeQueryType,
@@ -92,59 +92,60 @@ const Detail = ({
 			}
 		);
 
-	const [canEdit, canDelete, canGrant, canViewPermissions] = React.useMemo(() => {
-		if (!authData) return [false, false, false, false];
-		// Not Admin Page
-		// Only check object level permissions
-		if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-		else {
-			let canEdit = false;
-			let canDelete = false;
-			let canGrant = false;
-			// Check model permissions
-			if (authData.isAdmin || authData.isSuperUser) {
-				canEdit =
+	const [canEdit, canDelete, canGrant, canViewPermissions] =
+		React.useMemo(() => {
+			if (!authData) return [false, false, false, false];
+			// Not Admin Page
+			// Only check object level permissions
+			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
+			else {
+				let canEdit = false;
+				let canDelete = false;
+				let canGrant = false;
+				// Check model permissions
+				if (authData.isAdmin || authData.isSuperUser) {
+					canEdit =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.overtime.EDIT,
+							])) ||
+						false;
+				}
+				if (authData.isAdmin || authData.isSuperUser) {
+					canDelete =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.overtime.DELETE,
+							])) ||
+						false;
+				}
+				if (authData.isAdmin || authData.isSuperUser) {
+					canGrant =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.overtime.GRANT,
+							])) ||
+						false;
+				}
+
+				// If the user doesn't have model edit permissions, then check obj edit permission
+				if (!canEdit && objPermData) canEdit = objPermData.edit;
+				if (!canDelete && objPermData) canDelete = objPermData.delete;
+
+				const canViewPermissions =
 					authData.isSuperUser ||
 					(authData.isAdmin &&
 						hasModelPermission(authData.permissions, [
-							permissions.overtime.EDIT,
+							permissions.permissionobject.VIEW,
 						])) ||
 					false;
-			}
-			if (authData.isAdmin || authData.isSuperUser) {
-				canDelete =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.overtime.DELETE,
-						])) ||
-					false;
-			}
-			if (authData.isAdmin || authData.isSuperUser) {
-				canGrant =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.overtime.GRANT,
-						])) ||
-					false;
-			}
 
-			// If the user doesn't have model edit permissions, then check obj edit permission
-			if (!canEdit && objPermData) canEdit = objPermData.edit;
-			if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-			const canViewPermissions =
-				authData.isSuperUser ||
-				(authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					])) ||
-				false;
-
-			return [canEdit, canDelete, canGrant, canViewPermissions];
-		}
-	}, [authData, admin, objPermData]);
+				return [canEdit, canDelete, canGrant, canViewPermissions];
+			}
+		}, [authData, admin, objPermData]);
 
 	const { mutate: approveOvertime, isLoading: appLoading } =
 		useApproveOvertimeMutation({
@@ -410,7 +411,9 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src:
+												data.createdBy.user.profile?.image?.url ||
+												DEFAULT_IMAGE,
 											alt:
 												data.createdBy.user.firstName +
 												' ' +
@@ -449,7 +452,9 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src:
+												data.approvedBy.user.profile?.image?.url ||
+												DEFAULT_IMAGE,
 											alt:
 												data.approvedBy.user.firstName +
 												' ' +

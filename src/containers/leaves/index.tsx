@@ -7,7 +7,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetLeavesQuery,
 	useRequestLeaveMutation,
-} from '../../store/queries';
+} from '../../store/queries/leaves';
 import {
 	CreateLeaveQueryType,
 	CreateLeaveErrorResponseType,

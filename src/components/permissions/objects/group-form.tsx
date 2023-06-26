@@ -4,7 +4,7 @@ import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useGetGroupsQuery } from '../../../store/queries';
+import { useGetGroupsQuery } from '../../../store/queries/permissions';
 import { ObjPermGroupType } from '../../../types';
 import { handleAxiosErrors } from '../../../validators';
 

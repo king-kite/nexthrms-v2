@@ -12,11 +12,9 @@ import React from 'react';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import {
-	useGetDepartmentsQuery,
-	useGetEmployeesQuery,
-	useGetJobsQuery,
-} from '../../store/queries';
+import { useGetDepartmentsQuery } from '../../store/queries/departments';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
+import { useGetJobsQuery } from '../../store/queries/jobs';
 import {
 	CreateUserQueryType,
 	CreateUserErrorResponseType,

@@ -10,7 +10,7 @@ import {
 import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE, DEFAULT_IMAGE } from '../../config';
-import { useGetUsersQuery } from '../../store/queries';
+import { useGetUsersQuery } from '../../store/queries/users';
 import {
 	ClientType,
 	ClientCreateQueryType,

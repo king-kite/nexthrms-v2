@@ -2,7 +2,7 @@ import { Alert, Button, Input, Select, Textarea } from 'kite-react-tailwind';
 import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useGetEmployeesQuery } from '../../store/queries';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
 import {
 	CreateLeaveQueryType,
 	CreateLeaveErrorResponseType,

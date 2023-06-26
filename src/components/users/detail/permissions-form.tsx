@@ -1,7 +1,7 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
 import React from 'react';
 
-import { useGetPermissionsQuery } from '../../../store/queries';
+import { useGetPermissionsQuery } from '../../../store/queries/permissions';
 import { PermissionType } from '../../../types';
 import { handleYupErrors } from '../../../validators';
 import { updateUserPermissionsSchema } from '../../../validators/users';

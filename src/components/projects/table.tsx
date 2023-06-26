@@ -19,7 +19,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteProjectMutation,
 	useMarkProjectMutation,
-} from '../../store/queries';
+} from '../../store/queries/projects';
 import { ProjectType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
 

@@ -23,7 +23,7 @@ import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetAllOvertimeAdminQuery,
 	useCreateOvertimeMutation,
-} from '../../../store/queries';
+} from '../../../store/queries/overtime';
 import {
 	CreateOvertimeQueryType,
 	CreateOvertimeErrorResponseType,

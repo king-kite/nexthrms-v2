@@ -8,7 +8,7 @@ import {
 	useDeleteNotificationMutation,
 	useGetNotificationsQuery,
 	useMarkNotificationMutation,
-} from '../store/queries';
+} from '../store/queries/notifications';
 import { NotificationType } from '../types';
 import { downloadFile, getStringDateTime } from '../utils';
 

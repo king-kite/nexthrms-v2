@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Form from '../form';
-import { useEditUserMutation } from '../../../store/queries';
+import { useEditUserMutation } from '../../../store/queries/users';
 import { UserType, CreateUserErrorResponseType } from '../../../types';
 
 interface ErrorType extends CreateUserErrorResponseType {

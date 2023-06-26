@@ -18,7 +18,7 @@ import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetClientsQuery,
 	useCreateClientMutation,
-} from '../../store/queries';
+} from '../../store/queries/clients';
 import {
 	CreateClientErrorResponseType,
 	GetClientsResponseType,

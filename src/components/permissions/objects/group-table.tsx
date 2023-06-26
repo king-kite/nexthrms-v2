@@ -19,7 +19,7 @@ import {
 import { TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
-import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
 import { ObjPermGroupType } from '../../../types';
 
 const heads: TableHeadType = [

@@ -7,7 +7,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useGetAllOvertimeQuery,
 	useRequestOvertimeMutation,
-} from '../../store/queries';
+} from '../../store/queries/overtime';
 import {
 	CreateOvertimeQueryType,
 	CreateOvertimeErrorResponseType,

@@ -24,7 +24,7 @@ import {
 	useEditGroupMutation,
 	useGetGroupQuery,
 	useGetUserObjectPermissionsQuery,
-} from '../../../store/queries';
+} from '../../../store/queries/permissions';
 import {
 	GroupType,
 	CreateGroupQueryType,

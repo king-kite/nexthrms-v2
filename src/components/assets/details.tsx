@@ -4,7 +4,7 @@ import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { permissions, DEFAULT_IMAGE } from '../../config';
 import { useAuthContext } from '../../store/contexts';
-import { useGetUserObjectPermissionsQuery } from '../../store/queries';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import { AssetType } from '../../types';
 import { hasModelPermission } from '../../utils';
 

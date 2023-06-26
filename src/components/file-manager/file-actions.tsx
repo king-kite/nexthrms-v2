@@ -10,7 +10,7 @@ import {
 import Breadcrumbs from './breadcrumbs';
 import { FileAction } from './file';
 import { FILE_MANAGER_PAGE_URL } from '../../config';
-import { useDeleteMultipleManagedFileMutation } from '../../store/queries';
+import { useDeleteMultipleManagedFileMutation } from '../../store/queries/managed-files';
 
 function FileActions({
 	dir,

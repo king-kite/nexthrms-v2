@@ -11,7 +11,7 @@ import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
 	useEditUserPermissionsMutation,
 	useGetUserPermissionsQuery,
-} from '../../../store/queries';
+} from '../../../store/queries/users';
 import { PermissionType } from '../../../types';
 
 function UserPermissions({

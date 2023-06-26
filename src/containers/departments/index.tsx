@@ -28,7 +28,7 @@ import {
 	useAlertModalContext,
 	useAuthContext,
 } from '../../store/contexts';
-import { useGetDepartmentsQuery } from '../../store/queries';
+import { useGetDepartmentsQuery } from '../../store/queries/departments';
 import { GetDepartmentsResponseType } from '../../types';
 import { hasModelPermission } from '../../utils';
 

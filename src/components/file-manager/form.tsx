@@ -2,7 +2,7 @@ import { Alert, Button, File, Input } from 'kite-react-tailwind';
 import React from 'react';
 
 import { useAlertContext } from '../../store/contexts';
-import { useCreateManagedFileMutation } from '../../store/queries';
+import { useCreateManagedFileMutation } from '../../store/queries/managed-files';
 import { CreateManagedFileType, CreateManagedFileErrorType } from '../../types';
 import { handleYupErrors } from '../../validators';
 import { managedFileCreateSchema } from '../../validators/managed-files';

@@ -23,7 +23,7 @@ import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useGetLeavesAdminQuery,
 	useCreateLeaveMutation,
-} from '../../../store/queries';
+} from '../../../store/queries/leaves';
 import {
 	CreateLeaveQueryType,
 	CreateLeaveErrorResponseType,

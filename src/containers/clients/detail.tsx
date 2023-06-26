@@ -24,11 +24,11 @@ import {
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
-	useActivateUserMutation,
 	useDeleteClientMutation,
 	useGetClientQuery,
-	useGetUserObjectPermissionsQuery,
-} from '../../store/queries';
+} from '../../store/queries/clients';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
+import { useActivateUserMutation } from '../../store/queries/users';
 import { ClientType, UserObjPermType } from '../../types';
 import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 

@@ -9,7 +9,8 @@ import {
 import React from 'react';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
-import { useGetClientsQuery, useGetEmployeesQuery } from '../../store/queries';
+import { useGetClientsQuery } from '../../store/queries/clients';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
 import {
 	CreateProjectErrorResponseType,
 	CreateProjectQueryType,

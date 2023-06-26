@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useGetProjectTeamQuery } from '../../../store/queries';
+import { useGetProjectTeamQuery } from '../../../store/queries/projects';
 import {
 	CreateProjectTaskErrorResponseType,
 	CreateProjectTaskQueryType,

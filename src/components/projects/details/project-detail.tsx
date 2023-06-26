@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { StatusProgressBar } from '../../common';
 import { DEFAULT_IMAGE } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
-import { useEditProjectMutation } from '../../../store/queries';
+import { useEditProjectMutation } from '../../../store/queries/projects';
 import { ProjectType } from '../../../types';
 import { getDate } from '../../../utils';
 

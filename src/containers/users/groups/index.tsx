@@ -18,7 +18,7 @@ import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useCreateGroupMutation,
 	useGetGroupsQuery,
-} from '../../../store/queries';
+} from '../../../store/queries/permissions';
 import {
 	CreateGroupQueryType,
 	CreateGroupErrorResponseType,

@@ -15,7 +15,10 @@ import {
 	USERS_IMPORT_URL,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import { useCreateUserMutation, useGetUsersQuery } from '../../store/queries';
+import {
+	useCreateUserMutation,
+	useGetUsersQuery,
+} from '../../store/queries/users';
 import { CreateUserErrorResponseType, GetUsersResponseType } from '../../types';
 import { hasModelPermission } from '../../utils';
 

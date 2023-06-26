@@ -27,7 +27,7 @@ import {
 	useDeleteAssetMutation,
 	useEditAssetMutation,
 	useGetAssetsQuery,
-} from '../store/queries';
+} from '../store/queries/assets';
 import {
 	AssetType,
 	AssetCreateQueryType,

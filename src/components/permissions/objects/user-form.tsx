@@ -5,7 +5,7 @@ import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../../config';
-import { useGetUsersQuery } from '../../../store/queries';
+import { useGetUsersQuery } from '../../../store/queries/users';
 import { ObjPermUser } from '../../../types';
 import { handleAxiosErrors } from '../../../validators';
 

@@ -1,6 +1,6 @@
 import { Activity, Statistics, TimeSheet } from './index';
 import { useAlertContext } from '../../store/contexts';
-import { useGetAttendanceInfoQuery } from '../../store/queries';
+import { useGetAttendanceInfoQuery } from '../../store/queries/attendance';
 import { GetAttendanceInfoResponseType } from '../../types';
 
 const StatsCard = ({

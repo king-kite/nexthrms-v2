@@ -19,7 +19,7 @@ import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import {
 	useDeleteProjectTaskMutation,
 	useMarkProjectTaskMutation,
-} from '../../../store/queries';
+} from '../../../store/queries/projects';
 import { ProjectTaskType } from '../../../types';
 import { getStringedDate, hasModelPermission } from '../../../utils';
 
@@ -122,9 +122,9 @@ type TableType = {
 
 const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 	const [rows, setRows] = React.useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = React.useState<'all' | 'ongoing' | 'completed'>(
-		'all'
-	);
+	const [activeRow, setActiveRow] = React.useState<
+		'all' | 'ongoing' | 'completed'
+	>('all');
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -195,7 +195,8 @@ const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 				deleteTask: canDelete ? deleteTask : undefined,
 				markTask: canEdit ? markTask : undefined,
 				objPermLink: canViewObjectPermissions
-					? (taskId) => PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(projectId, taskId)
+					? (taskId) =>
+							PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(projectId, taskId)
 					: undefined,
 			})
 		);

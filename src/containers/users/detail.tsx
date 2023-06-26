@@ -27,12 +27,12 @@ import {
 	USER_OBJECT_PERMISSIONS_PAGE_URL,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import {
 	useGetUserQuery,
 	useActivateUserMutation,
 	useDeleteUserMutation,
-	useGetUserObjectPermissionsQuery,
-} from '../../store/queries';
+} from '../../store/queries/users';
 import {
 	PermissionType,
 	UserType,

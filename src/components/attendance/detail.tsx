@@ -4,10 +4,8 @@ import { FaPen, FaTrash } from 'react-icons/fa';
 
 import { permissions, DEFAULT_IMAGE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import {
-	useGetUserObjectPermissionsQuery,
-	useDeleteAttendanceMutation,
-} from '../../store/queries';
+import { useDeleteAttendanceMutation } from '../../store/queries/attendance';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import { AttendanceType, AttendanceCreateType } from '../../types';
 import { getStringedDate, hasModelPermission } from '../../utils';
 

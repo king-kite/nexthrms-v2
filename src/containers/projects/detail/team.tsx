@@ -20,12 +20,12 @@ import {
 } from '../../../config';
 import { useAxiosInstance } from '../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
+import { useGetUserObjectPermissionsQuery } from '../../../store/queries/permissions';
 import {
 	useGetProjectQuery,
-	useGetUserObjectPermissionsQuery,
 	useAppointProjectTeamLeaderMutation,
 	useDeleteProjectTeamMemberMutation,
-} from '../../../store/queries';
+} from '../../../store/queries/projects';
 import {
 	ProjectType,
 	SuccessResponseType,

@@ -11,7 +11,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useCreateProjectMutation,
 	useGetProjectsQuery,
-} from '../../store/queries';
+} from '../../store/queries/projects';
 import {
 	CreateProjectQueryType,
 	CreateProjectErrorResponseType,

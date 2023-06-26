@@ -19,11 +19,11 @@ import {
 import { useAuthContext, useAlertContext } from '../../store/contexts';
 import {
 	useGetLeaveQuery,
-	useGetUserObjectPermissionsQuery,
 	useApproveLeaveMutation,
 	useDeleteLeaveMutation,
 	useRequestLeaveUpdateMutation,
-} from '../../store/queries';
+} from '../../store/queries/leaves';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import {
 	CreateLeaveErrorResponseType,
 	CreateLeaveQueryType,

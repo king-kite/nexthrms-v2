@@ -22,7 +22,7 @@ import {
 	samples,
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import { useGetAttendanceAdminQuery } from '../../store/queries';
+import { useGetAttendanceAdminQuery } from '../../store/queries/attendance';
 import {
 	AttendanceCreateType,
 	AttendanceType,
@@ -110,12 +110,11 @@ function AttendanceAdmin({
 			setForm((prevState) => ({
 				...prevState,
 				overtime: {
-					hours: name === 'hours' 
-						? +value 
-						: prevState.overtime?.hours || 0,
-					reason: name === 'reason' 
-						? String(value) 
-						: prevState.overtime?.reason || '',
+					hours: name === 'hours' ? +value : prevState.overtime?.hours || 0,
+					reason:
+						name === 'reason'
+							? String(value)
+							: prevState.overtime?.reason || '',
 				},
 			}));
 		} else {

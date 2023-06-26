@@ -21,11 +21,11 @@ import {
 } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
-	useActivateUserMutation,
 	useDeleteEmployeeMutation,
 	useGetEmployeeQuery,
-	useGetUserObjectPermissionsQuery,
-} from '../../store/queries';
+} from '../../store/queries/employees';
+import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
+import { useActivateUserMutation } from '../../store/queries/users';
 import { EmployeeType, UserObjPermType } from '../../types';
 import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 

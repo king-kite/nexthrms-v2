@@ -8,7 +8,7 @@ import UserForm, { FormType } from './user-form';
 import UserTable from './user-table';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
-import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
 import { ObjPermUser } from '../../../types';
 
 function Users({

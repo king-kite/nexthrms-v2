@@ -5,8 +5,8 @@ import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
 	useCreateDepartmentMutation,
 	useEditDepartmentMutation,
-	useGetEmployeesQuery,
-} from '../../store/queries';
+} from '../../store/queries/departments';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { createDepartmentSchema } from '../../validators/departments';
 

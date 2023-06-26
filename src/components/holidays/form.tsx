@@ -4,7 +4,7 @@ import React from 'react';
 import {
 	useCreateHolidayMutation,
 	useEditHolidayMutation,
-} from '../../store/queries';
+} from '../../store/queries/holidays';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { createHolidaySchema } from '../../validators/holidays';
 

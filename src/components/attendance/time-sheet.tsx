@@ -4,7 +4,7 @@ import { BiRefresh } from 'react-icons/bi';
 
 import { permissions } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import { usePunchAttendanceMutation } from '../../store/queries';
+import { usePunchAttendanceMutation } from '../../store/queries/attendance';
 import { AttendanceInfoType } from '../../types';
 import { hasModelPermission } from '../../utils';
 

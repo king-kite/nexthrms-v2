@@ -12,7 +12,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
 	useDeleteManagedFileMutation,
 	useDeleteMultipleManagedFileMutation,
-} from '../../store/queries';
+} from '../../store/queries/managed-files';
 import { ManagedFileType } from '../../types';
 import {
 	downloadFile,

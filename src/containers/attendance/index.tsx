@@ -4,7 +4,7 @@ import { Container, TablePagination } from '../../components/common';
 import { StatsCard, AttendanceTable } from '../../components/attendance';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
-import { useGetAttendanceQuery } from '../../store/queries';
+import { useGetAttendanceQuery } from '../../store/queries/attendance';
 import {
 	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,

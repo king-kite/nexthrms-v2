@@ -14,7 +14,7 @@ import {
 	useAlertModalContext,
 	useAuthContext,
 } from '../../store/contexts';
-import { useDeleteJobMutation } from '../../store/queries';
+import { useDeleteJobMutation } from '../../store/queries/jobs';
 import { JobType } from '../../types/jobs';
 import { hasModelPermission, toCapitalize } from '../../utils';
 

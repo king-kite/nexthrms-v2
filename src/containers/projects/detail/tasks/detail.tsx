@@ -28,14 +28,14 @@ import {
 import { TaskForm } from '../../../../components/projects';
 import { useAxiosInstance } from '../../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../../store/contexts';
+import { useGetUserObjectPermissionsQuery } from '../../../../store/queries/permissions';
 import {
 	useGetProjectTaskQuery,
 	useEditProjectTaskMutation,
 	useAppointProjectTaskLeaderMutation,
 	useDeleteProjectTaskMutation,
 	useDeleteProjectTaskFollowerMutation,
-	useGetUserObjectPermissionsQuery,
-} from '../../../../store/queries';
+} from '../../../../store/queries/projects';
 import {
 	CreateProjectTaskErrorResponseType,
 	ProjectTaskType,

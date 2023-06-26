@@ -18,7 +18,7 @@ import {
 import { TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
-import { useEditObjectPermissionMutation } from '../../../store/queries';
+import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
 import { ObjPermUser } from '../../../types';
 import { toCapitalize } from '../../../utils';
 

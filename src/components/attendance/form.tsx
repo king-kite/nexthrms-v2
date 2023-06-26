@@ -5,8 +5,8 @@ import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
 	useCreateAttendanceMutation,
 	useEditAttendanceMutation,
-	useGetEmployeesQuery,
-} from '../../store/queries';
+} from '../../store/queries/attendance';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
 import { AttendanceCreateType, AttendanceCreateErrorType } from '../../types';
 import { getDate } from '../../utils';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';

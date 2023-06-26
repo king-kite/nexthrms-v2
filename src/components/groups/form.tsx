@@ -10,7 +10,8 @@ import {
 import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE, DEFAULT_IMAGE } from '../../config';
-import { useGetPermissionsQuery, useGetUsersQuery } from '../../store/queries';
+import { useGetPermissionsQuery } from '../../store/queries/permissions';
+import { useGetUsersQuery } from '../../store/queries/users';
 
 import {
 	CreateGroupQueryType,

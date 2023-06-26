@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Form from '../form';
-import { useEditGroupMutation } from '../../../store/queries';
+import { useEditGroupMutation } from '../../../store/queries/permissions';
 import {
 	GroupType,
 	CreateGroupErrorResponseType,

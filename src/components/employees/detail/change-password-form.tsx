@@ -1,7 +1,7 @@
 import { Button, Input } from 'kite-react-tailwind';
 import React from 'react';
 
-import { useChangeUserPasswordMutation } from '../../../store/queries';
+import { useChangeUserPasswordMutation } from '../../../store/queries/users';
 import { handleYupErrors } from '../../../validators';
 import { changeUserPasswordSchema } from '../../../validators/users';
 

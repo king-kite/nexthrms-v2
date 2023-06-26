@@ -2,7 +2,7 @@ import { Alert, Button, File, Input } from 'kite-react-tailwind';
 import React from 'react';
 
 import { useAlertModalContext } from '../../../store/contexts';
-import { useCreateProjectFileMutation } from '../../../store/queries';
+import { useCreateProjectFileMutation } from '../../../store/queries/projects';
 import { CreateProjectFileErrorResponseType } from '../../../types';
 import { handleYupErrors } from '../../../validators';
 import { projectFileCreateSchema } from '../../../validators/projects';

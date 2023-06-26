@@ -10,12 +10,10 @@ import {
 import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE, DEFAULT_IMAGE } from '../../config';
-import {
-	useGetDepartmentsQuery,
-	useGetEmployeesQuery,
-	useGetJobsQuery,
-	useGetUsersQuery,
-} from '../../store/queries';
+import { useGetDepartmentsQuery } from '../../store/queries/departments';
+import { useGetEmployeesQuery } from '../../store/queries/employees';
+import { useGetJobsQuery } from '../../store/queries/jobs';
+import { useGetUsersQuery } from '../../store/queries/users';
 
 import {
 	CreateEmployeeQueryType,

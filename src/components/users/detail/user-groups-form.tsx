@@ -1,7 +1,7 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
 import React from 'react';
 
-import { useGetGroupsQuery } from '../../../store/queries';
+import { useGetGroupsQuery } from '../../../store/queries/permissions';
 import { GroupType, UserGroupType } from '../../../types';
 import { handleYupErrors } from '../../../validators';
 import { updateUserGroupsSchema } from '../../../validators/users';
