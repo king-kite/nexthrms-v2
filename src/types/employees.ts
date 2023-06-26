@@ -1,4 +1,5 @@
-import { SuccessResponseType } from './base';
+import { SuccessResponseType, ValidatorErrorType } from './base';
+import { CreateEmployeeType } from '../validators/employees';
 
 type UserDataType = {
 	firstName: string;
@@ -13,45 +14,18 @@ type UserDataType = {
 	isActive: boolean;
 };
 
-export type CreateEmployeeQueryType = {
-	dateEmployed: string;
-	department: string;
-	job: string;
-	supervisors?: string[];
-	user: {
-		email: string;
-		firstName: string;
-		lastName: string;
-		profile: {
-			phone: string;
-			gender: 'MALE' | 'FEMALE';
-			image: string;
-			address: string;
-			state: string;
-			city: string;
-			dob: string;
-		};
-	} | null;
-	userId: string | null;
-};
+export type CreateEmployeeQueryType = CreateEmployeeType;
 
-export type CreateEmployeeErrorResponseType = {
-	dateEmployed?: string;
-	department?: string;
-	job?: string;
-	supervisors?: string;
-	email?: string;
-	firstName?: string;
-	lastName?: string;
-	phone?: string;
-	gender?: string;
-	image?: string;
-	address?: string;
-	state?: string;
-	city?: string;
-	dob?: string;
-	userId?: string;
-};
+type EmployeeCreateProfileErrorType = ValidatorErrorType<
+	EmployeeUserType['profile']
+>;
+
+export type CreateEmployeeErrorResponseType =
+	ValidatorErrorType<CreateEmployeeType> & {
+		user?: ValidatorErrorType<CreateEmployeeType['user']> & {
+			profile?: EmployeeCreateProfileErrorType;
+		};
+	};
 
 interface EmployeeUserType extends UserDataType {
 	id: string;

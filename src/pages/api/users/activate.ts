@@ -43,9 +43,10 @@ export default admin().post(async (req, res) => {
 	// users, employees and clients since they each have a unique
 	// accessible email on get.
 
-	const valid: {
-		emails: string[];
-	} = await multipleEmailSchema.validateAsync({ emails });
+	const valid = await multipleEmailSchema.validate(
+		{ emails },
+		{ abortEarly: false }
+	);
 
 	let hasPerm =
 		req.user.isSuperUser ||

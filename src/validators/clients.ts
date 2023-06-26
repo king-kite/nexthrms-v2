@@ -20,6 +20,7 @@ export const createClientSchema = object({
 			.label('Profile'),
 	})
 		.nullable()
+		.optional()
 		.label('Contact'),
 	contactId: string().uuid().nullable().label('Contact ID'),
 });

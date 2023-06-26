@@ -1,33 +1,34 @@
-import Joi from 'joi';
+import { InferType, array, date, mixed, object, string } from 'yup';
 
-export const createEmployeeSchema = Joi.object({
-	department: Joi.string().uuid().required().label('Department'),
-	job: Joi.string().uuid().required().label('Job'),
-	supervisors: Joi.array()
-		.items(Joi.string().uuid())
+export const createEmployeeSchema = object({
+	department: string().uuid().required().label('Department'),
+	job: string().uuid().required().label('Job'),
+	supervisors: array()
+		.of(string().uuid().required())
+		.nullable()
 		.optional()
 		.label('Supervisors'),
-	dateEmployed: Joi.date().optional().allow('').label('Date Employed'),
-	user: Joi.object({
-		email: Joi.string()
-			.email({ tlds: { allow: false } })
-			.required()
-			.label('Email Address'),
-		firstName: Joi.string().required().label('First Name'),
-		lastName: Joi.string().required().label('Last Name'),
-		profile: Joi.object({
-			image: Joi.any().optional().allow('').label('Image'), // File
-			phone: Joi.string().required().label('Phone Number'),
-			gender: Joi.string().valid('MALE', 'FEMALE').required().label('Gender'),
-			address: Joi.string().required().label('Address'),
-			state: Joi.string().required().label('State'),
-			city: Joi.string().required().label('City'),
-			dob: Joi.date().required().label('Date of Birth'),
+	dateEmployed: date().nullable().optional().label('Date Employed'),
+	user: object({
+		email: string().email().required().label('Email Address'),
+		firstName: string().required().label('First Name'),
+		lastName: string().required().label('Last Name'),
+		profile: object({
+			image: mixed().nullable().optional().label('Image'), // File
+			phone: string().required().label('Phone Number'),
+			gender: string().oneOf(['MALE', 'FEMALE']).required().label('Gender'),
+			address: string().required().label('Address'),
+			state: string().required().label('State'),
+			city: string().required().label('City'),
+			dob: date().required().label('Date of Birth'),
 		})
 			.required()
 			.label('Profile'),
 	})
+		.nullable()
 		.optional()
-		.allow(null),
-	userId: Joi.string().uuid().optional().allow(null).label('User ID'),
+		.label('User'),
+	userId: string().uuid().nullable().optional().label('User ID'),
 });
+
+export type CreateEmployeeType = InferType<typeof createEmployeeSchema>;

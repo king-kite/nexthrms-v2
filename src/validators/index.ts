@@ -1,5 +1,4 @@
 export * from './common';
-export * from './employees';
 export * from './errors';
 export * from './managed-files';
 export * from './notifications';

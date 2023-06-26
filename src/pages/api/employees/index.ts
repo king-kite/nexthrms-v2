@@ -19,7 +19,7 @@ import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createEmployeeSchema } from '../../../validators';
+import { createEmployeeSchema } from '../../../validators/employees';
 
 export const config = {
 	api: {
@@ -79,7 +79,9 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid = await createEmployeeSchema.validateAsync(form);
+		const valid = await createEmployeeSchema.validate(form, {
+			abortEarly: false,
+		});
 		if (!valid.user && !valid.userId) {
 			return res.status(400).json({
 				status: 'error',
@@ -142,7 +144,7 @@ export default admin()
 							create: {
 								...valid.user.profile,
 								image: {
-									create: valid.user.profile.image,
+									create: valid.user.profile.image as any,
 								},
 							},
 						},
