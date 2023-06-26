@@ -1,4 +1,5 @@
-import { SuccessResponseType } from './base';
+import { ValidatorErrorType, SuccessResponseType } from './base';
+import { CreateClientType } from '../validators/clients';
 
 export type ClientType = {
 	id: string;
@@ -36,41 +37,17 @@ export type ClientImportQueryType = {
 	created_at?: Date | string;
 };
 
-export type ClientCreateQueryType = {
-	company: string;
-	position: string;
-	contact: {
-		firstName: string;
-		lastName: string;
-		email: string;
-		profile: {
-			phone: string;
-			image: string;
-			gender: 'MALE' | 'FEMALE';
-			address: string;
-			state: string;
-			city: string;
-			dob: string;
-		};
-	} | null;
-	contactId: string | null;
-};
+export type ClientCreateQueryType = CreateClientType;
+export type ClientCreateProfileErrorType = ValidatorErrorType<
+	ClientType['contact']['profile']
+>;
 
-export type CreateClientErrorResponseType = {
-	company?: string;
-	position?: string;
-	firstName?: string;
-	lastName?: string;
-	email?: string;
-	phone?: string;
-	image?: string;
-	gender?: string;
-	address?: string;
-	state?: string;
-	city?: string;
-	dob?: string;
-	contactId?: string;
-};
+export type CreateClientErrorResponseType =
+	ValidatorErrorType<CreateClientType> & {
+		contact?: ValidatorErrorType<CreateClientType['contact']> & {
+			profile?: ClientCreateProfileErrorType;
+		};
+	};
 
 export type CreateClientResponseType = SuccessResponseType<ClientType>;
 

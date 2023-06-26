@@ -17,11 +17,8 @@ import {
 	CreateClientErrorResponseType,
 } from '../../types';
 import { getStringedDate, toCapitalize } from '../../utils';
-import {
-	createClientSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createClientSchema } from '../../validators/clients';
 
 interface ErrorType extends CreateClientErrorResponseType {
 	message?: string;
@@ -92,22 +89,21 @@ const Form = ({
 			setErrors(undefined);
 			if (removeErrors) removeErrors();
 			try {
-				const valid: ClientCreateQueryType =
-					await createClientSchema.validateAsync(
-						{ ...input },
-						{
-							abortEarly: false,
-						}
-					);
+				const valid: ClientCreateQueryType = await createClientSchema.validate(
+					{ ...input },
+					{
+						abortEarly: false,
+					}
+				);
 				const form = new FormData();
 				valid.contact &&
 					valid.contact.profile.image &&
-					form.append('image', valid.contact.profile.image);
+					form.append('image', valid.contact.profile.image as string);
 				const formJsonData = JSON.stringify(valid);
 				form.append('form', formJsonData);
 				onSubmit(form);
 			} catch (error) {
-				const err = handleJoiErrors<CreateClientErrorResponseType>(error);
+				const err = handleYupErrors<CreateClientErrorResponseType>(error);
 				if (err) {
 					setErrors((prevState) => ({
 						...prevState,
@@ -213,7 +209,10 @@ const Form = ({
 						<div className="w-full md:w-1/2 lg:w-1/3">
 							<File
 								disabled={loading}
-								error={formErrors?.image || errors?.image}
+								error={
+									formErrors?.contact?.profile?.image ||
+									errors?.contact?.profile?.image
+								}
 								label="Image"
 								name="image"
 								onChange={({ target: { files } }) => {
@@ -341,7 +340,9 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.firstName}
 								disabled={loading}
-								error={formErrors?.firstName || errors?.firstName}
+								error={
+									formErrors?.contact?.firstName || errors?.contact?.firstName
+								}
 								label="First Name"
 								name="firstName"
 								onChange={() => removeError('firstName')}
@@ -352,7 +353,9 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.lastName}
 								disabled={loading}
-								error={formErrors?.lastName || errors?.lastName}
+								error={
+									formErrors?.contact?.lastName || errors?.contact?.lastName
+								}
 								label="Last Name"
 								name="lastName"
 								onChange={() => removeError('lastName')}
@@ -363,7 +366,7 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.email}
 								disabled={loading}
-								error={formErrors?.email || errors?.email}
+								error={formErrors?.contact?.email || errors?.contact?.email}
 								label="Email"
 								name="email"
 								onChange={() => removeError('email')}
@@ -375,7 +378,10 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.profile?.phone || undefined}
 								disabled={loading}
-								error={formErrors?.phone || errors?.phone}
+								error={
+									formErrors?.contact?.profile?.phone ||
+									errors?.contact?.profile?.phone
+								}
 								label="Phone Number"
 								name="phone"
 								onChange={() => removeError('phone')}
@@ -386,7 +392,10 @@ const Form = ({
 							<Select
 								defaultValue={initState?.contact.profile?.gender || undefined}
 								disabled={loading}
-								error={formErrors?.gender || errors?.gender}
+								error={
+									formErrors?.contact?.profile?.gender ||
+									errors?.contact?.profile?.gender
+								}
 								label="Gender"
 								name="gender"
 								onChange={() => removeError('gender')}
@@ -402,7 +411,10 @@ const Form = ({
 							<Textarea
 								defaultValue={initState?.contact.profile?.address || undefined}
 								disabled={loading}
-								error={formErrors?.address || errors?.address}
+								error={
+									formErrors?.contact?.profile?.address ||
+									errors?.contact?.profile?.address
+								}
 								label="Address"
 								name="address"
 								onChange={() => removeError('address')}
@@ -414,7 +426,10 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.profile?.state || undefined}
 								disabled={loading}
-								error={formErrors?.state || errors?.state}
+								error={
+									formErrors?.contact?.profile?.state ||
+									errors?.contact?.profile?.state
+								}
 								label="State"
 								name="state"
 								onChange={() => removeError('state')}
@@ -426,7 +441,10 @@ const Form = ({
 							<Input
 								defaultValue={initState?.contact.profile?.city || undefined}
 								disabled={loading}
-								error={formErrors?.city || errors?.city}
+								error={
+									formErrors?.contact?.profile?.city ||
+									errors?.contact?.profile?.city
+								}
 								label="City"
 								name="city"
 								onChange={() => removeError('city')}
@@ -442,7 +460,10 @@ const Form = ({
 										: undefined
 								}
 								disabled={loading}
-								error={formErrors?.dob || errors?.dob}
+								error={
+									formErrors?.contact?.profile?.dob ||
+									errors?.contact?.profile?.dob
+								}
 								label="Date Of Birth"
 								name="dob"
 								onChange={() => removeError('dob')}

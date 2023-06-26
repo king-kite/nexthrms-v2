@@ -10,7 +10,7 @@ import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createClientSchema } from '../../../validators';
+import { createClientSchema } from '../../../validators/clients';
 
 export const config = {
 	api: {
@@ -59,7 +59,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid = await createClientSchema.validateAsync(form, {
+		const valid = await createClientSchema.validate(form, {
 			abortEarly: false,
 		});
 
@@ -121,17 +121,19 @@ export default admin()
 							create: {
 								...valid.contact.profile,
 								image: {
-									create: valid.contact.profile.image,
+									create: valid.contact.profile.image as any,
 								},
 							},
 						},
 					},
 			  }
-			: {
+			: valid.contactId
+			? {
 					connect: {
 						id: valid.contactId,
 					},
-			  };
+			  }
+			: {};
 
 		const data: Prisma.ClientCreateInput = {
 			position: valid.position,

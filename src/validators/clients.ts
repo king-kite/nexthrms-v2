@@ -1,29 +1,27 @@
-import Joi from 'joi';
+import { InferType, date, mixed, object, string } from 'yup';
 
-export const createClientSchema = Joi.object({
-	company: Joi.string().required().label('Company'),
-	position: Joi.string().required().label('Position'),
-	contact: Joi.object({
-		firstName: Joi.string().required().label('First Name'),
-		lastName: Joi.string().required().label('Last Name'),
-		email: Joi.string()
-			.email({ tlds: { allow: false } })
-			.required()
-			.label('Email Address'),
-		profile: Joi.object({
-			phone: Joi.string().required().label('Phone Number'),
-			gender: Joi.string().valid('MALE', 'FEMALE').optional().label('Gender'),
-			image: Joi.any().optional().allow('').label('Image'), // File
-			address: Joi.string().optional().allow('').label('Address'),
-			state: Joi.string().optional().allow('').label('State'),
-			city: Joi.string().optional().allow('').label('City'),
-			dob: Joi.date().optional().allow('').label('Date of Birth'),
+export const createClientSchema = object({
+	company: string().required().label('Company'),
+	position: string().required().label('Position'),
+	contact: object({
+		firstName: string().required().label('First Name'),
+		lastName: string().required().label('Last Name'),
+		email: string().email().required().label('Email Address'),
+		profile: object({
+			phone: string().required().label('Phone Number'),
+			gender: string().oneOf(['MALE', 'FEMALE']).optional().label('Gender'),
+			image: mixed().nullable().optional().label('Image'), // File
+			address: string().nullable().optional().label('Address'),
+			state: string().nullable().optional().label('State'),
+			city: string().nullable().optional().label('City'),
+			dob: date().nullable().optional().label('Date of Birth'),
 		})
 			.required()
 			.label('Profile'),
 	})
-		.required()
-		.allow(null)
+		.nullable()
 		.label('Contact'),
-	contactId: Joi.string().uuid().required().allow(null).label('Contact ID'),
+	contactId: string().uuid().nullable().label('Contact ID'),
 });
+
+export type CreateClientType = InferType<typeof createClientSchema>;

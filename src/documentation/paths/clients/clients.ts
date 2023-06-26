@@ -1,4 +1,4 @@
-import { parametersWithSearch as parameters } from "../../parameters"
+import { parametersWithSearch as parameters } from '../../parameters';
 import responses from '../../responses';
 import * as refs from '../../refs';
 import * as tags from '../../tags';
@@ -10,21 +10,21 @@ const { id: expId, ...clientExp } = ClientModel.example;
 
 // Remove the isActive key and value;
 const { isActive: propIsActive, ...clientContactProperties } =
-  ClientModel.properties.contact.properties;
+	ClientModel.properties.contact.properties;
 const { isActive: expIsActive, ...clientContactExample } =
-  ClientModel.example.contact;
+	ClientModel.example.contact;
 
 export const clientProperties = {
-  ...clientProps,
-  contact: {
-    ...clientProps.contact,
-    properties: clientContactProperties,
-  },
+	...clientProps,
+	contact: {
+		...clientProps.contact,
+		properties: clientContactProperties,
+	},
 };
 
 export const clientExample = {
-  ...clientExp,
-  contact: clientContactExample
+	...clientExp,
+	contact: clientContactExample,
 };
 
 const path = {
@@ -145,45 +145,65 @@ const path = {
 											type: 'object',
 											nullable: true,
 											properties: {
-												firstName: {
+												company: {
 													type: 'string',
 													nullable: true,
 												},
-												lastName: {
-													type: 'string',
-													nullable: true,
-												},
-												email: {
-													type: 'string',
-													nullable: true,
-												},
-												phone: {
-													type: 'string',
-													nullable: true,
-												},
-												image: {
-													type: 'string',
-													nullable: true,
-												},
-												gender: {
-													type: 'string',
-													nullable: true,
-												},
-												address: {
-													type: 'string',
-													nullable: true,
-												},
-												state: {
-													type: 'string',
-													nullable: true,
-												},
-												city: {
+												position: {
 													type: 'string',
 													nullable: true,
 												},
 												contactId: {
 													type: 'string',
 													nullable: true,
+												},
+												contact: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														firstName: {
+															type: 'string',
+															nullable: true,
+														},
+														lastName: {
+															type: 'string',
+															nullable: true,
+														},
+														email: {
+															type: 'string',
+															nullable: true,
+														},
+														profile: {
+															type: 'object',
+															nullable: true,
+															properties: {
+																phone: {
+																	type: 'string',
+																	nullable: true,
+																},
+																image: {
+																	type: 'string',
+																	nullable: true,
+																},
+																gender: {
+																	type: 'string',
+																	nullable: true,
+																},
+																address: {
+																	type: 'string',
+																	nullable: true,
+																},
+																state: {
+																	type: 'string',
+																	nullable: true,
+																},
+																city: {
+																	type: 'string',
+																	nullable: true,
+																},
+															},
+														},
+													},
 												},
 											},
 										},

@@ -1,4 +1,3 @@
-export * from './clients';
 export * from './common';
 export * from './departments';
 export * from './employees';

@@ -13,7 +13,7 @@ import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
-import { createClientSchema } from '../../../validators';
+import { createClientSchema } from '../../../validators/clients';
 
 export const config = {
 	api: {
@@ -78,7 +78,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid = await createClientSchema.validateAsync(form, {
+		const valid = await createClientSchema.validate(form, {
 			abortEarly: false,
 		});
 
@@ -144,8 +144,8 @@ export default admin()
 								...valid.contact.profile,
 								image: {
 									upsert: {
-										create: valid.contact.profile.image,
-										update: valid.contact.profile.image,
+										create: valid.contact.profile.image as any,
+										update: valid.contact.profile.image as any,
 									},
 								},
 							},
