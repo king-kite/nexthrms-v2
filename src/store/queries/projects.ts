@@ -35,7 +35,7 @@ import {
 	ProjectTaskType,
 	CreateProjectTaskQueryType,
 } from '../../types';
-import { axiosInstance, axiosFileInstance, getStringedDate } from '../../utils';
+import { axiosInstance, axiosFileInstance, getDate } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
 // ****** Project Queires ******
@@ -377,11 +377,11 @@ export function useMarkProjectMutation(
 								priority: project.priority,
 								initialCost: project.initialCost,
 								rate: project.rate,
-								startDate: getStringedDate(project.startDate),
-								endDate: getStringedDate(project.endDate),
+								startDate: getDate(project.startDate, false) as Date,
+								endDate: getDate(project.endDate, false) as Date,
 								client: project.client?.id || '',
 								completed: !project.completed,
-							}
+							};
 							showLoader();
 							mutate({
 								id: project.id,
@@ -471,7 +471,7 @@ export function useCreateProjectFileMutation(
 	const mutation = useMutation(
 		async (query: { projectId: string; data: CreateProjectFileQueryType }) => {
 			const form = new FormData();
-			form.append('file', query.data.file);
+			form.append('file', query.data.file as any);
 			form.append('name', query.data.name);
 
 			const response: AxiosResponse<SuccessResponseType<ProjectFileType>> =
@@ -1212,10 +1212,10 @@ export function useMarkProjectTaskMutation(
 							const data = {
 								name: task.name,
 								description: task.description,
-								dueDate: getStringedDate(task.dueDate),
+								dueDate: getDate(task.dueDate, false) as Date,
 								priority: task.priority,
 								completed: !task.completed,
-							}
+							};
 							mutate({
 								id: task.id,
 								projectId: task.project.id,
