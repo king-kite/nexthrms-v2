@@ -1,9 +1,7 @@
 export { default as AlertModal } from './alert-modal';
-export { default as Calendar } from './calendar';
 export { default as Card } from './card';
 export { default as Container } from './container';
 export { default as ExportForm } from './export-form';
-export { default as FadeIn } from './fade-in';
 export { default as FilterDateForm } from './filter-date-form';
 export { default as ImportForm } from './import-form';
 export { default as InfoTopBar } from './info-topbar';
