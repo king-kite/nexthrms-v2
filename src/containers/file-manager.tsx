@@ -1,16 +1,10 @@
-import { Button } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { FaDownload } from 'react-icons/fa';
 
-import { Container, Modal } from '../components/common';
-import {
-	FileActions,
-	FileDetail,
-	Files,
-	Form,
-	QuickActions,
-} from '../components/file-manager';
+import { Container } from '../components/common';
+import { FileActions, Files, QuickActions } from '../components/file-manager';
 import {
 	permissions,
 	DEFAULT_MEDIA_PAGINAITON_SIZE,
@@ -21,6 +15,23 @@ import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries/managed-files';
 import { GetManagedFilesResponseType, ManagedFileType } from '../types';
 import { hasModelPermission } from '../utils';
+
+const DynamicButton = dynamic<any>(
+	() => import('kite-react-tailwind').then((mod) => mod.Button),
+	{ ssr: false }
+);
+const DynamicFileDetail = dynamic(
+	() => import('../components/file-manager/detail').then((mod) => mod.default),
+	{ ssr: false }
+);
+const DynamicForm = dynamic(
+	() => import('../components/file-manager/form').then((mod) => mod.default),
+	{ ssr: false }
+);
+const DynamicModal = dynamic(
+	() => import('../components/common/modal').then((mod) => mod.default),
+	{ ssr: false }
+);
 
 const FileDetailContext = React.createContext<{
 	showDetail: (file: ManagedFileType) => void;
@@ -139,7 +150,7 @@ function FileManager({
 					}`}
 				>
 					<div className="w-[11rem]">
-						<Button
+						<DynamicButton
 							bg="bg-transparent active:relative active:top-[2px] hover:bg-gray-50"
 							border="border border-gray-400"
 							color={isFetching ? 'text-gray-100' : 'text-gray-700'}
@@ -203,7 +214,7 @@ function FileManager({
 					type={type}
 				/>
 			</FileDetailContext.Provider>
-			<Modal
+			<DynamicModal
 				close={() => {
 					setModalVisible(false);
 					if (fileDetail) setFileDetail(null);
@@ -211,9 +222,9 @@ function FileManager({
 				keepVisible
 				component={
 					fileDetail ? (
-						<FileDetail {...fileDetail} />
+						<DynamicFileDetail {...fileDetail} />
 					) : (
-						<Form
+						<DynamicForm
 							directory={type === 'storage' ? uploadDir : undefined}
 							onSuccess={() => {
 								setModalVisible(false);

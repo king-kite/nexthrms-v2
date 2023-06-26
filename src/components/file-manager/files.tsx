@@ -1,15 +1,47 @@
 import { ButtonDropdown, Input } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { FaCalendar, FaSearch } from 'react-icons/fa';
 
-import { FileEmpty } from './box-items';
 import { getFileType } from './file';
-import FilterDropdownForm from './filter-date';
-import FileStorage from './file-storage';
 import FileTable from './table';
-import { TablePagination } from '../common';
 import { DEFAULT_PAGINATION_SIZE, MEDIA_HIDDEN_FILE_NAME } from '../../config';
 import { ManagedFileType } from '../../types';
+
+const DynamicFilterDropdownForm = dynamic(
+	() => import('./filter-date').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+const DynamicFileEmpty = dynamic(
+	() => import('./box-items').then((mod) => mod.FileEmpty),
+	{
+		loading: () => (
+			<p className="text-gray-500 text-center text-sm md:text-base">
+				No file found.
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicFileStorage = dynamic(
+	() => import('./file-storage').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-gray-500 text-center text-sm md:text-base">
+				Loading Files...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicTablePagination = dynamic(
+	() => import('../common').then((mod) => mod.TablePagination),
+	{
+		ssr: false,
+	}
+);
 
 function Files({
 	data = [],
@@ -89,8 +121,8 @@ function Files({
 	}, [files, limit, offset]);
 
 	if (showStorage) {
-		if (!data || data.length <= 0) return <FileEmpty />;
-		return <FileStorage data={data} dir={dir} setDir={setDir} />;
+		if (!data || data.length <= 0) return <DynamicFileEmpty />;
+		return <DynamicFileStorage data={data} dir={dir} setDir={setDir} />;
 	}
 
 	return (
@@ -123,7 +155,7 @@ function Files({
 					<div className="my-2 w-full sm:mx-4 sm:my-0 sm:w-1/3 lg:w-1/4">
 						<ButtonDropdown
 							component={() => (
-								<FilterDropdownForm
+								<DynamicFilterDropdownForm
 									searchForm={searchForm}
 									setSearchForm={setSearchForm}
 									loading={loading}
@@ -141,7 +173,7 @@ function Files({
 				</div>
 				<FileTable files={paginatedFiles} />
 				{total && total > 0 && (
-					<TablePagination
+					<DynamicTablePagination
 						disabled={loading}
 						totalItems={total}
 						onChange={(pageNo: number) => {

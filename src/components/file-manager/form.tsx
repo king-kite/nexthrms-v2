@@ -7,10 +7,6 @@ import { CreateManagedFileType, CreateManagedFileErrorType } from '../../types';
 import { handleYupErrors } from '../../validators';
 import { managedFileCreateSchema } from '../../validators/managed-files';
 
-interface ErrorType extends CreateManagedFileErrorType {
-	message?: string;
-}
-
 export type FormProps = {
 	directory?: string;
 	onSuccess: () => void;
@@ -198,10 +194,6 @@ const Form = ({ directory, type = 'file', onSuccess }: FormProps) => {
 			</div>
 		</form>
 	);
-};
-
-Form.defaultProps = {
-	editMode: false,
 };
 
 export default Form;
