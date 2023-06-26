@@ -18,11 +18,8 @@ import {
 	GroupType,
 } from '../../types';
 import { toCapitalize } from '../../utils';
-import {
-	createGroupSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createGroupSchema } from '../../validators/users';
 
 interface ErrorType extends CreateGroupErrorResponseType {
 	message?: string;
@@ -116,11 +113,13 @@ const Form = ({
 	const handleSubmit = React.useCallback(
 		async (input: CreateGroupQueryType) => {
 			try {
-				const valid: CreateGroupQueryType =
-					await createGroupSchema.validateAsync({ ...input });
+				const valid = await createGroupSchema.validate(
+					{ ...input },
+					{ abortEarly: false }
+				);
 				onSubmit(valid);
 			} catch (err) {
-				const error = handleJoiErrors<CreateGroupErrorResponseType>(err);
+				const error = handleYupErrors<CreateGroupErrorResponseType>(err);
 				setErrors((prevState) => {
 					if (error)
 						return {

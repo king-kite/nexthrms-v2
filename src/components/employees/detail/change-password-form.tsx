@@ -1,17 +1,18 @@
 import { Button, Input } from 'kite-react-tailwind';
-import { FC, useCallback, useRef, useState } from 'react';
+import React from 'react';
 
 import { useChangeUserPasswordMutation } from '../../../store/queries';
-import { changeUserPasswordSchema, handleJoiErrors } from '../../../validators';
+import { handleYupErrors } from '../../../validators';
+import { changeUserPasswordSchema } from '../../../validators/users';
 
 type FormProps = {
 	email: string;
 	onSuccess: () => void;
 };
 
-const Form: FC<FormProps> = ({ email, onSuccess }) => {
-	const formRef = useRef<HTMLFormElement | null>(null);
-	const [formErrors, setErrors] = useState<{
+const Form = ({ email, onSuccess }: FormProps) => {
+	const formRef = React.useRef<HTMLFormElement | null>(null);
+	const [formErrors, setErrors] = React.useState<{
 		password1?: string;
 		password2?: string;
 	}>();
@@ -31,7 +32,7 @@ const Form: FC<FormProps> = ({ email, onSuccess }) => {
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (form: { password1: string; password2: string }) => {
 			reset();
 			try {
@@ -43,13 +44,16 @@ const Form: FC<FormProps> = ({ email, onSuccess }) => {
 					}));
 				} else {
 				}
-				const data = await changeUserPasswordSchema.validateAsync({
-					email,
-					...form,
-				});
+				const data = await changeUserPasswordSchema.validate(
+					{
+						email,
+						...form,
+					},
+					{ abortEarly: false }
+				);
 				changePassword(data);
 			} catch (err) {
-				const error = handleJoiErrors<{
+				const error = handleYupErrors<{
 					password1?: string;
 					password2?: string;
 				}>(err);
@@ -59,7 +63,7 @@ const Form: FC<FormProps> = ({ email, onSuccess }) => {
 		[changePassword, email, reset]
 	);
 
-	const removeErrors = useCallback(
+	const removeErrors = React.useCallback(
 		(name: string) => {
 			reset();
 			setErrors((prevState) => ({
