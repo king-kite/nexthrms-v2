@@ -4,10 +4,11 @@ import { permissions } from '../../../config';
 import { getGroup, groupSelectQuery, prisma } from '../../../db';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { CreateGroupQueryType, GroupType, ParamsType } from '../../../types';
+import { GroupType, ParamsType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createGroupSchema, validateParams } from '../../../validators';
+import { validateParams } from '../../../validators';
+import { createGroupSchema } from '../../../validators/users';
 
 function getGroupUserParamsQuery(query: NextApiRequest['query']) {
 	const userQuery: NextApiRequest['query'] = {};
@@ -76,7 +77,7 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: CreateGroupQueryType = await createGroupSchema.validateAsync(
+		const data = await createGroupSchema.validate(
 			{ ...req.body },
 			{ abortEarly: false }
 		);

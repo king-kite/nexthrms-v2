@@ -8,7 +8,7 @@ import { getObjectPermissions, prisma } from '../../../../../db';
 import { admin } from '../../../../../middlewares';
 import { hasModelPermission } from '../../../../../utils';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
-import { objectPermissionSchema } from '../../../../../validators';
+import { objectPermissionSchema } from '../../../../../validators/users';
 
 export default admin()
 	.use(async (req, res, next) => {
@@ -175,10 +175,7 @@ export default admin()
 			| 'EDIT'
 			| 'VIEW';
 
-		const data: {
-			groups?: string[];
-			users?: string[];
-		} = await objectPermissionSchema.validateAsync(
+		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
 			{ abortEarly: false }
 		);
@@ -251,10 +248,7 @@ export default admin()
 			| 'EDIT'
 			| 'VIEW';
 
-		const data: {
-			groups?: string[];
-			users?: string[];
-		} = await objectPermissionSchema.validateAsync(
+		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
 			{ abortEarly: false }
 		);
@@ -327,10 +321,7 @@ export default admin()
 			| 'EDIT'
 			| 'VIEW';
 
-		const data: {
-			groups?: string[];
-			users?: string[];
-		} = await objectPermissionSchema.validateAsync(
+		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
 			{ abortEarly: false }
 		);

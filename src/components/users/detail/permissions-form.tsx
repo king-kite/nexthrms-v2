@@ -1,12 +1,10 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 
 import { useGetPermissionsQuery } from '../../../store/queries';
 import { PermissionType } from '../../../types';
-import {
-	updateUserPermissionsSchema,
-	handleJoiErrors,
-} from '../../../validators';
+import { handleYupErrors } from '../../../validators';
+import { updateUserPermissionsSchema } from '../../../validators/users';
 
 type ErrorType = {
 	message?: string;
@@ -21,28 +19,28 @@ type FormProps = {
 	onSubmit: (form: { permissions: string[] }) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	initState,
 	errors,
 	resetErrors,
 	loading,
 	onSubmit,
-}) => {
-	const [form, setForm] = useState<{
+}: FormProps) => {
+	const [form, setForm] = React.useState<{
 		permissions: string[];
 	}>({
 		permissions: [],
 	});
-	const [formErrors, setErrors] = useState<ErrorType>();
+	const [formErrors, setErrors] = React.useState<ErrorType>();
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const {
 		data: permissions = { total: 0, result: [] },
 		isLoading: permissionsLoading,
 	} = useGetPermissionsQuery({});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setForm({
 			permissions: initState
 				? initState.map((permission) => permission.codename)
@@ -50,7 +48,7 @@ const Form: FC<FormProps> = ({
 		});
 	}, [initState]);
 
-	const sortedPermissions = useMemo(() => {
+	const sortedPermissions = React.useMemo(() => {
 		if (permissions.result.length <= 0) return [];
 		// Get the names of all permission categories and sort it;
 		let categoryNames: string[] = [];
@@ -79,15 +77,16 @@ const Form: FC<FormProps> = ({
 		return sortedPermissions;
 	}, [permissions]);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (input: { permissions: string[] }) => {
 			try {
-				const valid: {
-					permissions: string[];
-				} = await updateUserPermissionsSchema.validateAsync({ ...input });
+				const valid = await updateUserPermissionsSchema.validate(
+					{ ...input },
+					{ abortEarly: false }
+				);
 				onSubmit(valid);
 			} catch (err) {
-				const error = handleJoiErrors<{
+				const error = handleYupErrors<{
 					permissions?: string;
 				}>(err);
 				setErrors((prevState) => {
@@ -106,7 +105,7 @@ const Form: FC<FormProps> = ({
 		[onSubmit]
 	);
 
-	const removeFormErrors = useCallback(
+	const removeFormErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -118,7 +117,7 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,

@@ -1,6 +1,6 @@
 import { InferType, date, mixed, object, string } from 'yup';
 
-const passwordOptions = string()
+export const passwordOptions = string()
 	.min(6, 'Password must be at least 6 characters')
 	.max(30, 'Password must not exceed 30 characters')
 	.matches(/[a-z]/, 'Password must contain at least one lowercase letter')

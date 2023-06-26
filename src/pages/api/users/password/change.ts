@@ -5,7 +5,7 @@ import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils';
 import { hashPassword } from '../../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { changeUserPasswordSchema } from '../../../../validators';
+import { changeUserPasswordSchema } from '../../../../validators/users';
 
 export default admin().post(async (req, res) => {
 	if (!req.body.email || !req.body.password1 || !req.body.password2) {
@@ -23,11 +23,10 @@ export default admin().post(async (req, res) => {
 		});
 	}
 
-	const {
-		email,
-		password1,
-	}: { email: string; password1: string; password2: string } =
-		await changeUserPasswordSchema.validateAsync({ ...req.body });
+	const { email, password1 } = await changeUserPasswordSchema.validate(
+		{ ...req.body },
+		{ abortEarly: false }
+	);
 	// Used emails and not IDs so schema and api route can be used by
 	// users, employees and clients since they each have a unique
 	// accessible email on get

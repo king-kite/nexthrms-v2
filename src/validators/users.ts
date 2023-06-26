@@ -1,107 +1,97 @@
-import Joi from 'joi';
-import JoiPasswordComplexity from 'joi-password-complexity';
+import { InferType, array, boolean, date, object, string } from 'yup';
 
-const passwordComplexityOptions = {
-	min: 6,
-	max: 30,
-	lowerCase: 1,
-	upperCase: 1,
-	numeric: 1,
-	symbol: 1,
-	requirementCount: 6,
-};
+import { passwordOptions } from './auth';
 
-export const changeUserPasswordSchema = Joi.object({
-	email: Joi.string()
-		.email({ tlds: { allow: false } })
-		.required()
-		.label('Email'),
-	password1: JoiPasswordComplexity(passwordComplexityOptions, 'New Password')
-		.required()
-		.label('New Password'),
-	password2: Joi.string().required().label('Confirm Password'),
+export const changeUserPasswordSchema = object({
+	email: string().email().required().label('Email'),
+	password1: passwordOptions.required().label('New Password'),
+	password2: string().required().label('Confirm Password'),
 });
 
-export const createGroupSchema = Joi.object({
-	name: Joi.string().required().label('Name'),
-	description: Joi.string().optional().allow('').label('Description'),
-	active: Joi.boolean().optional().label('Active'),
-	permissions: Joi.array().items(Joi.string()).optional().label('Permissions'),
-	users: Joi.array().items(Joi.string().uuid()).optional().label('Users'),
+export const createGroupSchema = object({
+	name: string().required().label('Name'),
+	description: string().nullable().optional().label('Description'),
+	active: boolean().optional().label('Active'),
+	permissions: array().of(string()).optional().label('Permissions'),
+	users: array().of(string().uuid()).optional().label('Users'),
 });
 
-export const createPermissionSchema = Joi.object({
-	codename: Joi.string().required().label('Code Name'),
-	description: Joi.string().optional().allow('', null).label('Description'),
-	categoryId: Joi.string().uuid().optional().allow('', null).label('Category'),
-	name: Joi.string().required().label('Name'),
+export const createPermissionSchema = object({
+	codename: string().required().label('Code Name'),
+	description: string().nullable().optional().label('Description'),
+	categoryId: string().uuid().nullable().optional().label('Category'),
+	name: string().required().label('Name'),
 });
 
-export const createPermissionCategorySchema = Joi.object({
-	name: Joi.string().required().label('Name'),
+export const createPermissionCategorySchema = object({
+	name: string().required().label('Name'),
 });
 
-export const createUserSchema = Joi.object({
-	email: Joi.string()
-		.email({ tlds: { allow: false } })
-		.required()
-		.label('Email Address'),
-	firstName: Joi.string().required().label('First Name'),
-	lastName: Joi.string().required().label('Last Name'),
-	createdAt: Joi.date().required().label('Date Joined'),
-	isAdmin: Joi.boolean().optional().label('Is Admin'),
-	isActive: Joi.boolean().optional().label('Is Active'),
-	isSuperUser: Joi.boolean().optional().label('Is Super User'),
-	isEmailVerified: Joi.boolean().optional().label('Is Email Verified'),
-	profile: Joi.object({
-		image: Joi.any().optional().allow('').label('Image'), // File
-		phone: Joi.string().required().label('Phone Number'),
-		gender: Joi.string().valid('MALE', 'FEMALE').required().label('Gender'),
-		address: Joi.string().required().label('Address'),
-		state: Joi.string().required().label('State'),
-		city: Joi.string().required().label('City'),
-		dob: Joi.date().required().label('Date of Birth'),
+export const createUserSchema = object({
+	email: string().email().required().label('Email Address'),
+	firstName: string().required().label('First Name'),
+	lastName: string().required().label('Last Name'),
+	createdAt: date().required().label('Date Joined'),
+	isAdmin: boolean().optional().label('Is Admin'),
+	isActive: boolean().optional().label('Is Active'),
+	isSuperUser: boolean().optional().label('Is Super User'),
+	isEmailVerified: boolean().optional().label('Is Email Verified'),
+	profile: object({
+		image: object().unknown().nullable().optional().label('Image'), // File
+		phone: string().required().label('Phone Number'),
+		gender: string().oneOf(['MALE', 'FEMALE']).required().label('Gender'),
+		address: string().required().label('Address'),
+		state: string().required().label('State'),
+		city: string().required().label('City'),
+		dob: date().required().label('Date of Birth'),
 	})
 		.required()
 		.label('Profile'),
-	employee: Joi.object({
-		department: Joi.string().uuid().required().label('Department'),
-		job: Joi.string().uuid().required().label('Job'),
-		supervisors: Joi.array()
-			.items(Joi.string().uuid())
+	employee: object({
+		department: string().uuid().required().label('Department'),
+		job: string().uuid().required().label('Job'),
+		supervisors: array()
+			.of(string().uuid().required())
 			.optional()
 			.label('Supervisors'),
-		dateEmployed: Joi.date().optional().allow('').label('Date Employed'),
+		dateEmployed: date().nullable().optional().label('Date Employed'),
 	})
+		.nullable()
 		.optional()
-		.allow('', null)
 		.label('Employee'),
-	client: Joi.object({
-		company: Joi.string().required().label('Company'),
-		position: Joi.string().required().label('Position'),
+	client: object({
+		company: string().required().label('Company'),
+		position: string().required().label('Position'),
 	})
+		.nullable()
 		.optional()
-		.allow('', null)
 		.label('Client'),
 });
 
-export const updateUserGroupsSchema = Joi.object({
-	groups: Joi.array().items(Joi.string().uuid()).required().label('Groups'),
+export const updateUserGroupsSchema = object({
+	groups: array().of(string().uuid().required()).required().label('Groups'),
 });
 
-export const updateUserPermissionsSchema = Joi.object({
-	permissions: Joi.array().items(Joi.string()).required().label('Permissions'),
+export const updateUserPermissionsSchema = object({
+	permissions: array().of(string().required()).required().label('Permissions'),
 });
 
-export const objectPermissionSchema = Joi.object({
-	groups: Joi.array()
-		.items(Joi.string().uuid())
+export const objectPermissionSchema = object({
+	groups: array()
+		.of(string().uuid().required())
+		.nullable()
 		.optional()
-		.allow('')
 		.label('Groups'),
-	users: Joi.array()
-		.items(Joi.string().uuid())
+	users: array()
+		.of(string().uuid().required())
+		.nullable()
 		.optional()
-		.allow('')
 		.label('Users'),
 });
+
+export type CreateGroupType = InferType<typeof createGroupSchema>;
+export type CreatePermissionType = InferType<typeof createPermissionSchema>;
+export type CreatePermissionCategoryType = InferType<
+	typeof createPermissionCategorySchema
+>;
+export type CreateUserType = InferType<typeof createUserSchema>;

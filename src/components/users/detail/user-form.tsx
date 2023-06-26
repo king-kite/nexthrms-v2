@@ -1,11 +1,8 @@
-import { useCallback, useState } from 'react';
+import React from 'react';
 
 import Form from '../form';
 import { useEditUserMutation } from '../../../store/queries';
-import {
-	UserType,
-	CreateUserErrorResponseType,
-} from '../../../types';
+import { UserType, CreateUserErrorResponseType } from '../../../types';
 
 interface ErrorType extends CreateUserErrorResponseType {
 	message?: string;
@@ -18,7 +15,7 @@ const UserForm = ({
 	user: UserType;
 	onSuccess: () => void;
 }) => {
-	const [errors, setErrors] = useState<ErrorType>();
+	const [errors, setErrors] = React.useState<ErrorType>();
 
 	const { mutate, isLoading } = useEditUserMutation({
 		onSuccess,
@@ -31,7 +28,7 @@ const UserForm = ({
 		},
 	});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: FormData) => {
 			mutate({ id: user.id, form });
 		},

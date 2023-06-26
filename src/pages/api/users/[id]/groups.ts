@@ -4,7 +4,8 @@ import { getUserObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
-import { updateUserGroupsSchema, validateParams } from '../../../../validators';
+import { validateParams } from '../../../../validators';
+import { updateUserGroupsSchema } from '../../../../validators/users';
 
 export default admin()
 	.get(async (req, res) => {
@@ -52,9 +53,10 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: {
-			groups: string[];
-		} = await updateUserGroupsSchema.validateAsync({ ...req.body });
+		const data = await updateUserGroupsSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		// Do this check to make sure a user can not set a group that he can't even view
 

@@ -3,7 +3,13 @@ import {
 	PermissionObjectChoices,
 } from '@prisma/client';
 
-import { SuccessResponseType } from './base';
+import { SuccessResponseType, ValidatorErrorType } from './base';
+import { CreateGroupType, CreateUserType } from '../validators/users';
+
+export type {
+	CreatePermissionType,
+	CreatePermissionCategoryType,
+} from '../validators/users';
 
 // Groups Types Start
 export type GroupUserType = {
@@ -41,21 +47,9 @@ export type GroupImportQueryType = {
 	permissions: string;
 };
 
-export type CreateGroupQueryType = {
-	name: string;
-	active?: boolean;
-	description?: string;
-	permissions?: string[];
-	users?: string[];
-};
+export type CreateGroupQueryType = CreateGroupType;
 
-export type CreateGroupErrorResponseType = {
-	name?: string;
-	active?: string;
-	description?: string;
-	permissions?: string;
-	users?: string;
-};
+export type CreateGroupErrorResponseType = ValidatorErrorType<CreateGroupType>;
 
 export type CreateGroupResponseType = SuccessResponseType<GroupType>;
 
@@ -233,64 +227,15 @@ export type UserImportQueryType = {
 	created_at?: Date | string;
 };
 
-export type CreateUserQueryType = {
-	email: string;
-	firstName: string;
-	lastName: string;
-	profile: {
-		phone: string;
-		gender: 'MALE' | 'FEMALE';
-		image: string;
-		address: string;
-		state: string;
-		city: string;
-		dob: string;
-	};
-	isActive: boolean;
-	isAdmin: boolean;
-	isEmailVerified: boolean;
-	isSuperUser: boolean;
-	createdAt: string;
+export type CreateUserQueryType = CreateUserType;
 
-	// Employee Data If Needed
-	employee?: {
-		dateEmployed: string;
-		department: string;
-		job: string;
-		supervisors?: string[];
-	};
-
-	// Client Data If Need
-	client?: {
-		company: string;
-		position: string;
-	};
-};
-
-export type CreateUserErrorResponseType = {
-	email?: string;
-	firstName?: string;
-	lastName?: string;
-	phone?: string;
-	gender?: string;
-	image?: string;
-	address?: string;
-	state?: string;
-	city?: string;
-	dob?: string;
-	isActive?: string;
-	isAdmin?: string;
-	isEmailVerified?: string;
-	isSuperUser?: string;
-	createdAt?: string;
-
-	dateEmployed?: string;
-	department?: string;
-	job?: string;
-	supervisors?: string;
-
-	company?: string;
-	position?: string;
+export type CreateUserErrorResponseType = Omit<
+	ValidatorErrorType<CreateUserType>,
+	'client' | 'employee' | 'profile'
+> & {
+	client?: ValidatorErrorType<CreateUserType['client']>;
+	employee?: ValidatorErrorType<CreateUserType['employee']>;
+	profile?: ValidatorErrorType<CreateUserType['profile']>;
 };
 
 export type CreateUserResponseType = SuccessResponseType<UserType>;

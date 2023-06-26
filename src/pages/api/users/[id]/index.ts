@@ -17,7 +17,7 @@ import { hasModelPermission } from '../../../../utils';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { upload as uploadFile } from '../../../../utils/files';
 import parseForm from '../../../../utils/parseForm';
-import { createUserSchema } from '../../../../validators';
+import { createUserSchema } from '../../../../validators/users';
 
 export const config = {
 	api: {
@@ -114,7 +114,7 @@ export default admin()
 		}
 		const form = JSON.parse(fields.form);
 
-		const valid = await createUserSchema.validateAsync(form);
+		const valid = await createUserSchema.validate(form, { abortEarly: false });
 
 		if (files.image) {
 			// Upload a file to the bucket using firebase admin
@@ -157,6 +157,7 @@ export default admin()
 		const employee = valid.employee
 			? {
 					...valid.employee,
+					dateEmployed: valid.employee.dateEmployed || new Date(),
 					department: {
 						connect: {
 							id: valid.employee.department,
@@ -177,8 +178,8 @@ export default admin()
 					...valid.profile,
 					image: {
 						upsert: {
-							create: valid.profile.image,
-							update: valid.profile.image,
+							create: valid.profile.image as any,
+							update: valid.profile.image as any,
 						},
 					},
 				},

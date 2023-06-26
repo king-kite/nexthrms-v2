@@ -1,9 +1,10 @@
 import { Alert, Button, Checkbox } from 'kite-react-tailwind';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 import { useGetGroupsQuery } from '../../../store/queries';
 import { GroupType, UserGroupType } from '../../../types';
-import { updateUserGroupsSchema, handleJoiErrors } from '../../../validators';
+import { handleYupErrors } from '../../../validators';
+import { updateUserGroupsSchema } from '../../../validators/users';
 
 type ErrorType = {
 	message?: string;
@@ -18,40 +19,41 @@ type FormProps = {
 	onSubmit: (form: { groups: string[] }) => void;
 };
 
-const Form: FC<FormProps> = ({
+const Form = ({
 	initState,
 	errors,
 	resetErrors,
 	loading,
 	onSubmit,
-}) => {
-	const [form, setForm] = useState<{
+}: FormProps) => {
+	const [form, setForm] = React.useState<{
 		groups: string[];
 	}>({
 		groups: [],
 	});
-	const [formErrors, setErrors] = useState<ErrorType>();
+	const [formErrors, setErrors] = React.useState<ErrorType>();
 
-	const formRef = useRef<HTMLFormElement | null>(null);
+	const formRef = React.useRef<HTMLFormElement | null>(null);
 
 	const { data: groups = { total: 0, result: [] }, isLoading: groupsLoading } =
 		useGetGroupsQuery({});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setForm({
 			groups: initState ? initState.map((group) => group.id) : [],
 		});
 	}, [initState]);
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (input: { groups: string[] }) => {
 			try {
-				const valid: {
-					groups: string[];
-				} = await updateUserGroupsSchema.validateAsync({ ...input });
+				const valid = await updateUserGroupsSchema.validate(
+					{ ...input },
+					{ abortEarly: false }
+				);
 				onSubmit(valid);
 			} catch (err) {
-				const error = handleJoiErrors<{
+				const error = handleYupErrors<{
 					groups?: string;
 				}>(err);
 				setErrors((prevState) => {
@@ -70,7 +72,7 @@ const Form: FC<FormProps> = ({
 		[onSubmit]
 	);
 
-	const removeFormErrors = useCallback(
+	const removeFormErrors = React.useCallback(
 		(name: string) => {
 			if (Object(formErrors)[name]) {
 				setErrors((prevState) => ({
@@ -82,7 +84,7 @@ const Form: FC<FormProps> = ({
 		[formErrors]
 	);
 
-	const handleFormChange = useCallback(
+	const handleFormChange = React.useCallback(
 		(name: string, value: string | string[]) => {
 			setForm((prevState) => ({
 				...prevState,
