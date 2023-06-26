@@ -16,10 +16,8 @@ import { admin } from '../../../middlewares';
 import { GetDepartmentsResponseType, DepartmentType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import {
-	createDepartmentSchema,
-	multipleDeleteSchema,
-} from '../../../validators';
+import { multipleDeleteSchema } from '../../../validators';
+import { createDepartmentSchema } from '../../../validators/departments';
 
 export default admin()
 	.get(async (req, res) => {
@@ -50,10 +48,7 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const valid: {
-			name: string;
-			hod: string | null;
-		} = await createDepartmentSchema.validateAsync({ ...req.body });
+		const valid = await createDepartmentSchema.validate({ ...req.body });
 
 		let data: Prisma.DepartmentCreateInput = { name: valid.name };
 
@@ -95,10 +90,14 @@ export default admin()
 				permissions.department.DELETE,
 			]);
 
-		const valid: { values: string[] } =
-			await multipleDeleteSchema.validateAsync({
+		const valid = await multipleDeleteSchema.validate(
+			{
 				...req.body,
-			});
+			},
+			{
+				abortEarly: false,
+			}
+		);
 
 		if (!hasPerm) {
 			const userObjects = await getUserObjects({

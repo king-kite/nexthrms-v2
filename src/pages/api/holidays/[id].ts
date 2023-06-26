@@ -9,7 +9,7 @@ import { employee } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createHolidaySchema } from '../../../validators';
+import { createHolidaySchema } from '../../../validators/holidays';
 
 export default employee()
 	.get(async (req, res) => {
@@ -56,10 +56,10 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: {
-			name: string;
-			date: string;
-		} = await createHolidaySchema.validateAsync({ ...req.body });
+		const data = await createHolidaySchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 		const holiday = await prisma.holiday.update({
 			where: {
 				id: req.query.id as string,

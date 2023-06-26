@@ -2,11 +2,8 @@ import { Button, Input } from 'kite-react-tailwind';
 import React from 'react';
 
 import { useCreateJobMutation, useEditJobMutation } from '../../store/queries';
-import {
-	createJobSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createJobSchema } from '../../validators/jobs';
 
 type FormProps = {
 	form: {
@@ -59,16 +56,16 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 	const handleSubmit = React.useCallback(
 		async (form: { name: string }) => {
 			try {
-				const data: { name: string } = await createJobSchema.validateAsync(
-					form
-				);
+				const data: { name: string } = await createJobSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (editId) {
 					editJob({ id: editId, data });
 				} else {
 					createJob(data);
 				}
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					name?: string;
 				}>(error);
 				if (err?.name) setError(err.name);

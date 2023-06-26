@@ -4,7 +4,7 @@ import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createJobSchema } from '../../../validators';
+import { createJobSchema } from '../../../validators/jobs';
 
 export default admin()
 	.get(async (req, res) => {
@@ -50,9 +50,10 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: {
-			name: string;
-		} = await createJobSchema.validateAsync({ ...req.body });
+		const data = await createJobSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 		const job = await prisma.job.update({
 			where: {
 				id: req.query.id as string,

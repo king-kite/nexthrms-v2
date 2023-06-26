@@ -1,4 +1,9 @@
-import { PaginatedResponseType, SuccessResponseType } from './base';
+import {
+	PaginatedResponseType,
+	SuccessResponseType,
+	ValidatorErrorType,
+} from './base';
+import { CreateDepartmentType } from '../validators/departments';
 
 export type DepartmentType = {
 	id: string;
@@ -36,6 +41,11 @@ export type DepartmentImportQueryType = {
 	created_at?: string;
 	updated_at?: string;
 };
+
+export type DepartmentCreateType = CreateDepartmentType;
+
+export type DepartmentCreateErrorType =
+	ValidatorErrorType<DepartmentCreateType>;
 
 export type CreateDepartmentResponseType = SuccessResponseType<DepartmentType>;
 

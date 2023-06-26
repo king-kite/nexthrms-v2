@@ -7,11 +7,8 @@ import {
 	useEditDepartmentMutation,
 	useGetEmployeesQuery,
 } from '../../store/queries';
-import {
-	createDepartmentSchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createDepartmentSchema } from '../../validators/departments';
 
 type FormProps = {
 	form: {
@@ -83,15 +80,22 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		async (form: { name: string; hod: string | null }) => {
 			try {
 				setError(undefined);
-				const data: { name: string; hod: string | null } =
-					await createDepartmentSchema.validateAsync(form);
+				let data = await createDepartmentSchema.validate(form, {
+					abortEarly: false,
+				});
 				if (editId) {
-					editDepartment({ id: editId, data });
+					editDepartment({
+						id: editId,
+						data: { ...data, hod: data.hod || null },
+					});
 				} else {
-					createDepartment(data);
+					createDepartment({
+						...data,
+						hod: data.hod || null,
+					});
 				}
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					name?: string;
 					hod?: string;
 				}>(error);

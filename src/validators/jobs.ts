@@ -1,5 +1,7 @@
-import Joi from 'joi';
+import { InferType, object, string } from 'yup';
 
-export const createJobSchema = Joi.object({
-	name: Joi.string().required().label('Name'),
+export const createJobSchema = object({
+	name: string().required().label('Name'),
 });
+
+export type CreateJobType = InferType<typeof createJobSchema>;

@@ -5,11 +5,8 @@ import {
 	useCreateHolidayMutation,
 	useEditHolidayMutation,
 } from '../../store/queries';
-import {
-	createHolidaySchema,
-	handleAxiosErrors,
-	handleJoiErrors,
-} from '../../validators';
+import { handleAxiosErrors, handleYupErrors } from '../../validators';
+import { createHolidaySchema } from '../../validators/holidays';
 
 type FormProps = {
 	form: {
@@ -71,15 +68,16 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 	const handleSubmit = React.useCallback(
 		async (form: { name: string }) => {
 			try {
-				const data: { name: string; date: string } =
-					await createHolidaySchema.validateAsync(form);
+				const data = await createHolidaySchema.validate(form, {
+					abortEarly: false,
+				});
 				if (editId) {
 					editHoliday({ id: editId, data });
 				} else {
 					createHoliday(data);
 				}
 			} catch (error) {
-				const err = handleJoiErrors<{
+				const err = handleYupErrors<{
 					name?: string;
 					date?: string;
 				}>(error);

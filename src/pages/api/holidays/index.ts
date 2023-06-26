@@ -14,7 +14,8 @@ import { adminMiddleware as admin } from '../../../middlewares/api';
 import { HolidayType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createHolidaySchema, multipleDeleteSchema } from '../../../validators';
+import { multipleDeleteSchema } from '../../../validators';
+import { createHolidaySchema } from '../../../validators/holidays';
 
 export default employee()
 	.get(async (req, res) => {
@@ -49,10 +50,10 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const valid: {
-			name: string;
-			date: Date | string;
-		} = await createHolidaySchema.validateAsync({ ...req.body });
+		const valid = await createHolidaySchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		const holiday = (await prisma.holiday.create({
 			data: valid,
@@ -76,8 +77,10 @@ export default employee()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.holiday.DELETE]);
 
-		const valid: { values: string[] } =
-			await multipleDeleteSchema.validateAsync({ ...req.body });
+		const valid = await multipleDeleteSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		if (valid.values.length < 1) {
 			return res.status(400).json({

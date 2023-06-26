@@ -1,4 +1,5 @@
-import { PaginatedResponseType } from './base';
+import { PaginatedResponseType, ValidatorErrorType } from './base';
+import { CreateHolidayType } from '../validators/holidays';
 
 export type HolidayType = {
 	id: string;
@@ -15,5 +16,9 @@ export type HolidayImportQueryType = {
 	created_at?: string;
 	updated_at?: string;
 };
+
+export type HolidayCreateType = CreateHolidayType;
+
+export type HolidayCreateErrorType = ValidatorErrorType<HolidayCreateType>;
 
 export type GetHolidaysResponseType = PaginatedResponseType<HolidayType[]>;

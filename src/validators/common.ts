@@ -1,14 +1,11 @@
-import Joi from 'joi';
+import { array, object, string } from 'yup';
 
-export const multipleDeleteSchema = Joi.object({
-	values: Joi.array().items(Joi.string().uuid()).required(),
+export const multipleDeleteSchema = object({
+	values: array().of(string().uuid().required()).required(),
 });
 
-export const multipleEmailSchema = Joi.object({
-	emails: Joi.array()
-		.items(Joi.string().email({ tlds: { allow: false } }))
-		.required()
-		.label('Emails'),
+export const multipleEmailSchema = object({
+	emails: array().of(string().email().required()).required().label('Emails'),
 });
 
-export const uuidSchema = Joi.string().uuid().required().label('id');
+export const uuidSchema = string().uuid().required().label('id');

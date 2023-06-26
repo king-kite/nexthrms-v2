@@ -4,7 +4,8 @@ import { getRecords, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createJobSchema, multipleDeleteSchema } from '../../../validators';
+import { multipleDeleteSchema } from '../../../validators';
+import { createJobSchema } from '../../../validators/jobs';
 
 export default admin()
 	.get(async (req, res) => {
@@ -32,9 +33,10 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data: {
-			name: string;
-		} = await createJobSchema.validateAsync({ ...req.body });
+		const data = await createJobSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 		const job = await prisma.job.create({
 			data,
 			select: {
@@ -53,10 +55,12 @@ export default admin()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.job.DELETE]);
 
-		const valid: { values: string[] } =
-			await multipleDeleteSchema.validateAsync({
+		const valid = await multipleDeleteSchema.validate(
+			{
 				...req.body,
-			});
+			},
+			{ abortEarly: false }
+		);
 
 		if (!hasPerm) {
 			const userObjects = await getUserObjects({

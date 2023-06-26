@@ -1,6 +1,8 @@
-import Joi from 'joi';
+import { InferType, date, object, string } from 'yup';
 
-export const createHolidaySchema = Joi.object({
-	name: Joi.string().required().label('Name'),
-	date: Joi.date().required().label('Date'),
+export const createHolidaySchema = object({
+	name: string().required().label('Name'),
+	date: date().required().label('Date'),
 });
+
+export type CreateHolidayType = InferType<typeof createHolidaySchema>;

@@ -1,4 +1,9 @@
-import { PaginatedResponseType, SuccessResponseType } from './base';
+import {
+	PaginatedResponseType,
+	SuccessResponseType,
+	ValidatorErrorType,
+} from './base';
+import { CreateJobType } from '../validators/jobs';
 
 export type JobType = {
 	id: string;
@@ -13,6 +18,10 @@ export type JobImportQueryType = {
 	updated_at?: Date | string | null;
 	created_at?: Date | string | null;
 };
+
+export type JobCreateType = CreateJobType;
+
+export type JobCreateErrorType = ValidatorErrorType<JobCreateType>;
 
 export type CreateJobResponseType = SuccessResponseType<JobType>;
 

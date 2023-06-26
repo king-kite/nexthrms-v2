@@ -16,7 +16,7 @@ import { admin } from '../../../middlewares';
 import { DepartmentType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 import { NextApiErrorMessage } from '../../../utils/classes';
-import { createDepartmentSchema } from '../../../validators';
+import { createDepartmentSchema } from '../../../validators/departments';
 
 export default admin()
 	.get(async (req, res) => {
@@ -64,10 +64,10 @@ export default admin()
 
 		const department = await getDepartment(req.query.id as string);
 
-		const valid: {
-			name: string;
-			hod: string | null;
-		} = await createDepartmentSchema.validateAsync({ ...req.body });
+		const valid = await createDepartmentSchema.validate(
+			{ ...req.body },
+			{ abortEarly: false }
+		);
 
 		let data: Prisma.DepartmentUpdateInput = { name: valid.name };
 
