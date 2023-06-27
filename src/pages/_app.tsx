@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 import Error from 'next/error';
-import { IconContext } from 'react-icons';
 
 import Layout from '../layout';
 import Authenticated from '../layout/protections/authenticated';
@@ -58,19 +57,17 @@ function App({
 		<GlobalContextProvider>
 			<QueryClientProvider client={queryClient}>
 				<CheckAuth authData={auth}>
-					<IconContext.Provider value={{ className: 'text-xs' }}>
-						{Component.authRequired === false ? (
-							<NotAuthenticated>
+					{Component.authRequired === false ? (
+						<NotAuthenticated>
+							<Component {...pageProps} />
+						</NotAuthenticated>
+					) : (
+						<Authenticated>
+							<Layout>
 								<Component {...pageProps} />
-							</NotAuthenticated>
-						) : (
-							<Authenticated>
-								<Layout>
-									<Component {...pageProps} />
-								</Layout>
-							</Authenticated>
-						)}
-					</IconContext.Provider>
+							</Layout>
+						</Authenticated>
+					)}
 				</CheckAuth>
 				{/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
 			</QueryClientProvider>

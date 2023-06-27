@@ -1,4 +1,4 @@
-import { IconType } from 'react-icons';
+import React from 'react';
 
 export type PropsType = {
 	setVisible: (e: boolean) => void;
@@ -8,7 +8,7 @@ export type PropsType = {
 export type LinkItemType = {
 	disabled?: boolean;
 	href?: string;
-	icon: IconType;
+	icon: React.ComponentType<any>;
 	links?: LinkItemType[];
 	onClick?: () => void;
 	showRoute?: () => boolean;
