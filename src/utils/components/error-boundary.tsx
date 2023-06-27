@@ -13,7 +13,7 @@ interface State {
 	message?: string;
 }
 
-const NextError = dynamic(
+const NextError = dynamic<any>(
 	() => import('next/error').then((mod) => mod.default),
 	{
 		loading: () => (

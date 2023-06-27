@@ -1,11 +1,25 @@
 import { AxiosResponse } from 'axios';
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { SplashScreen } from '../../components/common';
 import { USER_DATA_URL } from '../../config';
 import { useAuthContext } from '../../store/contexts';
 import { SuccessResponseType, AuthDataType } from '../../types';
 import { axiosInstance } from '../../utils/axios';
+
+const DynamicSplashScreen = dynamic<any>(
+	() => import('../../components/common/splash-screen'),
+	{
+		loading: () => (
+			<div className="flex items-center justify-center min-h-[100vh] w-full">
+				<p className="text-gray-500 text-center text-sm md:text-base">
+					Loading...
+				</p>
+			</div>
+		),
+		ssr: false,
+	}
+);
 
 const CheckAuth = ({
 	children,
@@ -44,7 +58,7 @@ const CheckAuth = ({
 	}, [login, logout, authData]);
 
 	return loading ? (
-		<SplashScreen />
+		<DynamicSplashScreen />
 	) : (
 		<React.Fragment>{children}</React.Fragment>
 	);

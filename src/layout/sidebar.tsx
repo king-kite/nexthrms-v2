@@ -33,6 +33,7 @@ import { DEFAULT_IMAGE, PermissionKeyType, permissions } from '../config';
 import { useAuthContext } from '../store/contexts';
 import { AuthDataType } from '../types';
 import { hasModelPermission } from '../utils';
+import ErrorBoundary from '../utils/components/error-boundary';
 
 const DynamicLogoutButton = dynamic<any>(
 	() => import('./logout-button').then((mod) => mod.default),
@@ -369,75 +370,85 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 		}, [links]);
 
 		return (
-			<nav
-				ref={ref}
-				className={`${
-					visible ? 'translate-x-0' : '-translate-x-full'
-				} ${sidebarStyle}`}
+			<ErrorBoundary
+				fallback={({ message }) => (
+					<p className="text-gray-500 text-sm dark:text-gray-50 md:text-base">
+						{message}
+					</p>
+				)}
 			>
-				<div className="flex flex-col items-center my-4 lg:mt-2">
-					<div className="flex items-center justify-center mx-1 rounded-full">
-						<div className="h-[75px] relative rounded-full w-[75px]">
-							<Image
-								className="h-full rounded-full w-full"
-								layout="fill"
-								src={data?.profile?.image?.url || DEFAULT_IMAGE}
-								alt="user"
-							/>
+				<nav
+					ref={ref}
+					className={`${
+						visible ? 'translate-x-0' : '-translate-x-full'
+					} ${sidebarStyle}`}
+				>
+					<div className="flex flex-col items-center my-4 lg:mt-2">
+						<div className="flex items-center justify-center mx-1 rounded-full">
+							<div className="h-[75px] relative rounded-full w-[75px]">
+								<Image
+									className="h-full rounded-full w-full"
+									layout="fill"
+									src={data?.profile?.image?.url || DEFAULT_IMAGE}
+									alt="user"
+								/>
+							</div>
 						</div>
+						{data && (
+							<>
+								<p className="capitalize italic mb-1 mt-2 text-white text-xs tracking-white md:text-sm">
+									{data ? data.fullName : 'Anonymous'}
+								</p>
+								<span className="capitalize italic text-gray-300 text-tiny tracking-white md:text-xs">
+									{data.employee?.job?.name || 'user'}
+								</span>
+							</>
+						)}
 					</div>
-					{data && (
-						<>
-							<p className="capitalize italic mb-1 mt-2 text-white text-xs tracking-white md:text-sm">
-								{data ? data.fullName : 'Anonymous'}
-							</p>
-							<span className="capitalize italic text-gray-300 text-tiny tracking-white md:text-xs">
-								{data.employee?.job?.name || 'user'}
-							</span>
-						</>
-					)}
-				</div>
-				<div className="mt-3">
-					{validRoutes.map(({ links, title }, index) => (
-						<div className="mb-2" key={index}>
-							<h6 className="font-bold mb-2 px-2 select-none text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
-								{title}
-							</h6>
-							{links.map(({ href, onClick, showRoute, ...props }, index) => {
-								if (
-									'links' in props &&
-									props.links !== undefined &&
-									props.links.length > 0
-								)
-									return (
-										<ListLink
-											onClick={() => {
-												if (onClick) onClick();
-												setVisible(false);
-											}}
-											links={props.links.map(({ showRoute, ...link }) => link)}
-											key={index}
-											{...props}
-										/>
-									);
-								else if (!props.links)
-									return (
-										<SimpleLink
-											href={href}
-											onClick={() => {
-												if (onClick) onClick();
-												setVisible(false);
-											}}
-											key={index}
-											{...props}
-										/>
-									);
-							})}
-							<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
-						</div>
-					))}
-				</div>
-			</nav>
+					<div className="mt-3">
+						{validRoutes.map(({ links, title }, index) => (
+							<div className="mb-2" key={index}>
+								<h6 className="font-bold mb-2 px-2 select-none text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
+									{title}
+								</h6>
+								{links.map(({ href, onClick, showRoute, ...props }, index) => {
+									if (
+										'links' in props &&
+										props.links !== undefined &&
+										props.links.length > 0
+									)
+										return (
+											<ListLink
+												onClick={() => {
+													if (onClick) onClick();
+													setVisible(false);
+												}}
+												links={props.links.map(
+													({ showRoute, ...link }) => link
+												)}
+												key={index}
+												{...props}
+											/>
+										);
+									else if (!props.links)
+										return (
+											<SimpleLink
+												href={href}
+												onClick={() => {
+													if (onClick) onClick();
+													setVisible(false);
+												}}
+												key={index}
+												{...props}
+											/>
+										);
+								})}
+								<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
+							</div>
+						))}
+					</div>
+				</nav>
+			</ErrorBoundary>
 		);
 	}
 );
