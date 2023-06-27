@@ -1,12 +1,27 @@
-import { MenuIcon } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
 
-import ScrollToTop from './scroll-to-top';
 import Sidebar from './sidebar';
 import Topbar from './topbar';
 import { LOGO_IMAGE } from '../config';
 import { useFadeIn, useOutClick } from '../hooks';
+
+const DynamicMenuIcon = dynamic(
+	() => import('kite-react-tailwind').then((mod) => mod.MenuIcon),
+	{
+		loading: () => (
+			<p className="cursor-pointer duration-500 text-gray-500 text-base transition transform hover:scale-105 md:text-lg">
+				{'|||'}
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicScrollToTop = dynamic(
+	() => import('./scroll-to-top').then((mod) => mod.default),
+	{ ssr: false }
+);
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
 	const menu = useOutClick<HTMLDivElement, HTMLDivElement>();
@@ -29,7 +44,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 						alt="kite"
 					/>
 				</div>
-				<MenuIcon
+				<DynamicMenuIcon
 					color="primary"
 					ref={menu.buttonRef}
 					setVisible={menu.setVisible}
@@ -46,7 +61,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 				<main className="h-full min-h-screen w-full lg:ml-auto lg:w-5/6">
 					<Topbar />
 					{children}
-					<ScrollToTop
+					<DynamicScrollToTop
 						onClick={() => window.scroll(0, 0)}
 						visible={scrollToTopView.visible}
 					/>
