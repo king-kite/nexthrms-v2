@@ -371,7 +371,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 
 		return (
 			<ErrorBoundary
-				fallback={({ message }) => (
+				fallback={({ message }: { message: string }) => (
 					<p className="text-gray-500 text-sm dark:text-gray-50 md:text-base">
 						{message}
 					</p>
@@ -443,7 +443,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 											/>
 										);
 								})}
-								<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
+								{title === 'personal' && (
+									<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
+								)}
 							</div>
 						))}
 					</div>

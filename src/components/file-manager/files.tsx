@@ -172,7 +172,7 @@ function Files({
 					</div>
 				</div>
 				<FileTable files={paginatedFiles} />
-				{total && total > 0 && (
+				{total && total > 0 && type !== 'recent' && (
 					<DynamicTablePagination
 						disabled={loading}
 						totalItems={total}
