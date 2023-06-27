@@ -20,15 +20,15 @@ const DynamicButton = dynamic<any>(
 	() => import('kite-react-tailwind').then((mod) => mod.Button),
 	{ ssr: false }
 );
-const DynamicFileDetail = dynamic(
+const DynamicFileDetail = dynamic<any>(
 	() => import('../components/file-manager/detail').then((mod) => mod.default),
 	{ ssr: false }
 );
-const DynamicForm = dynamic(
+const DynamicForm = dynamic<any>(
 	() => import('../components/file-manager/form').then((mod) => mod.default),
 	{ ssr: false }
 );
-const DynamicModal = dynamic(
+const DynamicModal = dynamic<any>(
 	() => import('../components/common/modal').then((mod) => mod.default),
 	{ ssr: false }
 );

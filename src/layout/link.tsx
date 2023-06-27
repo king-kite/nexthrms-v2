@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { IconType } from 'react-icons';
 import { FaArrowRight, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 const similarStyle = 'capitalize cursor-pointer text-gray-100 text-sm';
@@ -12,7 +11,7 @@ type SimpleProps = {
 	disabled?: boolean;
 	onClick?: () => void;
 	href?: string;
-	icon?: IconType;
+	icon?: React.ComponentType<any>;
 	title: string;
 	classes?: string;
 	pathnames?: string[];
@@ -95,7 +94,7 @@ export const SimpleLink = ({
 
 export type ListLinkItemType = {
 	href?: string;
-	icon?: IconType;
+	icon?: React.ComponentType<any>;
 	links?: ListLinkItemType[];
 	onClick?: () => void;
 	title: string;
@@ -104,7 +103,7 @@ export type ListLinkItemType = {
 };
 
 export type ListLinkType = {
-	icon?: IconType;
+	icon?: React.ComponentType<any>;
 	onClick?: () => void;
 	links: ListLinkItemType[];
 	title: string;

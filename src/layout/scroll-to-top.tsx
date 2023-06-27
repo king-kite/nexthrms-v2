@@ -1,8 +1,4 @@
-import dynamic from 'next/dynamic';
-
-const DynamicFaArrowUp = dynamic(() =>
-	import('react-icons/fa').then((mod) => mod.FaArrowUp)
-);
+import { FaArrowUp } from 'react-icons/fa';
 
 const scrollStyle = `
   bg-secondary-500 bottom-5 cursor-pointer duration-500 fixed flex font-bold 
@@ -27,10 +23,7 @@ const ScrollToTop = ({ onClick, visible }: Props) => {
 			className={scrollStyle + ' ' + iconStyle}
 			style={{ zIndex: 120 }}
 		>
-			<DynamicFaArrowUp
-				className="fas fa-arrow-up"
-				style={{ fontSize: '12px' }}
-			/>
+			<FaArrowUp className="fas fa-arrow-up" style={{ fontSize: '12px' }} />
 		</div>
 	);
 };

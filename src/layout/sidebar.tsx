@@ -1,7 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { PermissionModelChoices } from '@prisma/client';
+import type { PermissionModelChoices } from '@prisma/client';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import Router from 'next/router';
 import React from 'react';
 import {
 	FaArchive,
@@ -15,11 +14,9 @@ import {
 	FaPeopleArrows,
 	FaProjectDiagram,
 	FaRProject,
-	FaSignOutAlt,
 	FaSuitcase,
 	FaSuitcaseRolling,
 	FaThLarge,
-	FaTimesCircle,
 	FaUsers,
 	FaUsersCog,
 	FaUserClock,
@@ -32,16 +29,15 @@ import {
 import { SimpleLink, ListLink } from './link';
 import { LinkType, LinkItemType, PropsType } from './types';
 import * as routes from '../config/routes';
-import {
-	DEFAULT_IMAGE,
-	LOGIN_PAGE_URL,
-	LOGOUT_URL,
-	PermissionKeyType,
-	permissions,
-} from '../config';
-import { useAlertModalContext, useAuthContext } from '../store/contexts';
+import { DEFAULT_IMAGE, PermissionKeyType, permissions } from '../config';
+import { useAuthContext } from '../store/contexts';
 import { AuthDataType } from '../types';
-import { axiosInstance, hasModelPermission } from '../utils';
+import { hasModelPermission } from '../utils';
+
+const DynamicLogoutButton = dynamic<any>(
+	() => import('./logout-button').then((mod) => mod.default),
+	{ ssr: false }
+);
 
 const sidebarStyle =
 	'absolute bg-primary-500 duration-1000 h-full overflow-y-auto transform top-16 w-3/4 z-50 sm:top-14 md:px-2 md:w-1/3 lg:fixed lg:px-0 lg:py-6 lg:top-0 lg:translate-x-0 lg:w-1/6 xl:py-7';
@@ -107,37 +103,7 @@ function checkLinkRoute(linkItem: LinkItemType) {
 
 const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 	({ setVisible, visible }, ref) => {
-		const { open } = useAlertModalContext();
-		const { data, logout } = useAuthContext();
-
-		const queryClient = useQueryClient();
-
-		const { mutate: signOut, isLoading } = useMutation(
-			() => axiosInstance.post(LOGOUT_URL, {}),
-			{
-				onSuccess() {
-					logout();
-					Router.push(LOGIN_PAGE_URL);
-					queryClient.clear();
-				},
-				onError() {
-					open({
-						color: 'danger',
-						decisions: [
-							{
-								color: 'danger',
-								disabled: isLoading,
-								onClick: () => signOut(),
-								title: 'Retry',
-							},
-						],
-						header: 'Logout Error',
-						Icon: FaTimesCircle,
-						message: 'An error occurred when trying to sign out',
-					});
-				},
-			}
-		);
+		const { data } = useAuthContext();
 
 		const links: LinkType[] = React.useMemo(
 			() => [
@@ -373,17 +339,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 							href: routes.PROFILE_PAGE_URL,
 							showRoute: () => true,
 						},
-						{
-							disabled: isLoading,
-							icon: FaSignOutAlt,
-							onClick: !isLoading ? signOut : undefined,
-							showRoute: () => true,
-							title: 'Sign out',
-						},
 					],
 				},
 			],
-			[data, isLoading, signOut]
+			[data]
 		);
 
 		const validRoutes = React.useMemo(() => {
@@ -474,6 +433,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
 										/>
 									);
 							})}
+							<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
 						</div>
 					))}
 				</div>

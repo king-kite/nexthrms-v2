@@ -5,7 +5,7 @@ import React from 'react';
 import { LOGO_IMAGE, DEFAULT_IMAGE } from '../config';
 import { useAuthContext } from '../store/contexts';
 
-const DynamicTopbarNotifications = dynamic(
+const DynamicTopbarNotifications = dynamic<any>(
 	() => import('./notifications').then((mod) => mod.default),
 	{
 		ssr: false,

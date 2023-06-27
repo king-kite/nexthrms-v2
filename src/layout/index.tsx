@@ -7,7 +7,7 @@ import Topbar from './topbar';
 import { LOGO_IMAGE } from '../config';
 import { useFadeIn, useOutClick } from '../hooks';
 
-const DynamicMenuIcon = dynamic(
+const DynamicMenuIcon = dynamic<any>(
 	() => import('kite-react-tailwind').then((mod) => mod.MenuIcon),
 	{
 		loading: () => (
@@ -18,7 +18,7 @@ const DynamicMenuIcon = dynamic(
 		ssr: false,
 	}
 );
-const DynamicScrollToTop = dynamic(
+const DynamicScrollToTop = dynamic<any>(
 	() => import('./scroll-to-top').then((mod) => mod.default),
 	{ ssr: false }
 );

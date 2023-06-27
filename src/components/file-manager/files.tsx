@@ -8,13 +8,13 @@ import FileTable from './table';
 import { DEFAULT_PAGINATION_SIZE, MEDIA_HIDDEN_FILE_NAME } from '../../config';
 import { ManagedFileType } from '../../types';
 
-const DynamicFilterDropdownForm = dynamic(
+const DynamicFilterDropdownForm = dynamic<any>(
 	() => import('./filter-date').then((mod) => mod.default),
 	{
 		ssr: false,
 	}
 );
-const DynamicFileEmpty = dynamic(
+const DynamicFileEmpty = dynamic<any>(
 	() => import('./box-items').then((mod) => mod.FileEmpty),
 	{
 		loading: () => (
@@ -25,7 +25,7 @@ const DynamicFileEmpty = dynamic(
 		ssr: false,
 	}
 );
-const DynamicFileStorage = dynamic(
+const DynamicFileStorage = dynamic<any>(
 	() => import('./file-storage').then((mod) => mod.default),
 	{
 		loading: () => (
@@ -36,7 +36,7 @@ const DynamicFileStorage = dynamic(
 		ssr: false,
 	}
 );
-const DynamicTablePagination = dynamic(
+const DynamicTablePagination = dynamic<any>(
 	() => import('../common').then((mod) => mod.TablePagination),
 	{
 		ssr: false,
@@ -180,7 +180,7 @@ function Files({
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => {
+						onSizeChange={(size: number) => {
 							// Reset offset when limit changes
 							setOffset(0);
 							setLimit(size);
