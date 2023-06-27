@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
+import Layout from '../index';
 import { useAuthContext } from '../../store/contexts';
 
 const DynamicLoginPage = dynamic<any>(
@@ -21,7 +22,7 @@ const Authenticated = ({ children }: { children: React.ReactNode }) => {
 	const { auth: isAuthenticated, loading: isLoading } = useAuthContext();
 
 	return isLoading === false && isAuthenticated ? (
-		<React.Fragment>{children}</React.Fragment>
+		<Layout>{children}</Layout>
 	) : isLoading === false && isAuthenticated === false ? (
 		<DynamicLoginPage />
 	) : (
