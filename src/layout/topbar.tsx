@@ -1,11 +1,16 @@
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
-import { FaRegBell } from 'react-icons/fa';
 
-import Notifications from './notifications';
 import { LOGO_IMAGE, DEFAULT_IMAGE } from '../config';
-import { useOutClick } from '../hooks';
 import { useAuthContext } from '../store/contexts';
+
+const DynamicTopbarNotifications = dynamic(
+	() => import('./notifications').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 function getName(
 	name1: string | null,
@@ -19,12 +24,6 @@ function getName(
 }
 
 const Topbar = () => {
-	const { buttonRef, ref, setVisible, visible } = useOutClick<
-		HTMLUListElement,
-		HTMLDivElement
-	>();
-
-	const [count, setCount] = React.useState(0);
 	const { data } = useAuthContext();
 
 	return (
@@ -41,33 +40,7 @@ const Topbar = () => {
 			</div>
 
 			<div className="flex items-center justify-end w-full sm:w-2/3">
-				<div
-					ref={buttonRef}
-					onClick={() => setVisible(!visible)}
-					className="cursor-pointer duration-500 flex items-center justify-center min-h-[30px] min-w-[30px] mx-4 relative transition transform hover:scale-110"
-				>
-					<span>
-						<FaRegBell className="h-5 w-5 text-gray-700" />
-					</span>
-					{count > 0 && (
-						<span
-							className={` ${
-								count > 99
-									? 'h-[1.2rem] right-[-6px] w-[1.2rem]'
-									: count > 9
-									? 'h-[1rem] right-0 w-[1rem]'
-									: 'h-[0.9rem] right-0 w-[0.9rem]'
-							} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-[9px] text-center text-gray-100`}
-							// style={{ fontSize: '9px' }}
-						>
-							{count > 10 && (
-								<span className="relative top-[0.5px]">
-									{count > 99 ? '!' : count}
-								</span>
-							)}
-						</span>
-					)}
-				</div>
+				<DynamicTopbarNotifications />
 
 				<div className="flex flex-col justify-center text-right mx-1 pt-2 sm:mx-3">
 					<p className="capitalize font-semibold leading-tight text-primary-700 text-xs sm:leading-tighter sm:text-sm">
@@ -91,7 +64,6 @@ const Topbar = () => {
 					<div className="absolute border border-gray-900 bg-green-700 bottom-0 h-2 right-0 rounded-full w-2" />
 				</div>
 			</div>
-			<Notifications setCount={setCount} visible={visible} ref={ref} />
 		</section>
 	);
 };

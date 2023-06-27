@@ -1,8 +1,14 @@
 import { Button } from 'kite-react-tailwind';
 import React from 'react';
-import { FaCheckCircle, FaClock, FaSuitcase, FaTimes } from 'react-icons/fa';
+import {
+	FaCheckCircle,
+	FaClock,
+	FaRegBell,
+	FaSuitcase,
+	FaTimes,
+} from 'react-icons/fa';
 
-import { useFadeIn } from '../hooks';
+import { useFadeIn, useOutClick } from '../hooks';
 import { useAlertContext } from '../store/contexts';
 import {
 	useDeleteNotificationMutation,
@@ -235,4 +241,48 @@ const Notifications = React.forwardRef<
 
 Notifications.displayName = 'Notifications';
 
-export default Notifications;
+function TopbarNotifications() {
+	const { buttonRef, ref, setVisible, visible } = useOutClick<
+		HTMLUListElement,
+		HTMLDivElement
+	>();
+
+	const [count, setCount] = React.useState(0);
+
+	return (
+		<>
+			<div
+				ref={buttonRef}
+				onClick={() => setVisible(!visible)}
+				className="cursor-pointer duration-500 flex items-center justify-center min-h-[30px] min-w-[30px] mx-4 relative transition transform hover:scale-110"
+			>
+				<span>
+					<FaRegBell className="h-5 w-5 text-gray-700" />
+				</span>
+				{count > 0 && (
+					<span
+						className={` ${
+							count > 99
+								? 'h-[1.2rem] right-[-6px] w-[1.2rem]'
+								: count > 9
+								? 'h-[1rem] right-0 w-[1rem]'
+								: 'h-[0.9rem] right-0 w-[0.9rem]'
+						} absolute bg-red-500 flex justify-center items-center rounded-full top-0 text-[9px] text-center text-gray-100`}
+						// style={{ fontSize: '9px' }}
+					>
+						{count > 10 && (
+							<span className="relative top-[0.5px]">
+								{count > 99 ? '!' : count}
+							</span>
+						)}
+					</span>
+				)}
+			</div>
+			<Notifications setCount={setCount} visible={visible} ref={ref} />
+		</>
+	);
+}
+
+TopbarNotifications.displayName = 'TopbarNotifications';
+
+export default TopbarNotifications;
