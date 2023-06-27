@@ -9,9 +9,17 @@ const useOutClick = <
 	const buttonRef = useRef<Button>(null);
 
 	const handleMouseClick = useCallback(({ target }: Event): void => {
-		!buttonRef.current?.contains(target as Element) &&
-			!ref.current?.contains(target as Element) &&
+		if (
+			typeof buttonRef.current?.contains === 'function' &&
+			!buttonRef.current?.contains(target as Element) &&
+			typeof ref.current?.contains === 'function' &&
+			!ref.current?.contains(target as Element)
+		) {
 			setVisible(false);
+		}
+		// !buttonRef.current?.contains(target as Element) &&
+		// 	!ref.current?.contains(target as Element) &&
+		// 	setVisible(false);
 	}, []);
 
 	useEffect(() => {
