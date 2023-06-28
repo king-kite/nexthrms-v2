@@ -1,4 +1,4 @@
-import { Button } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import {
 	FaCheckCircle,
@@ -8,8 +8,9 @@ import {
 	FaTimes,
 } from 'react-icons/fa';
 
-import { useFadeIn, useOutClick } from '../hooks';
-import { useAlertContext } from '../store/contexts';
+import useFadeIn from '../hooks/useFadeIn';
+import useOutClick from '../hooks/useOutClick';
+import { useAlertContext } from '../store/contexts/alert';
 import {
 	useDeleteNotificationMutation,
 	useGetNotificationsQuery,
@@ -22,6 +23,13 @@ interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;
 	modalVisible: boolean;
 }
+
+const Button = dynamic<any>(
+	() => import('kite-react-tailwind').then((mod) => mod.Button),
+	{
+		ssr: false,
+	}
+);
 
 const Notification = ({
 	id,

@@ -1,10 +1,5 @@
-export { default as Activity } from './activity';
 export { default as AdminTable } from './admin-table';
-export { default as Detail } from './detail';
-export { default as Form } from './form';
 export { default as SearchForm } from './search-form';
 export { default as StatsCard } from './stats-card';
-export { default as Statistics } from './statistics';
-export { default as TimeSheet } from './time-sheet';
 export { default as AttendanceTable } from './table';
 export { default as Topbar } from './topbar';

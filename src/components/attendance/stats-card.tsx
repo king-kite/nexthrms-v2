@@ -1,4 +1,6 @@
-import { Activity, Statistics, TimeSheet } from './index';
+import Activity from './activity';
+import Statistics from './statistics';
+import TimeSheet from './time-sheet';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries/attendance';
 import { GetAttendanceInfoResponseType } from '../../types';

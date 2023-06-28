@@ -2,8 +2,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
 
-import { LOGO_IMAGE, DEFAULT_IMAGE } from '../config';
-import { useAuthContext } from '../store/contexts';
+import { LOGO_IMAGE, DEFAULT_IMAGE } from '../config/static';
+import { useAuthContext } from '../store/contexts/auth';
 
 const DynamicTopbarNotifications = dynamic<any>(
 	() => import('./notifications').then((mod) => mod.default),
