@@ -1,5 +1,5 @@
 import Login from '../../containers/account/login';
-import { Title } from '../../utils';
+import Title from '../../utils/components/title';
 
 const Page = () => {
 	return (

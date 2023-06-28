@@ -3,11 +3,12 @@ import { InferGetServerSidePropsType } from 'next';
 
 import { models, permissions } from '../../../../../config';
 import ObjectPermissions from '../../../../../containers/users/permissions/objects';
-import { getObjectPermissions } from '../../../../../db';
+import { getObjectPermissions } from '../../../../../db/queries/permissions';
 import { authPage } from '../../../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../../../types';
-import { hasModelPermission, Title } from '../../../../../utils';
-import { serializeUserData } from '../../../../../utils/serializers';
+import { hasModelPermission } from '../../../../../utils/permission';
+import Title from '../../../../../utils/components/title';
+import { serializeUserData } from '../../../../../utils/serializers/auth';
 import { uuidSchema } from '../../../../../validators';
 
 const Page = ({

@@ -1,12 +1,12 @@
 import type { InferGetServerSidePropsType } from 'next';
 
 import Overtime from '../../../containers/overtime/detail';
-import { getOvertime } from '../../../db';
-import { getUserObjectPermissions } from '../../../db/utils';
+import { getOvertime } from '../../../db/queries/overtime';
+import { getUserObjectPermissions } from '../../../db/utils/permission';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 import { uuidSchema } from '../../../validators';
 
 const Page = ({

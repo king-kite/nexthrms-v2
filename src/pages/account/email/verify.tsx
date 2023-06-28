@@ -2,11 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { EMAIL_RESEND_URL } from '../../../config';
+import { EMAIL_RESEND_URL } from '../../../config/server';
 import VerifyEmail from '../../../containers/account/email/verify';
-import { useInterval } from '../../../hooks';
+import useInterval from '../../../hooks/useInterval';
 import { BaseResponseType } from '../../../types';
-import { axiosInstance, Title } from '../../../utils';
+import axiosInstance from '../../../utils/axios/authRedirectInstance';
+import Title from '../../../utils/components/title';
 import { handleAxiosErrors } from '../../../validators';
 
 const Page = () => {

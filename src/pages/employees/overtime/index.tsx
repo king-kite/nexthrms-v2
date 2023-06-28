@@ -1,13 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
 import Overtime from '../../../containers/overtime';
-import { getAllOvertime } from '../../../db';
-import { getUserObjects } from '../../../db/utils';
+import { getAllOvertime } from '../../../db/queries/overtime';
+import { getUserObjects } from '../../../db/utils/permission';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 
 const Page = ({
 	overtime,

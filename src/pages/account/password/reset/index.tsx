@@ -2,11 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { PASSWORD_RESET_URL } from '../../../../config';
+import { PASSWORD_RESET_URL } from '../../../../config/server';
 import PasswordReset from '../../../../containers/account/password/reset';
-import { useInterval } from '../../../../hooks';
+import useInterval from '../../../../hooks/useInterval';
 import { BaseResponseType } from '../../../../types';
-import { axiosInstance, Title } from '../../../../utils';
+import axiosInstance from '../../../../utils/axios/authRedirectInstance';
+import Title from '../../../../utils/components/title';
 import { handleAxiosErrors } from '../../../../validators';
 
 const Page = () => {

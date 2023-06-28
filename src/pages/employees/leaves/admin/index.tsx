@@ -1,16 +1,16 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../../config/app';
 import Leaves from '../../../../containers/admin/leaves';
-import { getLeavesAdmin } from '../../../../db';
-import { getRecords } from '../../../../db/utils';
+import { getLeavesAdmin } from '../../../../db/queries/leaves';
+import { getRecords } from '../../../../db/utils/record';
 import { authPage } from '../../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
 	GetLeavesResponseType,
 } from '../../../../types';
-import { Title } from '../../../../utils';
-import { serializeUserData } from '../../../../utils/serializers';
+import Title from '../../../../utils/components/title';
+import { serializeUserData } from '../../../../utils/serializers/auth';
 
 const Page = ({
 	data,

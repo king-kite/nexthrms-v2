@@ -1,12 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
 
 import Employee from '../../../containers/employees/detail';
-import { getEmployee } from '../../../db';
-import { getRecord, getUserObjectPermissions } from '../../../db/utils';
+import { getEmployee } from '../../../db/queries/employees';
+import { getUserObjectPermissions } from '../../../db/utils/permission';
+import { getRecord } from '../../../db/utils/record';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, EmployeeType } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 import { uuidSchema } from '../../../validators';
 
 const Page = ({

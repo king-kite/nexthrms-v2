@@ -1,12 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
 
 import ClientDetail from '../../containers/clients/detail';
-import { getClient } from '../../db';
-import { getRecord, getUserObjectPermissions } from '../../db/utils';
+import { getClient } from '../../db/queries/clients';
+import { getUserObjectPermissions } from '../../db/utils/permission';
+import { getRecord } from '../../db/utils/record';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps, ClientType } from '../../types';
-import { Title } from '../../utils';
-import { serializeUserData } from '../../utils/serializers';
+import Title from '../../utils/components/title';
+import { serializeUserData } from '../../utils/serializers/auth';
 import { uuidSchema } from '../../validators';
 
 const Page = ({

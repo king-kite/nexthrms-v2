@@ -1,12 +1,12 @@
 import { InferGetServerSidePropsType } from 'next';
 
 import Project from '../../../containers/projects/detail';
-import { getProject, getProjectFiles } from '../../../db';
-import { getRecord, getRecords } from '../../../db/utils';
+import { getProject, getProjectFiles } from '../../../db/queries/projects';
+import { getRecord, getRecords } from '../../../db/utils/record';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 import { uuidSchema } from '../../../validators';
 
 function Page({

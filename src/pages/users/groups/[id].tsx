@@ -1,13 +1,13 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
 import Group from '../../../containers/users/groups/detail';
-import { getGroup } from '../../../db';
-import { getRecord } from '../../../db/utils';
+import { getGroup } from '../../../db/queries/groups';
+import { getRecord } from '../../../db/utils/record';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, GroupType } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 import { uuidSchema } from '../../../validators';
 
 const Page = ({

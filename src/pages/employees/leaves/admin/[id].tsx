@@ -1,13 +1,12 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { LOGIN_PAGE_URL } from '../../../../config';
 import Leave from '../../../../containers/leaves/detail';
-import { getLeave } from '../../../../db';
-import { getRecord } from '../../../../db/utils';
+import { getLeave } from '../../../../db/queries/leaves';
+import { getRecord } from '../../../../db/utils/record';
 import { authPage } from '../../../../middlewares';
 import { ExtendedGetServerSideProps, LeaveType } from '../../../../types';
-import { Title } from '../../../../utils';
-import { serializeUserData } from '../../../../utils/serializers';
+import Title from '../../../../utils/components/title';
+import { serializeUserData } from '../../../../utils/serializers/auth';
 import { uuidSchema } from '../../../../validators';
 
 const Page = ({

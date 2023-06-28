@@ -4,7 +4,8 @@ import React from 'react';
 
 import { REQUEST_EMAIL_VERIFY_PAGE_URL, REGISTER_URL } from '../../config';
 import Register from '../../containers/account/register';
-import { axiosInstance, Title } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
+import Title from '../../utils/components/title';
 import { handleYupErrors, handleAxiosErrors } from '../../validators';
 import { registerSchema } from '../../validators/auth';
 

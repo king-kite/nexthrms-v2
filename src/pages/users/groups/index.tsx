@@ -1,16 +1,16 @@
 import type { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
+import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
 import Groups from '../../../containers/users/groups';
-import { getGroups } from '../../../db';
-import { getRecords } from '../../../db/utils';
+import { getGroups } from '../../../db/queries/groups';
+import { getRecords } from '../../../db/utils/record';
 import { authPage } from '../../../middlewares';
 import {
 	ExtendedGetServerSideProps,
 	GetGroupsResponseType,
 } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 
 const Page = ({
 	data,

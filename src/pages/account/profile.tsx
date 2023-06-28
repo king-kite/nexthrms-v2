@@ -1,9 +1,9 @@
 import Profile from '../../containers/account/profile';
-import { getProfile } from '../../db';
+import { getProfile } from '../../db/queries/auth';
 import { authPage } from '../../middlewares';
 import { ExtendedGetServerSideProps, ProfileType } from '../../types';
-import { Title } from '../../utils';
-import { serializeUserData } from '../../utils/serializers';
+import Title from '../../utils/components/title';
+import { serializeUserData } from '../../utils/serializers/auth';
 
 const Page = ({ profile }: { profile: ProfileType }) => (
 	<>

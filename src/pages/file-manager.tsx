@@ -1,14 +1,14 @@
-import { DEFAULT_MEDIA_PAGINAITON_SIZE } from '../config';
+import { DEFAULT_MEDIA_PAGINAITON_SIZE } from '../config/app';
 import FileManager from '../containers/file-manager';
-import { getManagedFiles } from '../db';
-import { getRecords } from '../db/utils';
+import { getManagedFiles } from '../db/queries/managed-files';
+import { getRecords } from '../db/utils/record';
 import { authPage } from '../middlewares';
 import {
 	ExtendedGetServerSideProps,
 	GetManagedFilesResponseType,
 } from '../types';
-import { Title } from '../utils';
-import { serializeUserData } from '../utils/serializers';
+import Title from '../utils/components/title';
+import { serializeUserData } from '../utils/serializers/auth';
 
 function Page({ files }: { files?: GetManagedFilesResponseType['data'] }) {
 	return (

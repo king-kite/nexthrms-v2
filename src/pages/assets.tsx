@@ -1,13 +1,13 @@
 import { InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../config';
+import { DEFAULT_PAGINATION_SIZE } from '../config/app';
 import Assets from '../containers/assets';
-import { getAssets } from '../db';
-import { getRecords } from '../db/utils';
+import { getAssets } from '../db/queries/assets';
+import { getRecords } from '../db/utils/record';
 import { authPage } from '../middlewares';
 import { ExtendedGetServerSideProps, GetAssetsResponseType } from '../types';
-import { Title } from '../utils';
-import { serializeUserData } from '../utils/serializers';
+import Title from '../utils/components/title';
+import { serializeUserData } from '../utils/serializers/auth';
 
 const Page = ({
 	data,

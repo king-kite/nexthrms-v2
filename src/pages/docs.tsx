@@ -1,11 +1,12 @@
 import dynamic from 'next/dynamic';
 import 'swagger-ui-react/swagger-ui.css';
 
-import { permissions } from '../config';
+import permissions from '../config/permissions';
 import { authPage } from '../middlewares';
 import { ExtendedGetServerSideProps } from '../types';
-import { hasModelPermission, Title } from '../utils';
-import { serializeUserData } from '../utils/serializers';
+import { hasModelPermission } from '../utils/permission';
+import Title from '../utils/components/title';
+import { serializeUserData } from '../utils/serializers/auth';
 
 const DynamicDocComponent = dynamic<any>(import('../containers/docs'), {
 	ssr: false,

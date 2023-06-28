@@ -1,12 +1,12 @@
 import { GetServerSideProps } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 
-import { SplashScreen } from '../../../../../components/common';
+import SplashScreen from '../../../../../components/common/splash-screen';
 import {
 	LOGIN_PAGE_URL,
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
-} from '../../../../../config';
-import { prisma } from '../../../../../db';
+} from '../../../../../config/routes';
+import prisma from '../../../../../db/client';
 import { verifyUidTokenSchema } from '../../../../../validators/auth';
 
 function Page() {

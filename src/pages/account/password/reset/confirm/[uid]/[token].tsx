@@ -10,9 +10,10 @@ import {
 	PASSWORD_RESET_CONFIRM_URL,
 } from '../../../../../../config';
 import PasswordConfirm from '../../../../../../containers/account/password/confirm';
-import { prisma } from '../../../../../../db';
+import prisma from '../../../../../../db/client';
 import { PasswordResetType } from '../../../../../../types';
-import { axiosInstance, Title } from '../../../../../../utils';
+import axiosInstance from '../../../../../../utils/axios/authRedirectInstance';
+import Title from '../../../../../../utils/components/title';
 import {
 	handleAxiosErrors,
 	handleYupErrors,

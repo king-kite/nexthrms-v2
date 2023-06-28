@@ -1,12 +1,12 @@
 import type { InferGetServerSidePropsType } from 'next';
 
 import TaskDetailPage from '../../../../containers/projects/detail/tasks/detail';
-import { getProjectTask } from '../../../../db';
-import { getRecord } from '../../../../db/utils';
+import { getProjectTask } from '../../../../db/queries/projects';
+import { getRecord } from '../../../../db/utils/record';
 import { authPage } from '../../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../../types';
-import { Title } from '../../../../utils';
-import { serializeUserData } from '../../../../utils/serializers';
+import Title from '../../../../utils/components/title';
+import { serializeUserData } from '../../../../utils/serializers/auth';
 import { uuidSchema } from '../../../../validators';
 
 const Page = ({
