@@ -1,6 +1,6 @@
 import { NotificationChoices } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { handlePrismaErrors } from '../../validators';
 
 export async function createNotification({

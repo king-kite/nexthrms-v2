@@ -2,7 +2,7 @@ import { Prisma, Token } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { CONFIRM_EMAIL_PAGE_URL } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import { createToken } from '../../../db/utils/auth';
 import { RegisterResponseType } from '../../../types';
 import { hashPassword } from '../../../utils/bcrypt';

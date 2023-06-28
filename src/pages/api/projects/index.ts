@@ -1,9 +1,9 @@
-import { permissions } from '../../../config';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db';
 import {
-	prisma,
 	getProjects,
 	projectSelectQuery as selectQuery,
-} from '../../../db';
+} from '../../../db/queries/projects';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -13,7 +13,7 @@ import {
 import { auth } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { ProjectType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { projectCreateSchema } from '../../../validators/projects';
 

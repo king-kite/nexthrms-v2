@@ -1,7 +1,7 @@
 import type { NextApiRequest } from 'next';
 
 import permissions from '../../../config/permissions';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	getGroups,
 	groupSelectQuery,

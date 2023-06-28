@@ -3,7 +3,7 @@ import {
 	importPermissions,
 	updateObjectPermissions,
 } from './permission';
-import prisma from '../client';
+import prisma from '..';
 import { getProjectTeam } from '../queries';
 import {
 	ObjectPermissionImportType,

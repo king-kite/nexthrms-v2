@@ -1,9 +1,9 @@
-import { permissions } from '../../../../../config';
+import permissions from '../../../../../config/permissions';
+import prisma from '../../../../../db';
 import {
-	prisma,
 	getProjectTeamMember,
 	teamSelectQuery as selectQuery,
-} from '../../../../../db';
+} from '../../../../../db/queries/projects';
 import {
 	hasViewPermission,
 	hasObjectPermission,
@@ -12,7 +12,7 @@ import {
 import { auth } from '../../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../../middlewares/api';
 import { ProjectTeamType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { projectTeamMemberUpdateSchema } from '../../../../../validators/projects';
 

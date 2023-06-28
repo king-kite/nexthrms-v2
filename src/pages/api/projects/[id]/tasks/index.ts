@@ -1,9 +1,9 @@
-import { permissions } from '../../../../../config';
+import permissions from '../../../../../config/permissions';
+import prisma from '../../../../../db';
 import {
-	prisma,
 	getProjectTasks,
 	taskSelectQuery as selectQuery,
-} from '../../../../../db';
+} from '../../../../../db/queries/projects';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -12,7 +12,7 @@ import {
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 import { ProjectTaskType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { taskCreateSchema } from '../../../../../validators/projects';
 

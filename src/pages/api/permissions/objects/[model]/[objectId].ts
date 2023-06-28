@@ -4,7 +4,7 @@ import {
 } from '@prisma/client';
 
 import { getPrismaModels, models, permissions } from '../../../../../config';
-import prisma from '../../../../../db/client';
+import prisma from '../../../../../db';
 import { getObjectPermissions } from '../../../../../db/queries/permissions';
 import { admin } from '../../../../../middlewares';
 import { hasModelPermission } from '../../../../../utils/permission';

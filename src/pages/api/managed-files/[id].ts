@@ -1,7 +1,7 @@
 import path from 'path';
 
 import { permissions, MEDIA_URL } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	getManagedFile,
 	managedFileSelectQuery,

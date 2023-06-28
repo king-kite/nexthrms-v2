@@ -1,4 +1,4 @@
-import prisma from '../../../../db/client';
+import prisma from '../../../../db';
 import {
 	getLeave,
 	leaveSelectQuery as selectQuery,

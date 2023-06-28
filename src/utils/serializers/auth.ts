@@ -5,7 +5,7 @@ import {
 } from '@prisma/client';
 
 import { models } from '../../config';
-import prisma from '../../db/client';
+import prisma from '../../db';
 import { AuthDataType, PermissionType, RequestUserType } from '../../types';
 
 // return distinct permissions from the groups permission and user permissions;

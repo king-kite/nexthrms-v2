@@ -1,8 +1,8 @@
-import { permissions } from '../../../../config';
-import { prisma } from '../../../../db';
-import { getUserObjectPermissions } from '../../../../db/utils';
+import permissions from '../../../../config/permissions';
+import prisma from '../../../../db';
+import { getUserObjectPermissions } from '../../../../db/utils/permission';
 import { admin } from '../../../../middlewares';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { hashPassword } from '../../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { changeUserPasswordSchema } from '../../../../validators/users';

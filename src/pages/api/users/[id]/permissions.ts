@@ -1,8 +1,10 @@
 import { permissions } from '../../../../config';
-import { getPermissions, getUserPermissions, prisma } from '../../../../db';
+import prisma from '../../../../db';
+import { getPermissions } from '../../../../db/queries/permissions';
+import { getUserPermissions } from '../../../../db/queries/users';
 import { getUserObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { updateUserPermissionsSchema } from '../../../../validators/users';

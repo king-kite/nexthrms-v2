@@ -1,6 +1,6 @@
 import { Token } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { generateToken } from '../../utils/tokens';
 
 export async function createToken({

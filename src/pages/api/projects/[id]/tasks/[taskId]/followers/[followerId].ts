@@ -1,15 +1,15 @@
-import { permissions } from '../../../../../../../config';
+import permissions from '../../../../../../../config/permissions';
+import prisma from '../../../../../../../db';
 import {
-	prisma,
 	getTaskFollower,
 	taskFollowerSelectQuery as selectQuery,
-} from '../../../../../../../db';
+} from '../../../../../../../db/queries/projects';
 import {
 	hasObjectPermission,
 	hasViewPermission,
 } from '../../../../../../../db/utils';
 import { auth } from '../../../../../../../middlewares';
-import { hasModelPermission } from '../../../../../../../utils';
+import { hasModelPermission } from '../../../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
 import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators/projects';
 

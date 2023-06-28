@@ -1,12 +1,12 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROJECT_URL } from '../../../../../config';
+import prisma from '../../../../../db';
 import {
-	prisma,
 	getProject,
 	getProjectFiles,
 	projectFileSelectQuery as selectQuery,
-} from '../../../../../db';
+} from '../../../../../db/queries/projects';
 import {
 	addObjectPermissions,
 	getRecord,
@@ -16,7 +16,7 @@ import {
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 import { ProjectFileType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { upload as uploadFile } from '../../../../../utils/files';
 import parseForm from '../../../../../utils/parseForm';

@@ -3,7 +3,7 @@ import {
 	projectTaskFollowerHeaders as followerHeaders,
 	permissions,
 } from '../../../../../config';
-import { getProjectTasks } from '../../../../../db';
+import { getProjectTasks } from '../../../../../db/queries/projects';
 import {
 	createNotification,
 	exportData,
@@ -16,7 +16,7 @@ import {
 	NextApiRequestExtendUser,
 	ProjectTaskFollowerImportQueryType,
 } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../../validators';
 

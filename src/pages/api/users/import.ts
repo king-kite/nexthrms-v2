@@ -4,7 +4,7 @@ import {
 	userHeaders as headers,
 	permissions,
 } from '../../../config';
-import { prisma } from '../../../db';
+import prisma from '../../../db';
 import {
 	addObjectPermissions,
 	createNotification,
@@ -18,7 +18,7 @@ import {
 	ObjectPermissionImportType,
 	NextApiRequestExtendUser,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import parseForm from '../../../utils/parseForm';
 

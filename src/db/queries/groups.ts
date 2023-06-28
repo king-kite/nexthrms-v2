@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { permissionSelectQuery } from './permissions';
-import prisma from '../client';
+import prisma from '..';
 import { ParamsType, GroupType } from '../../types';
 
 // Default Group User Select Query

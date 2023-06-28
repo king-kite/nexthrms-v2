@@ -12,7 +12,7 @@ import {
 	projectSelectQuery,
 	projectFileSelectQuery,
 	taskSelectQuery,
-} from '../../../db';
+} from '../../../db/queries/projects';
 import {
 	createNotification,
 	exportData,
@@ -29,7 +29,7 @@ import {
 	ProjectTaskFollowerImportQueryType,
 	ProjectTeamImportQueryType,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

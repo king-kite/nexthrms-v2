@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import prisma from '../../../../db/client';
+import prisma from '../../../../db';
 import { BaseResponseType } from '../../../../types';
 import { handleYupErrors, handlePrismaErrors } from '../../../../validators';
 import { verifyUidTokenSchema } from '../../../../validators/auth';

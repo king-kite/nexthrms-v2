@@ -1,7 +1,7 @@
 import excelJS from 'exceljs';
 import JSZip from 'jszip';
 
-import prisma from '../client';
+import prisma from '..';
 import {
 	exportPermissionHeaders as permissionHeaders,
 	MEDIA_EXPORT_URL,

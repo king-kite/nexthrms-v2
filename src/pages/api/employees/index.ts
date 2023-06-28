@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROFILE_URL } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployees,

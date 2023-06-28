@@ -1,5 +1,5 @@
 import { permissions } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	assetSelectQuery as selectQuery,
 	getAssets,

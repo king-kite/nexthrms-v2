@@ -9,7 +9,6 @@ import {
 import {
 	createNotification,
 	handleNotificationErrors as handleErrors,
-	hasViewPermission,
 	importData,
 } from '../../../db/utils';
 import {
@@ -27,7 +26,7 @@ import {
 	ProjectTaskImportQueryType,
 	ProjectTaskFollowerImportQueryType,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import parseForm from '../../../utils/parseForm';
 
@@ -38,39 +37,48 @@ export const config = {
 };
 
 export default admin().post(async (req, res) => {
-	const queryImport = req.query.import?.toString() || "projects";
+	const queryImport = req.query.import?.toString() || 'projects';
 
 	// Can create project
 	const hasCreatePerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.CREATE]);
-	if (!hasCreatePerm && queryImport === 'projects') throw new NextApiErrorMessage(403);
-	
+	if (!hasCreatePerm && queryImport === 'projects')
+		throw new NextApiErrorMessage(403);
+
 	// Can create task
-	const hasTaskCreatePerm = 
+	const hasTaskCreatePerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.projecttask.CREATE]);
-	if (!hasTaskCreatePerm && queryImport === 'tasks') throw new NextApiErrorMessage(403);
+		hasModelPermission(req.user.allPermissions, [
+			permissions.projecttask.CREATE,
+		]);
+	if (!hasTaskCreatePerm && queryImport === 'tasks')
+		throw new NextApiErrorMessage(403);
 
 	// Can edit project
 	// Only allow model level user permissions
-	const hasEditPerm = 
+	const hasEditPerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
-	if (!hasEditPerm && !hasCreatePerm && queryImport === 'team') throw new NextApiErrorMessage(403);
+	if (!hasEditPerm && !hasCreatePerm && queryImport === 'team')
+		throw new NextApiErrorMessage(403);
 
 	// Can create file
-	const hasFileCreatePerm = 
+	const hasFileCreatePerm =
 		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.projectfile.CREATE]);
-	if (!hasFileCreatePerm && queryImport === 'files') throw new NextApiErrorMessage(403);
-	
+		hasModelPermission(req.user.allPermissions, [
+			permissions.projectfile.CREATE,
+		]);
+	if (!hasFileCreatePerm && queryImport === 'files')
+		throw new NextApiErrorMessage(403);
+
 	// Can edit project task
 	// Only allow model level user permissions
-	const hasTaskEditPerm = 
+	const hasTaskEditPerm =
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.EDIT]);
-	if (!hasTaskEditPerm && !hasTaskCreatePerm && queryImport === 'followers') throw new NextApiErrorMessage(403);
+	if (!hasTaskEditPerm && !hasTaskCreatePerm && queryImport === 'followers')
+		throw new NextApiErrorMessage(403);
 
 	const { files } = (await parseForm(req)) as { files: any };
 

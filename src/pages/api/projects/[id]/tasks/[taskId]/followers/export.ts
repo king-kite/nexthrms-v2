@@ -2,7 +2,7 @@ import {
 	projectTaskFollowerHeaders as headers,
 	permissions,
 } from '../../../../../../../config';
-import { getTaskFollowers } from '../../../../../../../db';
+import { getTaskFollowers } from '../../../../../../../db/queries/projects';
 import {
 	createNotification,
 	exportData,
@@ -10,7 +10,7 @@ import {
 } from '../../../../../../../db/utils';
 import { admin } from '../../../../../../../middlewares';
 import { NextApiRequestExtendUser } from '../../../../../../../types';
-import { hasModelPermission } from '../../../../../../../utils';
+import { hasModelPermission } from '../../../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
 import {
 	handlePrismaErrors,

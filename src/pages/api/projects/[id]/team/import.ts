@@ -12,7 +12,7 @@ import {
 import { importProjectTeam } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
 import { ProjectTeamImportQueryType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import parseForm from '../../../../../utils/parseForm';
 

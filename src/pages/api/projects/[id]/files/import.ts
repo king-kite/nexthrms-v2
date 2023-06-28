@@ -11,7 +11,7 @@ import {
 import { importProjectFiles } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
 import { ProjectFileImportQueryType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import parseForm from '../../../../../utils/parseForm';
 

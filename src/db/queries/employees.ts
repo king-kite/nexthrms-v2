@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { EmployeeType, ParamsType } from '../../types';
 
 const date = new Date();

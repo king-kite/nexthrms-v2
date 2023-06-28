@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { AttendanceType, AttendanceInfoType, ParamsType } from '../../types';
 import { getFirstDateOfMonth, getWeekDate } from '../../utils';
 

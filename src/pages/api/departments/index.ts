@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import permissions from '../../../config/permissions';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	departmentSelectQuery as selectQuery,
 	getDepartments,

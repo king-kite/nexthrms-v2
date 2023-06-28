@@ -6,7 +6,7 @@ import {
 	LOGIN_PAGE_URL,
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../../../../config/routes';
-import prisma from '../../../../../db/client';
+import prisma from '../../../../../db';
 import { verifyUidTokenSchema } from '../../../../../validators/auth';
 
 function Page() {

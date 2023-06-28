@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { ManagedFileType, ParamsType } from '../../types';
 
 export const managedFileSelectQuery: Prisma.ManagedFileSelect = {
@@ -31,12 +31,12 @@ export const managedFileSelectQuery: Prisma.ManagedFileSelect = {
 	profile: {
 		select: {
 			id: true,
-		}
+		},
 	},
 	projectFile: {
 		select: {
 			id: true,
-		}
+		},
 	},
 	updatedAt: true,
 	createdAt: true,

@@ -1,11 +1,11 @@
 import { permissions, USE_LOCAL_MEDIA_STORAGE } from '../../../../../config';
-import { prisma } from '../../../../../db';
+import prisma from '../../../../../db';
 import {
 	getUserObjectPermissions,
 	hasViewPermission,
 } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { deleteFile } from '../../../../../utils/files';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 

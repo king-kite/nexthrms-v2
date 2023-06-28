@@ -1,5 +1,5 @@
 import { permissions } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import { getJobs } from '../../../db/queries/jobs';
 import { getRecords, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';

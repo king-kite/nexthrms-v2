@@ -2,7 +2,7 @@ import {
 	projectFileHeaders as headers,
 	permissions,
 } from '../../../../../config';
-import { getProjectFiles } from '../../../../../db';
+import { getProjectFiles } from '../../../../../db/queries/projects';
 import {
 	createNotification,
 	exportData,
@@ -15,7 +15,7 @@ import {
 	NextApiRequestExtendUser,
 	ProjectFileType,
 } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils';
+import { hasModelPermission } from '../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../../validators';
 

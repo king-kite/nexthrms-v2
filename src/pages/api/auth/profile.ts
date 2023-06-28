@@ -1,5 +1,5 @@
 import { MEDIA_PROFILE_URL } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	getProfile,
 	profileUserSelectQuery as profileSelect,

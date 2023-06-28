@@ -3,7 +3,7 @@ import {
 	PermissionObjectChoices,
 } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { ObjectPermissionImportType } from '../../types';
 
 // A function to check if a user has view, edit or delete

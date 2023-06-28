@@ -1,5 +1,5 @@
 import { departmentHeaders as headers, permissions } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	addObjectPermissions,
 	createNotification,

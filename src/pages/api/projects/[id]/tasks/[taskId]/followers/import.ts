@@ -12,7 +12,7 @@ import {
 import { importProjectTaskFollowers } from '../../../../../../../db/utils/projects';
 import { admin } from '../../../../../../../middlewares';
 import { ProjectTaskFollowerImportQueryType } from '../../../../../../../types';
-import { hasModelPermission } from '../../../../../../../utils';
+import { hasModelPermission } from '../../../../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../../../../utils/classes';
 import parseForm from '../../../../../../../utils/parseForm';
 

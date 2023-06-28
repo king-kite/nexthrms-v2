@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROFILE_URL } from '../../../../config';
+import prisma from '../../../../db';
 import {
 	userSelectQuery as selectQuery,
 	getUser,
-	prisma,
-} from '../../../../db';
+} from '../../../../db/queries/users';
 import {
 	getRecord,
 	getUserObjectPermissions,
@@ -13,7 +13,7 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { UserType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { upload as uploadFile } from '../../../../utils/files';
 import parseForm from '../../../../utils/parseForm';

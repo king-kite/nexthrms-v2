@@ -4,7 +4,7 @@ import {
 } from '@prisma/client';
 
 import { getPrismaModels, models } from '../../../../../config';
-import prisma from '../../../../../db/client';
+import prisma from '../../../../../db';
 import { getUserObjectPermissions } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 

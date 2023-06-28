@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import prisma from '../client';
+import prisma from '..';
 import { AssetType, ParamsType } from '../../types';
 
 export const assetSelectQuery: Prisma.AssetSelect = {

@@ -5,7 +5,7 @@ import {
 	MEDIA_URL,
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../../../config';
-import prisma from '../../../db/client';
+import prisma from '../../../db';
 import {
 	getManagedFiles,
 	managedFileSelectQuery,

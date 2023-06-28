@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { getGroupsQuery } from './groups';
 import { getPermissionsQuery } from './permissions';
-import prisma from '../client';
+import prisma from '..';
 import {
 	ParamsType,
 	PermissionType,
