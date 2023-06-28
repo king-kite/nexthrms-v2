@@ -1,5 +1,5 @@
 import { leaveHeaders as headers, permissions } from '../../../../config';
-import { getLeavesAdmin } from '../../../../db';
+import { getLeavesAdmin } from '../../../../db/queries/leaves';
 import {
 	createNotification,
 	exportData,
@@ -11,7 +11,7 @@ import {
 	GetLeavesResponseType,
 	NextApiRequestExtendUser,
 } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../validators';
 

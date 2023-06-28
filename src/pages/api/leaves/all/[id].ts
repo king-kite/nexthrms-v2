@@ -1,8 +1,8 @@
+import prisma from '../../../../db/client';
 import {
 	getLeave,
-	prisma,
 	leaveSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/leaves';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { NextApiErrorMessage } from '../../../../utils/classes';

@@ -1,9 +1,9 @@
-import { permissions } from '../../../../config';
+import permissions from '../../../../config/permissions';
+import prisma from '../../../../db/client';
 import {
 	getLeaves,
-	prisma,
 	leaveSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/leaves';
 import {
 	addObjectPermissions,
 	getEmployeeOfficersId,
@@ -12,7 +12,7 @@ import {
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { LeaveType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { leaveCreateSchema } from '../../../../validators/leaves';

@@ -1,10 +1,15 @@
 import path from 'path';
+
 import { permissions, MEDIA_URL } from '../../../config';
-import { getManagedFile, managedFileSelectQuery, prisma } from '../../../db';
+import prisma from '../../../db/client';
+import {
+	getManagedFile,
+	managedFileSelectQuery,
+} from '../../../db/queries/managed-files';
 import { getRecord, hasObjectPermission } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { ManagedFileType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { deleteFile } from '../../../utils/files';
 

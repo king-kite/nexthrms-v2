@@ -1,4 +1,4 @@
-import { prisma } from '../../../db';
+import prisma from '../../../db/client';
 import { auth } from '../../../middlewares';
 import { NextApiErrorMessage } from '../../../utils/classes';
 

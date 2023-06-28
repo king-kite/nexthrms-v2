@@ -5,7 +5,11 @@ import {
 	MEDIA_URL,
 	MEDIA_HIDDEN_FILE_NAME,
 } from '../../../config';
-import { getManagedFiles, prisma, managedFileSelectQuery } from '../../../db';
+import prisma from '../../../db/client';
+import {
+	getManagedFiles,
+	managedFileSelectQuery,
+} from '../../../db/queries/managed-files';
 import {
 	addObjectPermissions,
 	createNotification,
@@ -14,7 +18,7 @@ import {
 } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { CreateManagedFileType, ManagedFileType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';

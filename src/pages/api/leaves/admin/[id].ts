@@ -1,14 +1,14 @@
-import { permissions } from '../../../../config';
+import permissions from '../../../../config/permissions';
+import prisma from '../../../../db/client';
 import {
 	getLeave,
-	prisma,
 	leaveSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/leaves';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { LeaveType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import {
 	leaveApprovalSchema,
