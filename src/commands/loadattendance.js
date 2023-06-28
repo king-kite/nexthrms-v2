@@ -16,11 +16,26 @@ const { getEmail, logger } = require('./utils/index.js');
 		},
 	});
 
+	if (!user.employee) throw new Error('User is not an employee!');
+
 	// get the current date
 	const date = new Date();
 
 	// get the date at the start of the month
 	const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+
+	// Delete the old attendance for the user
+	await prisma.attendance.deleteMany({
+		where: {
+			date: {
+				gte: startDate,
+				lte: date,
+			},
+			employee: {
+				id: user.employee.id,
+			},
+		},
+	});
 
 	const punchIn = new Date(0);
 	punchIn.setHours(8);
@@ -41,16 +56,19 @@ const { getEmail, logger } = require('./utils/index.js');
 	if (date.getDate() > 1) {
 		for (let i = 2; i <= date.getDate(); i++) {
 			const nowDate = new Date(date.getFullYear(), date.getMonth(), i);
-			const data = {
-				date: nowDate,
-				employeeId: user.employee.id,
-				punchIn,
-				punchOut:
-					nowDate.getDate() !== date.getDate() || nowDate.getHours() > 18
-						? punchOut
-						: null,
-			};
-			attendance.push(data);
+			// Not a sunday
+			if (nowDate.getDay() !== 0) {
+				const data = {
+					date: nowDate,
+					employeeId: user.employee.id,
+					punchIn,
+					punchOut:
+						nowDate.getDate() !== date.getDate() || nowDate.getHours() > 18
+							? punchOut
+							: null,
+				};
+				attendance.push(data);
+			}
 		}
 	}
 
