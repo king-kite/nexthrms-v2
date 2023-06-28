@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROFILE_URL } from '../../../config';
+import prisma from '../../../db/client';
 import {
 	employeeSelectQuery as selectQuery,
 	getEmployees,
-	prisma,
-} from '../../../db';
+} from '../../../db/queries/employees';
 import {
 	addObjectPermissions,
 	getEmployeeOfficersId,
@@ -14,7 +14,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { EmployeeType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';

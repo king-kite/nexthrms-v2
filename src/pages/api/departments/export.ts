@@ -1,5 +1,5 @@
 import { departmentHeaders as headers, permissions } from '../../../config';
-import { getDepartments } from '../../../db';
+import { getDepartments } from '../../../db/queries/departments';
 import {
 	createNotification,
 	exportData,
@@ -11,7 +11,7 @@ import {
 	GetDepartmentsResponseType,
 	NextApiRequestExtendUser,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

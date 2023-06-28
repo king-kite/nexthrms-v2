@@ -1,5 +1,5 @@
 import { clientHeaders as headers, permissions } from '../../../config';
-import { getClients } from '../../../db';
+import { getClients } from '../../../db/queries/clients';
 import {
 	createNotification,
 	exportData,

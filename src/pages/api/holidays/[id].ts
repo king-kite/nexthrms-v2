@@ -1,9 +1,9 @@
 import { permissions } from '../../../config';
+import prisma from '../../../db/client';
 import {
-	prisma,
 	getHoliday,
 	holidaySelectQuery as selectQuery,
-} from '../../../db';
+} from '../../../db/queries/holidays';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { employee } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';

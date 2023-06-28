@@ -1,8 +1,9 @@
-import { permissions } from '../../../config';
-import { prisma, getJob } from '../../../db';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db/client';
+import { getJob } from '../../../db/queries/jobs';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { createJobSchema } from '../../../validators/jobs';
 

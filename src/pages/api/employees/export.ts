@@ -1,5 +1,6 @@
 import { employeeHeaders as headers, permissions } from '../../../config';
-import { getDepartments, getEmployees } from '../../../db';
+import { getDepartments } from '../../../db/queries/departments';
+import { getEmployees } from '../../../db/queries/employees';
 import {
 	createNotification,
 	exportData,
@@ -11,7 +12,7 @@ import {
 	GetEmployeesResponseType,
 	NextApiRequestExtendUser,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

@@ -1,7 +1,11 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROFILE_URL } from '../../../config';
-import { prisma, getClient, clientSelectQuery as select } from '../../../db';
+import prisma from '../../../db/client';
+import {
+	getClient,
+	clientSelectQuery as select,
+} from '../../../db/queries/clients';
 import {
 	getRecord,
 	getUserObjectPermissions,

@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions } from '../../../config';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db/client';
 import {
 	departmentSelectQuery as selectQuery,
 	getDepartments,
-	prisma,
-} from '../../../db';
+} from '../../../db/queries/departments';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -14,7 +14,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { GetDepartmentsResponseType, DepartmentType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createDepartmentSchema } from '../../../validators/departments';

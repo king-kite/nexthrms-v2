@@ -1,5 +1,5 @@
 import { jobHeaders as headers, permissions } from '../../../config';
-import { getJobs } from '../../../db';
+import { getJobs } from '../../../db/queries/jobs';
 import {
 	createNotification,
 	exportData,
@@ -8,7 +8,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { NextApiRequestExtendUser } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

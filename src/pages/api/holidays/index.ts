@@ -1,9 +1,9 @@
-import { permissions } from '../../../config';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db/client';
 import {
-	prisma,
 	getHolidays,
 	holidaySelectQuery as selectQuery,
-} from '../../../db';
+} from '../../../db/queries/holidays';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -12,7 +12,7 @@ import {
 import { employee } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { HolidayType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createHolidaySchema } from '../../../validators/holidays';

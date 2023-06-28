@@ -1,5 +1,5 @@
 import { holidayHeaders as headers, permissions } from '../../../config';
-import { getHolidays } from '../../../db';
+import { getHolidays } from '../../../db/queries/holidays';
 import {
 	createNotification,
 	exportData,
@@ -12,7 +12,7 @@ import {
 	GetHolidaysResponseType,
 	NextApiRequestExtendUser,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

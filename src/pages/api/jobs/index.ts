@@ -1,8 +1,9 @@
 import { permissions } from '../../../config';
-import { prisma, getJobs } from '../../../db';
+import prisma from '../../../db/client';
+import { getJobs } from '../../../db/queries/jobs';
 import { getRecords, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createJobSchema } from '../../../validators/jobs';

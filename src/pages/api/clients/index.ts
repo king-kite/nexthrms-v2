@@ -1,11 +1,12 @@
 import { Prisma } from '@prisma/client';
 
 import { permissions, MEDIA_PROFILE_URL } from '../../../config';
-import { clientSelectQuery, getClients, prisma } from '../../../db';
+import prisma from '../../../db/client';
+import { clientSelectQuery, getClients } from '../../../db/queries/clients';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { ClientType, GetClientsResponseType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { hashPassword } from '../../../utils/bcrypt';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';

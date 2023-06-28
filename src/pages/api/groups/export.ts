@@ -1,5 +1,5 @@
 import { groupHeaders as headers, permissions } from '../../../config';
-import { getGroups } from '../../../db';
+import { getGroups } from '../../../db/queries/groups';
 import {
 	createNotification,
 	exportData,
@@ -8,7 +8,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { NextApiRequestExtendUser, GroupType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

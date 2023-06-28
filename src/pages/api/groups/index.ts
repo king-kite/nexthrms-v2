@@ -1,16 +1,16 @@
 import type { NextApiRequest } from 'next';
 
-import { permissions } from '../../../config';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db/client';
 import {
 	getGroups,
 	groupSelectQuery,
-	prisma,
 	GetGroupsParamsType,
-} from '../../../db';
+} from '../../../db/queries/groups';
 import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { GroupType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 import { createGroupSchema } from '../../../validators/users';
