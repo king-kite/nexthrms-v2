@@ -1,7 +1,7 @@
 import { permissions } from '../../../../config';
+import prisma from '../../../../db/client';
 import {
 	getAllOvertime,
-	prisma,
 	overtimeSelectQuery as selectQuery,
 } from '../../../../db';
 import {
@@ -12,7 +12,7 @@ import {
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { OvertimeType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { overtimeCreateSchema } from '../../../../validators/overtime';

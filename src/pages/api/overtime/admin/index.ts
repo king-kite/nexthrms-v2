@@ -1,9 +1,9 @@
 import { permissions } from '../../../../config';
+import prisma from '../../../../db/client';
 import {
 	getAllOvertimeAdmin,
-	prisma,
 	overtimeSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/overtime';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -13,7 +13,7 @@ import {
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { GetAllOvertimeResponseType, OvertimeType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 

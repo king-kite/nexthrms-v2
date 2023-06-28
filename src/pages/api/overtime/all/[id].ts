@@ -1,6 +1,6 @@
+import prisma from '../../../../db/client';
 import {
 	getOvertime,
-	prisma,
 	overtimeSelectQuery as selectQuery,
 } from '../../../../db';
 import { getUserObjectPermissions } from '../../../../db/utils';

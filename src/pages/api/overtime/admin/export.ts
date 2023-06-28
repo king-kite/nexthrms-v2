@@ -1,5 +1,5 @@
 import { overtimeHeaders as headers, permissions } from '../../../../config';
-import { getAllOvertimeAdmin } from '../../../../db';
+import { getAllOvertimeAdmin } from '../../../../db/queries/overtime';
 import {
 	createNotification,
 	exportData,
@@ -8,7 +8,7 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { NextApiRequestExtendUser, OvertimeType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../validators';
 

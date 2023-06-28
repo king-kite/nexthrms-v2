@@ -1,5 +1,5 @@
-import { getPermissionCategory } from '../../../../db';
-import { getRecord } from '../../../../db/utils';
+import { getPermissionCategory } from '../../../../db/queries/permissions';
+import { getRecord } from '../../../../db/utils/record';
 import { admin } from '../../../../middlewares';
 import { PermissionCategoryType } from '../../../../types';
 import { NextApiErrorMessage } from '../../../../utils/classes';

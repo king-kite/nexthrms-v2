@@ -2,7 +2,7 @@ import {
 	permissionHeaders as headers,
 	permissions as perms,
 } from '../../../config';
-import { getPermissions } from '../../../db';
+import { getPermissions } from '../../../db/queries/permissions';
 import {
 	createNotification,
 	exportData,
@@ -11,7 +11,7 @@ import {
 } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { PermissionType, NextApiRequestExtendUser } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
