@@ -4,13 +4,12 @@ import {
 } from '@prisma/client';
 
 import { getPrismaModels, models } from '../../../../../config';
-import { prisma } from '../../../../../db';
-import { getUserObjectPermissions } from '../../../../../db/utils'
+import prisma from '../../../../../db/client';
+import { getUserObjectPermissions } from '../../../../../db/utils';
 import { auth } from '../../../../../middlewares';
 
 export default auth()
 	.use(async (req, res, next) => {
-		
 		const modelName = (
 			req.query.model as string as PermissionModelChoices
 		)?.toLowerCase() as PermissionModelChoices;
@@ -58,18 +57,18 @@ export default auth()
 		const permission = req.query.permission as
 			| PermissionObjectChoices
 			| undefined;
-		const userId = req.user.id
+		const userId = req.user.id;
 
 		const data = await getUserObjectPermissions({
 			modelName,
 			objectId,
 			userId,
 			permission,
-		})
+		});
 
 		return res.status(200).json({
 			status: 'success',
-			message: 'Fetched user\'s permissions for this record successfully!',
+			message: "Fetched user's permissions for this record successfully!",
 			data,
 		});
-	})
+	});

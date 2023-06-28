@@ -6,8 +6,9 @@ import {
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../../config';
 import { EMAIL_VERIFICATION_REQUIRED } from '../../../config/settings';
-import { prisma, authSelectQuery } from '../../../db';
-import { createToken } from '../../../db/utils';
+import prisma from '../../../db/client';
+import { authSelectQuery } from '../../../db/queries/auth';
+import { createToken } from '../../../db/utils/auth';
 import { AuthDataType, BaseResponseType } from '../../../types';
 import { comparePassword } from '../../../utils/bcrypt';
 import { serializeUserData } from '../../../utils/serializers';

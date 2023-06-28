@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client';
 
-import { permissions } from '../../../../config';
+import permissions from '../../../../config/permissions';
+import prisma from '../../../../db/client';
 import {
 	attendanceSelectQuery as selectQuery,
 	getAttendanceAdmin,
-	prisma,
-} from '../../../../db';
+} from '../../../../db/queries/attendance';
 import {
 	addObjectPermissions,
 	getRecords,
@@ -14,7 +14,7 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { AttendanceType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { attendanceCreateSchema } from '../../../../validators/attendance';
 

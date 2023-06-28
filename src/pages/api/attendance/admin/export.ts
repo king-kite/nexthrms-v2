@@ -1,5 +1,5 @@
 import { attendanceHeaders as headers, permissions } from '../../../../config';
-import { getAttendanceAdmin } from '../../../../db';
+import { getAttendanceAdmin } from '../../../../db/queries/attendance';
 import {
 	createNotification,
 	exportData,
@@ -8,7 +8,7 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { NextApiRequestExtendUser } from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../validators';
 

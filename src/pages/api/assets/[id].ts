@@ -1,9 +1,13 @@
-import { permissions } from '../../../config';
-import { assetSelectQuery as selectQuery, prisma, getAsset } from '../../../db';
+import permissions from '../../../config/permissions';
+import prisma from '../../../db/client';
+import {
+	assetSelectQuery as selectQuery,
+	getAsset,
+} from '../../../db/queries/assets';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { AssetType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { createAssetSchema } from '../../../validators/assets';
 

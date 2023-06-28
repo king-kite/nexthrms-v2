@@ -1,4 +1,4 @@
-import { prisma } from '../../../../db';
+import prisma from '../../../../db/client';
 import { auth } from '../../../../middlewares';
 import { hashPassword } from '../../../../utils/bcrypt';
 import { passwordChangeSchema } from '../../../../validators/auth';

@@ -1,10 +1,10 @@
 import { MEDIA_PROFILE_URL } from '../../../config';
+import prisma from '../../../db/client';
 import {
 	getProfile,
-	prisma,
 	profileUserSelectQuery as profileSelect,
-} from '../../../db';
-import { updateObjectPermissions } from '../../../db/utils';
+} from '../../../db/queries/auth';
+import { updateObjectPermissions } from '../../../db/utils/permission';
 import { auth } from '../../../middlewares';
 import { ProfileType } from '../../../types';
 import { upload as uploadFile } from '../../../utils/files';

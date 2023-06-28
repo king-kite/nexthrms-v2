@@ -1,5 +1,5 @@
 import { assetHeaders as headers, permissions } from '../../../config';
-import { getAssets } from '../../../db';
+import { getAssets } from '../../../db/queries/assets';
 import {
 	createNotification,
 	exportData,
@@ -11,7 +11,7 @@ import {
 	GetAssetsResponseType,
 	NextApiRequestExtendUser,
 } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import { hasModelPermission } from '../../../utils/permission';
 import { NextApiErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 

@@ -1,9 +1,9 @@
 import { Token } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { CONFIRM_EMAIL_PAGE_URL } from '../../../../config';
-import { prisma } from '../../../../db';
-import { createToken } from '../../../../db/utils';
+import { CONFIRM_EMAIL_PAGE_URL } from '../../../../config/routes';
+import prisma from '../../../../db/client';
+import { createToken } from '../../../../db/utils/auth';
 import { BaseResponseType } from '../../../../types';
 import { sendMail } from '../../../../utils/emails';
 import { handlePrismaErrors } from '../../../../validators';

@@ -1,4 +1,4 @@
-import { getAttendanceInfo } from '../../../db';
+import { getAttendanceInfo } from '../../../db/queries/attendance';
 import { employee } from '../../../middlewares';
 
 export default employee().get(async (req, res) => {
