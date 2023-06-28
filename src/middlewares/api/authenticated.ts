@@ -11,7 +11,8 @@ import {
 	REQUEST_EMAIL_VERIFY_PAGE_URL,
 } from '../../config';
 import { EMAIL_VERIFICATION_REQUIRED, SECRET_KEY } from '../../config/settings';
-import { prisma, authSelectQuery } from '../../db';
+import prisma from '../../db';
+import { authSelectQuery } from '../../db/queries/auth';
 import {
 	NextApiRequestExtendUser,
 	PermissionType,

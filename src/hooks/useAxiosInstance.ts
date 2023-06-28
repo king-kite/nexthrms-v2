@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { axiosInstance } from '../utils/axios';
+import axiosInstance from '../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../validators';
 
 function useAxiosInstance<DataType = any, ErrorType = any>({

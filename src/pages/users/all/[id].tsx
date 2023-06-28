@@ -2,11 +2,15 @@ import type { InferGetServerSidePropsType } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import User from '../../../containers/users/detail';
-import { getUser, getUserGroups, getUserPermissions } from '../../../db';
+import {
+	getUser,
+	getUserGroups,
+	getUserPermissions,
+} from '../../../db/queries/users';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps, UserType } from '../../../types';
-import { Title } from '../../../utils';
+import Title from '../../../utils/components/title';
 import { serializeUserData } from '../../../utils/serializers';
 import { uuidSchema } from '../../../validators';
 

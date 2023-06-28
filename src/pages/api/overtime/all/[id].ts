@@ -2,7 +2,7 @@ import prisma from '../../../../db';
 import {
 	getOvertime,
 	overtimeSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/overtime';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { NextApiErrorMessage } from '../../../../utils/classes';

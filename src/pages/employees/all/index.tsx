@@ -2,12 +2,12 @@ import type { InferGetServerSidePropsType } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import Employees from '../../../containers/employees';
-import { getEmployees } from '../../../db';
+import { getEmployees } from '../../../db/queries/employees';
 import { getRecords } from '../../../db/utils';
 import { authPage } from '../../../middlewares';
 import { ExtendedGetServerSideProps } from '../../../types';
-import { Title } from '../../../utils';
-import { serializeUserData } from '../../../utils/serializers';
+import Title from '../../../utils/components/title';
+import { serializeUserData } from '../../../utils/serializers/auth';
 
 const Page = ({
 	data,

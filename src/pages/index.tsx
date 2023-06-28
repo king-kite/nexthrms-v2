@@ -1,5 +1,5 @@
 import HomePage from '../containers/home';
-import { Title } from '../utils';
+import Title from '../utils/components/title';
 
 const Home = () => (
 	<>

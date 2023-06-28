@@ -11,7 +11,8 @@ import {
 	REFRESH_TOKEN_LIFETIME,
 } from '../../config';
 import { SECRET_KEY } from '../../config/settings';
-import { prisma, authSelectQuery } from '../../db';
+import prisma from '../../db';
+import { authSelectQuery } from '../../db/queries/auth';
 import {
 	PermissionType,
 	RequestUserType as BaseRequestUserType,

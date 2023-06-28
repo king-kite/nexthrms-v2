@@ -6,7 +6,7 @@ import { LOGIN_URL } from '../../config';
 import { Login as LoginComponent } from '../../components/account';
 import { useAuthContext } from '../../store/contexts';
 import { AuthDataType, SuccessResponseType } from '../../types';
-import { axiosInstance } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleYupErrors, handleAxiosErrors } from '../../validators';
 import { loginSchema } from '../../validators/auth';
 

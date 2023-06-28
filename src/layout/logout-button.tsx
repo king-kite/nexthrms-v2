@@ -6,7 +6,7 @@ import { SimpleLink } from './link';
 import { LOGIN_PAGE_URL } from '../config/routes';
 import { LOGOUT_URL } from '../config/server';
 import { useAlertModalContext, useAuthContext } from '../store/contexts';
-import { axiosInstance } from '../utils';
+import axiosInstance from '../utils/axios/authRedirectInstance';
 
 type LogoutButtonType = { closeSidebar: () => void };
 

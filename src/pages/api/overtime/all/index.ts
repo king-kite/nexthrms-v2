@@ -3,7 +3,7 @@ import prisma from '../../../../db';
 import {
 	getAllOvertime,
 	overtimeSelectQuery as selectQuery,
-} from '../../../../db';
+} from '../../../../db/queries/overtime';
 import {
 	addObjectPermissions,
 	getEmployeeOfficersId,
