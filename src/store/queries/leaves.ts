@@ -19,7 +19,7 @@ import {
 	SuccessResponseType,
 	LeaveType,
 } from '../../types';
-import { axiosInstance } from '../../utils/axios';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // get leave

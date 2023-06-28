@@ -27,7 +27,7 @@ import {
 	SuccessResponseType,
 	BaseResponseType,
 } from '../../types';
-import { axiosInstance } from '../../utils/axios';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // get user object permissions

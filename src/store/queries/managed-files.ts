@@ -16,7 +16,7 @@ import {
 	ManagedFileType,
 	SuccessResponseType,
 } from '../../types';
-import { axiosInstance } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // get managed files query

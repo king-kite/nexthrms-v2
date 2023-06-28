@@ -23,7 +23,7 @@ import {
 	UserType,
 	UserGroupType,
 } from '../../types';
-import { axiosInstance } from '../../utils/axios';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // activate or deactivate user mutation

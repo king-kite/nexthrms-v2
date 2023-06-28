@@ -12,7 +12,7 @@ import {
 	NotificationType,
 } from '../../types';
 import * as tags from '../tagTypes';
-import { axiosInstance } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 export function useGetNotificationsQuery(

@@ -13,7 +13,7 @@ import {
 	GetDepartmentsResponseType,
 	DepartmentType,
 } from '../../types';
-import { axiosInstance } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // get departments query

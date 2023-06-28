@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 import { useAlertModalContext } from '../contexts';
 import * as tags from '../tagTypes';
@@ -15,9 +16,8 @@ import {
 	SuccessResponseType,
 	HolidayType,
 } from '../../types';
-import { axiosInstance } from '../../utils';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
-import { FaExclamationCircle } from 'react-icons/fa';
 
 // get holidays query
 export function useGetHolidaysQuery(

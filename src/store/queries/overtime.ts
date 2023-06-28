@@ -19,7 +19,7 @@ import {
 	SuccessResponseType,
 	OvertimeType,
 } from '../../types';
-import { axiosInstance } from '../../utils/axios';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
 // get overtime
