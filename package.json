@@ -8,6 +8,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"createsuperuser": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/createsuperuser",
+		"loadattendance": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loadattendance",
 		"loadclients": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loadclients",
 		"loaddbfunctions": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loaddbfunctions",
 		"loademployees": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loademployees",
