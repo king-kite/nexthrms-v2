@@ -4,6 +4,4 @@
 3. Change the way we link overtime and attendance.
 4. Make a custom date picker component.
 5. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward. Do be mindful of smaller screen.
-6. Use Dynamic imports.
-7. Have anything file related to be stored in the ManagedFile table
-8. Have the filters send info the database instead. To help with exporting.
+6. Have the filters send info the database instead. To help with exporting.
