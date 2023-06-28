@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 
 import Layout from '../index';
-import { useAuthContext } from '../../store/contexts';
+import { useAuthContext } from '../../store/contexts/auth';
 
 const DynamicLoginPage = dynamic<any>(
 	() => import('../../containers/account/login'),

@@ -2,10 +2,10 @@ import { AxiosResponse } from 'axios';
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { USER_DATA_URL } from '../../config';
-import { useAuthContext } from '../../store/contexts';
+import { USER_DATA_URL } from '../../config/server';
+import { useAuthContext } from '../../store/contexts/auth';
 import { SuccessResponseType, AuthDataType } from '../../types';
-import { axiosInstance } from '../../utils/axios';
+import axiosInstance from '../../utils/axios/authRedirectInstance';
 
 const DynamicSplashScreen = dynamic<any>(
 	() => import('../../components/common/splash-screen'),

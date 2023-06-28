@@ -2,8 +2,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import * as routes from '../../config/routes';
-import { useAuthContext } from '../../store/contexts';
-import { Navigate } from '../../utils';
+import { useAuthContext } from '../../store/contexts/auth';
+import Navigate from '../../utils/components/navigate';
 
 const NotAuthenticated = ({ children }: { children: React.ReactNode }) => {
 	const [nextRoute, setNextRoute] = React.useState(routes.HOME_PAGE_URL);

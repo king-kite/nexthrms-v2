@@ -1,4 +1,3 @@
-export { default as ClearFix } from './ClearFix';
-export { default as LoadingPage } from './LoadingPage';
-export { default as Navigate } from './Navigate';
-export { default as Title } from './Title';
+export { default as LoadingPage } from './loading-page';
+export { default as Navigate } from './navigate';
+export { default as Title } from './title';

@@ -23,7 +23,8 @@ const DynamicAlertModal = dynamic<any>(
 	}
 );
 const DynamicLoadingPage = dynamic<any>(
-	() => import('../../utils/components/LoadingPage').then((mod) => mod.default),
+	() =>
+		import('../../utils/components/loading-page').then((mod) => mod.default),
 	{
 		loading: () => (
 			<div className="flex items-center justify-center min-h-[80vh] w-full">
