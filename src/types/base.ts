@@ -11,6 +11,7 @@ export type ParamsType = {
 	search?: string;
 	from?: Date;
 	to?: Date;
+	date?: Date;
 };
 
 export type UserObjPermType = {

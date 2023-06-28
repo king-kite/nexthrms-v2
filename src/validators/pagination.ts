@@ -27,6 +27,9 @@ export function validateParams(
 			? new Date(query.to)
 			: // : new Date();
 			  undefined;
-
-	return { limit, offset, search, from, to };
+	const date =
+		query.date && (typeof query.date === 'string' || query.date instanceof Date)
+			? new Date(query.date)
+			: undefined;
+	return { limit, offset, search, from, to, date };
 }
