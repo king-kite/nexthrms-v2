@@ -1,17 +1,12 @@
 import { Button } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import React from 'react';
 import { FaPen, FaTasks, FaTrash, FaUsers, FaUserShield } from 'react-icons/fa';
 
-import { Container, Modal } from '../../../components/common';
-import {
-	Form,
-	ImportExport,
-	ProjectDetail,
-	ProjectFiles,
-	ProjectImages,
-} from '../../../components/projects';
+import Container from '../../../components/common/container';
+import ProjectDetail from '../../../components/projects/details/project-detail';
 import {
 	permissions,
 	PROJECT_TASKS_PAGE_URL,
@@ -36,6 +31,66 @@ import {
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 
+const DynamicForm = dynamic<any>(
+	() => import('../../../components/projects/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicProjectImages = dynamic<any>(
+	() =>
+		import('../../../components/projects/details/project-images').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicProjectFiles = dynamic<any>(
+	() =>
+		import('../../../components/projects/details/project-files').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicImportExport = dynamic<any>(
+	() =>
+		import('../../../components/projects/details/import-export').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
 const Detail = ({
 	objPerm,
 	projectFiles,
@@ -48,9 +103,9 @@ const Detail = ({
 	const router = useRouter();
 	const id = router.query.id as string;
 
-	const [modalVisible, setModalVisible] = useState(false);
+	const [modalVisible, setModalVisible] = React.useState(false);
 	const [formErrors, setFormErrors] =
-		useState<CreateProjectErrorResponseType>();
+		React.useState<CreateProjectErrorResponseType>();
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -112,7 +167,7 @@ const Detail = ({
 	});
 
 	const [canEdit, canDelete, canViewObjectPermissions, canViewTasks] =
-		useMemo(() => {
+		React.useMemo(() => {
 			if (!authData) return [];
 			const canEdit =
 				authData.isSuperUser ||
@@ -261,18 +316,18 @@ const Detail = ({
 							</div>
 
 							{(authData?.isAdmin || authData?.isSuperUser) && (
-								<ImportExport id={id} />
+								<DynamicImportExport id={id} />
 							)}
 
 							{files && (
 								<>
-									<ProjectImages
+									<DynamicProjectImages
 										files={files.result.filter(
 											(file) => file.file.type.split('/')[0] === 'image'
 										)}
 									/>
 
-									<ProjectFiles
+									<DynamicProjectFiles
 										files={files.result.filter(
 											(file) => file.file.type.split('/')[0] !== 'image'
 										)}
@@ -288,10 +343,10 @@ const Detail = ({
 						/>
 					</div>
 					{canEdit && (
-						<Modal
+						<DynamicModal
 							close={() => setModalVisible(false)}
 							component={
-								<Form
+								<DynamicForm
 									initState={data}
 									editMode
 									errors={formErrors}

@@ -1,6 +1,7 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import React from 'react';
 import {
 	FaLock,
 	FaUser,
@@ -11,8 +12,8 @@ import {
 	FaTrash,
 } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { ChangePasswordForm, EmployeeForm } from '../../components/employees';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
 import {
 	permissions,
 	DEFAULT_IMAGE,
@@ -28,6 +29,41 @@ import { useGetUserObjectPermissionsQuery } from '../../store/queries/permission
 import { useActivateUserMutation } from '../../store/queries/users';
 import { EmployeeType, UserObjPermType } from '../../types';
 import { hasModelPermission, getDate, toCapitalize } from '../../utils';
+
+const DynamicChangePasswordForm = dynamic<any>(
+	() =>
+		import('../../components/employees/detail/change-password-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicEmployeeForm = dynamic<any>(
+	() =>
+		import('../../components/employees/detail/employee-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 const Employee = ({
 	employee,
@@ -54,8 +90,10 @@ const Employee = ({
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [formType, setFormType] = useState<'employee' | 'password'>('employee');
-	const [modalVisible, setModalVisible] = useState(false);
+	const [formType, setFormType] = React.useState<'employee' | 'password'>(
+		'employee'
+	);
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const {
 		data: objPermData,
@@ -115,7 +153,7 @@ const Employee = ({
 			}
 		);
 
-	const [canEditUser, canViewUser] = useMemo(() => {
+	const [canEditUser, canViewUser] = React.useMemo(() => {
 		let canEdit = false;
 		let canView = false;
 
@@ -140,7 +178,7 @@ const Employee = ({
 		return [canEdit, canView];
 	}, [authData, objUserPermData]);
 
-	const actions: ButtonType[] = useMemo(() => {
+	const actions: ButtonType[] = React.useMemo(() => {
 		if (!data || !authData) return [];
 		const buttons: ButtonType[] = [];
 		const canEdit =
@@ -458,11 +496,11 @@ const Employee = ({
 						)}
 					</div>
 
-					<Modal
+					<DynamicModal
 						close={() => setModalVisible(false)}
 						component={
 							formType === 'employee' ? (
-								<EmployeeForm
+								<DynamicEmployeeForm
 									employee={data}
 									onSuccess={() => {
 										setModalVisible(false);
@@ -473,7 +511,7 @@ const Employee = ({
 									}}
 								/>
 							) : formType === 'password' ? (
-								<ChangePasswordForm
+								<DynamicChangePasswordForm
 									email={data.user?.email}
 									onSuccess={() => {
 										setModalVisible(false);

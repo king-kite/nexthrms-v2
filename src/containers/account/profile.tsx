@@ -1,17 +1,53 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { InfoComp } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { FaCheckCircle, FaLock, FaUserEdit } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { ChangePasswordForm, UpdateForm } from '../../components/profile';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE, LEAVES_PAGE_URL, PROFILE_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import * as tags from '../../store/tagTypes';
 import { getDate, toCapitalize } from '../../utils';
 import { axiosInstance } from '../../utils/axios';
 import { ProfileResponseType } from '../../types';
+
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicChangePasswordForm = dynamic<any>(
+	() =>
+		import('../../components/profile/change-password-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+
+const DynamicUpdateForm = dynamic<any>(
+	() =>
+		import('../../components/profile/update-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
 
 const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 	const [formType, setFormType] = React.useState<'profile' | 'password'>(
@@ -230,11 +266,11 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 					title="Head of Department Information"
 				/>
 			)}
-			<Modal
+			<DynamicModal
 				close={() => setModalVisible(false)}
 				component={
 					formType === 'profile' && data ? (
-						<UpdateForm
+						<DynamicUpdateForm
 							profile={data}
 							onSuccess={() => {
 								setModalVisible(false);
@@ -245,7 +281,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							}}
 						/>
 					) : formType === 'password' ? (
-						<ChangePasswordForm
+						<DynamicChangePasswordForm
 							onSuccess={() => {
 								setModalVisible(false);
 								showAlert({

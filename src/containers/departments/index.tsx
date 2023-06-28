@@ -1,4 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import {
 	FaCheckCircle,
@@ -8,14 +9,8 @@ import {
 	FaSearch,
 } from 'react-icons/fa';
 
-import {
-	Container,
-	ExportForm,
-	ImportForm,
-	Modal,
-	TablePagination,
-} from '../../components/common';
-import { Form, DepartmentTable } from '../../components/departments';
+import Container from '../../components/common/container';
+import DepartmentTable from '../../components/departments/table';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	DEPARTMENTS_EXPORT_URL,
@@ -31,6 +26,58 @@ import {
 import { useGetDepartmentsQuery } from '../../store/queries/departments';
 import { GetDepartmentsResponseType } from '../../types';
 import { hasModelPermission } from '../../utils';
+
+const DynamicExportForm = dynamic<any>(
+	() =>
+		import('../../components/common/export-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../../components/departments/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Departments = ({
 	departments,
@@ -180,7 +227,7 @@ const Departments = ({
 					<div className="my-3 w-full sm:pl-1 sm:w-1/3 md:mb-0 md:mt-5 md:pl-0 md:w-1/4 lg:my-0 lg:w-1/5">
 						<ButtonDropdown
 							component={() => (
-								<ExportForm
+								<DynamicExportForm
 									all={DEPARTMENTS_EXPORT_URL}
 									filtered={`&offset=${offset}&limit=${limit}&search=${nameSearch}`}
 								/>
@@ -211,20 +258,20 @@ const Departments = ({
 					}
 				/>
 				{data && data?.total > 0 && (
-					<TablePagination
+					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => setLimit(size)}
+						onSizeChange={(size: number) => setLimit(size)}
 						pageSize={limit}
 					/>
 				)}
 			</div>
 			{(canCreate || canEdit) && (
-				<Modal
+				<DynamicModal
 					close={() => {
 						setModalVisible(false);
 						setEditId(undefined);
@@ -232,8 +279,8 @@ const Departments = ({
 					}}
 					component={
 						canCreate && bulkForm ? (
-							<ImportForm
-								onSuccess={(data) => {
+							<DynamicImportForm
+								onSuccess={(data: any) => {
 									open({
 										type: 'success',
 										message: data.message,
@@ -266,7 +313,7 @@ const Departments = ({
 								url={DEPARTMENTS_IMPORT_URL}
 							/>
 						) : (
-							<Form
+							<DynamicForm
 								form={form}
 								editId={editId}
 								onChange={handleChange}

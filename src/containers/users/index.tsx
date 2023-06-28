@@ -1,12 +1,8 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import {
-	Container,
-	ImportForm,
-	Modal,
-	TablePagination,
-} from '../../components/common';
-import { Cards, UserTable, Form, Topbar } from '../../components/users';
+import { Container } from '../../components/common';
+import { Cards, UserTable, Topbar } from '../../components/users';
 import {
 	permissions,
 	samples,
@@ -25,6 +21,46 @@ import { hasModelPermission } from '../../utils';
 interface ErrorType extends CreateUserErrorResponseType {
 	message?: string;
 }
+
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../../components/users/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Users = ({
 	users: userData,
@@ -155,26 +191,26 @@ const Users = ({
 				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
 					<UserTable users={data?.result || []} />
 					{data && data?.total > 0 && (
-						<TablePagination
+						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);
 							}}
-							onSizeChange={(size) => setLimit(size)}
+							onSizeChange={(size: number) => setLimit(size)}
 							pageSize={limit}
 						/>
 					)}
 				</div>
 			)}
 			{canCreate && (
-				<Modal
+				<DynamicModal
 					close={() => setModalVisible(false)}
 					component={
 						bulkForm ? (
-							<ImportForm
-								onSuccess={(data) => {
+							<DynamicImportForm
+								onSuccess={(data: any) => {
 									open({
 										type: 'success',
 										message: data.message,
@@ -284,7 +320,7 @@ const Users = ({
 								url={USERS_IMPORT_URL}
 							/>
 						) : (
-							<Form
+							<DynamicForm
 								errors={errors}
 								resetErrors={() => setErrors(undefined)}
 								loading={loading}

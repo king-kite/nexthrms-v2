@@ -1,11 +1,7 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import {
-	Container,
-	Modal,
-	ImportForm,
-	TablePagination,
-} from '../../../components/common';
+import Container from '../../../components/common/container';
 import { PermissionTable, Topbar } from '../../../components/permissions';
 import {
 	permissions,
@@ -18,6 +14,35 @@ import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useGetPermissionsQuery } from '../../../store/queries/permissions';
 import { GetPermissionsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
+
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Permissions = ({
 	permissions: permissionData,
@@ -98,25 +123,25 @@ const Permissions = ({
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 					<PermissionTable permissions={data.result} />
 					{data && data?.total > 0 && (
-						<TablePagination
+						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);
 							}}
-							onSizeChange={(size) => setLimit(size)}
+							onSizeChange={(size: number) => setLimit(size)}
 							pageSize={limit}
 						/>
 					)}
 				</div>
 			)}
 			{canEdit && (
-				<Modal
+				<DynamicModal
 					close={() => setModalVisible(false)}
 					component={
-						<ImportForm
-							onSuccess={(data) => {
+						<DynamicImportForm
+							onSuccess={(data: any) => {
 								open({
 									type: 'success',
 									message: data.message,

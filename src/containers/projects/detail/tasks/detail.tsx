@@ -1,4 +1,5 @@
 import { Alert, Button, ButtonDropdown, ButtonType } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -19,13 +20,8 @@ import {
 	PROJECT_TASK_FOLLOWERS_EXPORT_URL,
 	PROJECT_TASK_FOLLOWERS_IMPORT_URL,
 } from '../../../../config';
-import {
-	Container,
-	ImportForm,
-	Modal,
-	PersonCard,
-} from '../../../../components/common';
-import { TaskForm } from '../../../../components/projects';
+import Container from '../../../../components/common/container';
+import PersonCard from '../../../../components/common/person-card';
 import { useAxiosInstance } from '../../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../../store/contexts';
 import { useGetUserObjectPermissionsQuery } from '../../../../store/queries/permissions';
@@ -42,6 +38,42 @@ import {
 	UserObjPermType,
 } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
+
+const DynamicForm = dynamic<any>(
+	() =>
+		import('../../../../components/projects/tasks/form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../../../components/common/import-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() =>
+		import('../../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 const Detail = ({
 	task,
@@ -513,7 +545,7 @@ const Detail = ({
 						</div>
 					</div>
 					{canEdit && (
-						<Modal
+						<DynamicModal
 							close={() => {
 								setBulkForm(false);
 								setModalVisible(false);
@@ -521,8 +553,8 @@ const Detail = ({
 							component={
 								bulkForm ? (
 									canEdit && (authData?.isAdmin || authData?.isSuperUser) ? (
-										<ImportForm
-											onSuccess={(data) => {
+										<DynamicImportForm
+											onSuccess={(data: any) => {
 												open({
 													type: 'success',
 													message: data.message,
@@ -569,11 +601,11 @@ const Detail = ({
 										/>
 									)
 								) : (
-									<TaskForm
+									<DynamicForm
 										initState={data}
 										editMode
 										errors={errors}
-										onSubmit={(form) => {
+										onSubmit={(form: any) => {
 											updateTask({
 												projectId: id,
 												id: taskId,

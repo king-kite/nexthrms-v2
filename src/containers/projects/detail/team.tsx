@@ -1,14 +1,11 @@
-import { Alert, Button, ButtonDropdown, ButtonType } from 'kite-react-tailwind';
+import { Button, ButtonDropdown, ButtonType } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa';
 
-import {
-	Container,
-	ImportForm,
-	Modal,
-	PersonCard,
-} from '../../../components/common';
+import Container from '../../../components/common/container';
+import PersonCard from '../../../components/common/person-card';
 import {
 	permissions,
 	samples,
@@ -32,6 +29,31 @@ import {
 	UserObjPermType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
+
+const DynamicAlert = dynamic<any>(
+	() => import('kite-react-tailwind').then((mod) => mod.Alert),
+	{
+		ssr: false,
+	}
+);
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 const Team = ({
 	objPerm,
@@ -416,18 +438,18 @@ const Team = ({
 						</div>
 					</div>
 					{canEdit && (authData?.isAdmin || authData?.isSuperUser) && (
-						<Modal
+						<DynamicModal
 							close={() => setModalVisible(false)}
 							component={
 								!modalVisible ? (
-									<Alert
+									<DynamicAlert
 										type="warning"
 										message="Unable show import form. Please try again!"
 										onClose={() => setModalVisible(false)}
 									/>
 								) : (
-									<ImportForm
-										onSuccess={(data) => {
+									<DynamicImportForm
+										onSuccess={(data: any) => {
 											open({
 												type: 'success',
 												message: data.message,

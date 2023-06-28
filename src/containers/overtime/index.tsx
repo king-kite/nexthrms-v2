@@ -1,7 +1,8 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { Container, Modal, TablePagination } from '../../components/common';
-import { Cards, Form, Topbar, OvertimeTable } from '../../components/overtime';
+import Container from '../../components/common/container';
+import { Cards, Topbar, OvertimeTable } from '../../components/overtime';
 import { permissions, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import {
@@ -14,6 +15,34 @@ import {
 	GetAllOvertimeResponseType,
 } from '../../types';
 import { hasModelPermission } from '../../utils';
+
+const DynamicForm = dynamic<any>(
+	() => import('../../components/overtime/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Overtime = ({
 	overtime,
@@ -123,24 +152,24 @@ const Overtime = ({
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 					<OvertimeTable overtime={data?.result || []} />
 					{data && data?.total > 0 && (
-						<TablePagination
+						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);
 							}}
-							onSizeChange={(size) => setLimit(size)}
+							onSizeChange={(size: number) => setLimit(size)}
 							pageSize={limit}
 						/>
 					)}
 				</div>
 			)}
 			{canRequest && (
-				<Modal
+				<DynamicModal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
+						<DynamicForm
 							errors={errors}
 							loading={createLoading}
 							success={isSuccess}

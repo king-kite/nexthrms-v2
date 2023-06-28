@@ -1,6 +1,7 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { Container, TablePagination } from '../../components/common';
+import Container from '../../components/common/container';
 import { StatsCard, AttendanceTable } from '../../components/attendance';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
@@ -9,6 +10,16 @@ import {
 	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,
 } from '../../types';
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Attendance = ({
 	attendanceData,
@@ -58,14 +69,14 @@ const Attendance = ({
 					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 						<AttendanceTable attendance={data ? data.result : []} />
 						{data && data?.total > 0 && (
-							<TablePagination
+							<DynamicTablePagination
 								disabled={isFetching}
 								totalItems={data.total}
 								onChange={(pageNo: number) => {
 									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 									offset !== value && setOffset(value * limit);
 								}}
-								onSizeChange={(size) => setLimit(size)}
+								onSizeChange={(size: number) => setLimit(size)}
 								pageSize={limit}
 							/>
 						)}

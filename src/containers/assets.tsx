@@ -1,15 +1,10 @@
-import { Alert, Button, ButtonDropdown } from 'kite-react-tailwind';
+import { Button, ButtonDropdown } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt, FaPlus } from 'react-icons/fa';
 
-import { AssetTable, Details, Form, SearchForm } from '../components/assets';
-import {
-	Container,
-	ExportForm,
-	ImportForm,
-	Modal,
-	TablePagination,
-} from '../components/common';
+import { AssetTable, SearchForm } from '../components/assets';
+import Container from '../components/common/container';
 import {
 	permissions,
 	samples,
@@ -35,6 +30,71 @@ import {
 	GetAssetsResponseType,
 } from '../types';
 import { getStringedDate, hasModelPermission } from '../utils';
+
+const DynamicAlert = dynamic<any>(
+	() => import('kite-react-tailwind').then((mod) => mod.Alert),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicExportForm = dynamic<any>(
+	() => import('../components/common/export-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicImportForm = dynamic<any>(
+	() => import('../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicDetails = dynamic<any>(
+	() => import('../components/assets/details').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Asset Information...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../components/assets/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../components/common/table/pagination').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 	const [modalVisible, setModalVisible] = React.useState(false);
@@ -213,7 +273,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 					<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
 						<ButtonDropdown
 							component={() => (
-								<ExportForm
+								<DynamicExportForm
 									all={ASSETS_EXPORT_URL}
 									filtered={`&offset=${offset}&limit=${limit}&search=${
 										searchForm?.name || ''
@@ -302,14 +362,14 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							}}
 						/>
 						{data && data?.total > 0 && (
-							<TablePagination
+							<DynamicTablePagination
 								disabled={isFetching}
 								totalItems={data.total}
 								onChange={(pageNo: number) => {
 									const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 									offset !== value && setOffset(value * limit);
 								}}
-								onSizeChange={(size) => setLimit(size)}
+								onSizeChange={(size: number) => setLimit(size)}
 								pageSize={limit}
 							/>
 						)}
@@ -317,7 +377,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				</>
 			)}
 			{/* editId will determine if the user has edit permission */}
-			<Modal
+			<DynamicModal
 				close={() => {
 					setBulkForm(false);
 					setModalVisible(false);
@@ -327,9 +387,9 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 				}}
 				component={
 					showAsset ? (
-						<Details
+						<DynamicDetails
 							asset={showAsset}
-							editAsset={({ id, updatedAt, user, ...asset }) => {
+							editAsset={({ id, updatedAt, user, ...asset }: any) => {
 								setErrors(undefined);
 								setEditId(id);
 								setForm({
@@ -345,8 +405,8 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							deleteAsset={deleteAsset}
 						/>
 					) : canCreate && bulkForm ? (
-						<ImportForm
-							onSuccess={(data) => {
+						<DynamicImportForm
+							onSuccess={(data: any) => {
 								open({
 									type: 'success',
 									message: data.message,
@@ -432,7 +492,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							url={ASSETS_IMPORT_URL}
 						/>
 					) : canCreate || editId ? (
-						<Form
+						<DynamicForm
 							form={form}
 							editMode={!!editId}
 							errors={errors}
@@ -442,7 +502,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							onSubmit={handleSubmit}
 						/>
 					) : (
-						<Alert
+						<DynamicAlert
 							visible
 							type="info"
 							message="Sorry! Unable to display content for this screen at the moment. Please try again later. Thank You."

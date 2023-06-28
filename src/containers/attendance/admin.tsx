@@ -1,16 +1,9 @@
-import { Alert } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import {
-	Container,
-	ImportForm,
-	Modal,
-	TablePagination,
-} from '../../components/common';
+import Container from '../../components/common/container';
 import {
 	AdminTable as Table,
-	Detail,
-	Form,
 	SearchForm,
 	Topbar,
 } from '../../components/attendance';
@@ -32,6 +25,65 @@ import { getDate, hasModelPermission } from '../../utils';
 
 const date = new Date();
 date.setHours(0, 0, 0, 0);
+
+const DynamicAlert = dynamic<any>(
+	() => import('kite-react-tailwind').then((mod) => mod.Alert),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+
+const DynamicDetail = dynamic<any>(
+	() => import('../../components/attendance/detail').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Asset Information...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../../components/attendance/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 function AttendanceAdmin({
 	attendance,
@@ -184,34 +236,34 @@ function AttendanceAdmin({
 					}}
 				/>
 				{data && data?.total > 0 && (
-					<TablePagination
+					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => setLimit(size)}
+						onSizeChange={(size: number) => setLimit(size)}
 						pageSize={limit}
 					/>
 				)}
 			</div>
 
-			<Modal
+			<DynamicModal
 				close={() => setModalVisible(false)}
 				component={
 					attendDetail ? (
-						<Detail
+						<DynamicDetail
 							data={attendDetail}
-							editAttendance={(form) => {
+							editAttendance={(form: any) => {
 								setAttendDetail(undefined);
 								setForm(form);
 							}}
 							closePanel={() => setModalVisible(false)}
 						/>
 					) : bulkForm ? (
-						<ImportForm
-							onSuccess={(data) => {
+						<DynamicImportForm
+							onSuccess={(data: any) => {
 								showAlert({
 									type: 'success',
 									message: data.message,
@@ -251,7 +303,7 @@ function AttendanceAdmin({
 							url={ATTENDANCE_ADMIN_IMPORT_URL}
 						/>
 					) : form ? (
-						<Form
+						<DynamicForm
 							editId={form?.editId}
 							form={form}
 							onChange={handleChange}
@@ -277,7 +329,7 @@ function AttendanceAdmin({
 						/>
 					) : (
 						<div className="p-4">
-							<Alert
+							<DynamicAlert
 								type="info"
 								visible
 								message="Sorry, unable to display any content at the moment."

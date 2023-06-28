@@ -1,14 +1,10 @@
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import {
-	Container,
-	Modal,
-	TablePagination,
-} from '../../../../components/common';
+import Container from '../../../../components/common/container';
 import {
 	TaskCards as Cards,
-	TaskForm as Form,
 	TaskTable,
 	TaskTopbar as Topbar,
 } from '../../../../components/projects/tasks';
@@ -28,6 +24,38 @@ import {
 	GetProjectTasksResponseType,
 } from '../../../../types';
 import { hasModelPermission } from '../../../../utils';
+
+const DynamicForm = dynamic<any>(
+	() =>
+		import('../../../../components/projects/tasks/form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() =>
+		import('../../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 type ErrorType = CreateProjectTaskErrorResponseType;
 
@@ -154,23 +182,23 @@ const ProjectTasks = ({
 					tasks={data?.result || []}
 				/>
 				{data && data?.total > 0 && (
-					<TablePagination
+					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => setLimit(size)}
+						onSizeChange={(size: number) => setLimit(size)}
 						pageSize={limit}
 					/>
 				)}
 			</div>
 			{canCreate && (
-				<Modal
+				<DynamicModal
 					close={() => setModalVisible(false)}
 					component={
-						<Form
+						<DynamicForm
 							success={createSuccess}
 							errors={errors}
 							resetErrors={setErrors}

@@ -1,12 +1,8 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { Form, Topbar, HolidayTable } from '../components/holidays';
-import {
-	Container,
-	ImportForm,
-	Modal,
-	TablePagination,
-} from '../components/common';
+import { Topbar, HolidayTable } from '../components/holidays';
+import Container from '../components/common/container';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	HOLIDAYS_EXPORT_URL,
@@ -18,6 +14,42 @@ import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetHolidaysQuery } from '../store/queries/holidays';
 import { GetHolidaysResponseType } from '../types';
 import { hasModelPermission } from '../utils';
+
+const DynamicImportForm = dynamic<any>(
+	() => import('../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../components/holidays/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../components/common/table/pagination').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 type HolidayCreateType = {
 	name: string;
@@ -128,26 +160,26 @@ const Holidays = ({
 						}
 					/>
 					{data && data?.total > 0 && (
-						<TablePagination
+						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);
 							}}
-							onSizeChange={(size) => setLimit(size)}
+							onSizeChange={(size: number) => setLimit(size)}
 							pageSize={limit}
 						/>
 					)}
 				</div>
 			)}
 			{(canCreate || canEdit) && (
-				<Modal
+				<DynamicModal
 					close={() => setModalVisible(false)}
 					component={
 						canCreate && bulkForm ? (
-							<ImportForm
-								onSuccess={(data) => {
+							<DynamicImportForm
+								onSuccess={(data: any) => {
 									showAlert({
 										type: 'success',
 										message: data.message,
@@ -183,7 +215,7 @@ const Holidays = ({
 								url={HOLIDAYS_IMPORT_URL}
 							/>
 						) : (
-							<Form
+							<DynamicForm
 								editId={canEdit && editId ? editId : undefined}
 								form={form}
 								onSuccess={() => {

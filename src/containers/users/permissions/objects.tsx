@@ -1,16 +1,32 @@
 import { PermissionModelChoices } from '@prisma/client';
 import { TabNavigator } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { Container } from '../../../components/common';
-import { Groups, Users } from '../../../components/permissions/objects';
+import Container from '../../../components/common/container';
+import Users from '../../../components/permissions/objects/users';
 import { useGetObjectPermissionsQuery } from '../../../store/queries/permissions';
 import {
 	ObjPermGroupType,
 	ObjPermUser,
 	GetObjectPermissionsResponseType,
 } from '../../../types';
+
+const DynamicGroups = dynamic<any>(
+	() =>
+		import('../../../components/permissions/objects/groups').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Groups...
+			</p>
+		),
+		ssr: false,
+	}
+);
 
 function ObjectPermissions({
 	permissions,
@@ -127,7 +143,7 @@ function ObjectPermissions({
 					},
 					{
 						component: (
-							<Groups
+							<DynamicGroups
 								groups={groups}
 								modelName={modelName}
 								objectId={objectId}

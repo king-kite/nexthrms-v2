@@ -1,6 +1,7 @@
 import { ButtonType, TabNavigator } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import React from 'react';
 import {
 	FaEye,
 	FaLock,
@@ -11,14 +12,9 @@ import {
 	FaTrash,
 } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { ChangePasswordForm } from '../../components/employees';
-import {
-	Groups,
-	Permissions,
-	UserForm,
-	UserInfo,
-} from '../../components/users';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
+import UserInfo from '../../components/users/detail/user-info';
 import {
 	permissions,
 	CLIENT_PAGE_URL,
@@ -40,6 +36,54 @@ import {
 	UserGroupType,
 } from '../../types';
 import { hasModelPermission, toCapitalize } from '../../utils';
+
+const DynamicChangePasswordForm = dynamic<any>(
+	() =>
+		import('../../components/employees/detail/change-password-form').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
+const DynamicGroups = dynamic<any>(
+	() =>
+		import('../../components/users/detail/groups').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="p-2 text-center text-gray-500 text-sm md:text-base">
+				Loading Groups...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicPermissions = dynamic<any>(
+	() =>
+		import('../../components/users/detail/permissions').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="p-2 text-center text-gray-500 text-sm md:text-base">
+				Loading Permissions...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicUserForm = dynamic<any>(
+	() => import('../../components/users/detail/user-form'),
+	{
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 const User = ({
 	groups,
@@ -78,8 +122,8 @@ const User = ({
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [formType, setFormType] = useState<'user' | 'password'>('user');
-	const [modalVisible, setModalVisible] = useState(false);
+	const [formType, setFormType] = React.useState<'user' | 'password'>('user');
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	// Get user's object level permissions for the users table
 	const { data: objPermData, refetch: objPermRefetch } =
@@ -144,7 +188,7 @@ const User = ({
 		},
 	});
 
-	const canViewClient = useMemo(() => {
+	const canViewClient = React.useMemo(() => {
 		let canView = false;
 
 		// Check Model Permission
@@ -161,7 +205,7 @@ const User = ({
 		return canView;
 	}, [authData, objClientPermData]);
 
-	const canViewEmployee = useMemo(() => {
+	const canViewEmployee = React.useMemo(() => {
 		let canView = false;
 
 		// Check Model Permission
@@ -180,7 +224,7 @@ const User = ({
 		return canView;
 	}, [authData, objEmployeePermData]);
 
-	const [canEdit, canDelete] = useMemo(() => {
+	const [canEdit, canDelete] = React.useMemo(() => {
 		if (!authData) return [false, false];
 		if (!authData.isSuperUser && !authData.isAdmin) return [false, false];
 
@@ -206,7 +250,7 @@ const User = ({
 		},
 	});
 
-	const actions = useMemo(() => {
+	const actions = React.useMemo(() => {
 		let action: ButtonType[] = [];
 		if (!authData) return action;
 		const canViewObjectPermissions =
@@ -358,7 +402,7 @@ const User = ({
 								title: 'Permissions',
 								description: 'View all permissions for this user.',
 								component: (
-									<Permissions
+									<DynamicPermissions
 										canEditUser={canEdit}
 										permissions={userPermissions}
 										hideOtherModals={() => setModalVisible(false)}
@@ -369,7 +413,7 @@ const User = ({
 								title: 'Groups',
 								description: 'View all groups associated with this user.',
 								component: (
-									<Groups
+									<DynamicGroups
 										canEditUser={canEdit}
 										groups={groups}
 										hideOtherModals={() => setModalVisible(false)}
@@ -379,11 +423,11 @@ const User = ({
 						]}
 					/>
 
-					<Modal
+					<DynamicModal
 						close={() => setModalVisible(false)}
 						component={
 							formType === 'user' ? (
-								<UserForm
+								<DynamicUserForm
 									user={data}
 									onSuccess={() => {
 										setModalVisible(false);
@@ -394,7 +438,7 @@ const User = ({
 									}}
 								/>
 							) : formType === 'password' ? (
-								<ChangePasswordForm
+								<DynamicChangePasswordForm
 									email={data.email}
 									onSuccess={() => {
 										setModalVisible(false);

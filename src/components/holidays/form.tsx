@@ -174,8 +174,4 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 	);
 }
 
-Form.defaultProps = {
-	editMode: false,
-};
-
 export default Form;

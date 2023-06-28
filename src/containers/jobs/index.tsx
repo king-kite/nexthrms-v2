@@ -1,4 +1,5 @@
 import { Button, ButtonDropdown, InputButton } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import {
 	FaCheckCircle,
@@ -8,14 +9,8 @@ import {
 	FaSearch,
 } from 'react-icons/fa';
 
-import {
-	Container,
-	ImportForm,
-	ExportForm,
-	Modal,
-	TablePagination,
-} from '../../components/common';
-import { Form, JobTable } from '../../components/jobs';
+import Container from '../../components/common/container';
+import JobTable from '../../components/jobs/table';
 import {
 	DEFAULT_PAGINATION_SIZE,
 	JOBS_EXPORT_URL,
@@ -31,6 +26,58 @@ import {
 import { useGetJobsQuery } from '../../store/queries/jobs';
 import { JobType } from '../../types';
 import { hasModelPermission } from '../../utils';
+
+const DynamicExportForm = dynamic<any>(
+	() =>
+		import('../../components/common/export-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicImportForm = dynamic<any>(
+	() =>
+		import('../../components/common/import-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicForm = dynamic<any>(
+	() => import('../../components/jobs/form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicTablePagination = dynamic<any>(
+	() =>
+		import('../../components/common/table/pagination').then(
+			(mod) => mod.default
+		),
+	{
+		ssr: false,
+	}
+);
 
 const Jobs = ({
 	jobs,
@@ -175,7 +222,7 @@ const Jobs = ({
 					<div className="my-3 w-full sm:pl-1 sm:w-1/3 md:mb-0 md:mt-5 md:pl-0 md:w-1/4 lg:my-0 lg:w-1/5">
 						<ButtonDropdown
 							component={() => (
-								<ExportForm
+								<DynamicExportForm
 									all={JOBS_EXPORT_URL}
 									filtered={`&offset=${offset}&limit=${limit}&search=${nameSearch}`}
 								/>
@@ -206,21 +253,21 @@ const Jobs = ({
 					}
 				/>
 				{data && data?.total > 0 && (
-					<TablePagination
+					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);
 						}}
-						onSizeChange={(size) => setLimit(size)}
+						onSizeChange={(size: number) => setLimit(size)}
 						pageSize={limit}
 					/>
 				)}
 			</div>
 
 			{(canCreate || canEdit) && (
-				<Modal
+				<DynamicModal
 					close={() => {
 						setModalVisible(false);
 						setEditId(undefined);
@@ -228,8 +275,8 @@ const Jobs = ({
 					}}
 					component={
 						bulkForm ? (
-							<ImportForm
-								onSuccess={(data) => {
+							<DynamicImportForm
+								onSuccess={(data: any) => {
 									open({
 										type: 'success',
 										message: data.message,
@@ -262,7 +309,7 @@ const Jobs = ({
 								url={JOBS_IMPORT_URL}
 							/>
 						) : (
-							<Form
+							<DynamicForm
 								form={form}
 								editId={canEdit && editId ? editId : undefined}
 								onChange={handleChange}

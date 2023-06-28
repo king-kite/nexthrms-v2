@@ -1,6 +1,7 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import React from 'react';
 import {
 	FaCheckCircle,
 	FaTimesCircle,
@@ -13,9 +14,8 @@ import {
 	FaTrash,
 } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { UpdateForm } from '../../components/clients';
-import { ChangePasswordForm } from '../../components/employees';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
 import {
 	permissions,
 	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
@@ -32,6 +32,39 @@ import { useActivateUserMutation } from '../../store/queries/users';
 import { ClientType, UserObjPermType } from '../../types';
 import { hasModelPermission, getDate, toCapitalize } from '../../utils';
 
+const DynamicChangePasswordForm = dynamic<any>(
+	() =>
+		import('../../components/employees/detail/change-password-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicUpdateForm = dynamic<any>(
+	() =>
+		import('../../components/clients/update-form').then((mod) => mod.default),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
 const ClientDetail = ({
 	client,
 	objPerm,
@@ -45,8 +78,10 @@ const ClientDetail = ({
 
 	const id = router.query.id as string;
 
-	const [modalVisible, setModalVisible] = useState(false);
-	const [formType, setFormType] = useState<'client' | 'password'>('client');
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [formType, setFormType] = React.useState<'client' | 'password'>(
+		'client'
+	);
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -91,7 +126,7 @@ const ClientDetail = ({
 			}
 		);
 
-	const [canEditUser, canViewUser] = useMemo(() => {
+	const [canEditUser, canViewUser] = React.useMemo(() => {
 		let canEdit = false;
 		let canView = false;
 
@@ -127,7 +162,7 @@ const ClientDetail = ({
 
 	const { activate, isLoading: loading } = useActivateUserMutation();
 
-	const actions: ButtonType[] = useMemo(() => {
+	const actions: ButtonType[] = React.useMemo(() => {
 		if (!data || !authData) return [];
 		const buttons: ButtonType[] = [];
 		const canEdit =
@@ -334,11 +369,11 @@ const ClientDetail = ({
 							title="contact & support information"
 						/>
 					</div>
-					<Modal
+					<DynamicModal
 						close={() => setModalVisible(false)}
 						component={
 							formType === 'client' && data !== undefined ? (
-								<UpdateForm
+								<DynamicUpdateForm
 									onSuccess={() => {
 										showAlert({
 											type: 'success',
@@ -349,7 +384,7 @@ const ClientDetail = ({
 									client={data}
 								/>
 							) : formType === 'password' && data ? (
-								<ChangePasswordForm
+								<DynamicChangePasswordForm
 									onSuccess={() => {
 										setModalVisible(false);
 										showAlert({

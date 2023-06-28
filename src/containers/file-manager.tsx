@@ -3,8 +3,10 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { FaDownload } from 'react-icons/fa';
 
-import { Container } from '../components/common';
-import { FileActions, Files, QuickActions } from '../components/file-manager';
+import Container from '../components/common/container';
+import FileActions from '../components/file-manager/file-actions';
+import Files from '../components/file-manager/files';
+import QuickActions from '../components/file-manager/quick-actions';
 import {
 	permissions,
 	DEFAULT_MEDIA_PAGINAITON_SIZE,

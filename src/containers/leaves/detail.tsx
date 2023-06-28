@@ -1,6 +1,7 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import {
 	FaCheckCircle,
 	FaEdit,
@@ -9,8 +10,8 @@ import {
 	FaUserShield,
 } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { Form } from '../../components/leaves';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
 import {
 	ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -42,6 +43,20 @@ type ErrorType = CreateLeaveErrorResponseType & {
 	message?: string;
 };
 
+const DynamicForm = dynamic<any>(
+	() => import('../../components/leaves/form').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
 const Detail = ({
 	admin = false,
 	leave,
@@ -58,8 +73,8 @@ const Detail = ({
 	const router = useRouter();
 	const id = router.query.id as string;
 
-	const [modalVisible, setModalVisible] = useState(false);
-	const [errors, setErrors] = useState<ErrorType>();
+	const [modalVisible, setModalVisible] = React.useState(false);
+	const [errors, setErrors] = React.useState<ErrorType>();
 
 	const { data: authData } = useAuthContext();
 
@@ -80,7 +95,7 @@ const Detail = ({
 		}
 	);
 
-	const data = useMemo(() => {
+	const data = React.useMemo(() => {
 		if (leaveData) return serializeLeave(leaveData);
 		return undefined;
 	}, [leaveData]);
@@ -99,59 +114,60 @@ const Detail = ({
 			}
 		);
 
-	const [canEdit, canDelete, canGrant, canViewPermissions] = useMemo(() => {
-		if (!authData) return [false, false, false, false];
-		// Not Admin Page
-		// Only check object level permissions
-		if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-		else {
-			let canEdit = false;
-			let canDelete = false;
-			let canGrant = false;
-			// Check model permissions
-			if (authData.isAdmin || authData.isSuperUser) {
-				canEdit =
+	const [canEdit, canDelete, canGrant, canViewPermissions] =
+		React.useMemo(() => {
+			if (!authData) return [false, false, false, false];
+			// Not Admin Page
+			// Only check object level permissions
+			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
+			else {
+				let canEdit = false;
+				let canDelete = false;
+				let canGrant = false;
+				// Check model permissions
+				if (authData.isAdmin || authData.isSuperUser) {
+					canEdit =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.leave.EDIT,
+							])) ||
+						false;
+				}
+				if (authData.isAdmin || authData.isSuperUser) {
+					canDelete =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.leave.DELETE,
+							])) ||
+						false;
+				}
+				if (authData.isAdmin || authData.isSuperUser) {
+					canGrant =
+						authData.isSuperUser ||
+						(authData.isAdmin &&
+							hasModelPermission(authData.permissions, [
+								permissions.leave.GRANT,
+							])) ||
+						false;
+				}
+
+				// If the user doesn't have model edit permissions, then check obj edit permission
+				if (!canEdit && objPermData) canEdit = objPermData.edit;
+				if (!canDelete && objPermData) canDelete = objPermData.delete;
+
+				const canViewPermissions =
 					authData.isSuperUser ||
 					(authData.isAdmin &&
 						hasModelPermission(authData.permissions, [
-							permissions.leave.EDIT,
+							permissions.permissionobject.VIEW,
 						])) ||
 					false;
-			}
-			if (authData.isAdmin || authData.isSuperUser) {
-				canDelete =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.leave.DELETE,
-						])) ||
-					false;
-			}
-			if (authData.isAdmin || authData.isSuperUser) {
-				canGrant =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.leave.GRANT,
-						])) ||
-					false;
-			}
 
-			// If the user doesn't have model edit permissions, then check obj edit permission
-			if (!canEdit && objPermData) canEdit = objPermData.edit;
-			if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-			const canViewPermissions =
-				authData.isSuperUser ||
-				(authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					])) ||
-				false;
-
-			return [canEdit, canDelete, canGrant, canViewPermissions];
-		}
-	}, [authData, admin, objPermData]);
+				return [canEdit, canDelete, canGrant, canViewPermissions];
+			}
+		}, [authData, admin, objPermData]);
 
 	const { mutate: approveLeave, isLoading: appLoading } =
 		useApproveLeaveMutation({
@@ -191,7 +207,7 @@ const Detail = ({
 			},
 		});
 
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		(form: CreateLeaveQueryType) => {
 			setErrors(undefined);
 			if (canEdit) updateLeave({ id, admin, data: form });
@@ -199,7 +215,7 @@ const Detail = ({
 		[canEdit, updateLeave, admin, id]
 	);
 
-	const actions = useMemo(() => {
+	const actions = React.useMemo(() => {
 		const buttons: ButtonType[] = [];
 		if (!data) return buttons;
 		// Regular/normal user page
@@ -506,10 +522,10 @@ const Detail = ({
 							/>
 						)}
 					</div>
-					<Modal
+					<DynamicModal
 						close={() => setModalVisible(false)}
 						component={
-							<Form
+							<DynamicForm
 								adminView={admin}
 								errors={errors}
 								initState={data}

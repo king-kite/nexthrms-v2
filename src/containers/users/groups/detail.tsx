@@ -1,14 +1,11 @@
 import { Button, InfoComp, TabNavigator } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
-import { Container, Modal } from '../../../components/common';
-import {
-	GroupForm,
-	Permissions,
-	UsersGrid,
-} from '../../../components/groups/detail';
+import Container from '../../../components/common/container';
+import Permissions from '../../../components/groups/detail/permissions';
 import {
 	permissions,
 	DEFAULT_PAGINATION_SIZE,
@@ -31,6 +28,41 @@ import {
 	UserObjPermType,
 } from '../../../types';
 import { hasModelPermission, toCapitalize } from '../../../utils';
+
+const DynamicGroupForm = dynamic<any>(
+	() =>
+		import('../../../components/groups/detail/group-form').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Form...
+			</p>
+		),
+		ssr: false,
+	}
+);
+const DynamicModal = dynamic<any>(
+	() => import('../../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+const DynamicUsersGrid = dynamic<any>(
+	() =>
+		import('../../../components/groups/detail/users-grid').then(
+			(mod) => mod.default
+		),
+	{
+		loading: () => (
+			<p className="text-center text-gray-500 text-sm md:text-base">
+				Loading Users...
+			</p>
+		),
+		ssr: false,
+	}
+);
 
 function GroupDetail({
 	group,
@@ -268,7 +300,7 @@ function GroupDetail({
 									description: 'View all users in this group!',
 									component:
 										data.users.length > 0 ? (
-											<UsersGrid
+											<DynamicUsersGrid
 												users={data.users}
 												paginate={
 													data._count?.users
@@ -310,10 +342,10 @@ function GroupDetail({
 						/>
 					</div>
 					{canEdit && (
-						<Modal
+						<DynamicModal
 							close={() => setModalVisible(false)}
 							component={
-								<GroupForm
+								<DynamicGroupForm
 									group={data}
 									onSuccess={() => {
 										setModalVisible(false);

@@ -1,4 +1,5 @@
 import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
 import {
@@ -9,8 +10,8 @@ import {
 	FaUserShield,
 } from 'react-icons/fa';
 
-import { Container, InfoTopBar, Modal } from '../../components/common';
-import { Form } from '../../components/overtime';
+import Container from '../../components/common/container';
+import InfoTopBar from '../../components/common/info-topbar';
 import {
 	ADMIN_OVERTIME_OBJECT_PERMISSION_PAGE_URL,
 	DEFAULT_IMAGE,
@@ -35,6 +36,20 @@ import { getDate, hasModelPermission, serializeOvertime } from '../../utils';
 type ErrorType = CreateOvertimeErrorResponseType & {
 	message?: string;
 };
+
+const DynamicForm = dynamic<any>(
+	() => import('../../components/overtime/form').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
+
+const DynamicModal = dynamic<any>(
+	() => import('../../components/common/modal').then((mod) => mod.default),
+	{
+		ssr: false,
+	}
+);
 
 const Detail = ({
 	admin,
@@ -486,10 +501,10 @@ const Detail = ({
 							/>
 						)}
 					</div>
-					<Modal
+					<DynamicModal
 						close={() => setModalVisible(false)}
 						component={
-							<Form
+							<DynamicForm
 								adminView={admin}
 								errors={errors}
 								initState={data}
