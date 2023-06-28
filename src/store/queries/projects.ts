@@ -36,7 +36,7 @@ import {
 	CreateProjectTaskQueryType,
 } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
-import axiosFileInstance from '../../utils/axios/fileRedirectInstance';
+import axiosFileInstance from '../../utils/axios/fileTransferInstance';
 import { getDate } from '../../utils';
 import { handleAxiosErrors } from '../../validators';
 
