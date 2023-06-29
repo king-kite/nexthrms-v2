@@ -12,11 +12,11 @@ import {
 	DEFAULT_MEDIA_PAGINAITON_SIZE,
 	MEDIA_URL,
 } from '../config';
-import { useDebounce } from '../hooks';
+import useDebounce from '../hooks/useDebounce';
 import { useAlertContext, useAuthContext } from '../store/contexts';
 import { useGetManagedFilesQuery } from '../store/queries/managed-files';
 import { GetManagedFilesResponseType, ManagedFileType } from '../types';
-import { hasModelPermission } from '../utils';
+import { hasModelPermission } from '../utils/permission';
 
 const DynamicButton = dynamic<any>(
 	() => import('kite-react-tailwind').then((mod) => mod.Button),
@@ -63,7 +63,7 @@ function FileManager({
 		null
 	);
 
-	const debouncedSearchForm = useDebounce(searchForm, 500);
+	const debouncedSearchForm = useDebounce(searchForm);
 	const { query } = useRouter();
 
 	const { open } = useAlertContext();

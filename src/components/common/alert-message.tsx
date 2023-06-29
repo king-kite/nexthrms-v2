@@ -6,12 +6,15 @@ import { AlertMessageType, useAlertContext } from '../../store/contexts/alert';
 function AlertMessage(props: AlertMessageType) {
 	const { close } = useAlertContext();
 
+	const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
 	React.useEffect(() => {
-		let timeout = setTimeout(() => {
-			close();
-		}, 10 * 1000);
+		if (!timeoutRef.current)
+			timeoutRef.current = setTimeout(() => {
+				close();
+			}, 10 * 1000);
 		return () => {
-			clearTimeout(timeout);
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
 		};
 	}, [close]);
 

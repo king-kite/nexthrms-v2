@@ -1,13 +1,17 @@
 import React from 'react';
 
-function useDebounce(value: any, delay: number) {
+function useDebounce(value: any, delay: number = 300) {
 	// State and setters for debounced value
 	const [debouncedValue, setDebouncedValue] = React.useState(value);
+	const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	React.useEffect(
 		() => {
+			// clear the old timeout if found
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
 			// Set debouncedValue to value (passed in) after the specified delay
-			const handler = setTimeout(() => {
+			timeoutRef.current = setTimeout(() => {
 				setDebouncedValue(value);
 			}, delay);
 
@@ -20,13 +24,13 @@ function useDebounce(value: any, delay: number) {
 			// ... search box, we don't want the debouncedValue to update until ...
 			// ... they've stopped typing for more than 500ms.
 			return () => {
-				clearTimeout(handler);
+				if (timeoutRef.current) clearTimeout(timeoutRef.current);
 			};
 		},
 		// Only re-call effect if value changes
 		// You could also add the "delay" var to inputs array if you ...
 		// ... need to be able to change that dynamically.
-		[value]
+		[delay, value]
 	);
 
 	return debouncedValue;

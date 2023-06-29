@@ -46,6 +46,7 @@ const Notification = ({
 	const { ref, visible } = useFadeIn<HTMLDivElement>(true);
 
 	const [exportLoading, setExportLoading] = React.useState(false);
+	const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	const { mutate: deleteNote } = useDeleteNotificationMutation({
 		onMutate(total) {
@@ -119,16 +120,15 @@ const Notification = ({
 	const _date = new Date(date);
 
 	React.useEffect(() => {
-		let timeout: NodeJS.Timeout | null = null;
-		if (visible && modalVisible && read === false) {
+		if (visible && modalVisible && read === false && !timeoutRef.current) {
 			// Remove the notification after 10 seconds
-			timeout = setTimeout(() => {
+			timeoutRef.current = setTimeout(() => {
 				markNote(id);
 			}, 10000);
 		}
-		return () => {
-			if (timeout) clearTimeout(timeout);
-		};
+		// return () => {
+		// 	if (timeout) clearTimeout(timeout);
+		// };
 	}, [id, markNote, modalVisible, read, visible]);
 
 	return (
