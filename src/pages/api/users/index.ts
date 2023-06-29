@@ -134,9 +134,11 @@ export default admin()
 			profile: {
 				create: {
 					...valid.profile,
-					image: {
-						create: valid.profile.image as any,
-					},
+					image: valid.profile.image
+						? {
+								create: valid.profile.image as any,
+						  }
+						: undefined,
 				},
 			},
 			employee: valid.employee

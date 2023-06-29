@@ -176,12 +176,12 @@ export default admin()
 			profile: {
 				update: {
 					...valid.profile,
-					image: {
+					image: valid.profile.image ? {
 						upsert: {
 							create: valid.profile.image as any,
 							update: valid.profile.image as any,
 						},
-					},
+					} : undefined,
 				},
 			},
 			employee: valid.employee

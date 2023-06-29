@@ -143,9 +143,11 @@ export default admin()
 						profile: {
 							create: {
 								...valid.user.profile,
-								image: {
-									create: valid.user.profile.image as any,
-								},
+								image: valid.user.profile.image
+									? {
+											create: valid.user.profile.image as any,
+									  }
+									: undefined,
 							},
 						},
 					},

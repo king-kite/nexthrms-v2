@@ -121,9 +121,11 @@ export default admin()
 						profile: {
 							create: {
 								...valid.contact.profile,
-								image: {
-									create: valid.contact.profile.image as any,
-								},
+								image: valid.contact.profile.image
+									? {
+											create: valid.contact.profile.image as any,
+									  }
+									: undefined,
 							},
 						},
 					},

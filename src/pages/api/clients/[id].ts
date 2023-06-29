@@ -146,12 +146,14 @@ export default admin()
 						profile: {
 							update: {
 								...valid.contact.profile,
-								image: {
-									upsert: {
-										create: valid.contact.profile.image as any,
-										update: valid.contact.profile.image as any,
-									},
-								},
+								image: valid.contact.profile.image
+									? {
+											upsert: {
+												create: valid.contact.profile.image as any,
+												update: valid.contact.profile.image as any,
+											},
+									  }
+									: undefined,
 							},
 						},
 					},

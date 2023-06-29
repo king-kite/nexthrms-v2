@@ -97,6 +97,7 @@ export default admin()
 				message: 'Provide either user object or userId. Set the former to null',
 			});
 		}
+
 		if (valid.user && files.image) {
 			// Upload a file to the bucket using firebase admin
 			try {
@@ -134,6 +135,7 @@ export default admin()
 					console.log('EMPLOYEE UPDATE IMAGE ERROR :>> ', error);
 			}
 		}
+
 		const user: {
 			update?: Prisma.UserUpdateInput;
 			connect?: { id: string };
@@ -145,12 +147,14 @@ export default admin()
 						profile: {
 							update: {
 								...valid.user.profile,
-								image: {
-									upsert: {
-										create: valid.user.profile.image as any,
-										update: valid.user.profile.image as any,
-									},
-								},
+								image: valid.user.profile.image
+									? {
+											upsert: {
+												create: valid.user.profile.image as any,
+												update: valid.user.profile.image as any,
+											},
+									  }
+									: undefined,
 							},
 						},
 					},
