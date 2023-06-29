@@ -191,8 +191,6 @@ type TableType = {
 };
 
 const FileTable = ({ files }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -229,16 +227,17 @@ const FileTable = ({ files }: TableType) => {
 		return [canDelete];
 	}, [authData]);
 
-	React.useEffect(() => {
-		// const data = files.filter((file) => file.name !== MEDIA_HIDDEN_FILE_NAME);
-		setRows(
-			getRows(files, {
+	const deferredValue = React.useDeferredValue(files);
+
+	const rows = React.useMemo(
+		() =>
+			getRows(deferredValue, {
 				deleteFile: canDelete ? deleteFile : undefined,
 				download,
 				showDetail,
-			})
-		);
-	}, [canDelete, deleteFile, download, files, showDetail]);
+			}),
+		[canDelete, deleteFile, download, deferredValue, showDetail]
+	);
 
 	return (
 		<Table
