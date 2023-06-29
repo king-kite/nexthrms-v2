@@ -66,22 +66,26 @@ type TableType = {
 };
 
 const ClientTable = ({ clients }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'inactive'
 	>('all');
 
-	React.useEffect(() => {
+	const deferredValue = React.useDeferredValue(clients);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'active') {
-			finalList = clients.filter((client) => client.contact.isActive === true);
+			finalList = deferredValue.filter(
+				(client) => client.contact.isActive === true
+			);
 		} else if (activeRow === 'inactive') {
-			finalList = clients.filter((client) => client.contact.isActive === false);
+			finalList = deferredValue.filter(
+				(client) => client.contact.isActive === false
+			);
 		} else {
-			finalList = clients;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, clients]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<Table

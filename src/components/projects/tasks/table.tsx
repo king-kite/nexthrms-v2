@@ -121,7 +121,6 @@ type TableType = {
 };
 
 const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'ongoing' | 'completed'
 	>('all');
@@ -181,31 +180,30 @@ const ProjectTable = ({ projectId, tasks, loading }: TableType) => {
 		},
 	});
 
-	React.useEffect(() => {
+	const deferredValue = React.useDeferredValue(tasks);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'ongoing') {
-			finalList = tasks.filter((task) => task.completed === false);
+			finalList = deferredValue.filter((task) => task.completed === false);
 		} else if (activeRow === 'completed') {
-			finalList = tasks.filter((task) => task.completed === true);
+			finalList = deferredValue.filter((task) => task.completed === true);
 		} else {
-			finalList = tasks;
+			finalList = deferredValue;
 		}
-		setRows(
-			getRows(finalList, {
-				deleteTask: canDelete ? deleteTask : undefined,
-				markTask: canEdit ? markTask : undefined,
-				objPermLink: canViewObjectPermissions
-					? (taskId) =>
-							PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(projectId, taskId)
-					: undefined,
-			})
-		);
+		return getRows(finalList, {
+			deleteTask: canDelete ? deleteTask : undefined,
+			markTask: canEdit ? markTask : undefined,
+			objPermLink: canViewObjectPermissions
+				? (taskId) =>
+						PROJECT_TASK_OBJECT_PERMISSIONS_PAGE_URL(projectId, taskId)
+				: undefined,
+		});
 	}, [
 		activeRow,
 		canEdit,
 		canDelete,
 		canViewObjectPermissions,
-		tasks,
+		deferredValue,
 		deleteTask,
 		markTask,
 		projectId,

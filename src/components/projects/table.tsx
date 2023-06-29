@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { IconType } from 'react-icons';
 import {
 	FaArrowRight,
@@ -124,16 +124,15 @@ type TableType = {
 };
 
 const ProjectTable = ({ projects, loading }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<'all' | 'ongoing' | 'completed'>(
-		'all'
-	);
+	const [activeRow, setActiveRow] = React.useState<
+		'all' | 'ongoing' | 'completed'
+	>('all');
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
 	// has model permission
-	const [canEdit, canDelete, canViewObjectPermissions] = useMemo(() => {
+	const [canEdit, canDelete, canViewObjectPermissions] = React.useMemo(() => {
 		const canEdit = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.project.EDIT])
@@ -182,27 +181,28 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 		},
 	});
 
-	useEffect(() => {
+	const deferredValue = React.useDeferredValue(projects);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'ongoing') {
-			finalList = projects.filter((project) => project.completed === false);
+			finalList = deferredValue.filter(
+				(project) => project.completed === false
+			);
 		} else if (activeRow === 'completed') {
-			finalList = projects.filter((project) => project.completed === true);
+			finalList = deferredValue.filter((project) => project.completed === true);
 		} else {
-			finalList = projects;
+			finalList = deferredValue;
 		}
-		setRows(
-			getRows(finalList, {
-				deleteProject: canDelete ? deleteProject : undefined,
-				markProject: canEdit ? markProject : undefined,
-				objPermLink: canViewObjectPermissions
-					? PROJECT_OBJECT_PERMISSIONS_PAGE_URL
-					: undefined,
-			})
-		);
+		return getRows(finalList, {
+			deleteProject: canDelete ? deleteProject : undefined,
+			markProject: canEdit ? markProject : undefined,
+			objPermLink: canViewObjectPermissions
+				? PROJECT_OBJECT_PERMISSIONS_PAGE_URL
+				: undefined,
+		});
 	}, [
 		activeRow,
-		projects,
+		deferredValue,
 		canEdit,
 		canDelete,
 		canViewObjectPermissions,

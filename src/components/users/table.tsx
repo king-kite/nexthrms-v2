@@ -133,35 +133,35 @@ type TableType = {
 };
 
 const UserTable = ({ users }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'on leave' | 'inactive' | 'clients' | 'employees'
 	>('all');
 
-	React.useEffect(() => {
+	const deferredValue = React.useDeferredValue(users);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
-			finalList = users.filter(
+			finalList = deferredValue.filter(
 				(user) =>
 					user.employee?.leaves.length && user.employee?.leaves.length > 0
 			);
 		} else if (activeRow === 'active') {
-			finalList = users.filter((user) =>
+			finalList = deferredValue.filter((user) =>
 				user.employee
 					? user.isActive === true && user.employee.leaves.length === 0
 					: user.isActive
 			);
 		} else if (activeRow === 'inactive') {
-			finalList = users.filter((user) => user.isActive === false);
+			finalList = deferredValue.filter((user) => user.isActive === false);
 		} else if (activeRow === 'clients') {
-			finalList = users.filter((user) => user.client && user);
+			finalList = deferredValue.filter((user) => user.client && user);
 		} else if (activeRow === 'employees') {
-			finalList = users.filter((user) => user.employee && user);
+			finalList = deferredValue.filter((user) => user.employee && user);
 		} else {
-			finalList = users;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, users]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<Table

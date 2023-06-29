@@ -74,8 +74,6 @@ type TableType = {
 };
 
 const HolidayTable = ({ holidays, onEdit }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -119,11 +117,18 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 		},
 	});
 
-	React.useEffect(() => {
-		setRows(
-			getRows(holidays, canViewPermissions, onEdit || undefined, deleteHoliday)
-		);
-	}, [holidays, onEdit, canViewPermissions, deleteHoliday]);
+	const deferredValue = React.useDeferredValue(holidays);
+
+	const rows = React.useMemo(
+		() =>
+			getRows(
+				deferredValue,
+				canViewPermissions,
+				onEdit || undefined,
+				deleteHoliday
+			),
+		[deferredValue, onEdit, canViewPermissions, deleteHoliday]
+	);
 
 	return (
 		<Table

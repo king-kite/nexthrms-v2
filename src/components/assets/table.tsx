@@ -158,11 +158,6 @@ const AssetTable = ({
 	editAsset,
 	showAsset,
 }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'approved' | 'denied' | 'pending' | 'returned'
-	>('all');
-
 	const { data: authData } = useAuthContext();
 
 	// has model permission
@@ -187,32 +182,34 @@ const AssetTable = ({
 		return [canEdit, canDelete, canViewObjectPermissions];
 	}, [authData]);
 
-	React.useEffect(() => {
+	const [activeRow, setActiveRow] = React.useState<
+		'all' | 'approved' | 'denied' | 'pending' | 'returned'
+	>('all');
+	const deferredValue = React.useDeferredValue(assets);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'approved') {
-			finalList = assets.filter((asset) => asset.status === 'APPROVED');
+			finalList = deferredValue.filter((asset) => asset.status === 'APPROVED');
 		} else if (activeRow === 'denied') {
-			finalList = assets.filter((asset) => asset.status === 'DENIED');
+			finalList = deferredValue.filter((asset) => asset.status === 'DENIED');
 		} else if (activeRow === 'pending') {
-			finalList = assets.filter((asset) => asset.status === 'PENDING');
+			finalList = deferredValue.filter((asset) => asset.status === 'PENDING');
 		} else if (activeRow === 'returned') {
-			finalList = assets.filter((asset) => asset.status === 'RETURNED');
+			finalList = deferredValue.filter((asset) => asset.status === 'RETURNED');
 		} else {
-			finalList = assets;
+			finalList = deferredValue;
 		}
-		setRows(
-			getRows(finalList, {
-				deleteAsset: canDelete ? deleteAsset : undefined,
-				editAsset: canEdit ? editAsset : undefined,
-				getObjPermLink: canViewObjectPermissions
-					? ASSET_OBJECT_PERMISSIONS_PAGE_URL
-					: undefined,
-				showAsset,
-			})
-		);
+		return getRows(finalList, {
+			deleteAsset: canDelete ? deleteAsset : undefined,
+			editAsset: canEdit ? editAsset : undefined,
+			getObjPermLink: canViewObjectPermissions
+				? ASSET_OBJECT_PERMISSIONS_PAGE_URL
+				: undefined,
+			showAsset,
+		});
 	}, [
 		activeRow,
-		assets,
+		deferredValue,
 		deleteAsset,
 		editAsset,
 		showAsset,

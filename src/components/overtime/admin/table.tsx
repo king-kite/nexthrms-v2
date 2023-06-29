@@ -89,24 +89,24 @@ type TableType = {
 };
 
 const OvertimeTable = ({ overtime }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	React.useEffect(() => {
+	const deferredValue = React.useDeferredValue(overtime);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
-			finalList = overtime.filter((item) => item.status === 'DENIED');
+			finalList = deferredValue.filter((item) => item.status === 'DENIED');
 		} else if (activeRow === 'approved') {
-			finalList = overtime.filter((item) => item.status === 'APPROVED');
+			finalList = deferredValue.filter((item) => item.status === 'APPROVED');
 		} else if (activeRow === 'pending') {
-			finalList = overtime.filter((item) => item.status === 'PENDING');
+			finalList = deferredValue.filter((item) => item.status === 'PENDING');
 		} else {
-			finalList = overtime;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, overtime]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">

@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
 import { OVERTIME_DETAIL_PAGE_URL } from '../../config/routes';
@@ -65,24 +65,24 @@ type TableType = {
 };
 
 const OvertimeTable = ({ overtime }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<
+	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	useEffect(() => {
+	const deferredValue = React.useDeferredValue(overtime);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
-			finalList = overtime.filter((item) => item.status === 'DENIED');
+			finalList = deferredValue.filter((item) => item.status === 'DENIED');
 		} else if (activeRow === 'approved') {
-			finalList = overtime.filter((item) => item.status === 'APPROVED');
+			finalList = deferredValue.filter((item) => item.status === 'APPROVED');
 		} else if (activeRow === 'pending') {
-			finalList = overtime.filter((item) => item.status === 'PENDING');
+			finalList = deferredValue.filter((item) => item.status === 'PENDING');
 		} else {
-			finalList = overtime;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, overtime]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<Table

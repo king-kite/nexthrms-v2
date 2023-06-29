@@ -50,11 +50,8 @@ type TableType = {
 };
 
 const GroupTable = ({ groups = [] }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
-	React.useEffect(() => {
-		setRows(getRows(groups));
-	}, [groups]);
+	const deferredValue = React.useDeferredValue(groups);
+	const rows = React.useMemo(() => getRows(deferredValue), [deferredValue]);
 
 	return (
 		<Table

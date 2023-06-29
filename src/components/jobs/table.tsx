@@ -81,8 +81,6 @@ type TableType = {
 };
 
 const JobTable = ({ jobs = [], updateJob }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
 	const { open: openAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 	const {
@@ -152,11 +150,18 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 		[closeModal, canDelete, isLoading, openModal, showLoader, deleteJob]
 	);
 
-	React.useEffect(() => {
-		setRows(
-			getRows(jobs, isLoading, canViewPermissions, updateJob, handleDelete)
-		);
-	}, [jobs, updateJob, canViewPermissions, handleDelete, isLoading]);
+	const deferredValue = React.useDeferredValue(jobs);
+	const rows = React.useMemo(
+		() =>
+			getRows(
+				deferredValue,
+				isLoading,
+				canViewPermissions,
+				updateJob,
+				handleDelete
+			),
+		[deferredValue, updateJob, canViewPermissions, handleDelete, isLoading]
+	);
 
 	return <Table heads={heads} rows={rows} />;
 };

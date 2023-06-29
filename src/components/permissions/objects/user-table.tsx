@@ -103,7 +103,6 @@ const UserPermissionsTable = ({
 }: TableType) => {
 	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [search, setSearch] = React.useState('');
 
 	const { open: showAlert } = useAlertContext();
@@ -200,9 +199,11 @@ const UserPermissionsTable = ({
 		return values.splice(offset, limit);
 	}, [searchedUsers, limit, offset]);
 
-	React.useEffect(() => {
-		setRows(getRows(paginatedUsers, removeUser, onEdit));
-	}, [paginatedUsers, removeUser, onEdit]);
+	const deferredValue = React.useDeferredValue(paginatedUsers);
+	const rows = React.useMemo(
+		() => getRows(deferredValue, removeUser, onEdit),
+		[deferredValue, removeUser, onEdit]
+	);
 
 	return (
 		<div>

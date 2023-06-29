@@ -98,8 +98,6 @@ const heads: TableHeadType = [
 ];
 
 const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
 	const { open: openAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 	const {
@@ -236,24 +234,25 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 		[closeModal, depsLoading, openModal, deleteDepartments, showLoader]
 	);
 
-	React.useEffect(() => {
-		setRows(
+	const deferredValue = React.useDeferredValue(departments);
+	const rows = React.useMemo(
+		() =>
 			getRows(
-				departments,
+				deferredValue,
 				depLoading,
 				canViewPermissions,
 				updateDep,
 				canDelete ? handleDelete : undefined
-			)
-		);
-	}, [
-		departments,
-		updateDep,
-		canViewPermissions,
-		handleDelete,
-		canDelete,
-		depLoading,
-	]);
+			),
+		[
+			deferredValue,
+			updateDep,
+			canViewPermissions,
+			handleDelete,
+			canDelete,
+			depLoading,
+		]
+	);
 
 	return (
 		<Table

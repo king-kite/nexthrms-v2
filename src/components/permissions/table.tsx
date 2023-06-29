@@ -51,7 +51,6 @@ type TableType = {
 };
 
 const PermissionTable = ({ permissions = [] }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const { data: authData } = useAuthContext();
 
 	const canViewObjectPermissions = React.useMemo(
@@ -77,16 +76,17 @@ const PermissionTable = ({ permissions = [] }: TableType) => {
 		return data;
 	}, [canViewObjectPermissions]);
 
-	React.useEffect(() => {
-		setRows(
+	const deferredValue = React.useDeferredValue(permissions);
+	const rows = React.useMemo(
+		() =>
 			getRows(
-				permissions,
+				deferredValue,
 				canViewObjectPermissions
 					? PERMISSION_OBJECT_PERMISSIONS_PAGE_URL
 					: undefined
-			)
-		);
-	}, [permissions, canViewObjectPermissions]);
+			),
+		[deferredValue, canViewObjectPermissions]
+	);
 
 	return <Table heads={heads} rows={rows} />;
 };

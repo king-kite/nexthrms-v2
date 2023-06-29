@@ -101,7 +101,6 @@ const GroupPermissionsTable = ({
 }: TableType) => {
 	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
 	const [search, setSearch] = React.useState('');
 
 	const { open: showAlert } = useAlertContext();
@@ -197,9 +196,10 @@ const GroupPermissionsTable = ({
 		return values.splice(offset, limit);
 	}, [searchedGroups, limit, offset]);
 
-	React.useEffect(() => {
-		setRows(getRows(paginatedGroups, removeGroup, onEdit));
-	}, [paginatedGroups, removeGroup, onEdit]);
+	const deferredValue = React.useDeferredValue(paginatedGroups);
+	const rows = React.useMemo(() => {
+		return getRows(deferredValue, removeGroup, onEdit);
+	}, [deferredValue, removeGroup, onEdit]);
 
 	return (
 		<div>

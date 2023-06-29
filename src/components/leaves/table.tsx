@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
 import { LEAVE_DETAIL_PAGE_URL } from '../../config/routes';
@@ -69,24 +69,24 @@ type TableType = {
 };
 
 const LeaveTable = ({ leaves }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<
+	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	useEffect(() => {
+	const deferredValue = React.useDeferredValue(leaves);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
-			finalList = leaves.filter((leave) => leave.status === 'DENIED');
+			finalList = deferredValue.filter((leave) => leave.status === 'DENIED');
 		} else if (activeRow === 'approved') {
-			finalList = leaves.filter((leave) => leave.status === 'APPROVED');
+			finalList = deferredValue.filter((leave) => leave.status === 'APPROVED');
 		} else if (activeRow === 'pending') {
-			finalList = leaves.filter((leave) => leave.status === 'PENDING');
+			finalList = deferredValue.filter((leave) => leave.status === 'PENDING');
 		} else {
-			finalList = leaves;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, leaves]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<Table

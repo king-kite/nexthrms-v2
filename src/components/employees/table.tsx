@@ -1,6 +1,6 @@
 import { Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
@@ -82,29 +82,31 @@ type TableType = {
 };
 
 const EmployeeTable = ({ employees }: TableType) => {
-	const [rows, setRows] = useState<TableRowType[]>([]);
-	const [activeRow, setActiveRow] = useState<
+	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'on leave' | 'inactive'
 	>('all');
 
-	useEffect(() => {
+	const deferredValue = React.useDeferredValue(employees);
+	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
-			finalList = employees.filter((employee) => employee.leaves.length > 0);
+			finalList = deferredValue.filter(
+				(employee) => employee.leaves.length > 0
+			);
 		} else if (activeRow === 'active') {
-			finalList = employees.filter(
+			finalList = deferredValue.filter(
 				(employee) =>
 					employee.user.isActive === true && employee.leaves.length === 0
 			);
 		} else if (activeRow === 'inactive') {
-			finalList = employees.filter(
+			finalList = deferredValue.filter(
 				(employee) => employee.user.isActive === false
 			);
 		} else {
-			finalList = employees;
+			finalList = deferredValue;
 		}
-		setRows(getRows(finalList));
-	}, [activeRow, employees]);
+		return getRows(finalList);
+	}, [activeRow, deferredValue]);
 
 	return (
 		<Table
