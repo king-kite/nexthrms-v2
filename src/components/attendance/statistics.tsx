@@ -1,9 +1,63 @@
 import React from 'react';
-import { StatusProgressBar } from '../common';
+
+import StatusProgressBar from '../common/status-progress-bar';
 import { AttendanceInfoType } from '../../types';
+import { getDate } from '../../utils/getDate';
+
+const totalHoursToBeSpent = 10;
 
 const currentDate = new Date();
 currentDate.setHours(0, 0, 0, 0);
+
+// Get the spent and total number of hours on date
+function getHours({ date, overtime, punchIn, punchOut }: AttendanceInfoType) {
+	let closeTime = punchOut ? (getDate(punchOut) as Date) : null;
+	let hoursToBeSpent = totalHoursToBeSpent + (overtime?.hours || 0);
+	// If the user did not punch out
+	if (!closeTime) {
+		// Check if the date is the same as the current date
+		const attendDate = getDate(date) as Date;
+		const currentDate = new Date();
+
+		const closingTime = new Date(); // get the closing time for the day
+		closingTime.setHours(18 + (overtime?.hours || 0), 0, 0, 0); // set to 6'o clock
+		if (
+			currentDate.getDate() === attendDate.getDate() &&
+			currentDate.getMonth() === attendDate.getMonth() &&
+			currentDate.getFullYear() === attendDate.getFullYear() &&
+			currentDate.getTime() <= closingTime.getTime() // Not yet closed
+		) {
+			// Set the closeTime to the same hours as the current date
+			// But the date should be new Date(0)
+			closeTime = new Date(
+				1970,
+				0,
+				1,
+				currentDate.getHours(),
+				currentDate.getMinutes(),
+				currentDate.getSeconds()
+			);
+		} else
+			return {
+				percentage: 0,
+				spent: 0, // return 0 hours spent
+				total: hoursToBeSpent,
+			};
+	}
+
+	const startTime = getDate(punchIn) as Date;
+
+	// Hours Spent => (closeTime - startTime) convert to hours
+	const spent = (closeTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+	let percentage = (spent / hoursToBeSpent) * 100;
+	if (percentage > 100) percentage = 100;
+
+	return {
+		percentage,
+		spent,
+		total: hoursToBeSpent,
+	};
+}
 
 function Statistics({
 	timesheet,
@@ -14,6 +68,10 @@ function Statistics({
 	timeline: AttendanceInfoType[];
 	statistics: AttendanceInfoType[];
 }) {
+	// const today = React.useMemo(() => {
+	// 	if (!timesheet) return 0;
+	// 	return getHours(timesheet).percentage;
+	// }, [timesheet]);
 	const today = React.useMemo(
 		() =>
 			timesheet
@@ -69,8 +127,8 @@ function Statistics({
 					<StatusProgressBar
 						background="bg-red-600"
 						title="Today"
-						result={today}
-						value={(today ? Math.round(today * 100) : 0) + '%'}
+						result={today / 100}
+						value={(today ? Math.round(today) : 0) + '%'}
 					/>
 				</div>
 				<div className="my-3">
