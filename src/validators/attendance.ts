@@ -10,7 +10,7 @@ export const attendanceCreateSchema = object({
 	punchIn: date().required().label('Punch In'),
 	punchOut: date().nullable().optional().label('Punch Out'),
 	overtime: object({
-		hours: number().required().label('Overtime Hours'),
+		hours: number().min(1).max(4).required().label('Overtime Hours'),
 		reason: string().required().label('Overtime Reason'),
 	})
 		.nullable()

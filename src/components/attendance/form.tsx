@@ -97,8 +97,9 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 					date: form.date,
 					punchIn: form.punchIn,
 					punchOut: form.punchOut,
+					overtime: null,
 				};
-				if (form.overtime?.reason && form.overtime?.hours)
+				if (form.overtime?.reason.trim() && form.overtime?.hours > 0)
 					newForm.overtime = form.overtime;
 				const data = await attendanceCreateSchema.validate(newForm, {
 					abortEarly: false,
@@ -309,7 +310,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						disabled={createLoading || editLoading}
 						error={error?.overtime?.hours}
 						label="Overtime Hours (if overtime is available)"
-						min="1"
+						min="0"
 						max="4"
 						name="hours"
 						onChange={({ target: { value } }) => {

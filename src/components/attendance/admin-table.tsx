@@ -215,10 +215,12 @@ const AttendanceAdminTable = ({
 			},
 		});
 
+	const deferredValue = React.useDeferredValue(attendance);
+
 	const rows = React.useMemo(
 		() =>
 			getRows(
-				attendance,
+				deferredValue,
 				loading,
 				canViewObjectPermissions || false,
 				showAttendance,
@@ -226,7 +228,7 @@ const AttendanceAdminTable = ({
 				canDelete ? deleteAtd : undefined
 			),
 		[
-			attendance,
+			deferredValue,
 			loading,
 			canEdit,
 			canDelete,

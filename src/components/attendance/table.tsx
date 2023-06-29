@@ -37,7 +37,8 @@ type TableType = {
 };
 
 const AttendanceTable = ({ attendance = [] }: TableType) => {
-	const rows = React.useMemo(() => getRows(attendance), [attendance]);
+	const deferredValue = React.useDeferredValue(attendance);
+	const rows = React.useMemo(() => getRows(deferredValue), [deferredValue]);
 	return <Table heads={heads} rows={rows} />;
 };
 
