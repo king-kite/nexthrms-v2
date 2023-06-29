@@ -92,7 +92,15 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		async (form: AttendanceCreateType) => {
 			try {
 				setError(undefined);
-				const data = await attendanceCreateSchema.validate(form, {
+				const newForm: AttendanceCreateType = {
+					employee: form.employee,
+					date: form.date,
+					punchIn: form.punchIn,
+					punchOut: form.punchOut,
+				};
+				if (form.overtime?.reason && form.overtime?.hours)
+					newForm.overtime = form.overtime;
+				const data = await attendanceCreateSchema.validate(newForm, {
 					abortEarly: false,
 				});
 				if (editId) {

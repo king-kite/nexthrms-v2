@@ -170,8 +170,6 @@ const AttendanceAdminTable = ({
 	loading,
 	updateAtd,
 }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
 	const { open: openAlert } = useAlertContext();
 
 	const { data: authData } = useAuthContext();
@@ -217,8 +215,8 @@ const AttendanceAdminTable = ({
 			},
 		});
 
-	React.useEffect(() => {
-		setRows(
+	const rows = React.useMemo(
+		() =>
 			getRows(
 				attendance,
 				loading,
@@ -226,18 +224,18 @@ const AttendanceAdminTable = ({
 				showAttendance,
 				canEdit ? updateAtd : undefined,
 				canDelete ? deleteAtd : undefined
-			)
-		);
-	}, [
-		attendance,
-		loading,
-		canEdit,
-		canDelete,
-		canViewObjectPermissions,
-		showAttendance,
-		updateAtd,
-		deleteAtd,
-	]);
+			),
+		[
+			attendance,
+			loading,
+			canEdit,
+			canDelete,
+			canViewObjectPermissions,
+			showAttendance,
+			updateAtd,
+			deleteAtd,
+		]
+	);
 
 	return (
 		<Table

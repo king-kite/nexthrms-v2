@@ -37,12 +37,7 @@ type TableType = {
 };
 
 const AttendanceTable = ({ attendance = [] }: TableType) => {
-	const [rows, setRows] = React.useState<TableRowType[]>([]);
-
-	React.useEffect(() => {
-		setRows(getRows(attendance));
-	}, [attendance]);
-
+	const rows = React.useMemo(() => getRows(attendance), [attendance]);
 	return <Table heads={heads} rows={rows} />;
 };
 
