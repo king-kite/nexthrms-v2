@@ -14,7 +14,7 @@ function getTime(time: number): number | string {
 	const minute = time % 60;
 
 	if (minute <= 0) return hour;
-	return `${hour}.${minute.toString().padStart(2, '0')}`;
+	return `${hour}:${minute.toString().padStart(2, '0')}`;
 }
 
 function TimeSheet({
