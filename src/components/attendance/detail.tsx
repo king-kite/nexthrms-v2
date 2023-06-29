@@ -105,24 +105,24 @@ function Details({
 					? new Date(data.punchOut).toLocaleTimeString()
 					: '-------',
 			},
-			{
-				title: 'Overtime',
-				value: data.overtime ? data.overtime.hours : '-------',
-			},
-			{
-				title: 'Overtime Status',
-				value: data.overtime ? data.overtime.status : '-------',
-				type: 'badge',
-				options: {
-					bg: data.overtime
-						? data.overtime.status === 'DENIED'
-							? 'danger'
-							: data.overtime.status === 'PENDING'
-							? 'warning'
-							: 'success'
-						: 'info',
-				},
-			},
+			// {
+			// 	title: 'Overtime',
+			// 	value: data.overtime ? data.overtime.hours : '-------',
+			// },
+			// {
+			// 	title: 'Overtime Status',
+			// 	value: data.overtime ? data.overtime.status : '-------',
+			// 	type: 'badge',
+			// 	options: {
+			// 		bg: data.overtime
+			// 			? data.overtime.status === 'DENIED'
+			// 				? 'danger'
+			// 				: data.overtime.status === 'PENDING'
+			// 				? 'warning'
+			// 				: 'success'
+			// 			: 'info',
+			// 	},
+			// },
 		];
 		return detail;
 	}, [data]);
@@ -163,12 +163,6 @@ function Details({
 											.getMinutes()
 											.toString()
 											.padStart(2, '0')}`;
-									}
-									if (data.overtime) {
-										form.overtime = {
-											hours: data.overtime.hours,
-											reason: data.overtime.reason,
-										};
 									}
 									editAttendance(form);
 								}}

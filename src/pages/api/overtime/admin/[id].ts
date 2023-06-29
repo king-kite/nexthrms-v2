@@ -183,14 +183,6 @@ export default admin()
 			const date = new Date(data.date);
 			date.setHours(0, 0, 0, 0);
 
-			const attendance = await prisma.attendance.findFirst({
-				where: {
-					date,
-					employeeId: employee,
-				},
-				select: { id: true },
-			});
-
 			const overtime = await prisma.overtime.update({
 				where: {
 					id: req.query.id as string,
@@ -203,13 +195,6 @@ export default admin()
 							id: employee,
 						},
 					},
-					attendance: attendance
-						? {
-								connect: {
-									id: attendance.id,
-								},
-						  }
-						: {},
 				},
 				select: selectQuery,
 			});

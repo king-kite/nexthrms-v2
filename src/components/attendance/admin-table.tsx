@@ -26,7 +26,7 @@ const heads: TableHeadType = [
 	{ value: 'date' },
 	{ value: 'punch in' },
 	{ value: 'punch out' },
-	{ value: 'overtime (hours)' },
+	// { value: 'overtime (hours)' },
 	{ type: 'actions', value: 'actions' },
 ];
 
@@ -86,12 +86,6 @@ const getRows = (
 							.toString()
 							.padStart(2, '0')}`;
 					}
-					if (attendance.overtime) {
-						form.overtime = {
-							hours: attendance.overtime.hours,
-							reason: attendance.overtime.reason,
-						};
-					}
 					updateAtd(form);
 				}
 			};
@@ -139,12 +133,12 @@ const getRows = (
 						? new Date(attendance.punchOut).toLocaleTimeString()
 						: '---',
 				},
-				{
-					value:
-						attendance.overtime && attendance.overtime.status === 'APPROVED'
-							? attendance.overtime.hours
-							: '---',
-				},
+				// {
+				// 	value:
+				// 		attendance.overtime && attendance.overtime.status === 'APPROVED'
+				// 			? attendance.overtime.hours
+				// 			: '---',
+				// },
 				{
 					type: 'actions',
 					value: actions,

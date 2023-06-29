@@ -9,13 +9,6 @@ export const attendanceCreateSchema = object({
 	date: date().required().label('Date'),
 	punchIn: date().required().label('Punch In'),
 	punchOut: date().nullable().optional().label('Punch Out'),
-	overtime: object({
-		hours: number().min(1).max(4).required().label('Overtime Hours'),
-		reason: string().required().label('Overtime Reason'),
-	})
-		.nullable()
-		.optional()
-		.label('Overtime'),
 });
 
 export type AttendanceCreateType = InferType<typeof attendanceCreateSchema>;

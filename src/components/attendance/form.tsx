@@ -92,16 +92,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		async (form: AttendanceCreateType) => {
 			try {
 				setError(undefined);
-				const newForm: AttendanceCreateType = {
-					employee: form.employee,
-					date: form.date,
-					punchIn: form.punchIn,
-					punchOut: form.punchOut,
-					overtime: null,
-				};
-				if (form.overtime?.reason.trim() && form.overtime?.hours > 0)
-					newForm.overtime = form.overtime;
-				const data = await attendanceCreateSchema.validate(newForm, {
+				const data = await attendanceCreateSchema.validate(form, {
 					abortEarly: false,
 				});
 				if (editId) {
@@ -160,8 +151,6 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 					punchOut.setSeconds(0);
 					data.punchOut = punchOut.toString();
 				}
-				if (form.overtime?.reason && form.overtime?.hours)
-					data.overtime = form.overtime;
 				handleSubmit(data);
 			}}
 			className="p-4"
@@ -301,60 +290,6 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 						textSize="text-sm md:text-base"
 						type="time"
 						value={typeof form.punchOut !== 'object' ? form.punchOut : ''}
-					/>
-				</div>
-				<div className="flex flex-col items-start justify-end w-full md:col-span-2">
-					<Input
-						bg={error?.overtime?.hours ? 'bg-red-100' : undefined}
-						color="text-gray-800"
-						disabled={createLoading || editLoading}
-						error={error?.overtime?.hours}
-						label="Overtime Hours (if overtime is available)"
-						min="0"
-						max="4"
-						name="hours"
-						onChange={({ target: { value } }) => {
-							onChange('hours', value);
-							if (error?.overtime?.hours)
-								setError((prevState) => ({
-									...prevState,
-									overtime: {
-										...prevState?.overtime,
-										hours: undefined,
-									},
-								}));
-						}}
-						placeholder="Enter hours spent on overtime"
-						padding="px-3 py-2"
-						required={false}
-						rounded="rounded-md"
-						textSize="text-sm md:text-base"
-						type="number"
-						value={form.overtime?.hours}
-					/>
-				</div>
-				<div className="flex flex-col items-start justify-end w-full md:col-span-2">
-					<Textarea
-						bg={error?.overtime?.reason ? 'bg-red-100' : undefined}
-						color="text-gray-800"
-						disabled={createLoading || editLoading}
-						error={error?.overtime?.reason}
-						label="Reason for overtime (if overtime is available)"
-						onChange={({ target: { value } }) => {
-							onChange('reason', value);
-							if (error?.overtime?.reason)
-								setError((prevState) => ({
-									...prevState,
-									overtime: {
-										...prevState?.overtime,
-										reason: undefined,
-									},
-								}));
-						}}
-						name="reason"
-						required={false}
-						placeholder="Enter the reason for overtime."
-						value={form.overtime?.reason}
 					/>
 				</div>
 			</div>

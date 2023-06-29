@@ -26,11 +26,6 @@ export type AttendanceType = {
 	punchIn: Date | string;
 	punchOut: Date | string | null;
 	updatedAt: Date | string;
-	overtime?: {
-		status: 'APPROVED' | 'DENIED' | 'PENDING';
-		hours: number;
-		reason: string;
-	} | null;
 };
 
 export type AttendanceImportQueryType = {
@@ -46,10 +41,6 @@ export type AttendanceInfoType = {
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut?: Date | string;
-	overtime?: {
-		hours: number;
-		status: 'APPROVED' | 'DENIED' | 'PENDING';
-	} | null;
 };
 
 export type AttendanceCreateType = Omit<
@@ -61,16 +52,9 @@ export type AttendanceCreateType = Omit<
 	punchOut?: Date | string | null;
 };
 
-type CreateAttendanceErrorType = ValidatorErrorType<
+export type AttendanceCreateErrorType = ValidatorErrorType<
 	Omit<AttendanceCreateType, 'overtime'>
 >;
-type CreateAttendanceOvertimeType = ValidatorErrorType<
-	AttendanceCreateType['overtime']
->;
-
-export type AttendanceCreateErrorType = CreateAttendanceErrorType & {
-	overtime?: CreateAttendanceOvertimeType;
-};
 
 export type GetAttendanceResponseType = SuccessResponseType<{
 	total: number;

@@ -65,28 +65,6 @@ export default admin()
 			punchOut: data.punchOut,
 			date,
 		};
-		if (data.overtime) {
-			input.overtime = {
-				connectOrCreate: {
-					where: {
-						date_employeeId: {
-							date,
-							employeeId: data.employee,
-						},
-					},
-					create: {
-						date,
-						employee: {
-							connect: {
-								id: data.employee,
-							},
-						},
-						hours: data.overtime.hours,
-						reason: data.overtime.reason,
-					},
-				},
-			};
-		}
 
 		const result = (await prisma.attendance.create({
 			data: input,

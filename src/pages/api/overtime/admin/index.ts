@@ -89,13 +89,6 @@ export default admin()
 						id: req.user.employee?.id,
 					},
 				},
-				attendance: attendance
-					? {
-							connect: {
-								id: attendance.id,
-							},
-					  }
-					: {},
 			},
 			select: selectQuery,
 		})) as unknown as OvertimeType;

@@ -59,10 +59,12 @@ export default employee()
 		const date = new Date();
 		date.setHours(0, 0, 0, 0);
 
-		const attendance = await prisma.attendance.findFirst({
+		const attendance = await prisma.attendance.findUnique({
 			where: {
-				date,
-				employeeId: req.user.employee.id,
+				date_employeeId: {
+					date,
+					employeeId: req.user.employee.id,
+				},
 			},
 			select: selectQuery,
 		});
@@ -86,16 +88,6 @@ export default employee()
 		if (action === 'IN' && !attendance) {
 			const time = new Date();
 
-			// check if the employee has an overtime for today
-			const overtime = await prisma.overtime.findUnique({
-				where: {
-					date_employeeId: {
-						date,
-						employeeId: req.user.employee.id,
-					},
-				},
-				select: { id: true },
-			});
 			const data: Prisma.AttendanceCreateInput = {
 				employee: {
 					connect: {
@@ -105,13 +97,6 @@ export default employee()
 				date,
 				punchIn: time,
 			};
-			if (overtime) {
-				data.overtime = {
-					connect: {
-						id: overtime.id,
-					},
-				};
-			}
 			const result = (await prisma.attendance.create({
 				data,
 				select: selectQuery,

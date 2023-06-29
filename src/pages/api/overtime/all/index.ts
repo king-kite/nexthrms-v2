@@ -68,14 +68,6 @@ export default employee()
 		const date = new Date(data.date);
 		date.setHours(0, 0, 0, 0);
 
-		const attendance = await prisma.attendance.findFirst({
-			where: {
-				date,
-				employeeId: req.user.employee.id,
-			},
-			select: { id: true },
-		});
-
 		const overtime = (await prisma.overtime.create({
 			data: {
 				...data,
@@ -85,13 +77,6 @@ export default employee()
 						id: req.user.employee.id,
 					},
 				},
-				attendance: attendance
-					? {
-							connect: {
-								id: attendance.id,
-							},
-					  }
-					: {},
 			},
 			select: selectQuery,
 		})) as unknown as OvertimeType;

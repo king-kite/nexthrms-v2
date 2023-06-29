@@ -33,13 +33,6 @@ export const attendanceSelectQuery = {
 			},
 		},
 	},
-	overtime: {
-		select: {
-			hours: true,
-			status: true,
-			reason: true,
-		},
-	},
 };
 
 export const getAttendanceQuery = ({
@@ -107,12 +100,6 @@ const selectInfo: Prisma.AttendanceSelect = {
 	date: true,
 	punchIn: true,
 	punchOut: true,
-	overtime: {
-		select: {
-			status: true,
-			hours: true,
-		},
-	},
 };
 
 export const getAttendanceInfo = async (id: string, _date?: Date | string) => {

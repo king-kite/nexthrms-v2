@@ -7,7 +7,7 @@ const heads: TableHeadType = [
 	{ value: 'date' },
 	{ value: 'punch in' },
 	{ value: 'punch out' },
-	{ value: 'overtime (hours)' },
+	// { value: 'overtime (hours)' },
 	// { value: "production" },
 	// { value: "break" },
 ];
@@ -23,12 +23,12 @@ const getRows = (data: AttendanceType[]): TableRowType[] =>
 					? new Date(attendance.punchOut).toLocaleTimeString()
 					: '---',
 			},
-			{
-				value:
-					attendance.overtime && attendance.overtime.status === 'APPROVED'
-						? attendance.overtime.hours
-						: '---',
-			},
+			// {
+			// 	value:
+			// 		attendance.overtime && attendance.overtime.status === 'APPROVED'
+			// 			? attendance.overtime.hours
+			// 			: '---',
+			// },
 		],
 	}));
 

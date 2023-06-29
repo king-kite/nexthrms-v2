@@ -10,7 +10,8 @@ const currentDate = new Date();
 currentDate.setHours(0, 0, 0, 0);
 
 // Get the spent and total number of hours on date
-function getHours({ date, overtime, punchIn, punchOut }: AttendanceInfoType) {
+// function getHours({ date, overtime, punchIn, punchOut }: AttendanceInfoType) {
+function getHours({ date, overtime, punchIn, punchOut }: any) {
 	let closeTime = punchOut ? (getDate(punchOut) as Date) : null;
 	let hoursToBeSpent = totalHoursToBeSpent + (overtime?.hours || 0);
 	// If the user did not punch out
@@ -78,7 +79,7 @@ function Statistics({
 				? getTimeSpent({
 						punchIn: timesheet.punchIn,
 						current: timesheet.punchOut,
-						overtime: timesheet.overtime?.hours,
+						// overtime: timesheet.overtime?.hours,
 				  })
 				: 0,
 		[timesheet]
@@ -94,17 +95,17 @@ function Statistics({
 		[statistics]
 	);
 
-	const overtime = React.useMemo(
-		() =>
-			timesheet?.overtime?.hours
-				? getOvertimeSpent({
-						punchIn: timesheet.punchIn,
-						current: timesheet.punchOut,
-						overtime: timesheet.overtime.hours,
-				  })
-				: 0,
-		[timesheet]
-	);
+	// const overtime = React.useMemo(
+	// 	() =>
+	// 		timesheet?.overtime?.hours
+	// 			? getOvertimeSpent({
+	// 					punchIn: timesheet.punchIn,
+	// 					current: timesheet.punchOut,
+	// 					overtime: timesheet.overtime.hours,
+	// 			  })
+	// 			: 0,
+	// 	[timesheet]
+	// );
 
 	const monthProgress = month
 		? Math.round(month * 100) > 100
@@ -155,14 +156,14 @@ function Statistics({
 						value={remainProgress + '%'}
 					/>
 				</div>
-				<div className="my-3">
+				{/* <div className="my-3">
 					<StatusProgressBar
 						background="bg-blue-600"
 						title="Overtime"
 						result={overtime}
 						value={(overtime ? Math.round(overtime * 100) : 0) + '%'}
 					/>
-				</div>
+				</div> */}
 				<div className="my-3"></div>
 			</div>
 		</div>
@@ -250,7 +251,7 @@ function getCummulativeTimeSpent({
 		const timeSpent = getTimeSpent({
 			punchIn: attendance.punchIn,
 			current: attendance.punchOut,
-			overtime: attendance.overtime?.hours,
+			// overtime: attendance.overtime?.hours,
 		});
 
 		return total + timeSpent;

@@ -36,14 +36,6 @@ function getDataInput(data: AttendanceImportQueryType) {
 		date,
 		punchIn: new Date(data.punch_in),
 		punchOut: data.punch_out ? new Date(data.punch_out) : null,
-		// overtime: {
-		// 	connect: {
-		// 		date_employeeId: {
-		// 			date,
-		// 			employeeId: data.employee_id
-		// 		}
-		// 	}
-		// },
 		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
 	};
 }

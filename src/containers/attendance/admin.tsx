@@ -158,23 +158,10 @@ function AttendanceAdmin({
 	);
 
 	const handleChange = React.useCallback((name: string, value: string) => {
-		if (name === 'hours' || name === 'reason') {
-			setForm((prevState) => ({
-				...prevState,
-				overtime: {
-					hours: name === 'hours' ? +value : prevState.overtime?.hours || 0,
-					reason:
-						name === 'reason'
-							? String(value)
-							: prevState.overtime?.reason || '',
-				},
-			}));
-		} else {
-			setForm((prevState) => ({
-				...prevState,
-				[name]: value,
-			}));
-		}
+		setForm((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
 	}, []);
 
 	return (
