@@ -15,4 +15,4 @@ export { hasModelPermission } from './permission';
 export { default as toCapitalize } from './toCapitalize';
 
 export * from './client';
-export * from './getDate';
+export * from './dates';
