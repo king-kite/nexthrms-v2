@@ -259,7 +259,7 @@ model Overtime {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([date, employeeId])
+  // @@unique([date, employeeId])
   @@index([id], map: "overtime_id")
   @@index([createdById], map: "overtime_created_by_id")
   @@index([employeeId], map: "overtime_employee_id")

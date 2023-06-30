@@ -18,6 +18,10 @@ export const AttendanceInfoModel = {
 			nullable: true,
 			type: 'object',
 			properties: {
+				id: {
+					format: 'uuid',
+					type: 'string',
+				},
 				hours: {
 					type: 'number',
 				},
@@ -108,22 +112,6 @@ export const AttendanceModel = {
 		updatedAt: {
 			type: 'string',
 			format: 'date-time',
-		},
-		overtime: {
-			nullable: true,
-			type: 'object',
-			properties: {
-				hours: {
-					type: 'number',
-				},
-				reason: {
-					type: 'string',
-				},
-				status: {
-					type: 'string',
-					format: "'APPROVED' | 'DENIED' | 'PENDING'",
-				},
-			},
 		},
 	},
 };

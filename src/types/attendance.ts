@@ -1,5 +1,8 @@
+import { LeaveStatus } from '@prisma/client';
+
 import { ValidatorErrorType, SuccessResponseType } from './base';
 import { AttendanceCreateType as ValidatorAttendanceCreateType } from '../validators/attendance';
+
 export type { AttendanceActionType } from '../validators/attendance';
 
 export type AttendanceType = {
@@ -41,6 +44,11 @@ export type AttendanceInfoType = {
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut?: Date | string;
+	overtime?: {
+		id: string;
+		hours: number;
+		status: LeaveStatus;
+	} | null;
 };
 
 export type AttendanceCreateType = Omit<

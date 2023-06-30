@@ -68,28 +68,12 @@ const path = {
 								type: 'string',
 								format: 'date-time',
 							},
-							overtime: {
-								type: 'object',
-								nullable: true,
-								properties: {
-									hours: {
-										type: 'number',
-									},
-									reason: {
-										type: 'string',
-									},
-								},
-							},
 						},
 						example: {
 							employee: 'aace576f-ad6e-4166-ab05-9751f922e3f0',
 							date: '2022-12-10T00:00:00.224Z',
 							punchIn: '1970-01-01T07:00:00.224Z',
 							punchOut: '1970-01-01T17:00:00.224Z',
-							overtime: {
-								hours: 10,
-								reason: 'This is the reason for this leave.',
-							},
 						},
 					},
 				},
@@ -143,20 +127,6 @@ const path = {
 												punchOut: {
 													nullable: true,
 													type: 'string',
-												},
-												overtime: {
-													type: 'object',
-													nullable: true,
-													properties: {
-														hours: {
-															nullable: true,
-															type: 'string',
-														},
-														reason: {
-															nullable: true,
-															type: 'string',
-														},
-													},
 												},
 											},
 										},
