@@ -160,7 +160,7 @@ function TimeSheet({
 						Overtime
 					</span>
 					<p className="text-gray-500 tracking-wide text-base">
-						{timesheet?.overtime && timesheet.overtime.status === 'APPROVED'
+						{timesheet?.overtime
 							? `${timesheet.overtime.hours} ${
 									timesheet?.overtime.hours > 1 ? 'hrs' : 'hr'
 							  }`
