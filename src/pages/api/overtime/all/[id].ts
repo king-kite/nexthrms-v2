@@ -106,7 +106,8 @@ export default employee()
 
 			return res.status(200).json({
 				status: 'success',
-				mesage: 'Request for overtime was updated successfully!',
+				mesage:
+					'Request for overtime was updated successfully. Do note that the hours may be updated to the actual time spent.',
 				data: updated,
 			});
 		}

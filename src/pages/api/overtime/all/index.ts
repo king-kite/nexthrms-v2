@@ -63,10 +63,26 @@ export default employee()
 			{ abortEarly: false }
 		);
 
-		// TODO: Check if the user has an approved/pending overtime
-
 		const date = new Date(data.date);
 		date.setHours(0, 0, 0, 0);
+
+		// Check if the user has an approved/pending overtime request
+		const exists = await prisma.overtime.findFirst({
+			where: {
+				date,
+				employeeId: req.user.employee.id,
+				status: {
+					in: ['APPROVED', 'PENDING'],
+				},
+			},
+		});
+		if (exists) {
+			return res.status(400).json({
+				status: 'error',
+				message:
+					'An approved or pending overtime request already exists for this date.',
+			});
+		}
 
 		const overtime = (await prisma.overtime.create({
 			data: {
@@ -100,7 +116,8 @@ export default employee()
 
 		return res.status(201).json({
 			status: 'success',
-			mesage: 'Request for overtime was successful!',
+			mesage:
+				'Request for overtime was successful. Do note that the hours may be updated to the actual time spent.',
 			data: overtime,
 		});
 	});
