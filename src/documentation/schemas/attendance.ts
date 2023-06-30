@@ -22,9 +22,6 @@ export const AttendanceInfoModel = {
 					format: 'uuid',
 					type: 'string',
 				},
-				hours: {
-					type: 'number',
-				},
 				status: {
 					type: 'string',
 					format: "'APPROVED' | 'DENIED' | 'PENDING'",

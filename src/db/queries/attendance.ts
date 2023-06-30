@@ -79,7 +79,6 @@ const prisma = defaultPrisma.$extends({
 						},
 						select: {
 							id: true,
-							hours: true,
 							status: true,
 						},
 					});
@@ -148,7 +147,7 @@ export const getAttendance = async (
 };
 
 export async function getSingleAttendance(id: string) {
-	const data = await prisma.attendance.findUniqueWithOvertime({ id });
+	const data = await prisma.attendance.findUnique({ id });
 	return data as unknown as AttendanceType | null;
 }
 

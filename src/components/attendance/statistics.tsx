@@ -11,9 +11,8 @@ currentDate.setHours(0, 0, 0, 0);
 
 // Get the spent and total number of hours on date
 // function getHours({ date, overtime, punchIn, punchOut }: AttendanceInfoType) {
-function getHours({ date, overtime, punchIn, punchOut }: any) {
+function getHours({ date, punchIn, punchOut }: AttendanceInfoType) {
 	let closeTime = punchOut ? (getDate(punchOut) as Date) : null;
-	let hoursToBeSpent = totalHoursToBeSpent + (overtime?.hours || 0);
 	// If the user did not punch out
 	if (!closeTime) {
 		// Check if the date is the same as the current date
@@ -21,7 +20,7 @@ function getHours({ date, overtime, punchIn, punchOut }: any) {
 		const currentDate = new Date();
 
 		const closingTime = new Date(); // get the closing time for the day
-		closingTime.setHours(18 + (overtime?.hours || 0), 0, 0, 0); // set to 6'o clock
+		closingTime.setHours(18, 0, 0, 0); // set to 6'o clock
 		if (
 			currentDate.getDate() === attendDate.getDate() &&
 			currentDate.getMonth() === attendDate.getMonth() &&
@@ -42,7 +41,6 @@ function getHours({ date, overtime, punchIn, punchOut }: any) {
 			return {
 				percentage: 0,
 				spent: 0, // return 0 hours spent
-				total: hoursToBeSpent,
 			};
 	}
 
@@ -50,13 +48,12 @@ function getHours({ date, overtime, punchIn, punchOut }: any) {
 
 	// Hours Spent => (closeTime - startTime) convert to hours
 	const spent = (closeTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
-	let percentage = (spent / hoursToBeSpent) * 100;
+	let percentage = (spent / totalHoursToBeSpent) * 100;
 	if (percentage > 100) percentage = 100;
 
 	return {
 		percentage,
 		spent,
-		total: hoursToBeSpent,
 	};
 }
 
@@ -69,21 +66,21 @@ function Statistics({
 	timeline: AttendanceInfoType[];
 	statistics: AttendanceInfoType[];
 }) {
-	// const today = React.useMemo(() => {
-	// 	if (!timesheet) return 0;
-	// 	return getHours(timesheet).percentage;
-	// }, [timesheet]);
-	const today = React.useMemo(
-		() =>
-			timesheet
-				? getTimeSpent({
-						punchIn: timesheet.punchIn,
-						current: timesheet.punchOut,
-						// overtime: timesheet.overtime?.hours,
-				  })
-				: 0,
-		[timesheet]
-	);
+	const today = React.useMemo(() => {
+		if (!timesheet) return 0;
+		return getHours(timesheet).percentage;
+	}, [timesheet]);
+	// const today = React.useMemo(
+	// 	() =>
+	// 		timesheet
+	// 			? getTimeSpent({
+	// 					punchIn: timesheet.punchIn,
+	// 					current: timesheet.punchOut,
+	// 					// overtime: timesheet.overtime?.hours,
+	// 			  })
+	// 			: 0,
+	// 	[timesheet]
+	// );
 
 	const week = React.useMemo(
 		() => getCummulativeTimeSpent({ attendance: timeline }),
@@ -128,8 +125,8 @@ function Statistics({
 					<StatusProgressBar
 						background="bg-red-600"
 						title="Today"
-						result={today / 100}
-						value={(today ? Math.round(today) : 0) + '%'}
+						result={today}
+						value={(today ? Math.round(today * 100) : 0) + '%'}
 					/>
 				</div>
 				<div className="my-3">

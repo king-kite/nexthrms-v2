@@ -44,11 +44,6 @@ export type AttendanceInfoType = {
 	date: Date | string;
 	punchIn: Date | string;
 	punchOut?: Date | string;
-	overtime?: {
-		id: string;
-		hours: number;
-		status: LeaveStatus;
-	} | null;
 };
 
 export type AttendanceCreateType = Omit<
