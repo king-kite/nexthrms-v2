@@ -31,7 +31,7 @@ const StatusProgressBar = ({
 			className={`${border} ${borderColor} ${containerColor} px-3 py-2 rounded-lg w-full`}
 		>
 			<div className="flex items-center justify-between my-1 w-full">
-				<span className="capitalize font-semibold inline-block text-gray-900 text-sm">
+				<span className="font-semibold inline-block text-gray-900 text-sm">
 					{title}
 				</span>
 				{['number', 'string'].includes(typeof value) ? (
