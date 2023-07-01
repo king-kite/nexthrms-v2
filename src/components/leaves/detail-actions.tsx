@@ -37,16 +37,21 @@ type DetailActionsProps = {
 	admin: boolean;
 	data?: LeaveType;
 	objPerm: UserObjPermType;
+	forwardedRef: {
+		ref: React.ForwardedRef<DetailActionsRef>;
+	};
 };
 
 type DetailActionsRef = {
 	refreshPerm?: () => void;
 } | null;
 
-function DetailActions(
-	{ admin, data, objPerm }: DetailActionsProps,
-	ref: React.ForwardedRef<DetailActionsRef>
-) {
+function DetailActions({
+	admin,
+	data,
+	objPerm,
+	forwardedRef,
+}: DetailActionsProps) {
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [errors, setErrors] = React.useState<ErrorType>();
 
@@ -71,12 +76,10 @@ function DetailActions(
 		);
 
 	React.useImperativeHandle(
-		ref,
-		() => {
-			return {
-				refreshPerm: objPermRefetch,
-			};
-		},
+		forwardedRef.ref,
+		() => ({
+			refreshPerm: objPermRefetch,
+		}),
 		[objPermRefetch]
 	);
 
@@ -354,6 +357,4 @@ function DetailActions(
 	);
 }
 
-export default React.forwardRef<DetailActionsRef, DetailActionsProps>(
-	DetailActions
-);
+export default DetailActions;

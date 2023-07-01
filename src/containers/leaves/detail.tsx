@@ -64,7 +64,6 @@ const Detail = ({
 		if (leaveData) return serializeLeave(leaveData);
 		return undefined;
 	}, [leaveData]);
-
 	return (
 		<Container
 			heading={admin ? 'Leave Information (Admin)' : 'Leave Information'}
@@ -84,7 +83,8 @@ const Detail = ({
 				loading: isFetching,
 				onClick: () => {
 					refetch();
-					if (detailActionsRef.current) detailActionsRef.current.refreshPerm();
+					if (detailActionsRef.current?.refreshPerm)
+						detailActionsRef.current.refreshPerm();
 				},
 			}}
 			loading={isLoading}
@@ -102,7 +102,9 @@ const Detail = ({
 								admin={admin}
 								data={data}
 								objPerm={objPerm}
-								ref={detailActionsRef}
+								forwardedRef={{
+									ref: detailActionsRef,
+								}}
 							/>
 						}
 					/>
