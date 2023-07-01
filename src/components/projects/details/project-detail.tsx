@@ -1,7 +1,7 @@
 import { Badge, Select } from 'kite-react-tailwind';
 import Image from 'next/image';
 
-import { StatusProgressBar } from '../../common';
+import StatusProgressBar from '../../common/status-progress-bar';
 import { DEFAULT_IMAGE } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditProjectMutation } from '../../../store/queries/projects';

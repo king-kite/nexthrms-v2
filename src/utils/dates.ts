@@ -1,7 +1,5 @@
 export function getStringedDate(_date?: Date | string) {
-	const date = _date
-		? getDate(_date) as Date
-		: new Date();
+	const date = _date ? (getDate(_date) as Date) : new Date();
 	let day: string | number = date.getDate();
 	if (day < 10) day = `0${day}`;
 	let month: string | number = date.getMonth() + 1; // month starts from 0 to 11
@@ -11,16 +9,12 @@ export function getStringedDate(_date?: Date | string) {
 }
 
 export function getStringDateTime(_date?: Date | string) {
-	const date = _date
-		? getDate(_date) as Date
-		: new Date();
+	const date = _date ? (getDate(_date) as Date) : new Date();
 	return `${date.toDateString()}, ${getStringTime(date)}`;
 }
 
 export function getStringTime(_date?: Date | string) {
-	const date = _date
-		? getDate(_date) as Date
-		: new Date();
+	const date = _date ? (getDate(_date) as Date) : new Date();
 	const _hour = date.getHours();
 	const hour = _hour === 0 ? 12 : _hour > 12 ? _hour - 12 : _hour;
 	const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -105,10 +99,10 @@ export function getNoOfDays(start: Date | string, end: Date | string): number {
 	const startEdit = getDate(start) as Date;
 	startEdit.setHours(0, 0, 0, 0);
 	const endEdit = getDate(end) as Date;
-	endEdit.setHours(0, 0, 0, 0);
+	endEdit.setHours(23, 59, 59, 0);
 	const startDate = startEdit.getTime();
 	const endDate = endEdit.getTime();
-	return (endDate - startDate) / (1000 * 60 * 60 * 24);
+	return Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
 }
 
 /*
@@ -144,10 +138,10 @@ export function getFirstDateOfMonth(pdate: Date | string = new Date()) {
 export function getLastDateOfMonth(_date: Date | string) {
 	const date = getDate(_date) as Date;
 	const month = date.getMonth() >= 11 ? 0 : date.getMonth() + 1;
-	// Get the date for next month and go back 1 day
-	const nextMonth = new Date(date.getFullYear(), month, 1);
-	const lastDayTime = nextMonth.getTime() - (1000 * 60 * 60 * 24);
-	return new Date(lastDayTime);
+	// Get the fisrt date for next month
+	const nextMonth = new Date(date.getFullYear(), month, 1, 0, 0, 0, 0);
+	// then go back 1ms to get the previous date at 11:59:59pm
+	return new Date(nextMonth.getTime() - 1000);
 }
 
 export default getDate;

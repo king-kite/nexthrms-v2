@@ -84,7 +84,8 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			});
 		},
 	});
-	const date = getDate(undefined, true) as string;
+	// const date = getDate(undefined, true) as string;
+	const date = '2023-06-30';
 	const attendanceData = result ? result.data : placeholder;
 	const attendanceInfo: GetAttendanceInfoResponseType['data'] = JSON.parse(
 		JSON.stringify(await getAttendanceInfo(req.user.employee.id, date))
