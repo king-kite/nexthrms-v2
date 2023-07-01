@@ -155,6 +155,16 @@ export const getAttendanceInfo = async (
 			where: {
 				employeeId,
 				date: {
+					gte: getWeekDate(date, 1),
+					lte: getWeekDate(date, 6),
+				},
+			},
+			select: selectInfo,
+		}),
+		xprisma.attendance.findMany({
+			where: {
+				employeeId,
+				date: {
 					gte: getFirstDateOfMonth(date),
 					lte: date,
 				},
@@ -163,8 +173,9 @@ export const getAttendanceInfo = async (
 		}),
 	]);
 
-	const { statistics, timesheet } = await new Promise<{
+	const { statistics, timeline, timesheet } = await new Promise<{
 		timesheet: AttendanceInfoType | null;
+		timeline: AttendanceInfoType[];
 		statistics: AttendanceInfoType[];
 	}>(async (resolve, reject) => {
 		try {
@@ -175,37 +186,31 @@ export const getAttendanceInfo = async (
 				  }
 				: null;
 
-			const statistics = await Promise.all(
+			// Get the timeline from the statistics
+			// timeline is the attendance for the week
+			const timeline = await Promise.all(
 				stats[1].map(async (stat) => ({
 					...stat,
 					overtime: await stat.overtime,
 				}))
 			);
-			resolve({ timesheet, statistics });
+
+			const statistics = await Promise.all(
+				stats[2].map(async (stat) => ({
+					...stat,
+					overtime: await stat.overtime,
+				}))
+			);
+			resolve({ timeline, timesheet, statistics });
 		} catch (error) {
 			reject(error);
 		}
 	});
 
-	// Get the timeline from the statistics
-	// timeline is the attendance for the week
-	const timeline = statistics.reduce(
-		(acc: AttendanceInfoType[], attendance) => {
-			const monday = getWeekDate(date, 1).getTime();
-			const saturday = getWeekDate(date, 6).getTime();
-			const attendTime = (getDate(attendance.date) as Date).getTime();
-
-			if (attendTime >= monday && attendTime <= saturday)
-				return [...acc, attendance];
-			return acc;
-		},
-		[]
-	);
-
 	return {
-		timesheet: timesheet as unknown as AttendanceInfoType | null,
+		timesheet,
 		timeline,
-		statistics: statistics as unknown as AttendanceInfoType[],
+		statistics,
 	};
 };
 
