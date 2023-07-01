@@ -9,7 +9,7 @@ type TopBarType = {
 	full_name?: string;
 	email?: string;
 	image?: string;
-	actions?: ButtonType[];
+	actions?: ButtonType[] | React.ReactNode;
 };
 
 const TopBar: FC<TopBarType> = ({ actions, full_name, email, image }) => (
@@ -44,7 +44,7 @@ const TopBar: FC<TopBarType> = ({ actions, full_name, email, image }) => (
 					</div>
 				</div>
 			</div>
-			{actions && (
+			{actions && Array.isArray(actions) ? (
 				<div className="flex flex-wrap p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
 					{actions.map((action, index) => (
 						<div key={index} className="my-2 w-full sm:my-4 sm:px-4 sm:w-1/2">
@@ -59,6 +59,8 @@ const TopBar: FC<TopBarType> = ({ actions, full_name, email, image }) => (
 						</div>
 					))}
 				</div>
+			) : (
+				actions
 			)}
 		</div>
 	</div>
