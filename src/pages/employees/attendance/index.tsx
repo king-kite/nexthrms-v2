@@ -13,7 +13,7 @@ import {
 	GetAttendanceInfoResponseType,
 } from '../../../types';
 import Title from '../../../utils/components/title';
-import { getDate } from '../../../utils/dates';
+import { getStringedDate } from '../../../utils/dates';
 import { serializeUserData } from '../../../utils/serializers/auth';
 
 const Page = ({
@@ -84,8 +84,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 			});
 		},
 	});
-	// const date = getDate(undefined, true) as string;
-	const date = '2023-06-30';
+	const date = getStringedDate();
 	const attendanceData = result ? result.data : placeholder;
 	const attendanceInfo: GetAttendanceInfoResponseType['data'] = JSON.parse(
 		JSON.stringify(await getAttendanceInfo(req.user.employee.id, date))

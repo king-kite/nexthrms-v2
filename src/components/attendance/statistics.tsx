@@ -2,59 +2,107 @@ import React from 'react';
 
 import StatusProgressBar from '../common/status-progress-bar';
 import { AttendanceInfoType } from '../../types';
-import { getDate } from '../../utils/getDate';
+import {
+	getDate,
+	getFirstDateOfMonth,
+	getLastDateOfMonth,
+	getNoOfDays,
+} from '../../utils/dates';
 
-const totalHoursToBeSpent = 10;
+type TimeDataType = {
+	normal: number;
+	overtime: number;
+	percentage: number;
+	overtimePercentage: number;
+};
 
-const currentDate = new Date();
-currentDate.setHours(0, 0, 0, 0);
+// Function to get the total number of working days in a month
+function getTotalDays(_date: Date | string) {
+	const date = getDate(_date) as Date;
+	const firstDate = getFirstDateOfMonth(date);
+	const lastDate = getLastDateOfMonth(date);
+	const numberOfDays = getNoOfDays(firstDate, lastDate);
 
-// Get the spent and total number of hours on date
-// function getHours({ date, overtime, punchIn, punchOut }: AttendanceInfoType) {
-function getHours({ date, punchIn, punchOut }: AttendanceInfoType) {
-	let closeTime = punchOut ? (getDate(punchOut) as Date) : null;
-	// If the user did not punch out
-	if (!closeTime) {
-		// Check if the date is the same as the current date
-		const attendDate = getDate(date) as Date;
-		const currentDate = new Date();
-
-		const closingTime = new Date(); // get the closing time for the day
-		closingTime.setHours(18, 0, 0, 0); // set to 6'o clock
-		if (
-			currentDate.getDate() === attendDate.getDate() &&
-			currentDate.getMonth() === attendDate.getMonth() &&
-			currentDate.getFullYear() === attendDate.getFullYear() &&
-			currentDate.getTime() <= closingTime.getTime() // Not yet closed
-		) {
-			// Set the closeTime to the same hours as the current date
-			// But the date should be new Date(0)
-			closeTime = new Date(
-				1970,
-				0,
-				1,
-				currentDate.getHours(),
-				currentDate.getMinutes(),
-				currentDate.getSeconds()
-			);
-		} else
-			return {
-				percentage: 0,
-				spent: 0, // return 0 hours spent
-			};
+	// Loop through the number of days and number of days to work
+	// If the user does not work on all days
+	let totalDays = 0;
+	for (let i = 1; i <= numberOfDays; i++) {
+		const date = new Date(firstDate.getFullYear(), firstDate.getMonth(), i);
+		// not sunday
+		if (date.getDay() !== 0) totalDays++;
 	}
+	// days * hours = total hours;
+	return totalDays;
+}
 
-	const startTime = getDate(punchIn) as Date;
+const totalDayHours = 10;
+const totalWeekHours = 6 * totalDayHours;
 
-	// Hours Spent => (closeTime - startTime) convert to hours
-	const spent = (closeTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
-	let percentage = (spent / totalHoursToBeSpent) * 100;
-	if (percentage > 100) percentage = 100;
+// get the total working hours in a month
+// i.e total days * hours per day = total hours;
+const totalMonthHours = (date: Date | string) =>
+	getTotalDays(date) * totalDayHours;
 
-	return {
-		percentage,
-		spent,
-	};
+// get the total overtime hours
+// i.e. If an employee has overtime every working day,
+// how many hours from closing time till midnight is possible for e.g. 6
+const totalOvertimeMonthHours = (date: Date | string) => getTotalDays(date) * 6;
+
+// Set the closing time to 6pm at 1970-01-01
+const closingTime = new Date(0);
+closingTime.setHours(18, 0, 0, 0);
+
+const todayDate = new Date();
+todayDate.setHours(0, 0, 0, 0);
+
+// get hours info spent on a date
+function getHours({
+	date: _date,
+	overtime: isOvertime,
+	punchIn: originalPunchIn,
+	punchOut: originalPunchOut,
+}: AttendanceInfoType): TimeDataType {
+	const date = getDate(_date) as Date;
+	// date's hours would have been set to 0 upon creation ie.ie setHours(0, 0, 0, 0)
+	const isTodayDate = date.getTime() === todayDate.getTime();
+
+	// If not today date and no punch out, employee forgot to punch out
+	if (!isTodayDate && !originalPunchOut)
+		return { normal: 0, overtime: 0, percentage: 0, overtimePercentage: 0 };
+
+	// Recall date's hours are set to 0 i.e. setHours(0, 0, 0, 0);
+	const punchIn = getDate(originalPunchIn) as Date;
+
+	// TODO: Not Implemented Yet
+	// Remove overtime from clock in i.e if resumption time is 8am and the user
+	// clock in at 7.30am, remove the 30minutes from the normal time and add it to
+	// overtime.
+
+	// Get the total hours spent from the punchIn to the closingTime
+	// i.e. the normal hours
+	let normal = (closingTime.getTime() - punchIn.getTime()) / (1000 * 60 * 60);
+	// Make sure normal hours spent is not greater than the totalDayHours
+	normal = normal > totalDayHours ? totalDayHours : normal;
+
+	// percentage hours spent at work
+	const percentage = (normal / totalDayHours) * 100;
+
+	if (!isOvertime)
+		return { normal, overtime: 0, percentage, overtimePercentage: 0 };
+
+	const punchOutDate = new Date();
+	punchOutDate.setFullYear(1970, 0, 1); // Changed to 0
+
+	const punchOut = originalPunchOut
+		? (getDate(originalPunchOut) as Date)
+		: punchOutDate; // if today date and no punch means the day is yet to end
+
+	// Get the total hours spent from the closingTime to punchOut time if there is overtime
+	const overtime =
+		(punchOut.getTime() - closingTime.getTime()) / (1000 * 60 * 60);
+	const overtimePercentage = (overtime / totalOvertimeMonthHours(date)) * 100;
+
+	return { normal, overtime, percentage, overtimePercentage };
 }
 
 function Statistics({
@@ -67,53 +115,92 @@ function Statistics({
 	statistics: AttendanceInfoType[];
 }) {
 	const today = React.useMemo(() => {
-		if (!timesheet) return 0;
-		return getHours(timesheet).percentage;
+		if (!timesheet) return null;
+		return getHours(timesheet);
 	}, [timesheet]);
-	// const today = React.useMemo(
-	// 	() =>
-	// 		timesheet
-	// 			? getTimeSpent({
-	// 					punchIn: timesheet.punchIn,
-	// 					current: timesheet.punchOut,
-	// 					// overtime: timesheet.overtime?.hours,
-	// 			  })
-	// 			: 0,
-	// 	[timesheet]
-	// );
 
-	const week = React.useMemo(
-		() => getCummulativeTimeSpent({ attendance: timeline }),
-		[timeline]
+	const week = React.useMemo(() => {
+		const totalWeekHoursSpent = timeline.reduce((acc: number, current) => {
+			const value = getHours(current);
+			return acc + value.normal;
+		}, 0);
+		return {
+			normal: totalWeekHoursSpent,
+			percentage: (totalWeekHoursSpent / totalWeekHours) * 100,
+		};
+	}, [timeline]);
+
+	const month = React.useMemo(() => {
+		const totalMonthHoursSpent = statistics.reduce((acc: number, current) => {
+			const value = getHours(current);
+			return acc + value.normal;
+		}, 0);
+		const date = getDate(timesheet?.date || statistics[0]?.date) as Date;
+		const total = totalMonthHours(date);
+		return {
+			normal: totalMonthHoursSpent,
+			percentage: (totalMonthHoursSpent / total) * 100,
+			total,
+		};
+	}, [timesheet, statistics]);
+
+	const overtime = React.useMemo(() => {
+		const date = getDate(timesheet?.date || statistics[0]?.date) as Date;
+
+		const totalOvertimeHoursSpent = statistics.reduce(
+			(acc: number, current) => {
+				const value = getHours(current);
+				return acc + value.overtime;
+			},
+			0
+		);
+		const total = totalOvertimeMonthHours(date);
+		return {
+			overtime: totalOvertimeHoursSpent,
+			percentage: (totalOvertimeHoursSpent / total) * 100,
+			total,
+		};
+	}, [timesheet, statistics]);
+
+	const status = React.useMemo(
+		() => [
+			{
+				bg: 'bg-red-600',
+				title: 'Today',
+				result: today ? today.percentage / 100 : 0,
+				value: today?.normal || 0,
+				total: totalDayHours,
+			},
+			{
+				bg: 'bg-yellow-600',
+				title: 'This Week',
+				result: week.percentage / 100,
+				value: week.normal,
+				total: totalWeekHours,
+			},
+			{
+				bg: 'bg-green-600',
+				title: 'This Month',
+				result: month.percentage / 100,
+				value: month.normal,
+				total: month.total,
+			},
+			{
+				bg: 'bg-purple-600',
+				title: 'Remaining hours for month',
+				result: month.total / month.normal,
+				value: month.total - month.normal,
+			},
+			{
+				bg: 'bg-blue-600',
+				title: 'Overtime for the month',
+				result: overtime.percentage / 100,
+				value: overtime.overtime,
+				total: overtime.total,
+			},
+		],
+		[month, overtime, today, week]
 	);
-
-	const month = React.useMemo(
-		() => getCummulativeTimeSpent({ attendance: statistics, divider: 24 }),
-		[statistics]
-	);
-
-	// const overtime = React.useMemo(
-	// 	() =>
-	// 		timesheet?.overtime?.hours
-	// 			? getOvertimeSpent({
-	// 					punchIn: timesheet.punchIn,
-	// 					current: timesheet.punchOut,
-	// 					overtime: timesheet.overtime.hours,
-	// 			  })
-	// 			: 0,
-	// 	[timesheet]
-	// );
-
-	const monthProgress = month
-		? Math.round(month * 100) > 100
-			? 100
-			: Math.round(month * 100)
-		: 0;
-	const remainProgress = month
-		? Math.round((1 - month) * 100) < 0
-			? 0
-			: Math.round((1 - month) * 100)
-		: 0;
 
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
@@ -121,46 +208,21 @@ function Statistics({
 				statistics
 			</h3>
 			<div>
-				<div className="my-3">
-					<StatusProgressBar
-						background="bg-red-600"
-						title="Today"
-						result={today}
-						value={(today ? Math.round(today * 100) : 0) + '%'}
-					/>
-				</div>
-				<div className="my-3">
-					<StatusProgressBar
-						background="bg-yellow-600"
-						title="This Week"
-						result={week}
-						value={(week ? Math.round(week * 100) : 0) + '%'}
-					/>
-				</div>
-				<div className="my-3">
-					<StatusProgressBar
-						background="bg-green-600"
-						title="This Month"
-						result={month}
-						value={monthProgress + '%'}
-					/>
-				</div>
-				<div className="my-3">
-					<StatusProgressBar
-						background="bg-purple-600"
-						title="Remaining for month"
-						result={month ? 1 - month : 0}
-						value={remainProgress + '%'}
-					/>
-				</div>
-				{/* <div className="my-3">
-					<StatusProgressBar
-						background="bg-blue-600"
-						title="Overtime"
-						result={overtime}
-						value={(overtime ? Math.round(overtime * 100) : 0) + '%'}
-					/>
-				</div> */}
+				{status.map((item, index) => (
+					<div key={index} className="my-3">
+						<StatusProgressBar
+							background={item.bg}
+							title={item.title}
+							result={item.result}
+							value={
+								<strong className="text-gray-900 text-sm md:text-base">
+									{item.value}
+									<small> {item.total && ` / ${item.total} `} hrs</small>
+								</strong>
+							}
+						/>
+					</div>
+				))}
 				<div className="my-3"></div>
 			</div>
 		</div>
@@ -168,131 +230,3 @@ function Statistics({
 }
 
 export default Statistics;
-
-/*
-// Total Expected Time = 10 hours = 36000000 in milliseconds
-
-const startDate = new Date(1970, 0, 1, 8) // 8AM in the morning
-// 25200000 in milliseconds === 0
-
-const endDate = new Date(1970, 0, 1, 18) // 6PM in the evening
-// 61200000 in milliseconds === 100
-
-const currentDate = new Date(); currentDate.setFullYear(1970, 0, 1)
-// set the day/year to 1970
-
-const timeSpent = (
-	(currentDate.getTime() - startDate.getTime()) / 
-	(endDate.getTime() - startDate.getTime())
-)
-i.e
-timeSpent = ((currentDate.getTime() - 25200000) / (61200000 - 25200000))
-timeSpent = (currentDate.getTime() - 25200000) / 36000000)
-*/
-
-// Get the percentage of hours spent in a days
-function getTimeSpent({
-	start = new Date(1970, 0, 1, 8),
-	end = new Date(1970, 0, 1, 18),
-	punchIn,
-	current, // Can use the punch out date if available
-	overtime,
-}: {
-	punchIn: Date | string | number;
-	start?: Date | string | number;
-	end?: Date | string | number;
-	current?: Date | string | number;
-	overtime?: number;
-}) {
-	if (!punchIn) return 0;
-
-	const startDate = typeof start !== 'object' ? new Date(start) : start;
-	const prevEndDate = typeof end !== 'object' ? new Date(end) : end;
-	const endDate = overtime
-		? new Date(prevEndDate.getTime() + overtime * 60 * 60 * 1000)
-		: prevEndDate;
-	const punchInDate = typeof punchIn !== 'object' ? new Date(punchIn) : punchIn;
-	let currentDate: Date;
-
-	if (current) {
-		if (typeof current !== 'object') currentDate = new Date(current);
-		else currentDate = current;
-	} else {
-		currentDate = new Date();
-		currentDate.setFullYear(1970, 0, 1);
-	}
-
-	// Return the value for time spent
-	return (
-		(currentDate.getTime() - punchInDate.getTime()) /
-		(endDate.getTime() - startDate.getTime())
-	);
-}
-
-// Get the total time spent everyday in a week
-function getCummulativeTimeSpent({
-	attendance,
-	divider = 6,
-}: {
-	attendance: AttendanceInfoType[];
-	divider?: number;
-}) {
-	const totalTime = attendance.reduce((total, attendance) => {
-		const date = new Date(attendance.date);
-		if (
-			(!attendance.punchIn || !attendance.punchOut) &&
-			date.getTime() !== currentDate.getTime()
-		)
-			return 0;
-
-		const timeSpent = getTimeSpent({
-			punchIn: attendance.punchIn,
-			current: attendance.punchOut,
-			// overtime: attendance.overtime?.hours,
-		});
-
-		return total + timeSpent;
-	}, 0);
-
-	// Divide by 6. From monday to saturday
-	return totalTime / divider;
-}
-
-function getOvertimeSpent({
-	end = new Date(1970, 0, 1, 18),
-	current, // Can use the punch out date if available
-	punchIn,
-	overtime,
-}: {
-	punchIn: Date | number | string;
-	overtime: number;
-	start?: Date | number | string;
-	end?: Date | number | string;
-	current?: Date | number | string;
-}) {
-	if (!punchIn || !overtime) return 0;
-
-	const today = getTimeSpent({ punchIn, current });
-	if (today < 1) return 0;
-
-	// End Date = overtime start date
-	const endDate = typeof end !== 'object' ? new Date(end) : end;
-	const overtimeEndDate = new Date(
-		endDate.getTime() + overtime * 60 * 60 * 1000
-	);
-	let currentDate: Date;
-
-	if (current) {
-		if (typeof current !== 'object') currentDate = new Date(current);
-		else currentDate = current;
-	} else {
-		currentDate = new Date();
-		currentDate.setFullYear(1970, 0, 1);
-	}
-
-	// Return the value for overtime spent
-	return (
-		(currentDate.getTime() - endDate.getTime()) /
-		(overtimeEndDate.getTime() - endDate.getTime())
-	);
-}

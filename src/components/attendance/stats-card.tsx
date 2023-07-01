@@ -6,7 +6,7 @@ import TimeSheet from './time-sheet';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries/attendance';
 import { GetAttendanceInfoResponseType } from '../../types';
-import { getDate } from '../../utils/dates';
+import { getStringedDate } from '../../utils/dates';
 
 const StatsCard = ({
 	attendanceInfo,
@@ -15,8 +15,7 @@ const StatsCard = ({
 }) => {
 	const { open } = useAlertContext();
 
-	// const [date, setDate] = React.useState(getDate(undefined, true) as string);
-	const date = '2023-06-30';
+	const [date, setDate] = React.useState(getStringedDate());
 
 	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery(
 		{
@@ -29,9 +28,9 @@ const StatsCard = ({
 			},
 		},
 		{
-			// initialData() {
-			// 	return attendanceInfo;
-			// },
+			initialData() {
+				return attendanceInfo;
+			},
 		}
 	);
 
