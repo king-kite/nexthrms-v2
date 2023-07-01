@@ -1,58 +1,26 @@
-import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import { InfoComp } from 'kite-react-tailwind';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaEdit,
-	FaTimesCircle,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
 
 import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
-import {
-	ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL,
-	DEFAULT_IMAGE,
-	permissions,
-} from '../../config';
-import { useAuthContext, useAlertContext } from '../../store/contexts';
-import {
-	useGetLeaveQuery,
-	useApproveLeaveMutation,
-	useDeleteLeaveMutation,
-	useRequestLeaveUpdateMutation,
-} from '../../store/queries/leaves';
-import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
-import {
-	CreateLeaveErrorResponseType,
-	CreateLeaveQueryType,
-	LeaveType,
-	UserObjPermType,
-} from '../../types';
-import {
-	getDate,
-	getNextDate,
-	getNoOfDays,
-	hasModelPermission,
-	serializeLeave,
-} from '../../utils';
+import { DEFAULT_IMAGE } from '../../config/static';
+import { useGetLeaveQuery } from '../../store/queries/leaves';
+import { LeaveType, UserObjPermType } from '../../types';
+import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
 
-type ErrorType = CreateLeaveErrorResponseType & {
-	message?: string;
-};
-
-const DynamicForm = dynamic<any>(
-	() => import('../../components/leaves/form').then((mod) => mod.default),
+const DynamicDetailActions = dynamic<any>(
+	() =>
+		import('../../components/leaves/detail-actions').then((mod) => mod.default),
 	{
-		ssr: false,
-	}
-);
-
-const DynamicModal = dynamic<any>(
-	() => import('../../components/common/modal').then((mod) => mod.default),
-	{
+		loading: () => (
+			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
+				<p className="animate animate-pulse duration-300 text-center text-gray-800 text-sm transition transform">
+					Loading Actions...
+				</p>
+			</div>
+		),
 		ssr: false,
 	}
 );
@@ -71,14 +39,11 @@ const Detail = ({
 	objPerm?: UserObjPermType;
 }) => {
 	const router = useRouter();
-	const id = router.query.id as string;
 
-	const [modalVisible, setModalVisible] = React.useState(false);
-	const [errors, setErrors] = React.useState<ErrorType>();
-
-	const { data: authData } = useAuthContext();
-
-	const { open } = useAlertContext();
+	const id = React.useMemo(() => router.query.id as string, [router]);
+	const detailActionsRef = React.useRef<{
+		refreshPerm: () => void;
+	}>(null);
 
 	const {
 		data: leaveData,
@@ -100,237 +65,6 @@ const Detail = ({
 		return undefined;
 	}, [leaveData]);
 
-	// Get user's object level permissions for the leaves table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'leaves',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
-
-	const [canEdit, canDelete, canGrant, canViewPermissions] =
-		React.useMemo(() => {
-			if (!authData) return [false, false, false, false];
-			// Not Admin Page
-			// Only check object level permissions
-			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-			else {
-				let canEdit = false;
-				let canDelete = false;
-				let canGrant = false;
-				// Check model permissions
-				if (authData.isAdmin || authData.isSuperUser) {
-					canEdit =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.EDIT,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canDelete =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.DELETE,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canGrant =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.GRANT,
-							])) ||
-						false;
-				}
-
-				// If the user doesn't have model edit permissions, then check obj edit permission
-				if (!canEdit && objPermData) canEdit = objPermData.edit;
-				if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-				const canViewPermissions =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.permissionobject.VIEW,
-						])) ||
-					false;
-
-				return [canEdit, canDelete, canGrant, canViewPermissions];
-			}
-		}, [authData, admin, objPermData]);
-
-	const { mutate: approveLeave, isLoading: appLoading } =
-		useApproveLeaveMutation({
-			onRequestComplete({ message, error }) {
-				open({
-					type: error ? 'danger' : 'success',
-					message: error || message,
-				});
-			},
-		});
-	const { deleteLeave } = useDeleteLeaveMutation({
-		admin,
-		onSuccess() {
-			router.back();
-		},
-		onError({ message }) {
-			open({
-				type: 'danger',
-				message,
-			});
-		},
-	});
-	const { mutate: updateLeave, isLoading: editLoading } =
-		useRequestLeaveUpdateMutation({
-			onSuccess() {
-				setModalVisible(false);
-				open({
-					type: 'success',
-					message: 'Leave request was updated successfully!',
-				});
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
-
-	const handleSubmit = React.useCallback(
-		(form: CreateLeaveQueryType) => {
-			setErrors(undefined);
-			if (canEdit) updateLeave({ id, admin, data: form });
-		},
-		[canEdit, updateLeave, admin, id]
-	);
-
-	const actions = React.useMemo(() => {
-		const buttons: ButtonType[] = [];
-		if (!data) return buttons;
-		// Regular/normal user page
-		if (!admin) {
-			const startDate =
-				typeof data.startDate === 'string'
-					? new Date(data.startDate)
-					: data.startDate;
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0);
-			// As long as the leave is still pending, the user can edit as he/she likes
-			// Also if the startDate has not yet been reached
-			if (
-				data.status !== 'APPROVED' &&
-				data.status !== 'DENIED' &&
-				startDate.getTime() >= currentDate.getTime()
-			) {
-				if (canEdit)
-					buttons.push({
-						disabled: editLoading,
-						iconLeft: FaEdit,
-						onClick: () => setModalVisible(true),
-						title: 'Request Leave Update',
-					});
-				if (canDelete)
-					buttons.push({
-						bg: 'bg-red-600 hover:bg-red-500',
-						disabled: appLoading,
-						iconLeft: FaTrash,
-						onClick: () => deleteLeave(id),
-						title: 'Delete Leave',
-					});
-			}
-		} else {
-			// Admin user page
-			const startDate =
-				typeof data.startDate === 'string'
-					? new Date(data.startDate)
-					: data.startDate;
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0);
-			// If the leave start date is today or next date i.e the current date or days after today
-			//  and it is still pending then it can be approved/denied and also updated and deleted.
-			// Means that the leave has yet to commence.
-			// If the user is a superuser, then bypass the restriction
-			if (
-				authData?.isSuperUser ||
-				(currentDate.getTime() <= startDate.getTime() &&
-					data.status === 'PENDING')
-			) {
-				if (canEdit)
-					buttons.push({
-						disabled: editLoading,
-						iconLeft: FaEdit,
-						onClick: () => setModalVisible(true),
-						title: 'Request Leave Update',
-					});
-				if (canDelete)
-					buttons.push({
-						bg: 'bg-red-600 hover:bg-red-500',
-						disabled: appLoading,
-						iconLeft: FaTrash,
-						onClick: () => deleteLeave(id),
-						title: 'Delete Leave',
-					});
-				if (canGrant)
-					buttons.push(
-						{
-							bg: 'bg-green-600 hover:bg-green-500',
-							disabled: appLoading,
-							iconLeft: FaCheckCircle,
-							onClick: () => approveLeave({ id, approval: 'APPROVED' }),
-							title: 'Approve Leave',
-						},
-						{
-							bg: 'bg-yellow-600 hover:bg-yellow-500',
-							disabled: appLoading,
-							iconLeft: FaTimesCircle,
-							onClick: () => approveLeave({ id, approval: 'DENIED' }),
-							title: 'Deny Leave',
-						}
-					);
-			}
-			// } else if (
-			// 	startDate.getTime() >= currentDate.getTime() &&
-			// 	(data.status === 'APPROVED') || data.status === 'DENIED'
-			// ) {
-			// 	// Meaning that the start date for leave is either today or has passed
-			// 	// and the leave has either been approved or denied so no updates, deletes, nor approval should be made
-			// }
-			if (canViewPermissions) {
-				buttons.push({
-					bg: 'bg-gray-600 hover:bg-gray-500',
-					iconLeft: FaUserShield,
-					link: ADMIN_LEAVE_OBJECT_PERMISSION_PAGE_URL(id),
-					title: 'View Record Permissions',
-				});
-			}
-		}
-		return buttons;
-	}, [
-		admin,
-		appLoading,
-		approveLeave,
-		authData,
-		canDelete,
-		canEdit,
-		canGrant,
-		canViewPermissions,
-		data,
-		deleteLeave,
-		editLoading,
-		id,
-	]);
-
 	return (
 		<Container
 			heading={admin ? 'Leave Information (Admin)' : 'Leave Information'}
@@ -350,7 +84,7 @@ const Detail = ({
 				loading: isFetching,
 				onClick: () => {
 					refetch();
-					objPermRefetch();
+					if (detailActionsRef.current) detailActionsRef.current.refreshPerm();
 				},
 			}}
 			loading={isLoading}
@@ -363,7 +97,14 @@ const Detail = ({
 							data.employee.user.firstName + ' ' + data.employee.user.lastName
 						}
 						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
-						actions={actions}
+						actions={
+							<DynamicDetailActions
+								admin={admin}
+								data={data}
+								objPerm={objPerm}
+								ref={detailActionsRef}
+							/>
+						}
 					/>
 
 					<div className="mt-4">
@@ -522,22 +263,6 @@ const Detail = ({
 							/>
 						)}
 					</div>
-					<DynamicModal
-						close={() => setModalVisible(false)}
-						component={
-							<DynamicForm
-								adminView={admin}
-								errors={errors}
-								initState={data}
-								loading={editLoading}
-								onSubmit={handleSubmit}
-							/>
-						}
-						description="Fill in the form below to update leave request."
-						keepVisible
-						title="Update leave request"
-						visible={modalVisible}
-					/>
 				</>
 			)}
 		</Container>
