@@ -207,10 +207,16 @@ const Form = ({
 						defaultValue={initState?.hours || 1}
 						disabled={loading}
 						error={formErrors?.hours || errors?.hours}
+						requirements={[
+							{
+								value:
+									'Note: This value represents the expected number of hours. It does not represent the actual number of hours spent.',
+							},
+						]}
 						label="Hours"
 						name="hours"
 						onChange={({ target: { value } }) => handleChange('hours', value)}
-						placeholder="Enter Number Of Hours"
+						placeholder="Enter expected number of hours"
 						type="number"
 					/>
 				</div>
