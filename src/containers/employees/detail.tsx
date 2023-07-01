@@ -1,66 +1,28 @@
-import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import { InfoComp } from 'kite-react-tailwind';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaLock,
-	FaUser,
-	FaUserEdit,
-	FaUserCheck,
-	FaUserShield,
-	FaUserSlash,
-	FaTrash,
-} from 'react-icons/fa';
 
 import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
-import {
-	permissions,
-	DEFAULT_IMAGE,
-	EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL,
-	USER_PAGE_URL,
-} from '../../config';
-import { useAlertContext, useAuthContext } from '../../store/contexts';
-import {
-	useDeleteEmployeeMutation,
-	useGetEmployeeQuery,
-} from '../../store/queries/employees';
-import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
-import { useActivateUserMutation } from '../../store/queries/users';
+import { DEFAULT_IMAGE } from '../../config/static';
+import { useGetEmployeeQuery } from '../../store/queries/employees';
 import { EmployeeType, UserObjPermType } from '../../types';
-import { hasModelPermission, getDate, toCapitalize } from '../../utils';
+import { getDate, toCapitalize } from '../../utils';
 
-const DynamicChangePasswordForm = dynamic<any>(
+const DynamicDetailActions = dynamic<any>(
 	() =>
-		import('../../components/employees/detail/change-password-form').then(
+		import('../../components/employees/detail/detail-actions').then(
 			(mod) => mod.default
 		),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
+				<p className="animate animate-pulse duration-300 text-center text-gray-800 text-sm transition transform">
+					Loading Actions...
+				</p>
+			</div>
 		),
-		ssr: false,
-	}
-);
-const DynamicEmployeeForm = dynamic<any>(
-	() =>
-		import('../../components/employees/detail/employee-form').then(
-			(mod) => mod.default
-		),
-	{
-		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
-		),
-		ssr: false,
-	}
-);
-const DynamicModal = dynamic<any>(
-	() => import('../../components/common/modal').then((mod) => mod.default),
-	{
 		ssr: false,
 	}
 );
@@ -75,7 +37,12 @@ const Employee = ({
 	objUserPerm: UserObjPermType;
 }) => {
 	const router = useRouter();
-	const id = router.query.id as string;
+	const id = React.useMemo(() => router.query.id as string, [router]);
+	const detailActionsRef = React.useRef<{
+		refreshPerm: () => void;
+		refreshUserPerm: () => void;
+	}>(null);
+
 	const { data, error, isLoading, isFetching, refetch } = useGetEmployeeQuery(
 		{
 			id,
@@ -86,197 +53,6 @@ const Employee = ({
 			},
 		}
 	);
-
-	const { open: showAlert } = useAlertContext();
-	const { data: authData } = useAuthContext();
-
-	const [formType, setFormType] = React.useState<'employee' | 'password'>(
-		'employee'
-	);
-	const [modalVisible, setModalVisible] = React.useState(false);
-
-	const {
-		data: objPermData,
-		isLoading: permLoading,
-		refetch: objPermRefetch,
-	} = useGetUserObjectPermissionsQuery(
-		{
-			modelName: 'employees',
-			objectId: id,
-		},
-		{
-			initialData() {
-				return objPerm;
-			},
-		}
-	);
-
-	const { deleteEmployee, isLoading: delLoading } = useDeleteEmployeeMutation({
-		onSuccess() {
-			router.back();
-			showAlert({
-				type: 'success',
-				message: 'Employee was deleted successfully!',
-			});
-		},
-		onError(err) {
-			showAlert({
-				type: 'danger',
-				message: err.message,
-			});
-			setModalVisible(false);
-		},
-	});
-
-	const { activate, isLoading: actLoading } = useActivateUserMutation({
-		label: 'employee',
-		onError(err) {
-			showAlert({
-				type: 'danger',
-				message: err.message,
-			});
-		},
-	});
-
-	// check if the user has edit user permission
-	const { data: objUserPermData, refetch: objUserPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'users',
-				objectId: data?.user.id || '',
-			},
-			{
-				enabled: data && !!data.user.id,
-				initialData() {
-					return objUserPerm;
-				},
-			}
-		);
-
-	const [canEditUser, canViewUser] = React.useMemo(() => {
-		let canEdit = false;
-		let canView = false;
-
-		// Check model permissions
-		if (authData && (authData.isAdmin || authData.isSuperUser)) {
-			canEdit =
-				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
-		}
-		if (authData && (authData.isAdmin || authData.isSuperUser)) {
-			canView =
-				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.VIEW]));
-		}
-
-		// If the user doesn't have model edit permissions, then check obj edit permission
-		if (!canEdit && objUserPermData) canEdit = objUserPermData.edit;
-		if (!canView && objUserPermData) canView = objUserPermData.view;
-
-		return [canEdit, canView];
-	}, [authData, objUserPermData]);
-
-	const actions: ButtonType[] = React.useMemo(() => {
-		if (!data || !authData) return [];
-		const buttons: ButtonType[] = [];
-		const canEdit =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.employee.EDIT]) ||
-			(!permLoading && objPermData && objPermData.edit);
-		const canDelete =
-			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [permissions.employee.DELETE]) ||
-			(!permLoading && objPermData && objPermData.delete);
-		const canViewObjectPermissions =
-			authData.isSuperUser ||
-			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
-
-		if (canViewUser)
-			buttons.push({
-				bg: 'bg-green-600 hover:bg-green-500',
-				iconLeft: FaUser,
-				link: USER_PAGE_URL(data.user.id),
-				title: 'User Information',
-			});
-		if (canEdit)
-			buttons.push({
-				onClick: () => {
-					formType !== 'employee' && setFormType('employee');
-					setModalVisible(true);
-				},
-				disabled: actLoading || delLoading,
-				iconLeft: FaUserEdit,
-				title: 'Edit Employee',
-			});
-		if (canEditUser)
-			buttons.push(
-				{
-					bg: 'bg-yellow-600 hover:bg-yellow-500',
-					iconLeft: FaLock,
-					disabled: actLoading || delLoading,
-					onClick: () => {
-						formType !== 'password' && setFormType('password');
-						setModalVisible(true);
-					},
-					title: 'Change Password',
-				},
-				{
-					bg: data.user.isActive
-						? 'bg-gray-500 hover:bg-gray-600'
-						: 'bg-green-500 hover:bg-green-600',
-					disabled: actLoading || delLoading,
-					onClick: () =>
-						data?.user.email && data.user.isActive !== undefined
-							? activate(
-									[data.user.email],
-									data.user.isActive ? 'deactivate' : 'activate'
-							  )
-							: undefined,
-					iconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
-					title: data.user.isActive
-						? actLoading
-							? 'Deactivating Employee...'
-							: 'Deactivate Employee'
-						: actLoading
-						? 'Activating Employee...'
-						: 'Activate Employee',
-				}
-			);
-		if (canDelete)
-			buttons.push({
-				bg: 'bg-red-600 hover:bg-red-500',
-				iconLeft: FaTrash,
-				disabled: actLoading || delLoading,
-				onClick: () => deleteEmployee(data.id),
-				title: delLoading ? 'Deleting Employee...' : 'Delete Employee',
-			});
-		if (canViewObjectPermissions)
-			buttons.push({
-				bg: 'bg-gray-600 hover:bg-gray-500',
-				iconLeft: FaUserShield,
-				link: EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL(id),
-				title: 'View Record Permissions',
-			});
-		return buttons;
-	}, [
-		activate,
-		authData,
-		data,
-		deleteEmployee,
-		canEditUser,
-		canViewUser,
-		actLoading,
-		delLoading,
-		formType,
-		permLoading,
-		objPermData,
-		id,
-	]);
 
 	return (
 		<Container
@@ -296,9 +72,11 @@ const Employee = ({
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
+					if (detailActionsRef.current?.refreshPerm)
+						detailActionsRef.current.refreshPerm();
+					if (detailActionsRef.current?.refreshUserPerm)
+						detailActionsRef.current.refreshUserPerm();
 					refetch();
-					objPermRefetch();
-					objUserPermRefetch();
 				},
 			}}
 			loading={isLoading}
@@ -312,7 +90,16 @@ const Employee = ({
 							data.user.firstName + ' ' + data.user.lastName
 						)}
 						image={data.user.profile?.image?.url || DEFAULT_IMAGE}
-						actions={actions}
+						actions={
+							<DynamicDetailActions
+								data={data}
+								objPerm={objPerm}
+								objUserPerm={objUserPerm}
+								forwardedRef={{
+									ref: detailActionsRef,
+								}}
+							/>
+						}
 					/>
 
 					<div className="mt-4">
@@ -495,49 +282,6 @@ const Employee = ({
 							/>
 						)}
 					</div>
-
-					<DynamicModal
-						close={() => setModalVisible(false)}
-						component={
-							formType === 'employee' ? (
-								<DynamicEmployeeForm
-									employee={data}
-									onSuccess={() => {
-										setModalVisible(false);
-										showAlert({
-											type: 'success',
-											message: 'Employee updated successfully!',
-										});
-									}}
-								/>
-							) : formType === 'password' ? (
-								<DynamicChangePasswordForm
-									email={data.user?.email}
-									onSuccess={() => {
-										setModalVisible(false);
-										showAlert({
-											type: 'success',
-											message: 'Password change successfully!',
-										});
-									}}
-								/>
-							) : (
-								<></>
-							)
-						}
-						description={
-							formType === 'password'
-								? 'Fill the form to change employee password'
-								: 'Fill in the form to update employee information'
-						}
-						keepVisible
-						title={
-							formType === 'password'
-								? 'Change Employee Password'
-								: 'Update Employee Information'
-						}
-						visible={modalVisible}
-					/>
 				</>
 			)}
 		</Container>
