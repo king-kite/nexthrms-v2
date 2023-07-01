@@ -82,9 +82,9 @@ const Detail = ({
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
-					refetch();
 					if (detailActionsRef.current?.refreshPerm)
 						detailActionsRef.current.refreshPerm();
+					refetch();
 				},
 			}}
 			loading={isLoading}
@@ -269,10 +269,6 @@ const Detail = ({
 			)}
 		</Container>
 	);
-};
-
-Detail.defaultProps = {
-	admin: false,
 };
 
 export default Detail;

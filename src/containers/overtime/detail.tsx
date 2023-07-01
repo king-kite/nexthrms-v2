@@ -1,58 +1,34 @@
-import { ButtonType, InfoComp } from 'kite-react-tailwind';
+import { InfoComp } from 'kite-react-tailwind';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaEdit,
-	FaTimesCircle,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
 
 import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
-import {
-	ADMIN_OVERTIME_OBJECT_PERMISSION_PAGE_URL,
-	DEFAULT_IMAGE,
-	permissions,
-} from '../../config';
-import { useAlertContext, useAuthContext } from '../../store/contexts';
-import {
-	useGetOvertimeQuery,
-	useApproveOvertimeMutation,
-	useDeleteOvertimeMutation,
-	useRequestOvertimeUpdateMutation,
-} from '../../store/queries/overtime';
-import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
-import {
-	CreateOvertimeErrorResponseType,
-	CreateOvertimeQueryType,
-	OvertimeType,
-	UserObjPermType,
-} from '../../types';
-import { getDate, hasModelPermission, serializeOvertime } from '../../utils';
+import { DEFAULT_IMAGE } from '../../config/static';
+import { useGetOvertimeQuery } from '../../store/queries/overtime';
+import { OvertimeType, UserObjPermType } from '../../types';
+import { getDate, serializeOvertime } from '../../utils';
 
-type ErrorType = CreateOvertimeErrorResponseType & {
-	message?: string;
-};
-
-const DynamicForm = dynamic<any>(
-	() => import('../../components/overtime/form').then((mod) => mod.default),
+const DynamicDetailActions = dynamic<any>(
+	() =>
+		import('../../components/overtime/detail-actions').then(
+			(mod) => mod.default
+		),
 	{
-		ssr: false,
-	}
-);
-
-const DynamicModal = dynamic<any>(
-	() => import('../../components/common/modal').then((mod) => mod.default),
-	{
+		loading: () => (
+			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
+				<p className="animate animate-pulse duration-300 text-center text-gray-800 text-sm transition transform">
+					Loading Actions...
+				</p>
+			</div>
+		),
 		ssr: false,
 	}
 );
 
 const Detail = ({
-	admin,
+	admin = false,
 	overtime,
 	objPerm = {
 		delete: false,
@@ -65,13 +41,10 @@ const Detail = ({
 	objPerm?: UserObjPermType;
 }) => {
 	const router = useRouter();
-	const id = router.query.id as string;
-
-	const [modalVisible, setModalVisible] = React.useState(false);
-	const [errors, setErrors] = React.useState<ErrorType>();
-
-	const { open } = useAlertContext();
-	const { data: authData } = useAuthContext();
+	const id = React.useMemo(() => router.query.id as string, [router]);
+	const detailActionsRef = React.useRef<{
+		refreshPerm: () => void;
+	}>(null);
 
 	const {
 		data: overtimeData,
@@ -93,231 +66,6 @@ const Detail = ({
 		return undefined;
 	}, [overtimeData]);
 
-	// Get user's object level permissions for the overtime table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'overtime',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
-
-	const [canEdit, canDelete, canGrant, canViewPermissions] =
-		React.useMemo(() => {
-			if (!authData) return [false, false, false, false];
-			// Not Admin Page
-			// Only check object level permissions
-			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-			else {
-				let canEdit = false;
-				let canDelete = false;
-				let canGrant = false;
-				// Check model permissions
-				if (authData.isAdmin || authData.isSuperUser) {
-					canEdit =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.EDIT,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canDelete =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.DELETE,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canGrant =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.GRANT,
-							])) ||
-						false;
-				}
-
-				// If the user doesn't have model edit permissions, then check obj edit permission
-				if (!canEdit && objPermData) canEdit = objPermData.edit;
-				if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-				const canViewPermissions =
-					authData.isSuperUser ||
-					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.permissionobject.VIEW,
-						])) ||
-					false;
-
-				return [canEdit, canDelete, canGrant, canViewPermissions];
-			}
-		}, [authData, admin, objPermData]);
-
-	const { mutate: approveOvertime, isLoading: appLoading } =
-		useApproveOvertimeMutation({
-			onRequestComplete({ message, error }) {
-				open({
-					type: error ? 'danger' : 'success',
-					message: error || message,
-				});
-			},
-		});
-	const { deleteOvertime } = useDeleteOvertimeMutation({
-		admin,
-		onSuccess() {
-			router.back();
-		},
-		onError({ message }) {
-			open({
-				type: 'danger',
-				message,
-			});
-		},
-	});
-	const { mutate: updateOvertime, isLoading: editLoading } =
-		useRequestOvertimeUpdateMutation({
-			onSuccess() {
-				setModalVisible(false);
-				open({
-					type: 'success',
-					message: 'Overtime request was updated successfully!',
-				});
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
-
-	const handleSubmit = React.useCallback(
-		(form: CreateOvertimeQueryType) => {
-			setErrors(undefined);
-			if (canEdit) updateOvertime({ id, admin, data: form });
-		},
-		[canEdit, updateOvertime, id, admin]
-	);
-
-	const actions = React.useMemo(() => {
-		const buttons: ButtonType[] = [];
-		if (!data) return buttons;
-		// Regular/normal user page
-		if (!admin) {
-			const date =
-				typeof data.date === 'string' ? new Date(data.date) : data.date;
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0);
-			// As long as the overtime is still pending, the user can edit as he/she likes
-			// Also if the date has not yet been reached
-			if (
-				data.status !== 'APPROVED' &&
-				date.getTime() >= currentDate.getTime()
-			) {
-				if (canEdit)
-					buttons.push({
-						disabled: editLoading,
-						iconLeft: FaEdit,
-						onClick: () => setModalVisible(true),
-						title: 'Request Update',
-					});
-				if (canDelete)
-					buttons.push({
-						bg: 'bg-red-600 hover:bg-red-500',
-						disabled: appLoading,
-						iconLeft: FaTrash,
-						onClick: () => deleteOvertime(id),
-						title: 'Delete Overtime',
-					});
-			}
-		} else {
-			// Admin user page
-			const date =
-				typeof data.date === 'string' ? new Date(data.date) : data.date;
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0);
-			// If the overtime date is today or next date i.e the current date or days after today
-			//  and it is not approved then it can be approved/denied and also updated and deleted.
-			// Means that the overtime has yet to commence.
-			// If the user is a superuser, then bypass the restriction
-			if (
-				authData?.isSuperUser ||
-				(currentDate.getTime() <= date.getTime() && data.status !== 'APPROVED')
-			) {
-				if (canEdit)
-					buttons.push({
-						disabled: editLoading,
-						iconLeft: FaEdit,
-						onClick: () => setModalVisible(true),
-						title: 'Request Update',
-					});
-				if (canDelete)
-					buttons.push({
-						bg: 'bg-red-600 hover:bg-red-500',
-						disabled: appLoading,
-						iconLeft: FaTrash,
-						onClick: () => deleteOvertime(id),
-						title: 'Delete Overtime',
-					});
-				if (canGrant)
-					buttons.push(
-						{
-							bg: 'bg-green-600 hover:bg-green-500',
-							disabled: appLoading,
-							iconLeft: FaCheckCircle,
-							onClick: () => approveOvertime({ id, approval: 'APPROVED' }),
-							title: 'Approve Overtime',
-						},
-						{
-							bg: 'bg-yellow-600 hover:bg-yellow-500',
-							disabled: appLoading,
-							iconLeft: FaTimesCircle,
-							onClick: () => approveOvertime({ id, approval: 'DENIED' }),
-							title: 'Deny Overtime',
-						}
-					);
-			}
-			// } else if (
-			// 	date.getTime() >= currentDate.getTime() &&
-			// 	(data.status === 'APPROVED') || data.status === 'DENIED'
-			// ) {
-			// 	// Meaning that the date for overtime is either today or has passed
-			// 	// and the overtime has either been approved or denied so no updates, deletes, nor approval should be made
-			// }
-			if (canViewPermissions) {
-				buttons.push({
-					bg: 'bg-gray-600 hover:bg-gray-500',
-					iconLeft: FaUserShield,
-					link: ADMIN_OVERTIME_OBJECT_PERMISSION_PAGE_URL(id),
-					title: 'View Record Permissions',
-				});
-			}
-		}
-		return buttons;
-	}, [
-		admin,
-		appLoading,
-		approveOvertime,
-		authData,
-		canDelete,
-		canEdit,
-		canGrant,
-		canViewPermissions,
-		data,
-		deleteOvertime,
-		editLoading,
-		id,
-	]);
-
 	return (
 		<Container
 			heading={admin ? 'Overtime Information (Admin)' : 'Overtime Information'}
@@ -336,8 +84,9 @@ const Detail = ({
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
+					if (detailActionsRef.current?.refreshPerm)
+						detailActionsRef.current.refreshPerm();
 					refetch();
-					objPermRefetch();
 				},
 			}}
 			loading={isLoading}
@@ -350,7 +99,16 @@ const Detail = ({
 							data.employee.user.firstName + ' ' + data.employee.user.lastName
 						}
 						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
-						actions={actions}
+						actions={
+							<DynamicDetailActions
+								admin={admin}
+								data={data}
+								objPerm={objPerm}
+								forwardedRef={{
+									ref: detailActionsRef,
+								}}
+							/>
+						}
 					/>
 
 					<div className="mt-4">
@@ -501,30 +259,10 @@ const Detail = ({
 							/>
 						)}
 					</div>
-					<DynamicModal
-						close={() => setModalVisible(false)}
-						component={
-							<DynamicForm
-								adminView={admin}
-								errors={errors}
-								initState={data}
-								loading={editLoading}
-								onSubmit={handleSubmit}
-							/>
-						}
-						description="Fill in the form below to update overtime request."
-						keepVisible
-						title="Update overtime request"
-						visible={modalVisible}
-					/>
 				</>
 			)}
 		</Container>
 	);
-};
-
-Detail.defaultProps = {
-	admin: false,
 };
 
 export default Detail;
