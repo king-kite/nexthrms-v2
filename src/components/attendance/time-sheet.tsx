@@ -52,7 +52,7 @@ function TimeSheet({
 		onSuccess() {
 			open({
 				type: 'success',
-				message: 'Punched In',
+				message: timesheet?.punchIn ? 'Punched Out' : 'Punched In',
 			});
 		},
 		onError({ message }) {

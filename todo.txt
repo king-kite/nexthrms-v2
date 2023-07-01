@@ -1,7 +1,5 @@
 1. Handle Prisma Errors Better. Especially the unique key errors. 
 -- Too Much information or confidential information is been sent.
-2. Attendance Statistics is not calculating properly. Fix it.
-3. Change the way we link overtime and attendance.
-4. Make a custom date picker component.
-5. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward. Do be mindful of smaller screen.
-6. Have the filters send info the database instead. To help with exporting.
+2. Make a custom date picker component.
+3. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward. Do be mindful of smaller screen.
+4. Have the filters send info the database instead. To help with exporting.
