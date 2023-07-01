@@ -70,8 +70,10 @@ export function useGetAttendanceQuery(
 // get attendance info
 export function useGetAttendanceInfoQuery(
 	{
+		date,
 		onError,
 	}: {
+		date?: Date | string;
 		onError?: (error: { status: number; message: string }) => void;
 	},
 	options?: {
@@ -81,10 +83,10 @@ export function useGetAttendanceInfoQuery(
 	}
 ) {
 	const query = useQuery(
-		[tags.ATTENDANCE_INFO],
+		[tags.ATTENDANCE_INFO, { date }],
 		() =>
 			axiosInstance
-				.get(ATTENDANCE_INFO_URL)
+				.get(ATTENDANCE_INFO_URL + (date ? `?date=${date}` : ''))
 				.then(
 					(response: AxiosResponse<GetAttendanceInfoResponseType>) =>
 						response.data.data
