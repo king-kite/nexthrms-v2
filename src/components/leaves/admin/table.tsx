@@ -7,7 +7,12 @@ import { TableAvatarEmailNameCell } from '../../common';
 import { ADMIN_LEAVE_DETAIL_PAGE_URL } from '../../../config/routes';
 import { DEFAULT_IMAGE } from '../../../config/static';
 import { LeaveType } from '../../../types';
-import { getDate, getNoOfDays, serializeLeave } from '../../../utils';
+import {
+	getDate,
+	getNextDate,
+	getNoOfDays,
+	serializeLeave,
+} from '../../../utils';
 
 const heads: TableHeadType = [
 	{
@@ -20,10 +25,11 @@ const heads: TableHeadType = [
 	},
 	{ value: 'type' },
 	{ value: 'start date' },
+	{ value: 'end date' },
 	{ value: 'resumption' },
 	{ value: 'days' },
 	{ value: 'status' },
-	{ value: 'date' },
+	{ value: 'updated' },
 	{ type: 'actions', value: 'view' },
 ];
 
@@ -51,6 +57,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 				{ value: leave.type },
 				{ value: getDate(leave.startDate, true) },
 				{ value: getDate(leave.endDate, true) },
+				{ value: getNextDate(leave.endDate, 1, true) },
 				{ value: getNoOfDays(leave.startDate, leave.endDate) },
 				{
 					options: {
