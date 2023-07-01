@@ -1,12 +1,14 @@
 import { Button, Loader } from 'kite-react-tailwind';
 import React from 'react';
 import { BiRefresh } from 'react-icons/bi';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { permissions } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { usePunchAttendanceMutation } from '../../store/queries/attendance';
 import { AttendanceInfoType } from '../../types';
 import { hasModelPermission } from '../../utils';
+import { getHours } from '../../utils/serializers/attendance';
 
 // time is in minutes
 function getTime(time: number): number | string {
@@ -39,6 +41,13 @@ function TimeSheet({
 		return [canMark];
 	}, [authData]);
 
+	const overtime = React.useMemo(() => {
+		if (!timesheet || !timesheet.overtime) return null;
+		const value = getHours(timesheet).overtime;
+		if (value <= 0) return 0;
+		return `${value.toFixed(2)} ${value > 1 ? 'hrs' : 'hr'}`;
+	}, [timesheet]);
+
 	const { handlePunch, isLoading } = usePunchAttendanceMutation({
 		onSuccess() {
 			open({
@@ -54,31 +63,35 @@ function TimeSheet({
 		},
 	});
 
-	// Get the current time i.e set the date to 1st Jan, 1970
-	const currentDate = new Date();
-	currentDate.setFullYear(1970, 0, 1);
-	const punchIn = timesheet?.punchIn ? new Date(timesheet.punchIn) : undefined;
-	const punchOut = timesheet?.punchOut
-		? new Date(timesheet.punchOut)
-		: undefined;
+	const { disabled, punchIn, suffix, time } = React.useMemo(() => {
+		// Get the current time i.e set the date to 1st Jan, 1970
+		const currentDate = new Date();
+		currentDate.setFullYear(1970, 0, 1);
+		const punchIn = timesheet?.punchIn
+			? new Date(timesheet.punchIn)
+			: undefined;
+		const punchOut = timesheet?.punchOut
+			? new Date(timesheet.punchOut)
+			: undefined;
 
-	const disabled = punchIn && punchOut ? false : true;
+		const disabled = punchIn && punchOut ? false : true;
 
-	// Get difference of time in minutes, rounded off and taking the absolute value.
-	const diff = punchIn
-		? Math.abs(
-				Math.round(
-					((punchOut ? punchOut.getTime() : currentDate.getTime()) -
-						punchIn.getTime()) /
-						(1000 * 60)
-				)
-		  )
-		: 0;
+		// Get difference of time in minutes, rounded off and taking the absolute value.
+		const diff = punchIn
+			? Math.abs(
+					Math.round(
+						((punchOut ? punchOut.getTime() : currentDate.getTime()) -
+							punchIn.getTime()) /
+							(1000 * 60)
+					)
+			  )
+			: 0;
+		let time = diff >= 60 ? getTime(diff) : diff;
 
-	let time = diff >= 60 ? getTime(diff) : diff;
-
-	const suffix =
-		diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
+		const suffix =
+			diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
+		return { disabled, punchIn, suffix, time };
+	}, [timesheet]);
 
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
@@ -159,12 +172,14 @@ function TimeSheet({
 					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">
 						Overtime
 					</span>
-					<p className="text-gray-500 tracking-wide text-base">
-						{timesheet?.overtime
-							? `${timesheet.overtime.hours} ${
-									timesheet?.overtime.hours > 1 ? 'hrs' : 'hr'
-							  }`
-							: '----'}
+					<p className="flex justify-center text-center text-gray-500 tracking-wide text-base">
+						{overtime === null ? (
+							<FaTimesCircle className="text-sm text-red-700" />
+						) : overtime === 0 ? (
+							<FaCheckCircle className="text-sm text-green-700" />
+						) : (
+							overtime
+						)}
 					</p>
 				</div>
 			</div>
