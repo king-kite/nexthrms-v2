@@ -24,7 +24,7 @@ function UserPermissions({
 		total: number;
 		result: PermissionType[];
 	};
-	hideOtherModals: () => void;
+	hideOtherModals?: () => void;
 }) {
 	const [errors, setErrors] = React.useState<{
 		permissions?: string;
@@ -112,7 +112,7 @@ function UserPermissions({
 							title="Update Permissions"
 							disabled={isFetching || editLoading}
 							onClick={() => {
-								hideOtherModals();
+								if (hideOtherModals) hideOtherModals();
 								setModalVisible(true);
 								setErrorType('multiple');
 							}}

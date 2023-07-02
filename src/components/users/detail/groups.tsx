@@ -24,7 +24,7 @@ function UserGroups({
 		total: number;
 		result: UserGroupType[];
 	};
-	hideOtherModals: () => void;
+	hideOtherModals?: () => void;
 }) {
 	const [errors, setErrors] = React.useState<{
 		groups?: string;
@@ -109,7 +109,7 @@ function UserGroups({
 							title="Update Groups"
 							disabled={isFetching || editLoading}
 							onClick={() => {
-								hideOtherModals();
+								if (hideOtherModals) hideOtherModals();
 								setModalVisible(true);
 								setErrorType('multiple');
 							}}
