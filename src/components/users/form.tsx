@@ -221,7 +221,7 @@ const Form = ({
 							company: formRef.current?.company.value,
 							position: formRef.current?.position.value,
 						};
-					}
+					} else data.client = null;
 					if (form.isEmployee) {
 						data.employee = {
 							dateEmployed: formRef.current?.dateEmployed.value,
@@ -233,7 +233,7 @@ const Form = ({
 								initState?.employee?.supervisors.map((item) => item.id) ||
 								[],
 						};
-					}
+					} else data.employee = null;
 					handleSubmit(data);
 				}
 			}}
