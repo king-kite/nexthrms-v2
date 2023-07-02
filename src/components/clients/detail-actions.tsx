@@ -39,6 +39,7 @@ function DetailActions({
 	forwardedRef: {
 		ref: React.ForwardedRef<{
 			refreshPerm: () => void;
+			refreshUserPerm: () => void;
 		}>;
 	};
 }) {
