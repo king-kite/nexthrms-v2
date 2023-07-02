@@ -1,4 +1,4 @@
-import { InferType, array, boolean, date, number, object, string } from 'yup';
+import { InferType, array, boolean, date, mixed, number, object, string } from 'yup';
 
 export const projectCreateSchema = object({
 	name: string().required().label('Name'),
@@ -28,7 +28,7 @@ export const projectCreateSchema = object({
 
 export const projectFileCreateSchema = object({
 	name: string().required().label('Name'),
-	file: object().unknown().label('File'),
+	file: mixed().label('File'),
 });
 
 export const projectTeamCreateSchema = object({

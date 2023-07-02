@@ -1,9 +1,9 @@
-import { InferType, array, object, string } from 'yup';
+import { InferType, array, mixed, object, string } from 'yup';
 
 export const managedFileCreateSchema = object({
 	name: string().required().label('Name'),
 	directory: string().nullable().optional().label('Directory'),
-	file: object().unknown().nullable().optional().label('File'),
+	file: mixed().nullable().optional().label('File'),
 	type: string().oneOf(['file', 'folder']).required().label('Type'),
 });
 

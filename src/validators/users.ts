@@ -1,4 +1,4 @@
-import { InferType, array, boolean, date, object, string } from 'yup';
+import { InferType, array, boolean, date, mixed, object, string } from 'yup';
 
 import { passwordOptions } from './auth';
 
@@ -37,7 +37,7 @@ export const createUserSchema = object({
 	isSuperUser: boolean().optional().label('Is Super User'),
 	isEmailVerified: boolean().optional().label('Is Email Verified'),
 	profile: object({
-		image: object().unknown().nullable().optional().label('Image'), // File
+		image: mixed().nullable().optional().label('Image'), // File
 		phone: string().required().label('Phone Number'),
 		gender: string().oneOf(['MALE', 'FEMALE']).required().label('Gender'),
 		address: string().required().label('Address'),
