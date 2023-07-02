@@ -1,4 +1,9 @@
-import { getDate, getFirstDateOfMonth, getLastDateOfMonth, getNoOfDays } from '../dates'
+import {
+	getDate,
+	getFirstDateOfMonth,
+	getLastDateOfMonth,
+	getNoOfDays,
+} from '../dates';
 import { AttendanceInfoType } from '../../types';
 
 type TimeDataType = {
@@ -38,7 +43,8 @@ export const totalMonthHours = (date: Date | string) =>
 // get the total overtime hours
 // i.e. If an employee has overtime every working day,
 // how many hours from closing time till midnight is possible for e.g. 6
-export const totalOvertimeMonthHours = (date: Date | string) => getTotalDays(date) * 6;
+export const totalOvertimeMonthHours = (date: Date | string) =>
+	getTotalDays(date) * 6;
 
 // Set the closing time to 6pm at 1970-01-01
 const closingTime = new Date(0);
@@ -74,7 +80,7 @@ export function getHours({
 	// i.e. the normal hours
 	let normal = (closingTime.getTime() - punchIn.getTime()) / (1000 * 60 * 60);
 	// Make sure normal hours spent is not greater than the totalDayHours
-	normal = normal > totalDayHours ? totalDayHours : normal;
+	normal = normal > totalDayHours ? totalDayHours : normal < 0 ? 0 : normal;
 
 	// percentage hours spent at work
 	const percentage = (normal / totalDayHours) * 100;
