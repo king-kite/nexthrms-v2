@@ -1,12 +1,5 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaClock,
-	FaRegBell,
-	FaSuitcase,
-	FaTimes,
-} from 'react-icons/fa';
 
 import useFadeIn from '../hooks/useFadeIn';
 import useOutClick from '../hooks/useOutClick';
@@ -18,6 +11,41 @@ import {
 } from '../store/queries/notifications';
 import { NotificationType } from '../types';
 import { downloadFile, getStringDateTime } from '../utils';
+
+const FaCheckCircle = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaCheckCircle),
+	{
+		ssr: false,
+	}
+);
+
+const FaClock = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaClock),
+	{
+		ssr: false,
+	}
+);
+
+const FaRegBell = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaRegBell),
+	{
+		ssr: false,
+	}
+);
+
+const FaSuitcase = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaSuitcase),
+	{
+		ssr: false,
+	}
+);
+
+const FaTimes = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaTimes),
+	{
+		ssr: false,
+	}
+);
 
 interface NotificationPropsType extends NotificationType {
 	setCount: (count: number) => void;

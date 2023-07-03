@@ -2,6 +2,7 @@ import type { PermissionModelChoices } from '@prisma/client';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
+
 import {
 	FaArchive,
 	FaCalendarAlt,
@@ -24,8 +25,7 @@ import {
 	FaUserShield,
 	FaUserTie,
 	FaWarehouse,
-} from 'react-icons/fa';
-
+} from './icons';
 import { SimpleLink, ListLink } from './link';
 import { LinkType, LinkItemType, PropsType } from './types';
 import * as routes from '../config/routes';

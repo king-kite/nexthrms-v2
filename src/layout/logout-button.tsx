@@ -1,12 +1,26 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import Router from 'next/router';
-import { FaSignOutAlt, FaTimesCircle } from 'react-icons/fa';
 
 import { SimpleLink } from './link';
 import { LOGIN_PAGE_URL } from '../config/routes';
 import { LOGOUT_URL } from '../config/server';
 import { useAlertModalContext, useAuthContext } from '../store/contexts';
 import axiosInstance from '../utils/axios/authRedirectInstance';
+
+const FaSignOutAlt = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaSignOutAlt),
+	{
+		ssr: false,
+	}
+);
+
+const FaTimesCircle: any = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaTimesCircle),
+	{
+		ssr: false,
+	}
+);
 
 type LogoutButtonType = { closeSidebar: () => void };
 

@@ -1,7 +1,28 @@
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { FaArrowRight, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+
+const FaArrowRight = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaArrowRight),
+	{
+		ssr: false,
+	}
+);
+
+const FaChevronDown = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaChevronDown),
+	{
+		ssr: false,
+	}
+);
+
+const FaChevronRight = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaChevronRight),
+	{
+		ssr: false,
+	}
+);
 
 const similarStyle = 'capitalize cursor-pointer text-gray-100 text-sm';
 const containerStyle = `flex justify-between items-center px-5 py-3 tracking-wide lg:px-3 xl:pl-4 ${similarStyle}`;

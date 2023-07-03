@@ -1,4 +1,11 @@
-import { FaArrowUp } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
+
+const FaArrowUp = dynamic<any>(
+	() => import('../utils/components/icons').then((mod) => mod.FaArrowUp),
+	{
+		ssr: false,
+	}
+);
 
 const scrollStyle = `
   bg-secondary-500 bottom-5 cursor-pointer duration-500 fixed flex font-bold 
