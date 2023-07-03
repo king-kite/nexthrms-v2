@@ -1,9 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
+import clients from './clients';
 import employees from './employees';
 import functions from './functions';
 import groups from './groups';
 import permissions from './permissions';
+import users from './users';
 
 const prisma = new PrismaClient();
 
@@ -19,6 +21,12 @@ async function main() {
 
 	// then load employees
 	await employees(prisma);
+
+	// then load clients
+	await clients(prisma);
+
+	// then load users
+	await users(prisma);
 }
 
 main()
