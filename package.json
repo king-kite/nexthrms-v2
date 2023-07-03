@@ -4,7 +4,10 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
+		"dev:analyze": "cross-env ANALYZE=1 next dev",
 		"build": "next build",
+		"build:analyze": "cross-env ANALYZE=1 next build",
+		"build:source-map": "source-map-explorer .next/static/**/*.js --no-border-checks",
 		"start": "next start",
 		"lint": "next lint",
 		"createsuperuser": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/createsuperuser",
@@ -15,8 +18,8 @@
 		"loadgroups": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loadgroups",
 		"loadpermissions": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loadpermissions",
 		"loadusers": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loadusers",
-		"merge-schema": "cat *.prisma > schema.prisma",
-		"seed": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loademployees && npm run loadclients && npm run loadusers"
+		"loaddata": "npm run loaddbfunctions && npm run loadpermissions && npm run loadgroups && npm run loademployees && npm run loadclients && npm run loadusers",
+		"merge-schema": "cat *.prisma > schema.prisma"
 	},
 	"prisma": {
 		"schema": "./src/db/schema.prisma"
@@ -66,6 +69,7 @@
 		"eslint-config-next": "12.2.2",
 		"postcss": "^8.4.18",
 		"prisma": "^4.16.1",
+		"source-map-explorer": "^2.5.3",
 		"tailwindcss": "^3.1.8",
 		"ts-node": "^10.9.1",
 		"typescript": "4.7.4"

@@ -20,7 +20,8 @@ if (process.env.ANALYZE && +process.env.ANALYZE === 1) {
 	const withBundleAnalyzer = require('@next/bundle-analyzer')({
 		enabled: true,
 	});
-	module.exports = withBundleAnalyzer(nextConfig);
+	(nextConfig.productionBrowserSourceMaps = true),
+		(module.exports = withBundleAnalyzer(nextConfig));
 } else {
 	module.exports = nextConfig;
 }
