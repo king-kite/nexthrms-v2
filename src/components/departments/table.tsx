@@ -131,7 +131,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 							onClick: closeModal,
 						},
 					],
-					Icon: FaCheckCircle,
+					icon: FaCheckCircle,
 					header: 'Department Deleted',
 					message: 'Department Deleted Successfully.',
 				});
@@ -157,7 +157,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 							onClick: closeModal,
 						},
 					],
-					Icon: FaCheckCircle,
+					icon: FaCheckCircle,
 					header: 'Departments Deleted',
 					message: 'Departments were deleted successfully!',
 				});
@@ -194,7 +194,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 						title: 'Confirm',
 					},
 				],
-				Icon: FaExclamationCircle,
+				icon: FaExclamationCircle,
 				header: 'Delete Department?',
 				message: 'Do you want to delete this Department?.',
 			});
@@ -225,7 +225,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 							title: 'Confirm',
 						},
 					],
-					Icon: FaExclamationCircle,
+					icon: FaExclamationCircle,
 					header: 'Delete selected departments?',
 					message: 'Do you want to delete selected departments?.',
 				});

@@ -1,6 +1,5 @@
 import { Loader } from 'kite-react-tailwind';
 import React from 'react';
-import { IconType } from 'react-icons';
 import { FaTimesCircle } from 'react-icons/fa';
 import DecisionButton, { ButtonProps as DecisionButtonTypes } from './button';
 
@@ -23,7 +22,7 @@ export type ModalProps = {
 	decisions?: DecisionButtonTypes[];
 	header?: string;
 	footer?: string;
-	Icon?: IconType;
+	icon?: React.ComponentType<any>;
 	keepVisible?: boolean;
 	loading?: boolean;
 	message: string;
@@ -36,7 +35,7 @@ const AlertModal = ({
 	color,
 	decisions,
 	header,
-	Icon,
+	icon: Icon,
 	loading,
 	footer,
 	keepVisible,

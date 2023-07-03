@@ -324,7 +324,7 @@ const Jobs = ({
 												title: 'OK',
 											},
 										],
-										Icon: FaCheckCircle,
+										icon: FaCheckCircle,
 										header: editId ? 'Job Edited' : 'Job Created',
 										message: editId
 											? 'Job Edited Successfully'

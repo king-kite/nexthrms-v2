@@ -328,7 +328,7 @@ const Departments = ({
 												title: 'OK',
 											},
 										],
-										Icon: FaCheckCircle,
+										icon: FaCheckCircle,
 										header: editId ? 'Department Edited' : 'Department Created',
 										message: editId
 											? 'Department Edited Successfully'

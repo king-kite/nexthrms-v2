@@ -142,7 +142,7 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 						title: 'Confirm',
 					},
 				],
-				Icon: FaExclamationCircle,
+				icon: FaExclamationCircle,
 				header: 'Delete Job?',
 				message: 'Do you want to delete this Job?.',
 			});
