@@ -95,3 +95,5 @@ export type CreatePermissionCategoryType = InferType<
 	typeof createPermissionCategorySchema
 >;
 export type CreateUserType = InferType<typeof createUserSchema>;
+
+export { passwordOptions };
