@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
+import attendance from './attendance';
 import clients from './clients';
 import employees from './employees';
 import functions from './functions';
@@ -27,6 +28,9 @@ async function main() {
 
 	// then load users
 	await users(prisma);
+
+	// then load attendance
+	await attendance(prisma);
 }
 
 main()

@@ -7,7 +7,7 @@ import { passwordOptions } from '../../../validators/users';
 
 const prompt = promptSync({ sigint: true });
 
-async function validatePassword(value: string): Promise<{
+async function validatePassword(value?: string): Promise<{
 	valid: boolean;
 	message: string;
 }> {
@@ -15,6 +15,8 @@ async function validatePassword(value: string): Promise<{
 		'Password does not meet all security requirements. Ignore and continue, Y/N ? ';
 	let errorMessage =
 		'An error occurred. Cannot save password. Please try again!';
+
+	if (!value) return { valid: false, message: 'Password is required' };
 
 	try {
 		const validate = passwordOptions.required().label('password');
@@ -40,9 +42,11 @@ async function validatePassword(value: string): Promise<{
 	return { valid: false, message: errorMessage };
 }
 
-async function validateEmail(value: string): Promise<(boolean | string)[]> {
+async function validateEmail(value?: string): Promise<(boolean | string)[]> {
 	let isValid = false;
 	let message = 'E-mail is not valid. Please try again!';
+
+	if (!value) return [false, 'Email is required'];
 
 	try {
 		const validate = string().email().required().label('email');
