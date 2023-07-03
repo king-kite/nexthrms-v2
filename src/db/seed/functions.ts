@@ -8,10 +8,7 @@ import type { PermissionModelChoices, PrismaClient } from '@prisma/client';
 import logger from './utils/logger';
 import dbModels from './models';
 
-const DB_NAME = process.env.DATABASE_NAME || 'kitehrms';
-
-if (!process.env.DATABASE_NAME)
-	logger.warn("Database name was not provided! Default to 'kitehrms'");
+const DB_NAME = 'kitehrms';
 
 const functionName = `${DB_NAME}_delete_permission_object()`;
 const triggerName = `${DB_NAME}_delete_permission_object`;
@@ -56,12 +53,12 @@ async function main(prisma: PrismaClient) {
 		// remove old triggers
 		...models.map((model) =>
 			prisma.$executeRawUnsafe(`
-			DROP TRIGGER IF EXISTS '${triggerName}' ON '${model}';
+			DROP TRIGGER IF EXISTS ${triggerName} ON ${model};
 		`)
 		),
-		// remove old function
+		// remove old triggers
 		prisma.$executeRawUnsafe(`
-			DROP FUNCTION IF EXISTS '${functionName}';
+			DROP FUNCTION IF EXISTS ${functionName};
 		`),
 	]);
 

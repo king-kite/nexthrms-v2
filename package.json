@@ -11,7 +11,6 @@
 		"start": "next start",
 		"lint": "next lint",
 		"createsuperuser": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms ts-node ./src/db/seed/commands/superuser.ts",
-		"loaddbfunctions": "cross-env SALT_ROUNDS=10 DATABASE_NAME=kitehrms node src/commands/loaddbfunctions",
 		"merge-schema": "cat *.prisma > schema.prisma"
 	},
 	"prisma": {

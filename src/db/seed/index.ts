@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 
 async function main() {
 	// load db function first
-	// await functions(prisma);
+	await functions(prisma);
 
 	// then load permissions
 	await permissions(prisma);
