@@ -50,7 +50,7 @@ function LogoutButton({ closeSidebar }: LogoutButtonType) {
 						},
 					],
 					header: 'Logout Error',
-					Icon: FaTimesCircle,
+					icon: FaTimesCircle,
 					message: 'An error occurred when trying to sign out',
 				});
 			},

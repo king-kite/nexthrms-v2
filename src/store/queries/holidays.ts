@@ -204,7 +204,7 @@ export function useDeleteHolidaysMutation(
 							title: 'Cancel',
 						},
 					],
-					Icon: FaExclamationCircle,
+					icon: FaExclamationCircle,
 					header: 'Delete selected departments?',
 					message: 'Do you want to delete selected departments?.',
 				});

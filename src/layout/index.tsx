@@ -4,8 +4,9 @@ import React from 'react';
 
 import Sidebar from './sidebar';
 import Topbar from './topbar';
-import { LOGO_IMAGE } from '../config';
-import { useFadeIn, useOutClick } from '../hooks';
+import { LOGO_IMAGE } from '../config/static';
+import useOutClick from '../hooks/useOutClick';
+import useFadeIn from '../hooks/useFadeIn';
 
 const DynamicMenuIcon = dynamic<any>(
 	() => import('kite-react-tailwind').then((mod) => mod.MenuIcon),
