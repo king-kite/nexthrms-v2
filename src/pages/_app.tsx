@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 import Error from 'next/error';
 
@@ -15,48 +14,37 @@ type ComponentWithAuthRequiredProp = AppProps & {
 	};
 };
 
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			refetchOnWindowFocus: false,
-			// staleTime: 15 * 60 * 1000, // 15 mins
-		},
-	},
-});
-
 function App({
 	Component,
 	pageProps: { auth, errorPage, ...pageProps },
 }: ComponentWithAuthRequiredProp) {
 	return (
 		<GlobalContextProvider>
-			<QueryClientProvider client={queryClient}>
-				{/* Not returning error page so the authenticated wrapper can show login page instead */}
-				{errorPage && errorPage.statusCode !== 401 ? (
-					<Error
-						statusCode={errorPage?.statusCode || 500}
-						title={
-							errorPage?.title || errorPage?.statusCode === 403
-								? 'You are not authorized to view this page!'
-								: 'A server error occurred'
-						}
-					/>
-				) : Component.noWrapper ? (
-					<Component {...pageProps} />
-				) : (
-					<CheckAuth authData={auth}>
-						{Component.authRequired === false ? (
-							<NotAuthenticated>
-								<Component {...pageProps} />
-							</NotAuthenticated>
-						) : (
-							<Authenticated>
-								<Component {...pageProps} />
-							</Authenticated>
-						)}
-					</CheckAuth>
-				)}
-			</QueryClientProvider>
+			{/* Not returning error page so the authenticated wrapper can show login page instead */}
+			{errorPage && errorPage.statusCode !== 401 ? (
+				<Error
+					statusCode={errorPage?.statusCode || 500}
+					title={
+						errorPage?.title || errorPage?.statusCode === 403
+							? 'You are not authorized to view this page!'
+							: 'A server error occurred'
+					}
+				/>
+			) : Component.noWrapper ? (
+				<Component {...pageProps} />
+			) : (
+				<CheckAuth authData={auth}>
+					{Component.authRequired === false ? (
+						<NotAuthenticated>
+							<Component {...pageProps} />
+						</NotAuthenticated>
+					) : (
+						<Authenticated>
+							<Component {...pageProps} />
+						</Authenticated>
+					)}
+				</CheckAuth>
+			)}
 		</GlobalContextProvider>
 	);
 }

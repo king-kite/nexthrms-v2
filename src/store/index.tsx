@@ -1,12 +1,26 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
 import { AlertProvider, AlertModalProvider, AuthProvider } from './contexts';
+
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+			// staleTime: 15 * 60 * 1000, // 15 mins
+		},
+	},
+});
 
 function GlobalProvider({ children }: { children: React.ReactNode }) {
 	return (
 		<AlertProvider>
 			<AlertModalProvider>
-				<AuthProvider>{children}</AuthProvider>
+				<AuthProvider>
+					<QueryClientProvider client={queryClient}>
+						{children}
+					</QueryClientProvider>
+				</AuthProvider>
 			</AlertModalProvider>
 		</AlertProvider>
 	);
