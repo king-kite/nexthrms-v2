@@ -1,3 +1,40 @@
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+export default prisma;
+
+// if (SHOW_QUERY_LOG_TIME)
+// 	xprisma.$use(async (params, next) => {
+// 		const before = Date.now();
+// 		const result = await next(params);
+// 		const after = Date.now();
+
+// 		console.log(
+// 			`Query ${params.model}.${params.action} took ${after - before}ms`
+// 		);
+// 		return result;
+// 	});
+
+// const prisma = xprisma.$extends({
+// 	query: {
+// 		$allModels: {
+// 			async $allOperations({ model, operation, args, query }) {
+// 				console.log('MODEL :>> ', model);
+// 				console.log('OPERATION :>> ', operation);
+// 				console.log('ARGS :>> ', args);
+// 				console.log('QUERY :>> ', query);
+// 				console.log('\n----------\n');
+// 				return query(args);
+// 			},
+// 		},
+// 	},
+// });
+
 // import { PrismaClient } from '@prisma/client';
 
 // import { SHOW_QUERY_LOG_TIME } from '../config';
@@ -44,27 +81,3 @@
 // 	});
 
 // export default prisma;
-
-import { PrismaClient } from '@prisma/client';
-
-import { SHOW_QUERY_LOG_TIME } from '../config';
-
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-const prisma = globalForPrisma.prisma || new PrismaClient();
-
-if (SHOW_QUERY_LOG_TIME)
-	prisma.$use(async (params, next) => {
-		const before = Date.now();
-		const result = await next(params);
-		const after = Date.now();
-
-		console.log(
-			`Query ${params.model}.${params.action} took ${after - before}ms`
-		);
-		return result;
-	});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-export default prisma;
