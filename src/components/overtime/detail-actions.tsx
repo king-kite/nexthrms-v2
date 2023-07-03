@@ -240,23 +240,42 @@ function DetailActions({
 						onClick: () => deleteOvertime(id),
 						title: 'Delete Overtime',
 					});
-				if (canGrant)
-					buttons.push(
-						{
-							bg: 'bg-green-600 hover:bg-green-500',
-							disabled: appLoading,
-							iconLeft: FaCheckCircle,
-							onClick: () => approveOvertime({ id, approval: 'APPROVED' }),
-							title: 'Approve Overtime',
-						},
-						{
+				if (canGrant) {
+					if (data.status === 'APPROVED') {
+						buttons.push({
 							bg: 'bg-yellow-600 hover:bg-yellow-500',
 							disabled: appLoading,
 							iconLeft: FaTimesCircle,
 							onClick: () => approveOvertime({ id, approval: 'DENIED' }),
 							title: 'Deny Overtime',
-						}
-					);
+						});
+					} else if (data.status === 'DENIED') {
+						buttons.push({
+							bg: 'bg-green-600 hover:bg-green-500',
+							disabled: appLoading,
+							iconLeft: FaCheckCircle,
+							onClick: () => approveOvertime({ id, approval: 'APPROVED' }),
+							title: 'Approve Overtime',
+						});
+					} else {
+						buttons.push(
+							{
+								bg: 'bg-green-600 hover:bg-green-500',
+								disabled: appLoading,
+								iconLeft: FaCheckCircle,
+								onClick: () => approveOvertime({ id, approval: 'APPROVED' }),
+								title: 'Approve Overtime',
+							},
+							{
+								bg: 'bg-yellow-600 hover:bg-yellow-500',
+								disabled: appLoading,
+								iconLeft: FaTimesCircle,
+								onClick: () => approveOvertime({ id, approval: 'DENIED' }),
+								title: 'Deny Overtime',
+							}
+						);
+					}
+				}
 			}
 			// } else if (
 			// 	date.getTime() >= currentDate.getTime() &&
