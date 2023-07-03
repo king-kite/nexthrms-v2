@@ -22,7 +22,8 @@
 		"merge-schema": "cat *.prisma > schema.prisma"
 	},
 	"prisma": {
-		"schema": "./src/db/schema.prisma"
+		"schema": "./src/db/schema.prisma",
+		"seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} ./src/db/seed/index.ts"
 	},
 	"engines": {
 		"node": "^18.16.0",
