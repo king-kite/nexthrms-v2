@@ -4,9 +4,7 @@ import { getDate } from '../../utils';
 
 type FormProps = {
 	form: { from?: string; to?: string } | undefined;
-	setForm: React.Dispatch<
-		React.SetStateAction<{ from?: string; to?: string } | undefined>
-	>;
+	setForm: (form: { from?: string; to?: string } | undefined) => void;
 	loading: boolean;
 };
 

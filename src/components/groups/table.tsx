@@ -47,16 +47,19 @@ const getRows = (data: GroupType[]): TableRowType[] =>
 
 type TableType = {
 	groups: GroupType[];
+	offset?: number;
 };
 
-const GroupTable = ({ groups = [] }: TableType) => {
-	const deferredValue = React.useDeferredValue(groups);
+const GroupTable = ({ groups = [], offset = 0 }: TableType) => {
+	const { offset: deferredOffset, groups: deferredValue } =
+		React.useDeferredValue({ groups, offset });
 	const rows = React.useMemo(() => getRows(deferredValue), [deferredValue]);
 
 	return (
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

@@ -68,14 +68,16 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 
 type TableType = {
 	leaves: LeaveType[];
+	offset?: number;
 };
 
-const LeaveTable = ({ leaves }: TableType) => {
+const LeaveTable = ({ leaves, offset = 0 }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	const deferredValue = React.useDeferredValue(leaves);
+	const { leaves: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ leaves, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
@@ -94,6 +96,7 @@ const LeaveTable = ({ leaves }: TableType) => {
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

@@ -62,6 +62,10 @@ const Overtime = ({
 	const [offset, setOffset] = React.useState(0);
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -145,7 +149,11 @@ const Overtime = ({
 				adminView={false}
 				loading={isFetching}
 				dateForm={dateQuery}
-				setDateForm={setDateQuery}
+				setDateForm={(form) => {
+					// change page to 1
+					paginateRef.current?.changePage(1);
+					setDateQuery(form);
+				}}
 				openModal={() => setModalVisible(true)}
 			/>
 			{(canRequest || canView) && (
@@ -155,6 +163,7 @@ const Overtime = ({
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

@@ -86,14 +86,16 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 
 type TableType = {
 	overtime: OvertimeType[];
+	offset?: number;
 };
 
-const OvertimeTable = ({ overtime }: TableType) => {
+const OvertimeTable = ({ overtime, offset = 0 }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending'
 	>('all');
 
-	const deferredValue = React.useDeferredValue(overtime);
+	const { overtime: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ overtime, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
@@ -113,6 +115,7 @@ const OvertimeTable = ({ overtime }: TableType) => {
 			<Table
 				heads={heads}
 				rows={rows}
+				sn={deferredOffset}
 				renderActionLinkAs={({ link, children, ...props }) => (
 					<Link href={link}>
 						<a {...props}>{children}</a>

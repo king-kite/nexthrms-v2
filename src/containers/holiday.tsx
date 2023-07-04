@@ -73,6 +73,10 @@ const Holidays = ({
 	const [offset, setOffset] = React.useState(0);
 	const [search, setSearch] = React.useState('');
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const [canCreate, canView, canEdit, canExport] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
 		const canCreate =
@@ -135,7 +139,11 @@ const Holidays = ({
 					setModalVisible(true);
 				}}
 				loading={isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change to page 1
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -149,6 +157,7 @@ const Holidays = ({
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 					<HolidayTable
 						holidays={data ? data.result : []}
+						offset={offset}
 						onEdit={
 							!canEdit
 								? undefined
@@ -163,6 +172,7 @@ const Holidays = ({
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

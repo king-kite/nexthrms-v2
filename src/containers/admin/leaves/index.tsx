@@ -77,6 +77,10 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 	const [search, setSearch] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -177,8 +181,16 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 				adminView
 				loading={isFetching}
 				dateForm={dateQuery}
-				setDateForm={setDateQuery}
-				searchSubmit={(value) => setSearch(value)}
+				setDateForm={(form) => {
+					// change to page 1
+					paginateRef.current?.changePage(1);
+					setDateQuery(form);
+				}}
+				searchSubmit={(value) => {
+					// change to page 1
+					paginateRef.current?.changePage(1);
+					setSearch(value);
+				}}
 				openModal={(bulk = false) => {
 					setBulkForm(bulk);
 					setModalVisible(true);
@@ -200,11 +212,12 @@ const Leave = ({ leaves }: { leaves: GetLeavesResponseType['data'] }) => {
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-					<LeaveAdminTable leaves={data?.result || []} />
+					<LeaveAdminTable leaves={data?.result || []} offset={offset} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

@@ -101,6 +101,9 @@ const Jobs = ({
 	const [nameSearch, setNameSearch] = React.useState('');
 
 	const searchRef = React.useRef<HTMLInputElement>(null);
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
 
 	const [canCreate, canExport, canView, canEdit] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
@@ -159,8 +162,11 @@ const Jobs = ({
 					className="flex items-center mb-3 w-full md:mb-0 md:w-1/2 lg:mb-0 lg:w-2/5"
 					onSubmit={(e) => {
 						e.preventDefault();
-						if (searchRef.current?.value)
+						if (searchRef.current?.value) {
+							// change the page to 1
+							paginateRef.current?.changePage(1);
 							setNameSearch(searchRef.current?.value);
+						}
 					}}
 				>
 					<InputButton
@@ -168,16 +174,18 @@ const Jobs = ({
 							caps: true,
 							disabled: isFetching,
 							iconLeft: FaSearch,
-							// padding: 'pl-2 pr-4 py-[0.545rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
 						inputProps={{
-							// bdrColor: 'border-primary-500',
 							disabled: isFetching,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {
-								if (value === '') setNameSearch('');
+								if (value === '') {
+									// change the page to 1
+									paginateRef.current?.changePage(1);
+									setNameSearch('');
+								}
 							},
 							placeholder: 'Search Job By Name e.g. accountant',
 							rounded: 'rounded-l-lg',
@@ -242,6 +250,7 @@ const Jobs = ({
 			<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 				<JobTable
 					jobs={data?.result || []}
+					offset={offset}
 					updateJob={
 						!canEdit
 							? undefined
@@ -256,6 +265,7 @@ const Jobs = ({
 					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
+						handleRef={{ ref: paginateRef }}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);

@@ -77,10 +77,11 @@ const getRows = (
 
 type TableType = {
 	jobs: JobType[];
+	offset?: number;
 	updateJob?: (id: string, data: { name: string }) => void;
 };
 
-const JobTable = ({ jobs = [], updateJob }: TableType) => {
+const JobTable = ({ jobs = [], offset = 0, updateJob }: TableType) => {
 	const { open: openAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 	const {
@@ -150,7 +151,8 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 		[closeModal, canDelete, isLoading, openModal, showLoader, deleteJob]
 	);
 
-	const deferredValue = React.useDeferredValue(jobs);
+	const { jobs: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ jobs, offset });
 	const rows = React.useMemo(
 		() =>
 			getRows(
@@ -163,7 +165,7 @@ const JobTable = ({ jobs = [], updateJob }: TableType) => {
 		[deferredValue, updateJob, canViewPermissions, handleDelete, isLoading]
 	);
 
-	return <Table heads={heads} rows={rows} />;
+	return <Table sn={deferredOffset} heads={heads} rows={rows} />;
 };
 
 export default JobTable;

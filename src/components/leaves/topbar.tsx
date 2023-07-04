@@ -19,9 +19,7 @@ type TopbarProps = {
 	loading: boolean;
 
 	dateForm: { from?: string; to?: string } | undefined;
-	setDateForm: React.Dispatch<
-		React.SetStateAction<{ from?: string; to?: string } | undefined>
-	>;
+	setDateForm: (form: { from?: string; to?: string } | undefined) => void;
 
 	searchSubmit?: (search: string) => void;
 	exportData?: {

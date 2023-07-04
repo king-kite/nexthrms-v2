@@ -78,6 +78,10 @@ const Groups = ({
 	const [search, setSearch] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -90,7 +94,6 @@ const Groups = ({
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.group.EXPORT])
 			: false;
-		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.group.VIEW]) ||
@@ -176,7 +179,11 @@ const Groups = ({
 					setModalVisible(true);
 				}}
 				loading={isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change to page 1
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -188,11 +195,12 @@ const Groups = ({
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
-					<GroupTable groups={data?.result || []} />
+					<GroupTable groups={data?.result || []} offset={offset} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

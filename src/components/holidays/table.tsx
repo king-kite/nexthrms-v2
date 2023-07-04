@@ -70,10 +70,11 @@ const getRows = (
 
 type TableType = {
 	holidays: HolidayType[];
+	offset?: number;
 	onEdit?: (id: string, initState: HolidayCreateType) => void;
 };
 
-const HolidayTable = ({ holidays, onEdit }: TableType) => {
+const HolidayTable = ({ holidays, onEdit, offset = 0 }: TableType) => {
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -117,7 +118,8 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 		},
 	});
 
-	const deferredValue = React.useDeferredValue(holidays);
+	const { holidays: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ holidays, offset });
 
 	const rows = React.useMemo(
 		() =>
@@ -141,6 +143,7 @@ const HolidayTable = ({ holidays, onEdit }: TableType) => {
 					},
 				],
 			}}
+			sn={deferredOffset}
 			heads={heads}
 			rows={rows}
 			tick
