@@ -34,12 +34,14 @@ const getRows = (data: AttendanceType[]): TableRowType[] =>
 
 type TableType = {
 	attendance: AttendanceType[];
+	offset?: number;
 };
 
-const AttendanceTable = ({ attendance = [] }: TableType) => {
-	const deferredValue = React.useDeferredValue(attendance);
+const AttendanceTable = ({ attendance = [], offset = 0 }: TableType) => {
+	const { offset: deferredOffset, attendance: deferredValue } =
+		React.useDeferredValue({ attendance, offset });
 	const rows = React.useMemo(() => getRows(deferredValue), [deferredValue]);
-	return <Table heads={heads} rows={rows} />;
+	return <Table sn={deferredOffset} heads={heads} rows={rows} />;
 };
 
 export default AttendanceTable;

@@ -149,6 +149,7 @@ const getRows = (
 
 type TableType = {
 	attendance: AttendanceType[];
+	offset?: number;
 	showAttendance: (attendance: AttendanceType) => void;
 	updateAtd: (
 		form: AttendanceCreateType & {
@@ -160,6 +161,7 @@ type TableType = {
 
 const AttendanceAdminTable = ({
 	attendance = [],
+	offset = 0,
 	showAttendance,
 	loading,
 	updateAtd,
@@ -209,7 +211,8 @@ const AttendanceAdminTable = ({
 			},
 		});
 
-	const deferredValue = React.useDeferredValue(attendance);
+	const { offset: deferredOffset, attendance: deferredValue } =
+		React.useDeferredValue({ attendance, offset });
 
 	const rows = React.useMemo(
 		() =>
@@ -237,6 +240,7 @@ const AttendanceAdminTable = ({
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

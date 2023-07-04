@@ -112,6 +112,10 @@ function AttendanceAdmin({
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const [canCreate, canExport, canView] = React.useMemo(() => {
 		if (!authData) return [false, false, false];
 		const canCreate =
@@ -204,12 +208,17 @@ function AttendanceAdmin({
 				<SearchForm
 					form={searchForm}
 					loading={isFetching}
-					setForm={setSearchForm}
+					setForm={(form) => {
+						// change to the first page
+						paginateRef.current?.changePage(1);
+						setSearchForm(form);
+					}}
 				/>
 			</div>
 			<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 				<Table
 					attendance={data ? data.result : []}
+					offset={offset}
 					loading={isFetching}
 					showAttendance={(attendance) => {
 						setForm((prevState) => ({ ...prevState, editId: undefined }));
@@ -225,6 +234,9 @@ function AttendanceAdmin({
 				{data && data?.total > 0 && (
 					<DynamicTablePagination
 						disabled={isFetching}
+						handleRef={{
+							ref: paginateRef,
+						}}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;

@@ -67,7 +67,10 @@ const Attendance = ({
 				<>
 					<StatsCard attendanceInfo={attendanceInfo} />
 					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-						<AttendanceTable attendance={data ? data.result : []} />
+						<AttendanceTable
+							attendance={data ? data.result : []}
+							offset={offset}
+						/>
 						{data && data?.total > 0 && (
 							<DynamicTablePagination
 								disabled={isFetching}
