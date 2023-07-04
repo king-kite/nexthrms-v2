@@ -115,7 +115,7 @@ const ClientDetail = ({
 									value: data.contact.isActive ? 'active' : 'inactive',
 									options: {
 										bg: data.contact.isActive ? 'success' : 'error',
-										Icon: data.contact.isActive ? FaCheckCircle : FaTimesCircle,
+										icon: data.contact.isActive ? FaCheckCircle : FaTimesCircle,
 									},
 								},
 							]}
