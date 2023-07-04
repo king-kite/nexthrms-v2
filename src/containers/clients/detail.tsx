@@ -112,7 +112,7 @@ const ClientDetail = ({
 								{
 									title: 'Status',
 									type: 'badge',
-									value: data.contact.isActive ? 'active' : 'inactive',
+									value: data.contact.isActive ? 'Active' : 'Inactive',
 									options: {
 										bg: data.contact.isActive ? 'success' : 'error',
 										icon: data.contact.isActive ? FaCheckCircle : FaTimesCircle,
