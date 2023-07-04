@@ -70,6 +70,10 @@ const ProjectTasks = ({
 	const [search, setSearch] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const router = useRouter();
 	const id = router.query.id as string;
 
@@ -164,7 +168,11 @@ const ProjectTasks = ({
 					setModalVisible(true);
 				}}
 				loading={isLoading}
-				onSubmit={(e: string) => setSearch(e)}
+				onSubmit={(e: string) => {
+					// change to page 1
+					paginateRef.current?.changePage(1);
+					setSearch(e);
+				}}
 				projectId={id}
 				exportData={
 					!canExport
@@ -185,6 +193,7 @@ const ProjectTasks = ({
 					<DynamicTablePagination
 						disabled={isFetching}
 						totalItems={data.total}
+						handleRef={{ ref: paginateRef }}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 							offset !== value && setOffset(value * limit);

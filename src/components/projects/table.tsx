@@ -120,10 +120,10 @@ const getRows = (
 
 type TableType = {
 	projects: ProjectType[];
-	loading: boolean;
+	offset?: number;
 };
 
-const ProjectTable = ({ projects, loading }: TableType) => {
+const ProjectTable = ({ projects, offset = 0 }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'ongoing' | 'completed'
 	>('all');
@@ -181,7 +181,8 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 		},
 	});
 
-	const deferredValue = React.useDeferredValue(projects);
+	const { projects: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ projects, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'ongoing') {
@@ -214,6 +215,7 @@ const ProjectTable = ({ projects, loading }: TableType) => {
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

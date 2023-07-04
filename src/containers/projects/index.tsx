@@ -63,6 +63,10 @@ const Projects = ({
 	const [search, setSearch] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -75,7 +79,6 @@ const Projects = ({
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.project.EXPORT])
 			: false;
-		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.project.VIEW]) ||
@@ -157,7 +160,11 @@ const Projects = ({
 					setModalVisible(true);
 				}}
 				loading={isLoading}
-				onSubmit={(e: string) => setSearch(e)}
+				onSubmit={(e: string) => {
+					// change page to one
+					paginateRef.current?.changePage(1);
+					setSearch(e);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -169,10 +176,11 @@ const Projects = ({
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
-					<ProjectTable loading={isLoading} projects={data?.result || []} />
+					<ProjectTable offset={offset} projects={data?.result || []} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
+							handleRef={{ ref: paginateRef }}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
