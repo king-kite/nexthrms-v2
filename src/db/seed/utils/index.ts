@@ -18,14 +18,7 @@ export type ProfileType = {
 
 export function getProfile({
 	dob = new Date(),
-	image = {
-		create: {
-			url: '/images/default.png',
-			size: 0,
-			name: 'user.png',
-			type: 'image',
-		},
-	},
+	image,
 	nameAddress = 'my',
 	address,
 	city = 'New City',
