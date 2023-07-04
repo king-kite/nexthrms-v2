@@ -54,6 +54,10 @@ const Permissions = ({
 	const [offset, setOffset] = React.useState(0);
 	const [search, setSearch] = React.useState('');
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -108,7 +112,11 @@ const Permissions = ({
 		>
 			<Topbar
 				loading={isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change page to 1
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				openModal={canEdit ? () => setModalVisible(true) : undefined}
 				exportData={
 					!canExport
@@ -121,11 +129,12 @@ const Permissions = ({
 			/>
 			{canView && data && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-					<PermissionTable permissions={data.result} />
+					<PermissionTable permissions={data.result} offset={offset} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

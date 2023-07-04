@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-import { Container } from '../../components/common';
+import Container from '../../components/common/container';
 import { Cards, UserTable, Topbar } from '../../components/users';
 import {
 	permissions,
@@ -16,7 +16,7 @@ import {
 	useGetUsersQuery,
 } from '../../store/queries/users';
 import { CreateUserErrorResponseType, GetUsersResponseType } from '../../types';
-import { hasModelPermission } from '../../utils';
+import { hasModelPermission } from '../../utils/permission';
 
 interface ErrorType extends CreateUserErrorResponseType {
 	message?: string;
@@ -74,6 +74,10 @@ const Users = ({
 	const [search, setSearch] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -86,7 +90,6 @@ const Users = ({
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.user.EXPORT])
 			: false;
-		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.user.VIEW]) ||
@@ -177,7 +180,11 @@ const Users = ({
 					setModalVisible(true);
 				}}
 				loading={isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change the page to 1
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -189,11 +196,12 @@ const Users = ({
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-7 rounded-lg py-2 md:py-3 lg:py-4">
-					<UserTable users={data?.result || []} />
+					<UserTable users={data?.result || []} offset={offset} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
 							totalItems={data.total}
+							handleRef={{ ref: paginateRef }}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
 								offset !== value && setOffset(value * limit);

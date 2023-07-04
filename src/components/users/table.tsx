@@ -3,11 +3,11 @@ import Link from 'next/link';
 import React from 'react';
 import { FaArrowRight, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
-import { TableAvatarEmailNameCell } from '../common';
+import { TableAvatarEmailNameCell } from '../common/table/cells';
 import { USER_PAGE_URL } from '../../config/routes';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { UserType } from '../../types';
-import { getStringedDate } from '../../utils';
+import { getStringedDate } from '../../utils/dates';
 
 const heads: TableHeadType = [
 	{
@@ -130,14 +130,16 @@ const getRows = (data: UserType[]): TableRowType[] =>
 
 type TableType = {
 	users: UserType[];
+	offset?: number;
 };
 
-const UserTable = ({ users }: TableType) => {
+const UserTable = ({ offset = 0, users }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'on leave' | 'inactive' | 'clients' | 'employees'
 	>('all');
 
-	const deferredValue = React.useDeferredValue(users);
+	const { users: deferredValue, offset: deferredOffset } =
+		React.useDeferredValue({ users, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
@@ -167,6 +169,7 @@ const UserTable = ({ users }: TableType) => {
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>
