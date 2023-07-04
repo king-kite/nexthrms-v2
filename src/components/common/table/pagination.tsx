@@ -16,6 +16,8 @@ export type PaginationProps = PaginationType & {
 	pageSizes?: number[];
 };
 
+const DEFAULT_PAGE_SIZE = 5;
+
 function Pagination({
 	disabled = false,
 	onChange,
@@ -23,11 +25,13 @@ function Pagination({
 	onSizeChange,
 	...props
 }: PaginationProps) {
+	const paginatedData = usePagination({
+		...props,
+		pageSize: props.pageSize || DEFAULT_PAGE_SIZE,
+	});
+
 	const { changePage, currentPage, pages, pageSize, totalPages } =
-		usePagination({
-			...props,
-			pageSize: props.pageSize || 5,
-		});
+		React.useDeferredValue(paginatedData);
 
 	const canPreviousPage = React.useMemo(() => currentPage > 1, [currentPage]);
 	const canNextPage = React.useMemo(
@@ -81,7 +85,11 @@ function Pagination({
 								title: `Show ${pageSize}`,
 								value: pageSize.toString(),
 							}))}
-							value={pageSize.toString()}
+							value={(
+								pageSize ||
+								props.pageSize ||
+								DEFAULT_PAGE_SIZE
+							).toString()}
 						/>
 					</div>
 				</div>
