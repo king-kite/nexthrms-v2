@@ -3,5 +3,3 @@
 2. Make a custom date picker component.
 3. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward. Do be mindful of smaller screen.
 4. Have the filters send info the database instead. To help with exporting.
-5. The table s/n should correspond to the page offset and clear the offset when search or date filter is used.
-6. Clear the ref timeout and cancel request if a notification is deleted.

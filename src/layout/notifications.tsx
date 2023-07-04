@@ -91,6 +91,8 @@ const Notification = ({
 	const { mutate: markNote } = useMarkNotificationMutation({
 		onMutate(total) {
 			setCount(total);
+			// Clear the timeout if the use wants to delete manually
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
 		},
 		onError(message) {
 			open({
