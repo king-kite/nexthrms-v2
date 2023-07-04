@@ -7,7 +7,7 @@ import { TableAvatarEmailNameCell } from '../common';
 import { EMPLOYEE_PAGE_URL } from '../../config/routes';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { EmployeeType } from '../../types';
-import { getStringedDate } from '../../utils';
+import { getStringedDate } from '../../utils/dates';
 
 const heads: TableHeadType = [
 	{
@@ -79,14 +79,16 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 
 type TableType = {
 	employees: EmployeeType[];
+	offset?: number;
 };
 
-const EmployeeTable = ({ employees }: TableType) => {
+const EmployeeTable = ({ employees, offset = 0 }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'on leave' | 'inactive'
 	>('all');
 
-	const deferredValue = React.useDeferredValue(employees);
+	const { offset: deferredOffset, employees: deferredValue } =
+		React.useDeferredValue({ employees, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
@@ -112,6 +114,7 @@ const EmployeeTable = ({ employees }: TableType) => {
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

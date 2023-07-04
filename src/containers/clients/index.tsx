@@ -72,6 +72,10 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
@@ -81,7 +85,6 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.client.EXPORT])
 			: false;
-		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  hasModelPermission(authData.permissions, [permissions.client.VIEW]) ||
@@ -166,7 +169,11 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 					setModalVisible(true);
 				}}
 				loading={isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change paage to 1
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -178,10 +185,13 @@ const Clients = ({ clients }: { clients: GetClientsResponseType['data'] }) => {
 			/>
 			{(canView || canCreate) && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-					<ClientTable clients={data ? data.result : []} />
+					<ClientTable clients={data ? data.result : []} offset={offset} />
 					{data && data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={isFetching}
+							handleRef={{
+								ref: paginateRef,
+							}}
 							totalItems={data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;

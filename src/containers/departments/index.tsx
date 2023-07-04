@@ -101,6 +101,9 @@ const Departments = ({
 	const [nameSearch, setNameSearch] = React.useState('');
 
 	const searchRef = React.useRef<HTMLInputElement>(null);
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
 
 	const [canCreate, canExport, canView, canEdit] = React.useMemo(() => {
 		if (!authData) return [false, false, false, false];
@@ -163,24 +166,29 @@ const Departments = ({
 					className="flex items-center mb-3 w-full md:mb-0 md:w-1/2 lg:mb-0 lg:w-2/5"
 					onSubmit={(e) => {
 						e.preventDefault();
-						if (searchRef.current?.value)
+						if (searchRef.current?.value) {
+							// change page to 1
+							paginateRef.current?.changePage(1);
 							setNameSearch(searchRef.current?.value);
+						}
 					}}
 				>
 					<InputButton
 						buttonProps={{
 							disabled: isFetching,
 							iconLeft: FaSearch,
-							// padding: 'pl-2 pr-4 py-[0.545rem]',
 							title: 'Search',
 							type: 'submit',
 						}}
 						inputProps={{
-							// bdrColor: 'border-primary-500',
 							disabled: isFetching,
 							icon: FaSearch,
 							onChange: ({ target: { value } }) => {
-								if (!value || value === '') setNameSearch('');
+								if (!value || value === '') {
+									// change page to 1
+									paginateRef.current?.changePage(1);
+									setNameSearch('');
+								}
 							},
 							placeholder: 'Search department by name e.g. engineering',
 							rounded: 'rounded-l-lg',
@@ -247,6 +255,7 @@ const Departments = ({
 			<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 				<DepartmentTable
 					departments={data?.result || []}
+					offset={offset}
 					updateDep={
 						canEdit
 							? (form: { id: string; name: string; hod: string | null }) => {
@@ -260,6 +269,9 @@ const Departments = ({
 				{data && data?.total > 0 && (
 					<DynamicTablePagination
 						disabled={isFetching}
+						handleRef={{
+							ref: paginateRef,
+						}}
 						totalItems={data.total}
 						onChange={(pageNo: number) => {
 							const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;

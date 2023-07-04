@@ -79,6 +79,10 @@ const Employees = ({
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
@@ -94,7 +98,6 @@ const Employees = ({
 						permissions.employee.EXPORT,
 					]))
 			: false;
-		// TODO: Add Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
@@ -187,7 +190,11 @@ const Employees = ({
 					setModalVisible(true);
 				}}
 				loading={employees.isFetching}
-				onSubmit={(name: string) => setSearch(name)}
+				onSubmit={(name: string) => {
+					// change to page one
+					paginateRef.current?.changePage(1);
+					setSearch(name);
+				}}
 				exportData={
 					!canExport
 						? undefined
@@ -199,10 +206,16 @@ const Employees = ({
 			/>
 			{(canCreate || canView) && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-					<EmployeeTable employees={employees.data?.result || []} />
+					<EmployeeTable
+						employees={employees.data?.result || []}
+						offset={offset}
+					/>
 					{employees.data && employees.data?.total > 0 && (
 						<DynamicTablePagination
 							disabled={employees.isFetching}
+							handleRef={{
+								ref: paginateRef,
+							}}
 							totalItems={employees.data.total}
 							onChange={(pageNo: number) => {
 								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;

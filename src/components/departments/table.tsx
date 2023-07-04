@@ -87,6 +87,7 @@ const getRows = (
 
 type TableType = {
 	departments: DepartmentType[];
+	offset?: number;
 	updateDep?: (data: { id: string; name: string; hod: string | null }) => void;
 };
 
@@ -97,7 +98,11 @@ const heads: TableHeadType = [
 	{ type: 'actions', value: 'edit' },
 ];
 
-const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
+const DepartmentTable = ({
+	departments = [],
+	offset = 0,
+	updateDep,
+}: TableType) => {
 	const { open: openAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 	const {
@@ -234,7 +239,8 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 		[closeModal, depsLoading, openModal, deleteDepartments, showLoader]
 	);
 
-	const deferredValue = React.useDeferredValue(departments);
+	const { offset: deferredOffset, departments: deferredValue } =
+		React.useDeferredValue({ departments, offset });
 	const rows = React.useMemo(
 		() =>
 			getRows(
@@ -259,6 +265,7 @@ const DepartmentTable = ({ departments = [], updateDep }: TableType) => {
 			heads={heads}
 			rows={rows}
 			tick={canDelete}
+			sn={deferredOffset}
 			actions={
 				canDelete
 					? {

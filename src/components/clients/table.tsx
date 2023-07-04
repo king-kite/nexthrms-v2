@@ -63,14 +63,16 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 
 type TableType = {
 	clients: ClientType[];
+	offset?: number;
 };
 
-const ClientTable = ({ clients }: TableType) => {
+const ClientTable = ({ clients, offset = 0 }: TableType) => {
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'active' | 'inactive'
 	>('all');
 
-	const deferredValue = React.useDeferredValue(clients);
+	const { offset: deferredOffset, clients: deferredValue } =
+		React.useDeferredValue({ offset, clients });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'active') {
@@ -91,6 +93,7 @@ const ClientTable = ({ clients }: TableType) => {
 		<Table
 			heads={heads}
 			rows={rows}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>
