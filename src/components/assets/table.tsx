@@ -147,6 +147,7 @@ const getRows = (
 
 type TableType = {
 	assets: AssetType[];
+	offset?: number;
 	deleteAsset: (id: string) => void;
 	editAsset: (asset: AssetType) => void;
 	showAsset: (asset: AssetType) => void;
@@ -156,6 +157,7 @@ const AssetTable = ({
 	assets,
 	deleteAsset,
 	editAsset,
+	offset = 0,
 	showAsset,
 }: TableType) => {
 	const { data: authData } = useAuthContext();
@@ -185,7 +187,8 @@ const AssetTable = ({
 	const [activeRow, setActiveRow] = React.useState<
 		'all' | 'approved' | 'denied' | 'pending' | 'returned'
 	>('all');
-	const deferredValue = React.useDeferredValue(assets);
+	const { offset: deferredOffset, assets: deferredValue } =
+		React.useDeferredValue({ assets, offset });
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'approved') {
@@ -227,6 +230,7 @@ const AssetTable = ({
 					hover: true,
 				},
 			}}
+			sn={deferredOffset}
 			renderActionLinkAs={({ link, children, ...props }) => (
 				<Link href={link}>
 					<a {...props}>{children}</a>

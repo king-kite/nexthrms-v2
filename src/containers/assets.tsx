@@ -118,6 +118,10 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		endDate?: string;
 	}>();
 
+	const paginateRef = React.useRef<{
+		changePage: (num: number) => void;
+	} | null>(null);
+
 	const { open } = useAlertContext();
 
 	const { visible: alertModalVisible, close: closeModal } =
@@ -336,12 +340,17 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 						<SearchForm
 							form={searchForm}
 							loading={isFetching}
-							setForm={setSearchForm}
+							setForm={(form) => {
+								// change page to 1
+								paginateRef.current?.changePage(1);
+								setSearchForm(form);
+							}}
 						/>
 					</div>
 					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
 						<AssetTable
 							assets={data?.result || []}
+							offset={offset}
 							showAsset={(asset) => {
 								setShowAsset(asset);
 								setModalVisible(true);
@@ -371,6 +380,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 								}}
 								onSizeChange={(size: number) => setLimit(size)}
 								pageSize={limit}
+								handleRef={{ ref: paginateRef }}
 							/>
 						)}
 					</div>

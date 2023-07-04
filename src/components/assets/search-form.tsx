@@ -14,7 +14,7 @@ function SearchForm({
 	setForm,
 	loading,
 }: {
-	setForm: React.Dispatch<React.SetStateAction<FormType>>;
+	setForm: (form: FormType) => void;
 	form?: {
 		name?: string;
 		startDate?: string;
@@ -50,10 +50,11 @@ function SearchForm({
 						name="assetName"
 						onChange={({ target: { value } }) => {
 							if (!value || value.trim() === '')
-								setForm((prevState) => ({
-									...prevState,
+								setForm({
+									startDate: form?.startDate,
+									endDate: form?.endDate,
 									name: '',
-								}));
+								});
 						}}
 						required={false}
 						type="text"
