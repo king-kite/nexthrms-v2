@@ -11,6 +11,11 @@ import { Button, PageButton } from './components';
 
 export type PaginationProps = PaginationType & {
 	disabled?: boolean;
+	handleRef?: {
+		ref: React.Ref<{
+			changePage: (num: number) => void;
+		} | null>;
+	};
 	onChange?: (pageNumber: number) => void;
 	onSizeChange?: (size: number) => void;
 	pageSizes?: number[];
@@ -20,6 +25,7 @@ const DEFAULT_PAGE_SIZE = 5;
 
 function Pagination({
 	disabled = false,
+	handleRef,
 	onChange,
 	pageSizes = [5, 10, 25, 50, 100, 200, 400, 500, 800, 1000],
 	onSizeChange,
@@ -58,6 +64,14 @@ function Pagination({
 		const value = currentPage + 1 >= totalPages ? totalPages : currentPage + 1;
 		goToPage(value);
 	}, [currentPage, goToPage, totalPages]);
+
+	React.useImperativeHandle(
+		handleRef?.ref,
+		() => ({
+			changePage: goToPage,
+		}),
+		[goToPage]
+	);
 
 	return (
 		<div className="flex items-center justify-between py-3">
