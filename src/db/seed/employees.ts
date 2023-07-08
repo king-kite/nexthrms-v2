@@ -207,7 +207,7 @@ async function main(prisma: PrismaClient) {
 				dob: new Date(2005, 3, 8),
 				nameAddress: "September Doe's",
 			},
-			job: 'Sales Representative',
+			job: 'Sales Representative Assistant',
 			department: 'Sales',
 			supervisor: 'julydoe@kitehrms.com',
 		}),
