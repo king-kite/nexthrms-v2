@@ -25,7 +25,6 @@ export const config = {
 
 function getDataInput(data: AttendanceImportQueryType) {
 	const date = new Date(data.date);
-	date.setHours(0, 0, 0, 0);
 	return {
 		id: data.id,
 		employee: {

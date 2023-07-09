@@ -84,7 +84,6 @@ export default admin()
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the overtime date is today or next date i.e the current date or days after today
 		// and it is not approved then it can be approved/denied and also updated and deleted.
 		// Means that the overtime has yet to commence.
@@ -156,7 +155,6 @@ export default admin()
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the overtime date is today or next date i.e the current date or days after today
 		// and it is still not appoved then it can be approved/denied and also updated and deleted.
 		// Means that the overtime has yet to commence.
@@ -180,8 +178,6 @@ export default admin()
 					message: 'Employee ID is required!',
 				});
 			}
-			const date = new Date(data.date);
-			date.setHours(0, 0, 0, 0);
 
 			const overtime = await prisma.overtime.update({
 				where: {
@@ -244,7 +240,6 @@ export default admin()
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the overtime date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the overtime has yet to commence.

@@ -4,7 +4,6 @@ import prisma from '..';
 import { EmployeeType, ParamsType } from '../../types';
 
 const date = new Date();
-date.setHours(0, 0, 0, 0);
 
 export const employeeSelectQuery: Prisma.EmployeeSelect = {
 	id: true,

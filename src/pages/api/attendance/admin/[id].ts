@@ -64,7 +64,6 @@ export default admin()
 		);
 
 		const date = new Date(data.date);
-		date.setHours(0, 0, 0, 0);
 
 		const input: Prisma.AttendanceUpdateInput = {
 			employee: {

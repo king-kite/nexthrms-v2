@@ -83,7 +83,6 @@ export default admin()
 				? new Date(leave.startDate)
 				: leave.startDate;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.
@@ -160,7 +159,6 @@ export default admin()
 				? new Date(leave.startDate)
 				: leave.startDate;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.
@@ -186,20 +184,12 @@ export default admin()
 
 			// TODO: Check if the user has an approved/pending leave
 
-			const startDate = new Date(data.startDate);
-			startDate.setHours(0, 0, 0, 0);
-
-			const endDate = new Date(data.endDate);
-			endDate.setHours(0, 0, 0, 0);
-
 			const updated = await prisma.leave.update({
 				where: {
 					id: req.query.id as string,
 				},
 				data: {
 					...data,
-					startDate,
-					endDate,
 					employee: {
 						connect: {
 							id: employee,
@@ -258,7 +248,6 @@ export default admin()
 				? new Date(leave.startDate)
 				: leave.startDate;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// If the leave start date is today or next date i.e the current date or days after today
 		// and it is still pending then it can be approved/denied and also updated and deleted.
 		// Means that the leave has yet to commence.

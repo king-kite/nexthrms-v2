@@ -139,7 +139,6 @@ export const getAttendanceInfo = async (
 			? new Date(_date)
 			: _date
 		: new Date();
-	date.setHours(0, 0, 0, 0);
 
 	const stats = await xprisma.$transaction([
 		xprisma.attendance.findUnique({

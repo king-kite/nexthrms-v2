@@ -26,7 +26,6 @@ export const config = {
 
 function getDataInput(data: OvertimeImportQueryType) {
 	const date = new Date(data.date);
-	date.setHours(0, 0, 0, 0);
 	return {
 		id: data.id && data.id.length > 0 ? data.id : undefined,
 		reason: data.reason,

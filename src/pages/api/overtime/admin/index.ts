@@ -64,13 +64,10 @@ export default admin()
 			});
 		}
 
-		const date = new Date(data.date);
-		date.setHours(0, 0, 0, 0);
-
 		// Check if the user has an approved/pending overtime request
 		const exists = await prisma.overtime.findFirst({
 			where: {
-				date,
+				date: data.date,
 				employeeId: data.employee,
 				status: {
 					in: ['APPROVED', 'PENDING'],
@@ -88,7 +85,6 @@ export default admin()
 		const overtime = (await prisma.overtime.create({
 			data: {
 				...data,
-				date,
 				employee: {
 					connect: {
 						id: data.employee,

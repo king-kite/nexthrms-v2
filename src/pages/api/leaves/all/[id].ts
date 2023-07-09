@@ -81,7 +81,6 @@ export default employee()
 				? new Date(leave.startDate)
 				: leave.startDate;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// As long as the leave is still pending, the user can edit as he/she likes
 		// Also if the startDate has not yet been reached
 		if (oldStartDate.getTime() >= currentDate.getTime()) {
@@ -92,20 +91,12 @@ export default employee()
 				{ abortEarly: false }
 			);
 
-			const startDate = new Date(data.startDate);
-			startDate.setHours(0, 0, 0, 0);
-
-			const endDate = new Date(data.endDate);
-			endDate.setHours(0, 0, 0, 0);
-
 			const updated = await prisma.leave.update({
 				where: {
 					id: req.query.id as string,
 				},
 				data: {
 					...data,
-					startDate,
-					endDate,
 					status: 'PENDING', // Force the update to be pending
 				},
 				select: selectQuery,
@@ -161,7 +152,6 @@ export default employee()
 				? new Date(exLeave.startDate)
 				: exLeave.startDate;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// As long as the leave is still pending, the user can edit as he/she likes
 		// Also if the startDate has not yet been reached
 		if (oldStartDate.getTime() >= currentDate.getTime()) {

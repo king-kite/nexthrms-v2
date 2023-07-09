@@ -73,7 +73,6 @@ export default employee()
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// As long as the overtime is the current date or greater than the current date
 		// The user can update it
 		if (oldDate.getTime() >= currentDate.getTime()) {
@@ -84,9 +83,6 @@ export default employee()
 				{ abortEarly: false }
 			);
 
-			const date = new Date(data.date);
-			date.setHours(0, 0, 0, 0);
-
 			const updated = await prisma.overtime.update({
 				where: {
 					id: req.query.id as string,
@@ -94,7 +90,6 @@ export default employee()
 				data: {
 					...data,
 					status: 'PENDING',
-					date,
 					employee: {
 						connect: {
 							id: req.user.employee.id,
@@ -154,7 +149,6 @@ export default employee()
 				? new Date(overtime.date)
 				: overtime.date;
 		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
 		// As long as the overtime is still pending, the user can edit as he/she likes
 		// Also if the startDate has not yet been reached
 		if (oldDate.getTime() >= currentDate.getTime()) {

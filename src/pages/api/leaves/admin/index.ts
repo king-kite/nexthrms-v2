@@ -62,17 +62,9 @@ export default admin()
 			});
 		}
 
-		const startDate = new Date(data.startDate);
-		startDate.setHours(0, 0, 0, 0);
-
-		const endDate = new Date(data.endDate);
-		endDate.setHours(0, 0, 0, 0);
-
 		const leave = (await prisma.leave.create({
 			data: {
 				...data,
-				startDate,
-				endDate,
 				employee: {
 					connect: {
 						id: data.employee,

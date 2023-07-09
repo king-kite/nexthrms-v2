@@ -31,8 +31,12 @@ export const getDate = (
 			typeof dateString === 'string' ? new Date(dateString) : dateString;
 		return str ? getStringedDate(date) : date;
 	} else {
-		const date = new Date();
-		date.setHours(0, 0, 0, 0);
+		const currentDate = new Date();
+		const date = new Date(
+			currentDate.getFullYear(),
+			currentDate.getMonth(),
+			currentDate.getDate()
+		);
 		return str ? getStringedDate(date) : date;
 	}
 };

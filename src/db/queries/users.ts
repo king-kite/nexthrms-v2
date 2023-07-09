@@ -11,7 +11,6 @@ import {
 } from '../../types';
 
 const date = new Date();
-date.setHours(0, 0, 0, 0);
 
 export const userSelectQuery: Prisma.UserSelect = {
 	id: true,

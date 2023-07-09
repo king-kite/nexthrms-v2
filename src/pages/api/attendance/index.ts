@@ -57,7 +57,6 @@ export default employee()
 		const { action } = await attendanceActionSchema.validate({ ...req.body });
 
 		const date = new Date();
-		date.setHours(0, 0, 0, 0);
 
 		const attendance = await prisma.attendance.findUnique({
 			where: {

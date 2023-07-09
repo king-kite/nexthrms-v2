@@ -4,7 +4,6 @@ import prisma from '..';
 import { ProfileType } from '../../types';
 
 const date = new Date();
-date.setHours(0, 0, 0, 0);
 
 const userSelect: Prisma.UserSelect = {
 	firstName: true,
