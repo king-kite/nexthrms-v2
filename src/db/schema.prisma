@@ -40,7 +40,7 @@ model Asset {
 
 model Attendance {
   id       String    @id @default(uuid()) @db.Uuid
-  date     DateTime  @default(now())
+  date     DateTime  @default(now()) @db.Date
   punchIn  DateTime  @map("punch_in") @db.Time()
   punchOut DateTime? @map("punch_out") @db.Time()
 
@@ -172,8 +172,8 @@ model Job {
 model Leave {
   id        String       @id @default(uuid()) @db.Uuid
   reason    String
-  startDate DateTime     @map("start_date")
-  endDate   DateTime     @map("end_date")
+  startDate DateTime     @map("start_date") @db.Date
+  endDate   DateTime     @map("end_date") @db.Date
   type      LeaveChoices @default(CASUAL)
   status    LeaveStatus  @default(PENDING)
 
@@ -242,7 +242,7 @@ model Notification {
 model Overtime {
   id     String          @id @default(uuid()) @db.Uuid
   type   OvertimeChoices @default(VOLUNTARY)
-  date   DateTime
+  date   DateTime        @db.Date
   hours  Int
   reason String
   status LeaveStatus     @default(PENDING)
@@ -312,7 +312,7 @@ model PermissionObject {
 
 model Profile {
   id  String    @id @default(uuid()) @db.Uuid
-  dob DateTime?
+  dob DateTime? @db.Date
 
   address String?
   city    String? @db.VarChar(20)
@@ -341,8 +341,8 @@ model Project {
   name        String          @unique @db.VarChar(255)
   priority    ProjectPriority @default(HIGH)
   rate        Float           @default(0)
-  startDate   DateTime        @default(now()) @map("start_date")
-  endDate     DateTime        @map("end_date")
+  startDate   DateTime        @default(now()) @map("start_date") @db.Date
+  endDate     DateTime        @map("end_date") @db.Date
 
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String? @map("client_id") @db.Uuid
@@ -410,7 +410,7 @@ model ProjectTask {
 
   followers ProjectTaskFollower[]
 
-  dueDate   DateTime @map("due_date")
+  dueDate   DateTime @map("due_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
