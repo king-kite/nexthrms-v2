@@ -3,45 +3,12 @@ import { LeaveStatus, OvertimeChoices } from '@prisma/client';
 import { ValidatorErrorType, SuccessResponseType } from './base';
 import { OvertimeCreateType } from '../validators/overtime';
 
-type EmployeeType = {
-	id: string;
-	user: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-		profile: {
-			image: {
-				id: string;
-				url: string;
-			} | null;
-		} | null;
-	};
-	department: {
-		name: string;
-	} | null;
-	job: {
-		name: string;
-	} | null;
-};
-
-export type OvertimeType = {
-	id: string;
-	date: Date | string;
-	hours: number;
-	reason: string;
-	type: 'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY';
-	status: 'APPROVED' | 'DENIED' | 'PENDING';
-	updatedAt: Date | string;
-	createdAt: Date | string;
-	employee: EmployeeType;
-	approvedBy: EmployeeType | null;
-	createdBy: EmployeeType | null;
-};
+import type { OvertimeType } from '../db/queries/overtime';
+export type { OvertimeType } from '../db/queries/overtime';
 
 export type OvertimeImportQueryType = {
 	id?: string;
-	employee_id: string;
+	employee: string; // employee email
 	type: OvertimeChoices;
 	date: string;
 	hours: number;

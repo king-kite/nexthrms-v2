@@ -257,8 +257,8 @@ const Overtime = ({
 										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
 									},
 									{
-										title: 'employee_id',
-										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+										title: 'employee',
+										value: 'jandoe@kitehrms.com',
 									},
 									{
 										title: 'date',
@@ -283,12 +283,12 @@ const Overtime = ({
 									{
 										required: false,
 										title: 'created_by',
-										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+										value: 'jandoe@kitehrms.com',
 									},
 									{
 										required: false,
 										title: 'approved_by',
-										value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
+										value: 'jandoe@kitehrms.com',
 									},
 									{
 										required: false,

@@ -230,9 +230,17 @@ export function handlePrismaErrors(
 		}
 	} else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
 		errors.code = 500;
-		if (process.env.NODE_ENV === 'development' || +(process.env.TEST_MODE || 0) === 1) errors.message = error.message;
+		if (
+			process.env.NODE_ENV === 'development' ||
+			+(process.env.TEST_MODE || 0) === 1
+		)
+			errors.message = error.message;
 		else errors.message = 'An unknown server client request error occurred!';
-	} else if ((error as any).message && (process.env.NODE_ENV === 'development' || +(process.env.TEST_MODE || 0) === 1))
+	} else if (
+		(error as any).message &&
+		(process.env.NODE_ENV === 'development' ||
+			+(process.env.TEST_MODE || 0) === 1)
+	)
 		errors.message = (error as any).message;
 
 	return errors;

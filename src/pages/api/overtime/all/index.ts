@@ -1,8 +1,7 @@
 import { permissions } from '../../../../config';
-import prisma from '../../../../db';
 import {
 	getAllOvertime,
-	overtimeSelectQuery as selectQuery,
+	createOvertime,
 } from '../../../../db/queries/overtime';
 import {
 	addObjectPermissions,
@@ -11,7 +10,6 @@ import {
 	updateObjectPermissions,
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
@@ -56,42 +54,17 @@ export default employee()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data = await overtimeCreateSchema.validate(
+		const { employee, ...data } = await overtimeCreateSchema.validate(
 			{
 				...req.body,
 			},
 			{ abortEarly: false }
 		);
 
-		// Check if the user has an approved/pending overtime request
-		const exists = await prisma.overtime.findFirst({
-			where: {
-				date: data.date,
-				employeeId: req.user.employee.id,
-				status: {
-					in: ['APPROVED', 'PENDING'],
-				},
-			},
+		const overtime = await createOvertime({
+			...data,
+			employeeId: req.user.employee.id,
 		});
-		if (exists) {
-			return res.status(400).json({
-				status: 'error',
-				message:
-					'An approved or pending overtime request already exists for this date.',
-			});
-		}
-
-		const overtime = (await prisma.overtime.create({
-			data: {
-				...data,
-				employee: {
-					connect: {
-						id: req.user.employee.id,
-					},
-				},
-			},
-			select: selectQuery,
-		})) as unknown as OvertimeType;
 
 		// Get the employees admin related officers
 		const officers = await getEmployeeOfficersId(overtime.employee.id);

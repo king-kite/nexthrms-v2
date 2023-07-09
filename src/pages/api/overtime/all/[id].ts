@@ -1,7 +1,7 @@
-import prisma from '../../../../db';
 import {
+	deleteOvertime,
 	getOvertime,
-	overtimeSelectQuery as selectQuery,
+	updateOvertime,
 } from '../../../../db/queries/overtime';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
@@ -83,20 +83,14 @@ export default employee()
 				{ abortEarly: false }
 			);
 
-			const updated = await prisma.overtime.update({
-				where: {
-					id: req.query.id as string,
-				},
-				data: {
-					...data,
-					status: 'PENDING',
-					employee: {
-						connect: {
-							id: req.user.employee.id,
-						},
+			const updated = await updateOvertime(overtime.id, {
+				...data,
+				employee: {
+					connect: {
+						id: req.user.employee.id as string,
 					},
 				},
-				select: selectQuery,
+				status: 'PENDING',
 			});
 
 			return res.status(200).json({
@@ -113,14 +107,13 @@ export default employee()
 		});
 	})
 	.delete(async (req, res) => {
-		const overtime = await prisma.overtime.findUniqueOrThrow({
-			where: { id: req.query.id as string },
-			select: {
-				date: true,
-				status: true,
-				employee: { select: { id: true } },
-			},
-		});
+		const overtime = await getOvertime(req.query.id as string);
+
+		if (!overtime)
+			throw new NextApiErrorMessage(
+				404,
+				'Overtime with the specified id was not found!'
+			);
 
 		if (overtime.employee.id !== req.user.employee.id)
 			throw new NextApiErrorMessage(403);
@@ -152,7 +145,7 @@ export default employee()
 		// As long as the overtime is still pending, the user can edit as he/she likes
 		// Also if the startDate has not yet been reached
 		if (oldDate.getTime() >= currentDate.getTime()) {
-			await prisma.overtime.delete({ where: { id: req.query.id as string } });
+			await deleteOvertime(req.query.id as string);
 
 			return res.status(200).json({
 				status: 'success',

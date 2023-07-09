@@ -4,7 +4,7 @@ import Overtime from '../../../../containers/overtime/detail';
 import { getOvertime } from '../../../../db/queries/overtime';
 import { getRecord } from '../../../../db/utils/record';
 import { authPage } from '../../../../middlewares';
-import { ExtendedGetServerSideProps, OvertimeType } from '../../../../types';
+import { ExtendedGetServerSideProps } from '../../../../types';
 import Title from '../../../../utils/components/title';
 import { serializeUserData } from '../../../../utils/serializers/auth';
 import { uuidSchema } from '../../../../validators';
@@ -63,7 +63,7 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const record = await getRecord<OvertimeType | null>({
+	const record = await getRecord({
 		model: 'overtime',
 		objectId: params?.id as string,
 		perm: 'overtime',

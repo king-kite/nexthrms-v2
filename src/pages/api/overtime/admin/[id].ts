@@ -1,8 +1,8 @@
 import permissions from '../../../../config/permissions';
-import prisma from '../../../../db';
 import {
 	getOvertime,
-	overtimeSelectQuery as selectQuery,
+	updateOvertime,
+	deleteOvertime,
 } from '../../../../db/queries/overtime';
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
@@ -94,19 +94,15 @@ export default admin()
 			(currentDate.getTime() <= date.getTime() &&
 				overtime.status !== 'APPROVED')
 		) {
-			const data = await prisma.overtime.update({
-				where: {
-					id: req.query.id as string,
-				},
-				data: {
-					status: approval,
-					approvedBy: {
-						connect: {
-							id: req.user.employee?.id,
-						},
-					},
-				},
-				select: selectQuery,
+			const data = await updateOvertime(overtime.id, {
+				status: approval,
+				approvedBy: req.user.employee
+					? {
+							connect: {
+								id: req.user.employee.id,
+							},
+					  }
+					: undefined,
 			});
 
 			return res.status(200).json({
@@ -179,27 +175,21 @@ export default admin()
 				});
 			}
 
-			const overtime = await prisma.overtime.update({
-				where: {
-					id: req.query.id as string,
-				},
-				data: {
-					...data,
-					status: 'PENDING',
-					employee: {
-						connect: {
-							id: employee,
-						},
+			const value = await updateOvertime(overtime.id, {
+				...data,
+				status: 'PENDING',
+				employee: {
+					connect: {
+						id: employee,
 					},
 				},
-				select: selectQuery,
 			});
 
 			return res.status(200).json({
 				status: 'success',
 				mesage:
 					'Request for overtime was updated successfully. Do note that the hours may be updated to the actual time spent.',
-				data: overtime,
+				data: value,
 			});
 		}
 		return res.status(403).json({
@@ -249,7 +239,7 @@ export default admin()
 			req.user.isSuperUser ||
 			(currentDate.getTime() <= date.getTime() && overtime.status === 'PENDING')
 		) {
-			await prisma.overtime.delete({ where: { id: req.query.id as string } });
+			await deleteOvertime(overtime.id);
 
 			return res.status(200).json({
 				status: 'success',

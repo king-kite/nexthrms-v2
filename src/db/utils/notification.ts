@@ -1,6 +1,7 @@
 import { NotificationChoices } from '@prisma/client';
 
 import prisma from '..';
+import { NextApiErrorMessage } from '../../utils/classes';
 import { handlePrismaErrors } from '../../validators';
 
 export async function createNotification({
@@ -43,10 +44,12 @@ export function handleNotificationErrors(
 		message =
 			typeof error.data !== 'string'
 				? process.env.NODE_ENV === 'development'
-					? 'A server error occurred. Unable to import assets data from excel file. ' +
+					? 'A server error occurred. Unable to import data from excel file. ' +
 					  (error.data as any)?.message
-					: 'A server error occurred. Unable to import assets data from excel file.'
+					: 'A server error occurred. Unable to import data from excel file.'
 				: error.data;
+	} else if (error instanceof NextApiErrorMessage) {
+		message = error.message;
 	} else {
 		const err = handlePrismaErrors(error);
 		message = err.message;

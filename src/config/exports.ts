@@ -97,7 +97,7 @@ export const managedFileHeaders = [
 
 export const overtimeHeaders = [
 	'id',
-	'employee_id',
+	'employee',
 	'type',
 	'date',
 	'hours',

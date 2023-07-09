@@ -29,14 +29,16 @@ async function getData(req: NextApiRequestExtendUser) {
 		total: 0,
 	};
 
-	const result = await getRecords<OvertimeExportType>({
+	const result = await getRecords({
 		model: 'overtime',
 		perm: 'overtime',
 		query: req.query,
 		user: req.user,
 		placeholder,
 		getData(params) {
-			return getAllOvertimeAdmin(params);
+			return getAllOvertimeAdmin(
+				params
+			) as unknown as Promise<OvertimeExportType>;
 		},
 	});
 
@@ -45,14 +47,14 @@ async function getData(req: NextApiRequestExtendUser) {
 	const values = data.result.map((overtime) => {
 		return {
 			id: overtime.id,
-			employee_id: overtime.employee.id,
+			employee: overtime.employee.user.email,
 			date: overtime.date,
 			type: overtime.type,
 			hours: overtime.hours,
 			status: overtime.status,
 			reason: overtime.reason,
-			created_by: overtime.createdBy ? overtime.createdBy.id : null,
-			approved_by: overtime.approvedBy ? overtime.approvedBy.id : null,
+			created_by: overtime.createdBy ? overtime.createdBy.user.email : null,
+			approved_by: overtime.approvedBy ? overtime.approvedBy.user.email : null,
 			created_at: overtime.createdAt,
 			updated_at: overtime.updatedAt,
 		};

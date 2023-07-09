@@ -1,5 +1,5 @@
 import { overtimeHeaders as headers, permissions } from '../../../../config';
-import prisma from '../../../../db';
+import { importOvertime } from '../../../../db/queries/overtime';
 import {
 	addObjectPermissions,
 	createNotification,
@@ -24,23 +24,6 @@ export const config = {
 	},
 };
 
-function getDataInput(data: OvertimeImportQueryType) {
-	const date = new Date(data.date);
-	return {
-		id: data.id && data.id.length > 0 ? data.id : undefined,
-		reason: data.reason,
-		date,
-		type: data.type,
-		hours: +data.hours,
-		status: data.status,
-		employeeId: data.employee_id,
-		createdById: data.created_by ? data.created_by : null,
-		approvedById: data.approved_by ? data.approved_by : null,
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-	};
-}
-
 function createData(
 	req: NextApiRequestExtendUser,
 	data: OvertimeImportQueryType[],
@@ -48,48 +31,7 @@ function createData(
 ) {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const input = data.map(getDataInput);
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.overtime.upsert({
-						where: data.id ? { id: data.id } : {},
-						update: data,
-						create: data,
-						select: {
-							id: true,
-							employee: {
-								select: {
-									user: {
-										select: { id: true },
-									},
-									department: {
-										select: {
-											hod: {
-												select: {
-													user: {
-														select: {
-															id: true,
-														},
-													},
-												},
-											},
-										},
-									},
-									supervisors: {
-										select: {
-											user: {
-												select: {
-													id: true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					})
-				)
-			);
+			const result = await importOvertime(data);
 			await Promise.all(
 				result.map((data) =>
 					addObjectPermissions({

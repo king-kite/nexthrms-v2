@@ -1,9 +1,20 @@
 import { Prisma } from '@prisma/client';
 
 import prisma from '..';
-import { OvertimeType, ParamsType } from '../../types';
+import type {
+	CreateOvertimeQueryType,
+	OvertimeImportQueryType,
+	ObjectPermissionImportType,
+	ParamsType,
+} from '../../types';
+import { NextApiErrorMessage } from '../../utils/classes';
+import { getDate } from '../../utils/dates';
 
-const employeeSelectQuery: Prisma.EmployeeSelect = {
+type OvertimeCreateQueryType = Omit<CreateOvertimeQueryType, 'employee'> & {
+	employeeId: string;
+};
+
+const employeeSelectQuery = {
 	id: true,
 	user: {
 		select: {
@@ -35,7 +46,7 @@ const employeeSelectQuery: Prisma.EmployeeSelect = {
 	},
 };
 
-export const overtimeSelectQuery: Prisma.OvertimeSelect = {
+const select = {
 	id: true,
 	date: true,
 	hours: true,
@@ -55,9 +66,11 @@ export const overtimeSelectQuery: Prisma.OvertimeSelect = {
 	createdAt: true,
 };
 
+export type OvertimeType = Prisma.OvertimeGetPayload<{ select: typeof select }>;
+
 // ****** Personal Overtime Start ******
 
-export const getAllOvertimeQuery = ({
+export function getAllOvertimeQuery({
 	offset,
 	limit,
 	id,
@@ -67,7 +80,7 @@ export const getAllOvertimeQuery = ({
 }: ParamsType & {
 	id: string;
 	where?: Prisma.OvertimeWhereInput;
-}): Prisma.OvertimeFindManyArgs => {
+}) {
 	const query: Prisma.OvertimeFindManyArgs = {
 		skip: offset,
 		take: limit,
@@ -78,7 +91,7 @@ export const getAllOvertimeQuery = ({
 			employee: { id },
 			...where,
 		},
-		select: overtimeSelectQuery,
+		select,
 	};
 
 	if (from && to) {
@@ -92,24 +105,18 @@ export const getAllOvertimeQuery = ({
 	}
 
 	return query;
-};
+}
 
-export const getAllOvertime = async (
+// Get all overtime for a user
+export async function getAllOvertime(
 	params: ParamsType & {
 		id: string;
 		where?: Prisma.OvertimeWhereInput;
 	}
-): Promise<{
-	approved: number;
-	pending: number;
-	denied: number;
-	total: number;
-	result: OvertimeType[];
-}> => {
+) {
 	const query = getAllOvertimeQuery(params);
 
-	const currentDate = new Date();
-	currentDate.setHours(0, 0, 0, 0);
+	const currentDate = getDate() as Date;
 
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
@@ -137,117 +144,155 @@ export const getAllOvertime = async (
 		approved,
 		pending,
 		denied,
-		result: result as unknown as OvertimeType[],
+		result,
 	};
-};
+}
 
-export const getOvertime = async (id: string) => {
+// Get single overtime
+export async function getOvertime(id: string) {
 	const overtime = await prisma.overtime.findUnique({
 		where: { id },
-		select: overtimeSelectQuery,
+		select,
 	});
-	return overtime as unknown as OvertimeType | null;
-};
+	return overtime;
+}
+
+// Create overtime
+export async function createOvertime(data: OvertimeCreateQueryType) {
+	// Check if the user has an approved/pending overtime request
+	const exists = await prisma.overtime.findFirst({
+		where: {
+			date: data.date,
+			employeeId: data.employeeId,
+			status: {
+				in: ['APPROVED', 'PENDING'],
+			},
+		},
+	});
+	if (exists)
+		throw new NextApiErrorMessage(
+			400,
+			'An approved or pending overtime request already exists for this date.'
+		);
+
+	return prisma.overtime.create({
+		data,
+		select,
+	});
+}
+
+// Update overtime
+export async function updateOvertime(
+	id: string,
+	data: Prisma.OvertimeUpdateInput
+) {
+	return await prisma.overtime.update({
+		where: { id },
+		data,
+		select,
+	});
+}
+
+// Delete overtime
+export async function deleteOvertime(id: string) {
+	return await prisma.overtime.delete({
+		where: { id },
+	});
+}
 
 // ****** Personal Overtime Stop ******
 
 // ****** Admin Overtime Start ******
 
-// TODO: ADD PERMISSIONS
-export const getAllOvertimeAdminQuery = ({
+export function getAllOvertimeAdminQuery({
 	offset,
 	limit,
 	search = '',
 	from,
 	to,
-	where = {},
-	select = {},
+	where: paramsWhere = {},
+	select: paramsSelect = {},
 }: ParamsType & {
 	where?: Prisma.OvertimeWhereInput;
 	select?: Prisma.OvertimeSelect;
-}): Prisma.OvertimeFindManyArgs => {
-	const query: Prisma.OvertimeFindManyArgs = {
+}) {
+	const where: Prisma.OvertimeWhereInput =
+		search || (from && to)
+			? {
+					OR: search
+						? [
+								{
+									employee: {
+										user: {
+											firstName: {
+												contains: search,
+												mode: 'insensitive',
+											},
+										},
+									},
+								},
+								{
+									employee: {
+										user: {
+											lastName: {
+												contains: search,
+												mode: 'insensitive',
+											},
+										},
+									},
+								},
+								{
+									employee: {
+										user: {
+											email: {
+												contains: search,
+												mode: 'insensitive',
+											},
+										},
+									},
+								},
+						  ]
+						: undefined,
+					AND:
+						from && to
+							? {
+									date: {
+										gte: from,
+										lte: to,
+									},
+							  }
+							: undefined,
+					...paramsWhere,
+			  }
+			: paramsWhere;
+
+	const query = {
 		skip: offset,
 		take: limit,
 		orderBy: {
-			createdAt: 'desc',
+			createdAt: 'desc' as const,
 		},
-		where:
-			search || (from && to)
-				? {
-						OR: search
-							? [
-									{
-										employee: {
-											user: {
-												firstName: {
-													contains: search,
-													mode: 'insensitive',
-												},
-											},
-										},
-									},
-									{
-										employee: {
-											user: {
-												lastName: {
-													contains: search,
-													mode: 'insensitive',
-												},
-											},
-										},
-									},
-									{
-										employee: {
-											user: {
-												email: {
-													contains: search,
-													mode: 'insensitive',
-												},
-											},
-										},
-									},
-							  ]
-							: undefined,
-						AND:
-							from && to
-								? {
-										date: {
-											gte: from,
-											lte: to,
-										},
-								  }
-								: undefined,
-						...where,
-				  }
-				: where,
+		where,
 		select: {
-			...overtimeSelectQuery,
 			...select,
+			...paramsSelect,
 		},
 	};
 
 	return query;
-};
+}
 
-export const getAllOvertimeAdmin = async (
+export async function getAllOvertimeAdmin(
 	params: ParamsType & {
 		where?: Prisma.OvertimeWhereInput;
 		select?: Prisma.OvertimeSelect;
 	} = {
 		search: '',
 	}
-): Promise<{
-	approved: number;
-	pending: number;
-	denied: number;
-	total: number;
-	result: OvertimeType[];
-}> => {
+) {
 	const query = getAllOvertimeAdminQuery({ ...params });
 
-	const currentDate = new Date();
-	currentDate.setHours(0, 0, 0, 0);
+	const currentDate = getDate();
 
 	const [total, result, approved, pending, denied] = await prisma.$transaction([
 		prisma.overtime.count({ where: query.where }),
@@ -270,8 +315,136 @@ export const getAllOvertimeAdmin = async (
 		approved,
 		pending,
 		denied,
-		result: result as unknown as OvertimeType[],
+		result,
 	};
-};
+}
+
+function getDataInput(data: OvertimeImportQueryType) {
+	const date = new Date(data.date);
+	return {
+		id: data.id && data.id.length > 0 ? data.id : undefined,
+		reason: data.reason,
+		date,
+		type: data.type,
+		hours: +data.hours,
+		status: data.status,
+		employee: data.employee,
+		createdBy: data.created_by ? data.created_by : undefined,
+		approvedBy: data.approved_by ? data.approved_by : undefined,
+		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
+		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+	};
+}
+
+export async function importOvertime(overtime: OvertimeImportQueryType[]) {
+	const input = overtime.map(getDataInput);
+
+	const emails = input.reduce((acc: string[], item) => {
+		const value = [...acc];
+		value.push(item.employee);
+		if (item.createdBy) value.push(item.createdBy);
+		if (item.approvedBy) value.push(item.approvedBy);
+		return value;
+	}, []);
+
+	// Get employees required for imports
+	const employees = await prisma.employee.findMany({
+		where: {
+			user: {
+				email: {
+					in: emails,
+				},
+			},
+		},
+		select: { id: true, user: { select: { email: true } } },
+	});
+
+	// Make sure that all employees provided in the import data are found.
+	// If one is missing throw an error and do not import
+	const notFound = input.filter((item) => {
+		const employee = employees.find(
+			(employee) => employee.user.email === item.employee
+		);
+		const createdBy = employees.find(
+			(employee) => employee.user.email === item.createdBy
+		);
+		const approvedBy = employees.find(
+			(employee) => employee.user.email === item.approvedBy
+		);
+
+		// check approvedBy
+		if (item.approvedBy && !approvedBy) return true;
+		if (item.createdBy && !createdBy) return true;
+		if (!employee) return true;
+		return false;
+	});
+	if (notFound.length > 0) {
+		const email = notFound.map((item) => item.employee).join(', ');
+		const m = notFound.length > 1 ? 's' : '';
+		const message =
+			`Could not find employee${m} with the following email${m}: '${email}'`.trim() +
+			'.';
+		throw new Error(message);
+	}
+
+	// overwrite the employee field in each input item to the id found in the employees array
+	const data = input.map((item) => ({
+		...item,
+		employeeId:
+			employees.find((employee) => employee.user.email === item.employee)?.id ||
+			'',
+		createdById:
+			employees.find((employee) => employee.user.email === item.createdBy)
+				?.id || '',
+		approvedById:
+			employees.find((employee) => employee.user.email === item.approvedBy)
+				?.id || '',
+		employee: undefined,
+		createdBy: undefined,
+		approvedBy: undefined,
+	}));
+
+	return prisma.$transaction(
+		data.map((data) =>
+			prisma.overtime.upsert({
+				where: data.id ? { id: data.id } : {},
+				update: data,
+				create: data,
+				select: {
+					id: true,
+					employee: {
+						select: {
+							user: {
+								select: { id: true },
+							},
+							department: {
+								select: {
+									hod: {
+										select: {
+											user: {
+												select: {
+													id: true,
+												},
+											},
+										},
+									},
+								},
+							},
+							supervisors: {
+								select: {
+									user: {
+										select: {
+											id: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			})
+		)
+	);
+}
 
 // ****** Admin Overtime Stop ******

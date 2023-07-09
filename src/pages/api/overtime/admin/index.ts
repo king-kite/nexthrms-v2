@@ -1,8 +1,7 @@
 import { permissions } from '../../../../config';
-import prisma from '../../../../db';
 import {
 	getAllOvertimeAdmin,
-	overtimeSelectQuery as selectQuery,
+	createOvertime,
 } from '../../../../db/queries/overtime';
 import {
 	addObjectPermissions,
@@ -12,14 +11,13 @@ import {
 } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import { GetAllOvertimeResponseType, OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
 import { NextApiErrorMessage } from '../../../../utils/classes';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default admin()
 	.get(async (req, res) => {
-		const result = await getRecords<GetAllOvertimeResponseType['data']>({
+		const result = await getRecords({
 			model: 'overtime',
 			perm: 'overtime',
 			query: req.query,
@@ -50,54 +48,22 @@ export default admin()
 
 		if (!hasPerm) throw new NextApiErrorMessage(403);
 
-		const data = await overtimeCreateSchema.validate(
-			{
-				...req.body,
-			},
-			{ abortEarly: false }
-		);
+		const { employee: employeeId, ...data } =
+			await overtimeCreateSchema.validate(
+				{
+					...req.body,
+				},
+				{ abortEarly: false }
+			);
 
-		if (!data.employee) {
+		if (!employeeId) {
 			return res.status(400).json({
 				status: 'error',
 				message: 'Employee ID is required',
 			});
 		}
 
-		// Check if the user has an approved/pending overtime request
-		const exists = await prisma.overtime.findFirst({
-			where: {
-				date: data.date,
-				employeeId: data.employee,
-				status: {
-					in: ['APPROVED', 'PENDING'],
-				},
-			},
-		});
-		if (exists) {
-			return res.status(400).json({
-				status: 'error',
-				message:
-					'An approved or pending overtime request already exists for this date.',
-			});
-		}
-
-		const overtime = (await prisma.overtime.create({
-			data: {
-				...data,
-				employee: {
-					connect: {
-						id: data.employee,
-					},
-				},
-				createdBy: {
-					connect: {
-						id: req.user.employee?.id,
-					},
-				},
-			},
-			select: selectQuery,
-		})) as unknown as OvertimeType;
+		const overtime = await createOvertime({ ...data, employeeId });
 
 		// Get the employees admin related officers
 		const officers = await getEmployeeOfficersId(overtime.employee.id);
