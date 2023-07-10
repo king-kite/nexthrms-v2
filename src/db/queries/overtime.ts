@@ -372,10 +372,10 @@ export async function importOvertime(overtime: OvertimeImportQueryType[]) {
 		);
 
 		// check approvedBy
-		if (item.approvedBy && !approvedBy) return false;
-		if (item.createdBy && !createdBy) return false;
-		if (!employee) return false;
-		return true;
+		if (item.approvedBy && !approvedBy) return true;
+		if (item.createdBy && !createdBy) return true;
+		if (!employee) return true;
+		return false;
 	});
 	if (notFound.length > 0) {
 		const email = notFound.map((item) => item.employee).join(', ');
