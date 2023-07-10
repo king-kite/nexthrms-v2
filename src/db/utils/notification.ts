@@ -40,7 +40,9 @@ export function handleNotificationErrors(
 ) {
 	if (!error) return;
 	let message = '';
-	if (error.status) {
+	if (error instanceof NextApiErrorMessage) {
+		message = error.message;
+	} else if (error.status) {
 		message =
 			typeof error.data !== 'string'
 				? process.env.NODE_ENV === 'development'
@@ -48,8 +50,6 @@ export function handleNotificationErrors(
 					  (error.data as any)?.message
 					: 'A server error occurred. Unable to import data from excel file.'
 				: error.data;
-	} else if (error instanceof NextApiErrorMessage) {
-		message = error.message;
 	} else {
 		const err = handlePrismaErrors(error);
 		message = err.message;

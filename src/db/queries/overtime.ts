@@ -4,7 +4,6 @@ import prisma from '..';
 import type {
 	CreateOvertimeQueryType,
 	OvertimeImportQueryType,
-	ObjectPermissionImportType,
 	ParamsType,
 } from '../../types';
 import { NextApiErrorMessage } from '../../utils/classes';
@@ -373,10 +372,10 @@ export async function importOvertime(overtime: OvertimeImportQueryType[]) {
 		);
 
 		// check approvedBy
-		if (item.approvedBy && !approvedBy) return true;
-		if (item.createdBy && !createdBy) return true;
-		if (!employee) return true;
-		return false;
+		if (item.approvedBy && !approvedBy) return false;
+		if (item.createdBy && !createdBy) return false;
+		if (!employee) return false;
+		return true;
 	});
 	if (notFound.length > 0) {
 		const email = notFound.map((item) => item.employee).join(', ');
@@ -384,7 +383,7 @@ export async function importOvertime(overtime: OvertimeImportQueryType[]) {
 		const message =
 			`Could not find employee${m} with the following email${m}: '${email}'`.trim() +
 			'.';
-		throw new Error(message);
+		throw new NextApiErrorMessage(400, message);
 	}
 
 	// overwrite the employee field in each input item to the id found in the employees array

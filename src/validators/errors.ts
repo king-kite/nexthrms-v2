@@ -121,7 +121,10 @@ export function handlePrismaErrors(
 		...options,
 	};
 
-	if (error instanceof Prisma.PrismaClientValidationError) {
+	if (error instanceof Prisma.PrismaClientInitializationError) {
+		errors.code = 500;
+		errors.message = "Can't reach the database server. Please try again later.";
+	} else if (error instanceof Prisma.PrismaClientValidationError) {
 		errors.code = 400;
 		errors.message = error.message;
 	} else if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -142,7 +145,7 @@ export function handlePrismaErrors(
 			case 'P1017':
 				errors.message =
 					process.env.NODE_ENV === 'development'
-						? getError("Can't react the database server: ", error.message)
+						? getError("Can't reach the database server: ", error.message)
 						: 'A database server error occurred.';
 				break;
 			case 'P1014':
@@ -230,47 +233,13 @@ export function handlePrismaErrors(
 		}
 	} else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
 		errors.code = 500;
-		if (
-			process.env.NODE_ENV === 'development' ||
-			+(process.env.TEST_MODE || 0) === 1
-		)
-			errors.message = error.message;
+		if (+(process.env.TEST_MODE || 0) === 1) errors.message = error.message;
 		else errors.message = 'An unknown server client request error occurred!';
-	} else if (
-		(error as any).message &&
-		(process.env.NODE_ENV === 'development' ||
-			+(process.env.TEST_MODE || 0) === 1)
-	)
+	} else if ((error as any).message && +(process.env.TEST_MODE || 0) === 1)
 		errors.message = (error as any).message;
 
 	return errors;
 }
-
-// export function handlePrismaErrors<T = any>(
-// 	error: unknown,
-// 	options?: any
-// ): {
-// 	code?: number;
-// 	status: 'error' | 'success';
-// 	message: string;
-// 	error: T;
-// } {
-// 	if (process.env.NODE_ENV === 'development') {
-// 		return {
-// 			message:
-// 				(error as any).message ||
-// 				'A server error occurred. Please try again later.',
-// 			status: 'error',
-// 			error,
-// 			...options,
-// 		};
-// 	}
-// 	return {
-// 		message: 'A server error occurred. Please try again later.',
-// 		status: 'error',
-// 		...options,
-// 	};
-// }
 
 export function isResponseWithMessage(
 	response: unknown
