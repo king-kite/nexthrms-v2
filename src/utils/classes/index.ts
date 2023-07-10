@@ -10,6 +10,9 @@ export class NextApiErrorMessage extends Error {
 
 	constructor(status: number = 500, message?: string) {
 		super(message);
+		Object.setPrototypeOf(this, NextApiErrorMessage.prototype);
+
+		this.name = 'NextApiErrorMessage';
 		this.message = message
 			? message
 			: status === 400
