@@ -14,7 +14,7 @@ import { auth } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { ProjectType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { projectCreateSchema } from '../../../validators/projects';
 
 export default auth()
@@ -37,7 +37,7 @@ export default auth()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.use(admin)
 	.post(async (req, res) => {
@@ -45,7 +45,7 @@ export default auth()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.project.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await projectCreateSchema.validate(
 			{ ...req.body },
@@ -107,7 +107,7 @@ export default auth()
 			}
 
 			if (!hasViewEmployeePerm)
-				throw new NextApiErrorMessage(
+				throw new NextErrorMessage(
 					403,
 					'You are not authorized to add some team members. Please try again later.'
 				);

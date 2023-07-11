@@ -4,7 +4,7 @@ import { getJobs } from '../../../db/queries/jobs';
 import { getRecords, getUserObjects } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createJobSchema } from '../../../validators/jobs';
 
@@ -25,14 +25,14 @@ export default admin()
 		});
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.job.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await createJobSchema.validate(
 			{ ...req.body },
@@ -80,7 +80,7 @@ export default admin()
 				});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.job.deleteMany({
 			where: {

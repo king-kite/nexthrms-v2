@@ -5,7 +5,7 @@ import { getUserPermissions } from '../../../../db/queries/users';
 import { getUserObjectPermissions, getUserObjects } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { updateUserPermissionsSchema } from '../../../../validators/users';
 
@@ -26,7 +26,7 @@ export default admin()
 			if (objPerm.view === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const params = validateParams(req.query);
 		const data = await getUserPermissions(req.query.id as string, params);
@@ -54,7 +54,7 @@ export default admin()
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await updateUserPermissionsSchema.validate(
 			{ ...req.body },
@@ -103,7 +103,7 @@ export default admin()
 		}
 
 		if (!canSetPerm)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				403,
 				'You are not authorized to set some of the requested permissions!'
 			);

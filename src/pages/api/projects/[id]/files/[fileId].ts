@@ -7,7 +7,7 @@ import {
 import { auth } from '../../../../../middlewares';
 import { hasModelPermission } from '../../../../../utils/permission';
 import { deleteFile } from '../../../../../utils/files';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -17,7 +17,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.delete(async (req, res) => {
@@ -39,7 +39,7 @@ export default auth()
 			hasPerm = objPerm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const projectFile = await prisma.projectFile.findUnique({
 			where: { id: req.query.fileId as string },
@@ -55,7 +55,7 @@ export default auth()
 		});
 
 		if (!projectFile)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				404,
 				'Project file with the specified ID was not found!'
 			);

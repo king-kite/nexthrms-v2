@@ -8,7 +8,7 @@ import { admin } from '../../../middlewares';
 import { ClientType, GetClientsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
 import { hashPassword } from '../../../utils/bcrypt';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema } from '../../../validators/clients';
@@ -39,14 +39,14 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.client.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;

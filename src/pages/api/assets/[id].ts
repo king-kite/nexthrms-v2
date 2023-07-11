@@ -8,7 +8,7 @@ import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { AssetType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { createAssetSchema } from '../../../validators/assets';
 
 export default admin()
@@ -24,7 +24,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -54,7 +54,7 @@ export default admin()
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const valid = await createAssetSchema.validate(
 			{ ...req.body },
@@ -91,7 +91,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.asset.delete({
 			where: {

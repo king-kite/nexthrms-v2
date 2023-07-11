@@ -2,7 +2,7 @@ import { getPermission } from '../../../db/queries/permissions';
 import { getRecord } from '../../../db/utils/record';
 import { admin } from '../../../middlewares';
 import { PermissionType } from '../../../types';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 
 export default admin().get(async (req, res) => {
 	const record = await getRecord<PermissionType | null>({
@@ -16,7 +16,7 @@ export default admin().get(async (req, res) => {
 		},
 	});
 
-	if (!record) throw new NextApiErrorMessage(403);
+	if (!record) throw new NextErrorMessage(403);
 
 	if (!record.data)
 		return res.status(404).json({

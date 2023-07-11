@@ -4,7 +4,7 @@ import { getUserObjectPermissions } from '../../../../db/utils/permission';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils/permission';
 import { hashPassword } from '../../../../utils/bcrypt';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { changeUserPasswordSchema } from '../../../../validators/users';
 
 export default admin().post(async (req, res) => {
@@ -56,7 +56,7 @@ export default admin().post(async (req, res) => {
 		if (objPerm.edit === true) hasPerm = true;
 	}
 
-	if (!hasPerm) throw new NextApiErrorMessage(403);
+	if (!hasPerm) throw new NextErrorMessage(403);
 
 	await prisma.user.update({
 		where: {

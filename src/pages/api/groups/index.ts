@@ -11,7 +11,7 @@ import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { GroupType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { validateParams } from '../../../validators';
 import { createGroupSchema } from '../../../validators/users';
 
@@ -57,14 +57,14 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.group.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await createGroupSchema.validate(
 			{ ...req.body },

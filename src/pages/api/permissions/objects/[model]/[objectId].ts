@@ -8,7 +8,7 @@ import prisma from '../../../../../db';
 import { getObjectPermissions } from '../../../../../db/queries/permissions';
 import { admin } from '../../../../../middlewares';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { objectPermissionSchema } from '../../../../../validators/users';
 
 export default admin()
@@ -26,7 +26,7 @@ export default admin()
 				permissions.permissionobject.VIEW,
 			]);
 
-		if (!editPerm && !viewPerm) throw new NextApiErrorMessage(403);
+		if (!editPerm && !viewPerm) throw new NextErrorMessage(403);
 
 		const modelName = (
 			req.query.model as string as PermissionModelChoices
@@ -74,7 +74,7 @@ export default admin()
 				permissions.permissionobject.VIEW,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const modelName = (
 			req.query.model as string as PermissionModelChoices
@@ -165,7 +165,7 @@ export default admin()
 				permissions.permissionobject.EDIT,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const modelName = (
 			req.query.model as string as PermissionModelChoices
@@ -238,7 +238,7 @@ export default admin()
 				permissions.permissionobject.EDIT,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const modelName = (
 			req.query.model as string as PermissionModelChoices
@@ -311,7 +311,7 @@ export default admin()
 				permissions.permissionobject.EDIT,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const modelName = (
 			req.query.model as string as PermissionModelChoices

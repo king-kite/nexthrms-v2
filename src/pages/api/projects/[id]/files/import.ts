@@ -12,7 +12,7 @@ import { importProjectFiles } from '../../../../../db/utils/projects';
 import { admin } from '../../../../../middlewares';
 import { ProjectFileImportQueryType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import parseForm from '../../../../../utils/parseForm';
 
 export const config = {
@@ -30,7 +30,7 @@ export default admin()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.post(async (req, res) => {
@@ -40,12 +40,11 @@ export default admin()
 				permissions.projectfile.CREATE,
 			]);
 
-		if (!hasExportPerm) throw new NextApiErrorMessage(403);
+		if (!hasExportPerm) throw new NextErrorMessage(403);
 
 		const { files } = (await parseForm(req)) as { files: any };
 
-		if (!files.data)
-			throw new NextApiErrorMessage(400, 'Data field is required!');
+		if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
 
 		if (
 			files.data.mimetype !== 'text/csv' &&
@@ -53,7 +52,7 @@ export default admin()
 			files.data.mimetype !==
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 		)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				400,
 				'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 			);

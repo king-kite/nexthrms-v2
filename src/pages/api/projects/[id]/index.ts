@@ -15,7 +15,7 @@ import { auth } from '../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../middlewares/api';
 import { ProjectType, ProjectTeamType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { projectCreateSchema } from '../../../../validators/projects';
 
 export default auth()
@@ -31,7 +31,7 @@ export default auth()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data) {
 			return res.status(404).json({
@@ -62,7 +62,7 @@ export default auth()
 			hasPerm = perm.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const project = await getProject(req.query.id as string);
 		if (!project)
@@ -111,7 +111,7 @@ export default auth()
 			}
 
 			if (!hasViewEmployeePerm)
-				throw new NextApiErrorMessage(
+				throw new NextErrorMessage(
 					403,
 					'You are not authorized to add some team members. Please try again later.'
 				);
@@ -385,7 +385,7 @@ export default auth()
 			hasPerm = perm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.project.delete({ where: { id: req.query.id as string } });
 		return res.status(200).json({

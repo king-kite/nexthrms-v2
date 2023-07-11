@@ -4,15 +4,15 @@ const message401 =
 const message404 = 'A requested resource was not foudn!';
 const message500 = 'A server error occurred! Please try again later.';
 
-export class NextApiErrorMessage extends Error {
+export class NextErrorMessage extends Error {
 	message: string;
 	status: number = 500;
 
 	constructor(status: number = 500, message?: string) {
 		super(message);
-		Object.setPrototypeOf(this, NextApiErrorMessage.prototype);
+		Object.setPrototypeOf(this, NextErrorMessage.prototype);
 
-		this.name = 'NextApiErrorMessage';
+		this.name = 'NextErrorMessage';
 		this.message = message
 			? message
 			: status === 400

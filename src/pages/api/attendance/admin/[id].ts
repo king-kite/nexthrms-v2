@@ -9,7 +9,7 @@ import {
 import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
 import { admin } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { attendanceCreateSchema } from '../../../../validators/attendance';
 
 export default admin()
@@ -25,7 +25,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -56,7 +56,7 @@ export default admin()
 			hasPerm = perms.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await attendanceCreateSchema.validate(
 			{ ...req.body },
@@ -107,7 +107,7 @@ export default admin()
 			hasPerm = perms.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.attendance.delete({
 			where: {

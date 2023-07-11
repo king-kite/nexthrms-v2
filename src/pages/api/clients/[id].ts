@@ -14,7 +14,7 @@ import {
 import { admin } from '../../../middlewares';
 import { ClientType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { createClientSchema } from '../../../validators/clients';
@@ -38,7 +38,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -68,7 +68,7 @@ export default admin()
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;
@@ -209,7 +209,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.client.delete({
 			where: {

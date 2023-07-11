@@ -14,7 +14,7 @@ import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { GetLeavesResponseType, LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { leaveCreateSchema } from '../../../../validators/leaves';
 
 export default admin()
@@ -38,7 +38,7 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.use(employee)
 	.post(async (req, res) => {
@@ -46,7 +46,7 @@ export default admin()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await leaveCreateSchema.validate(
 			{

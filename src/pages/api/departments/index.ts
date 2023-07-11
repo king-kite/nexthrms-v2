@@ -15,7 +15,7 @@ import {
 import { admin } from '../../../middlewares';
 import { GetDepartmentsResponseType, DepartmentType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createDepartmentSchema } from '../../../validators/departments';
 
@@ -37,7 +37,7 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
@@ -46,7 +46,7 @@ export default admin()
 				permissions.department.CREATE,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const valid = await createDepartmentSchema.validate({ ...req.body });
 
@@ -116,7 +116,7 @@ export default admin()
 				});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.department.deleteMany({
 			where: {

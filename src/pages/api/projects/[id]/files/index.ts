@@ -17,7 +17,7 @@ import {
 import { auth } from '../../../../../middlewares';
 import { ProjectFileType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { upload as uploadFile } from '../../../../../utils/files';
 import parseForm from '../../../../../utils/parseForm';
 import { projectFileCreateSchema } from '../../../../../validators/projects';
@@ -37,7 +37,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -74,7 +74,7 @@ export default auth()
 				permissions.projectfile.CREATE,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const project = await getRecord({
 			model: 'projects',
@@ -88,7 +88,7 @@ export default auth()
 		});
 
 		if (!project?.data)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				404,
 				'Project with the specified ID was not found'
 			);

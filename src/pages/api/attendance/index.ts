@@ -14,7 +14,7 @@ import {
 import { employee } from '../../../middlewares';
 import { AttendanceType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { attendanceActionSchema } from '../../../validators/attendance';
 
 export default employee()
@@ -52,7 +52,7 @@ export default employee()
 				permissions.attendance.MARK,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { action } = await attendanceActionSchema.validate({ ...req.body });
 

@@ -17,7 +17,7 @@ import {
 	ProjectTaskFollowerImportQueryType,
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../../validators';
 
 async function getTasksData(req: NextApiRequestExtendUser) {
@@ -92,7 +92,7 @@ export default admin()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -102,7 +102,7 @@ export default admin()
 				permissions.projecttask.EXPORT,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		getTasksData(req)
 			// Destructure the followers and export the tasks first

@@ -5,7 +5,7 @@ import {
 } from '../../../../db/queries/overtime';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default employee()
@@ -20,7 +20,7 @@ export default employee()
 		}
 
 		if (overtime.employee.id !== req.user.employee.id) {
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 		}
 
 		// check if the user has a view object permission for this record
@@ -33,7 +33,7 @@ export default employee()
 
 		// If the user no longer has view permission
 		// Should have on create
-		if (!objPerm.view) throw new NextApiErrorMessage(403);
+		if (!objPerm.view) throw new NextErrorMessage(403);
 
 		return res.status(200).json({
 			status: 'success',
@@ -52,7 +52,7 @@ export default employee()
 		}
 
 		if (overtime.employee.id !== req.user.employee.id) {
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 		}
 
 		// check if the user has a view object permission for this record
@@ -65,7 +65,7 @@ export default employee()
 
 		// If the user no longer has edit permission
 		// Should have on create
-		if (!objPerm.edit) throw new NextApiErrorMessage(403);
+		if (!objPerm.edit) throw new NextErrorMessage(403);
 
 		// If the overtime is updated by the user, change the status to 'PENDING'
 		const oldDate =
@@ -110,13 +110,13 @@ export default employee()
 		const overtime = await getOvertime(req.query.id as string);
 
 		if (!overtime)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				404,
 				'Overtime with the specified id was not found!'
 			);
 
 		if (overtime.employee.id !== req.user.employee.id)
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 
 		// check if the user has a view object permission for this record
 		const objPerm = await getUserObjectPermissions({
@@ -128,7 +128,7 @@ export default employee()
 
 		// If the user no longer has delete permission
 		// Should have on create
-		if (!objPerm.delete) throw new NextApiErrorMessage(403);
+		if (!objPerm.delete) throw new NextErrorMessage(403);
 
 		if (overtime.status === 'APPROVED') {
 			return res.status(403).json({

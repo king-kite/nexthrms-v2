@@ -5,7 +5,7 @@ import {
 } from '../../../../db/queries/leaves';
 import { getUserObjectPermissions } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { leaveCreateSchema } from '../../../../validators/leaves';
 
 export default employee()
@@ -20,7 +20,7 @@ export default employee()
 		}
 
 		if (leave.employee.id !== req.user.employee.id) {
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 		}
 
 		// check if the user has a view object permission for this record
@@ -33,7 +33,7 @@ export default employee()
 
 		// If the user no longer has view permission
 		// Should have on create
-		if (!objPerm.view) throw new NextApiErrorMessage(403);
+		if (!objPerm.view) throw new NextErrorMessage(403);
 
 		return res.status(200).json({
 			status: 'success',
@@ -52,7 +52,7 @@ export default employee()
 		}
 
 		if (leave.employee.id !== req.user.employee.id) {
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 		}
 
 		// check if the user has a view object permission for this record
@@ -65,7 +65,7 @@ export default employee()
 
 		// If the user no longer has edit permission
 		// Should have on create
-		if (!objPerm.edit) throw new NextApiErrorMessage(403);
+		if (!objPerm.edit) throw new NextErrorMessage(403);
 
 		// check if the leave has been approved or denied
 		// as long as the leave is still pending, the user can edit is as he/she likes
@@ -126,7 +126,7 @@ export default employee()
 		});
 
 		if (exLeave.employee.id !== req.user.employee.id)
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 
 		// check if the user has a view object permission for this record
 		const objPerm = await getUserObjectPermissions({
@@ -138,7 +138,7 @@ export default employee()
 
 		// If the user no longer has delete permission
 		// Should have on create
-		if (!objPerm.delete) throw new NextApiErrorMessage(403);
+		if (!objPerm.delete) throw new NextErrorMessage(403);
 
 		if (exLeave.status === 'APPROVED' || exLeave.status === 'DENIED') {
 			return res.status(403).json({

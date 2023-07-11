@@ -27,7 +27,7 @@ import {
 	ProjectTaskFollowerImportQueryType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import parseForm from '../../../utils/parseForm';
 
 export const config = {
@@ -44,7 +44,7 @@ export default admin().post(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.CREATE]);
 	if (!hasCreatePerm && queryImport === 'projects')
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 
 	// Can create task
 	const hasTaskCreatePerm =
@@ -53,7 +53,7 @@ export default admin().post(async (req, res) => {
 			permissions.projecttask.CREATE,
 		]);
 	if (!hasTaskCreatePerm && queryImport === 'tasks')
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 
 	// Can edit project
 	// Only allow model level user permissions
@@ -61,7 +61,7 @@ export default admin().post(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.EDIT]);
 	if (!hasEditPerm && !hasCreatePerm && queryImport === 'team')
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 
 	// Can create file
 	const hasFileCreatePerm =
@@ -70,7 +70,7 @@ export default admin().post(async (req, res) => {
 			permissions.projectfile.CREATE,
 		]);
 	if (!hasFileCreatePerm && queryImport === 'files')
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 
 	// Can edit project task
 	// Only allow model level user permissions
@@ -78,12 +78,11 @@ export default admin().post(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.projecttask.EDIT]);
 	if (!hasTaskEditPerm && !hasTaskCreatePerm && queryImport === 'followers')
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 
 	const { files } = (await parseForm(req)) as { files: any };
 
-	if (!files.data)
-		throw new NextApiErrorMessage(400, 'Data field is required!');
+	if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
 
 	if (
 		files.data.mimetype !== 'text/csv' &&
@@ -91,7 +90,7 @@ export default admin().post(async (req, res) => {
 		files.data.mimetype !==
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 	)
-		throw new NextApiErrorMessage(
+		throw new NextErrorMessage(
 			400,
 			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 		);

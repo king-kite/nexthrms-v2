@@ -1,7 +1,7 @@
 import { NotificationChoices } from '@prisma/client';
 
 import prisma from '..';
-import { NextApiErrorMessage } from '../../utils/classes';
+import { NextErrorMessage } from '../../utils/classes';
 import { handlePrismaErrors } from '../../validators';
 
 export async function createNotification({
@@ -40,7 +40,7 @@ export function handleNotificationErrors(
 ) {
 	if (!error) return;
 	let message = '';
-	if (error instanceof NextApiErrorMessage) {
+	if (error instanceof NextErrorMessage) {
 		message = error.message;
 	} else if (error.status) {
 		message =

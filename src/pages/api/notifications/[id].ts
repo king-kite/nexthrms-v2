@@ -1,6 +1,6 @@
 import prisma from '../../../db';
 import { auth } from '../../../middlewares';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 
 export default auth()
 	.use(async (req, res, next) => {
@@ -15,13 +15,13 @@ export default auth()
 		});
 
 		if (!notification)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				404,
 				'Notification with specified ID does not exist'
 			);
 
 		if (notification.recipientId !== req.user.id)
-			throw new NextApiErrorMessage(403);
+			throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -64,7 +64,7 @@ export default auth()
 			},
 		});
 		if (!notification)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				404,
 				'Notification with the specified was not found!'
 			);

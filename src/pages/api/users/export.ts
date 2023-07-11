@@ -9,7 +9,7 @@ import {
 import { admin } from '../../../middlewares';
 import { NextApiRequestExtendUser, UserType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
 type ResponseType = {
@@ -107,7 +107,7 @@ export default admin().get(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.user.EXPORT]);
 
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
+	if (!hasExportPerm) throw new NextErrorMessage(403);
 
 	getUsersData(req)
 		.then((data) => {

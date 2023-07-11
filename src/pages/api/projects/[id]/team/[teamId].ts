@@ -13,7 +13,7 @@ import { auth } from '../../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../../middlewares/api';
 import { ProjectTeamType } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { projectTeamMemberUpdateSchema } from '../../../../../validators/projects';
 
 export default auth()
@@ -25,7 +25,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -58,7 +58,7 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage();
+		if (!hasPerm) throw new NextErrorMessage();
 
 		const data = await projectTeamMemberUpdateSchema.validate(
 			{ ...req.body },
@@ -106,7 +106,7 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage();
+		if (!hasPerm) throw new NextErrorMessage();
 
 		// Find the team member
 		const member = await getProjectTeamMember(req.query.teamId as string);

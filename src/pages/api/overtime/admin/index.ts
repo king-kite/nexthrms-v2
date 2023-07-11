@@ -12,7 +12,7 @@ import {
 import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 
 export default admin()
@@ -36,7 +36,7 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.use(employee)
 	.post(async (req, res) => {
@@ -46,7 +46,7 @@ export default admin()
 				permissions.overtime.CREATE,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { employee: employeeId, ...data } =
 			await overtimeCreateSchema.validate(

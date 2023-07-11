@@ -6,7 +6,7 @@ import type {
 	OvertimeImportQueryType,
 	ParamsType,
 } from '../../types';
-import { NextApiErrorMessage } from '../../utils/classes';
+import { NextErrorMessage } from '../../utils/classes';
 import { getDate } from '../../utils/dates';
 
 type OvertimeCreateQueryType = Omit<CreateOvertimeQueryType, 'employee'> & {
@@ -169,7 +169,7 @@ export async function createOvertime(data: OvertimeCreateQueryType) {
 		},
 	});
 	if (exists)
-		throw new NextApiErrorMessage(
+		throw new NextErrorMessage(
 			400,
 			'An approved or pending overtime request already exists for this date.'
 		);
@@ -383,7 +383,7 @@ export async function importOvertime(overtime: OvertimeImportQueryType[]) {
 		const message =
 			`Could not find employee${m} with the following email${m}: '${email}'`.trim() +
 			'.';
-		throw new NextApiErrorMessage(400, message);
+		throw new NextErrorMessage(400, message);
 	}
 
 	// overwrite the employee field in each input item to the id found in the employees array

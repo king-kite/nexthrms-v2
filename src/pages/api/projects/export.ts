@@ -30,7 +30,7 @@ import {
 	ProjectTeamImportQueryType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
 type DataFileType = ProjectFileType & {
@@ -411,7 +411,7 @@ export default admin().get(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.project.EXPORT]);
 
-	if (!hasPerm) throw new NextApiErrorMessage(403);
+	if (!hasPerm) throw new NextErrorMessage(403);
 
 	handleDataExport(req);
 

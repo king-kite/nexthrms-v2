@@ -8,7 +8,7 @@ import { addObjectPermissions, getRecords } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { AssetType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { createAssetSchema } from '../../../validators/assets';
 
 export default admin()
@@ -32,14 +32,14 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.asset.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const valid = await createAssetSchema.validate(
 			{ ...req.body },

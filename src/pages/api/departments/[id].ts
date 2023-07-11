@@ -15,7 +15,7 @@ import {
 import { admin } from '../../../middlewares';
 import { DepartmentType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { createDepartmentSchema } from '../../../validators/departments';
 
 export default admin()
@@ -30,7 +30,7 @@ export default admin()
 				return getDepartment(req.query.id as string);
 			},
 		});
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 		if (!record.data)
 			return res.status(403).json({
 				status: 'error',
@@ -60,7 +60,7 @@ export default admin()
 			hasPerm = perm.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const department = await getDepartment(req.query.id as string);
 
@@ -139,7 +139,7 @@ export default admin()
 			hasPerm = perm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.department.delete({ where: { id: req.query.id as string } });
 

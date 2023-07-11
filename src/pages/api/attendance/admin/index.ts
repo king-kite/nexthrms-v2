@@ -15,7 +15,7 @@ import {
 import { admin } from '../../../../middlewares';
 import { AttendanceType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { attendanceCreateSchema } from '../../../../validators/attendance';
 
 export default admin()
@@ -36,7 +36,7 @@ export default admin()
 
 		if (result) return res.status(200).json(result);
 
-		throw new NextApiErrorMessage(403);
+		throw new NextErrorMessage(403);
 	})
 	.post(async (req, res) => {
 		const hasPerm =
@@ -45,7 +45,7 @@ export default admin()
 				permissions.attendance.CREATE,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await attendanceCreateSchema.validate(
 			{ ...req.body },

@@ -9,7 +9,7 @@ import {
 import { admin } from '../../../../middlewares';
 import { NextApiRequestExtendUser, OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../validators';
 
 type OvertimeExportType = {
@@ -76,7 +76,7 @@ export default admin().get(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.overtime.EXPORT]);
 
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
+	if (!hasExportPerm) throw new NextErrorMessage(403);
 
 	getData(req)
 		.then((data) => {

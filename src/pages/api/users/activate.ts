@@ -3,7 +3,7 @@ import prisma from '../../../db';
 import { getUserObjectPermissions } from '../../../db/utils/permission';
 import { admin } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { multipleEmailSchema } from '../../../validators';
 
 export default admin().post(async (req, res) => {
@@ -81,7 +81,7 @@ export default admin().post(async (req, res) => {
 	}
 
 	if (!hasPerm)
-		throw new NextApiErrorMessage(
+		throw new NextErrorMessage(
 			403,
 			valid.emails.length < 2
 				? 'You are not authorized to activate nor deactivate this user!'

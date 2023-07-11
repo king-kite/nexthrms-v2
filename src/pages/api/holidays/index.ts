@@ -13,7 +13,7 @@ import { employee } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { HolidayType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { multipleDeleteSchema } from '../../../validators';
 import { createHolidaySchema } from '../../../validators/holidays';
 
@@ -48,7 +48,7 @@ export default employee()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.holiday.CREATE]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const valid = await createHolidaySchema.validate(
 			{ ...req.body },
@@ -107,7 +107,7 @@ export default employee()
 				});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.holiday.deleteMany({
 			where: {

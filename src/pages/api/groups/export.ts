@@ -9,7 +9,7 @@ import {
 import { admin } from '../../../middlewares';
 import { NextApiRequestExtendUser, GroupType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
 async function getGroupsData(req: NextApiRequestExtendUser) {
@@ -61,7 +61,7 @@ export default admin().get(async (req, res) => {
 		req.user.isSuperUser ||
 		hasModelPermission(req.user.allPermissions, [permissions.group.EXPORT]);
 
-	if (!hasExportPerm) throw new NextApiErrorMessage(403);
+	if (!hasExportPerm) throw new NextErrorMessage(403);
 
 	getGroupsData(req)
 		.then((data) => {

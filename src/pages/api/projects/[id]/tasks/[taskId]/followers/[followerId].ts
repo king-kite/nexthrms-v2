@@ -10,7 +10,7 @@ import {
 } from '../../../../../../../db/utils';
 import { auth } from '../../../../../../../middlewares';
 import { hasModelPermission } from '../../../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../../../utils/classes';
 import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators/projects';
 
 export default auth()
@@ -22,7 +22,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 
 		// Check the user can view the task
 		const canViewTask = await hasViewPermission({
@@ -31,7 +31,7 @@ export default auth()
 			objectId: req.query.taskId as string,
 			user: req.user,
 		});
-		if (!canViewTask) throw new NextApiErrorMessage(403);
+		if (!canViewTask) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -65,7 +65,7 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage();
+		if (!hasPerm) throw new NextErrorMessage();
 
 		const data = await projectTaskFollowerUpdateSchema.validate(
 			{ ...req.body },
@@ -99,7 +99,7 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage();
+		if (!hasPerm) throw new NextErrorMessage();
 
 		await prisma.projectTaskFollower.delete({
 			where: { id: req.query.followerId as string },

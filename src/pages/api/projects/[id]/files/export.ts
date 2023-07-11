@@ -16,7 +16,7 @@ import {
 	ProjectFileType,
 } from '../../../../../types';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { handlePrismaErrors } from '../../../../../validators';
 
 type DataType = ProjectFileType & {
@@ -98,7 +98,7 @@ export default admin()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -108,7 +108,7 @@ export default admin()
 				permissions.projectfile.EXPORT,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		getData(req)
 			.then((data) => {

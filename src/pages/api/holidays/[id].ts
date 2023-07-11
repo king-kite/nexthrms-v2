@@ -8,7 +8,7 @@ import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { employee } from '../../../middlewares';
 import { adminMiddleware as admin } from '../../../middlewares/api';
 import { hasModelPermission } from '../../../utils';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { createHolidaySchema } from '../../../validators/holidays';
 
 export default employee()
@@ -24,7 +24,7 @@ export default employee()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -54,7 +54,7 @@ export default employee()
 			hasPerm = perms.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await createHolidaySchema.validate(
 			{ ...req.body },
@@ -88,7 +88,7 @@ export default employee()
 			hasPerm = perms.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.holiday.delete({ where: { id: req.query.id as string } });
 		return res.status(200).json({

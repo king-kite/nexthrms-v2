@@ -9,7 +9,7 @@ import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import {
 	leaveApprovalSchema,
 	leaveCreateSchema,
@@ -28,7 +28,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -48,7 +48,7 @@ export default admin()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.GRANT]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		hasPerm =
 			req.user.isSuperUser ||
@@ -64,7 +64,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 		// Cannot view
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const leave = await getLeave(req.query.id as string);
 		if (!leave)
@@ -145,7 +145,7 @@ export default admin()
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const leave = await getLeave(req.query.id as string);
 		if (!leave)
@@ -234,7 +234,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const leave = await getLeave(req.query.id as string);
 		if (!leave)

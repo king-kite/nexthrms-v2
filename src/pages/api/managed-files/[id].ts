@@ -10,7 +10,7 @@ import { getRecord, hasObjectPermission } from '../../../db/utils';
 import { auth } from '../../../middlewares';
 import { ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { deleteFile } from '../../../utils/files';
 
 export default auth()
@@ -26,7 +26,7 @@ export default auth()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -57,7 +57,7 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const name = req.body.name;
 		if (!name || typeof name !== 'string') {
@@ -162,13 +162,13 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const record = await prisma.managedFile.findUnique({
 			where: { id: req.query.id as string },
 		});
 
-		if (!record) throw new NextApiErrorMessage(404);
+		if (!record) throw new NextErrorMessage(404);
 
 		await deleteFile((record.storageInfo as any)?.public_id || record.url);
 

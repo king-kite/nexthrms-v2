@@ -11,7 +11,7 @@ import {
 } from '../../../../db/utils';
 import { employee } from '../../../../middlewares';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 
@@ -52,7 +52,7 @@ export default employee()
 				permissions.overtime.REQUEST,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { employee, ...data } = await overtimeCreateSchema.validate(
 			{

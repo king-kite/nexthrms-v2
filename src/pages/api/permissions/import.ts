@@ -15,7 +15,7 @@ import {
 	NextApiRequestExtendUser,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import parseForm from '../../../utils/parseForm';
 
 export const config = {
@@ -92,12 +92,11 @@ export default admin()
 				permissions.permission.EDIT,
 			]);
 
-		if (!hasExportPerm) throw new NextApiErrorMessage(403);
+		if (!hasExportPerm) throw new NextErrorMessage(403);
 
 		const { files } = (await parseForm(req)) as { files: any };
 
-		if (!files.data)
-			throw new NextApiErrorMessage(400, 'Data field is required!');
+		if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
 
 		if (
 			files.data.mimetype !== 'text/csv' &&
@@ -105,7 +104,7 @@ export default admin()
 			files.data.mimetype !==
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 		)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				400,
 				'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
 			);

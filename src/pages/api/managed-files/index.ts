@@ -19,7 +19,7 @@ import {
 import { auth } from '../../../middlewares';
 import { CreateManagedFileType, ManagedFileType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { upload as uploadFile, uploadBuffer } from '../../../utils/files';
 import parseForm from '../../../utils/parseForm';
 import { handlePrismaErrors } from '../../../validators';
@@ -66,7 +66,7 @@ export default auth()
 				permissions.managedfile.CREATE,
 			]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const { fields, files } = (await parseForm(req)) as {
 			files: any;

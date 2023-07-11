@@ -13,7 +13,7 @@ import {
 import { employee } from '../../../../middlewares';
 import { LeaveType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { validateParams } from '../../../../validators';
 import { leaveCreateSchema } from '../../../../validators/leaves';
 
@@ -52,7 +52,7 @@ export default employee()
 			req.user.isSuperUser ||
 			hasModelPermission(req.user.allPermissions, [permissions.leave.REQUEST]);
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await leaveCreateSchema.validate(
 			{

@@ -9,7 +9,7 @@ import {
 import { auth } from '../../../../../middlewares';
 import { adminMiddleware as admin } from '../../../../../middlewares/api';
 import { hasModelPermission } from '../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../utils/classes';
 import { validateParams } from '../../../../../validators';
 import { projectTeamCreateSchema } from '../../../../../validators/projects';
 
@@ -22,7 +22,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -53,11 +53,11 @@ export default auth()
 			});
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage();
+		if (!hasPerm) throw new NextErrorMessage();
 
 		const project = await getProject(req.query.id as string);
 
-		if (!project) throw new NextApiErrorMessage(404);
+		if (!project) throw new NextErrorMessage(404);
 
 		const data = await projectTeamCreateSchema.validate(
 			{ ...req.body },
@@ -85,7 +85,7 @@ export default auth()
 		}
 
 		if (!hasViewEmployeePerm)
-			throw new NextApiErrorMessage(
+			throw new NextErrorMessage(
 				403,
 				'You are not authorized to add some team members. Please try again later.'
 			);

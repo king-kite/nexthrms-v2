@@ -4,7 +4,7 @@ import { getJob } from '../../../db/queries/jobs';
 import { getRecord, getUserObjectPermissions } from '../../../db/utils';
 import { admin } from '../../../middlewares';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { createJobSchema } from '../../../validators/jobs';
 
 export default admin()
@@ -20,7 +20,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -49,7 +49,7 @@ export default admin()
 			hasPerm = perms.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const data = await createJobSchema.validate(
 			{ ...req.body },
@@ -82,7 +82,7 @@ export default admin()
 			hasPerm = perms.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.job.delete({ where: { id: req.query.id as string } });
 		return res.status(200).json({

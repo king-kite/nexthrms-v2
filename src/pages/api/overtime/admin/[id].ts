@@ -9,7 +9,7 @@ import { admin } from '../../../../middlewares';
 import { employeeMiddleware as employee } from '../../../../middlewares/api';
 import { OvertimeType } from '../../../../types';
 import { hasModelPermission } from '../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 import {
 	overtimeApprovalSchema,
 	overtimeCreateSchema,
@@ -28,7 +28,7 @@ export default admin()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data)
 			return res.status(404).json({
@@ -49,7 +49,7 @@ export default admin()
 			hasModelPermission(req.user.allPermissions, [permissions.overtime.GRANT]);
 
 		// Cannot grant
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		hasPerm =
 			req.user.isSuperUser ||
@@ -65,7 +65,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 		// Cannot view
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const overtime = await getOvertime(req.query.id as string);
 		if (!overtime)
@@ -137,7 +137,7 @@ export default admin()
 			if (objPerm.edit === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const overtime = await getOvertime(req.query.id as string);
 		if (!overtime)
@@ -216,7 +216,7 @@ export default admin()
 			if (objPerm.delete === true) hasPerm = true;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const overtime = await getOvertime(req.query.id as string);
 		if (!overtime)

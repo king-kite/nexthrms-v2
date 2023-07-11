@@ -2,7 +2,7 @@ import { getPermissionCategories } from '../../../../db/queries/permissions';
 import { getRecords } from '../../../../db/utils/record';
 import { admin } from '../../../../middlewares';
 import { PermissionCategoryType } from '../../../../types';
-import { NextApiErrorMessage } from '../../../../utils/classes';
+import { NextErrorMessage } from '../../../../utils/classes';
 
 export default admin().get(async (req, res) => {
 	const result = await getRecords<{
@@ -24,5 +24,5 @@ export default admin().get(async (req, res) => {
 
 	if (result) return res.status(200).json(result);
 
-	throw new NextApiErrorMessage(403);
+	throw new NextErrorMessage(403);
 });

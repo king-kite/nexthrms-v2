@@ -7,13 +7,13 @@ import {
 	NextApiRequestExtendUser,
 	NextApiRequestExtendEmployee,
 } from '../types';
-import { NextApiErrorMessage } from '../utils/classes';
+import { NextErrorMessage } from '../utils/classes';
 import { handleYupErrors, handlePrismaErrors } from '../validators';
 
 export function auth() {
 	return nextConnect<NextApiRequestExtendUser, NextApiResponse>({
 		onError(err, req, res) {
-			if (err instanceof NextApiErrorMessage) {
+			if (err instanceof NextErrorMessage) {
 				return res.status(err.status).json({
 					status: 'error',
 					message:
@@ -25,7 +25,7 @@ export function auth() {
 				});
 			}
 			const yupError = handleYupErrors(err);
-			if (yupError) 
+			if (yupError)
 				return res.status(400).json({
 					status: 'error',
 					message: 'Invalid Data!',

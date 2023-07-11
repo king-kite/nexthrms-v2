@@ -14,7 +14,7 @@ import {
 import { auth } from '../../../../../../middlewares';
 import { ProjectTaskType } from '../../../../../../types';
 import { hasModelPermission } from '../../../../../../utils/permission';
-import { NextApiErrorMessage } from '../../../../../../utils/classes';
+import { NextErrorMessage } from '../../../../../../utils/classes';
 import { taskCreateSchema } from '../../../../../../validators/projects';
 
 export default auth()
@@ -26,7 +26,7 @@ export default auth()
 			objectId: req.query.id as string,
 			user: req.user,
 		});
-		if (!canViewProject) throw new NextApiErrorMessage(403);
+		if (!canViewProject) throw new NextErrorMessage(403);
 		next();
 	})
 	.get(async (req, res) => {
@@ -41,7 +41,7 @@ export default auth()
 			},
 		});
 
-		if (!record) throw new NextApiErrorMessage(403);
+		if (!record) throw new NextErrorMessage(403);
 
 		if (!record.data) {
 			return res.status(404).json({
@@ -73,7 +73,7 @@ export default auth()
 			hasPerm = perm.edit;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		const previousTask = await getProjectTask(req.query.taskId as string);
 		if (!previousTask)
@@ -197,7 +197,7 @@ export default auth()
 			hasPerm = perm.delete;
 		}
 
-		if (!hasPerm) throw new NextApiErrorMessage(403);
+		if (!hasPerm) throw new NextErrorMessage(403);
 
 		await prisma.projectTask.delete({
 			where: { id: req.query.taskId as string },

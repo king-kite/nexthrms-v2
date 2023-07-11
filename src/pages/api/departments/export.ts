@@ -12,7 +12,7 @@ import {
 	NextApiRequestExtendUser,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
-import { NextApiErrorMessage } from '../../../utils/classes';
+import { NextErrorMessage } from '../../../utils/classes';
 import { handlePrismaErrors } from '../../../validators';
 
 // Get the records from the database, including the permissions
@@ -62,7 +62,7 @@ export default admin().get(async (req, res) => {
 			permissions.department.EXPORT,
 		]);
 
-	if (!hasPerm) throw new NextApiErrorMessage(403);
+	if (!hasPerm) throw new NextErrorMessage(403);
 
 	getData(req)
 		.then((data) => {
