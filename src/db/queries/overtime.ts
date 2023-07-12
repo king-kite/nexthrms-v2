@@ -7,7 +7,7 @@ import type {
 	ParamsType,
 } from '../../types';
 import { NextErrorMessage } from '../../utils/classes';
-import { getDate } from '../../utils/dates';
+import { getOffsetDate, getDate } from '../../utils/dates';
 
 type OvertimeCreateQueryType = Omit<CreateOvertimeQueryType, 'employee'> & {
 	employeeId: string;
@@ -157,12 +157,12 @@ export async function getOvertime(id: string) {
 }
 
 // Create overtime
-export async function createOvertime(data: OvertimeCreateQueryType) {
+export async function createOvertime(overtime: OvertimeCreateQueryType) {
 	// Check if the user has an approved/pending overtime request
 	const exists = await prisma.overtime.findFirst({
 		where: {
-			date: data.date,
-			employeeId: data.employeeId,
+			date: overtime.date,
+			employeeId: overtime.employeeId,
 			status: {
 				in: ['APPROVED', 'PENDING'],
 			},
@@ -174,6 +174,11 @@ export async function createOvertime(data: OvertimeCreateQueryType) {
 			'An approved or pending overtime request already exists for this date.'
 		);
 
+	const data = {
+		...overtime,
+		date: getOffsetDate(overtime.date) as Date,
+	};
+
 	return prisma.overtime.create({
 		data,
 		select,
@@ -183,8 +188,13 @@ export async function createOvertime(data: OvertimeCreateQueryType) {
 // Update overtime
 export async function updateOvertime(
 	id: string,
-	data: Prisma.OvertimeUpdateInput
+	overtime: Prisma.OvertimeUpdateInput
 ) {
+	const data = {
+		...overtime,
+		date: getOffsetDate(overtime.date) as Date,
+	};
+
 	return await prisma.overtime.update({
 		where: { id },
 		data,
