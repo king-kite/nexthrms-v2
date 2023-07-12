@@ -1,4 +1,4 @@
-export function getOffsetDate(_date?: Date | string, str = false) {
+export function getOffsetDate(_date?: any, str = false) {
 	const date = getDate(_date) as Date;
 	const offset = date.getTimezoneOffset();
 	const add = offset < 0;
