@@ -7,9 +7,6 @@ export function getOffsetDate(_date?: Date | string, str = false) {
 			? date.getMinutes() + Math.abs(offset)
 			: date.getMinutes() - Math.abs(offset)
 	);
-	// let offset =
-	// 	date.getTime() + Math.abs(date.getTimezoneOffset()) * 60 * 1000;
-	// let result = new Date(offset);
 	return getDate(date, str);
 }
 
