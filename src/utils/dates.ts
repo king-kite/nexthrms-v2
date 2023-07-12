@@ -1,3 +1,18 @@
+export function getOffsetDate(_date?: Date | string, str = false) {
+	const date = getDate(_date) as Date;
+	const offset = date.getTimezoneOffset();
+	const add = offset < 0;
+	date.setMinutes(
+		add
+			? date.getMinutes() + Math.abs(offset)
+			: date.getMinutes() - Math.abs(offset)
+	);
+	// let offset =
+	// 	date.getTime() + Math.abs(date.getTimezoneOffset()) * 60 * 1000;
+	// let result = new Date(offset);
+	return getDate(date, str);
+}
+
 export function getStringedDate(_date?: Date | string) {
 	const date = _date ? (getDate(_date) as Date) : new Date();
 	let day: string | number = date.getDate();
