@@ -1,4 +1,5 @@
 import axios from 'axios';
+import fs from 'fs';
 
 import { PROFILE_URL } from '../../../config/services';
 import handler from '../../../middlewares';
@@ -30,8 +31,15 @@ export default handler()
 
 		const [image] = getFormFiles(files.image);
 
-		data.profile.image = image;
+		const formData = new FormData();
 
-		const response = await axios.post(PROFILE_URL, data);
+		const fileBuffer = fs.readFileSync(image.filepath);
+
+		const blob = new Blob([fileBuffer]);
+
+		formData.append('form', JSON.stringify(data));
+		formData.append('image', blob);
+
+		const response = await axios.post(PROFILE_URL, formData);
 		return res.status(200).json(response.data);
 	});
