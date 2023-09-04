@@ -1,10 +1,9 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
+import {} from '@prisma/client';
 
 import {
-	BaseResponseType,
+	ResponseType,
+	PermissionModelChoices,
+	PermissionObjectChoices,
 	ValidatorErrorType,
 	SuccessResponseType,
 } from './base';
@@ -127,12 +126,9 @@ export type UserDataType = {
 	email: string;
 };
 
-export type RegisterResponseType = BaseResponseType<
-	null,
-	{
-		email?: string;
-		password?: string;
-	}
->;
+export type RegisterResponseType = ResponseType<null | {
+	email?: string;
+	password?: string;
+}>;
 
 export type ProfileResponseType = SuccessResponseType<ProfileType>;

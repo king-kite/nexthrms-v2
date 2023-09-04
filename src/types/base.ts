@@ -1,8 +1,7 @@
-export * from './extended';
-
-export type ResponseType = {
+export type ResponseType<T = unknown> = {
 	message: string;
 	status: 'error' | 'redirect' | 'success';
+	data?: T;
 };
 
 export type ParamsType = {
@@ -20,27 +19,12 @@ export type UserObjPermType = {
 	view: boolean;
 };
 
-export interface SuccessResponseType<DataType = unknown> extends ResponseType {
-	data: DataType;
-}
+export type SuccessResponseType<T = unknown> = ResponseType & {
+	data: T;
+};
 
-export interface ErrorResponseType<ErrorType = unknown> extends ResponseType {
-	error?: ErrorType;
-}
-
-export interface RedirectResponseType extends ResponseType {
-	redirect?: {
-		url: string;
-	};
-}
-
-export type BaseResponseType<DataType = unknown, ErrorType = unknown> =
-	| SuccessResponseType<DataType>
-	| ErrorResponseType<ErrorType>
-	| RedirectResponseType;
-
-export type PaginatedResponseType<DataType = unknown> = SuccessResponseType<{
-	result: DataType;
+export type PaginatedResponseType<T = unknown> = SuccessResponseType<{
+	result: T;
 	total: number;
 }>;
 
