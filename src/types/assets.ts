@@ -25,7 +25,7 @@ export type AssetType = {
 			image: {
 				id: string;
 				location: string;
-				url?: string;
+				url: string | null;
 			} | null;
 		} | null;
 	} | null;
