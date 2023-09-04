@@ -1,10 +1,13 @@
 import formidable from 'formidable';
 import type { NextApiRequest } from 'next';
 
-import { NextApiRequestExtendUser } from '../types';
+export function getFormFiles(files: formidable.File[] | formidable.File) {
+	if (Array.isArray(files)) return files;
+	return [files];
+}
 
 export default function parseForm(
-	request: NextApiRequest | NextApiRequestExtendUser
+	request: NextApiRequest
 ): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
 	return new Promise((resolve, reject) => {
 		const form = new formidable.IncomingForm({ keepExtensions: true });
