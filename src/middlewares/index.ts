@@ -26,6 +26,7 @@ const handler = function () {
 							: err.status === 404
 							? err.message || 'The request data does not exist'
 							: err.message,
+					data: err.data,
 				});
 			}
 			const yupError = handleYupErrors(err);
