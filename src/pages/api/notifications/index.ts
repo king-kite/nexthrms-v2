@@ -2,13 +2,11 @@ import axios from 'axios';
 
 import { NOTIFICATIONS_URL } from '../../../config/services';
 import handler from '../../../middlewares';
-import { validateParams } from '../../../validators';
+import { getRouteParams } from '../../../validators/pagination';
 
 export default handler().get(async function (req, res) {
-	const { limit, offset, from, to } = validateParams(req.query);
-
-	const params = `?limit=${limit}&offset=${offset}&from=${from}&to=${to}`;
+	const params = getRouteParams(req.query);
 
 	const response = await axios.get(NOTIFICATIONS_URL + params);
-	return res.status(200).json(response.data.data);
+	return res.status(200).json(response.data);
 });
