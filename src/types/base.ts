@@ -55,3 +55,23 @@ export type ValidatorErrorType<T> = {
 // export type ValidatorErrorType<T> = {
 // 	[K in keyof T]?: T[K] extends object ? ValidatorErrorType<T[K]> : string;
 // };
+export type PermissionModelChoices =
+	| 'assets'
+	| 'attendance'
+	| 'clients'
+	| 'departments'
+	| 'employees'
+	| 'groups'
+	| 'holiday'
+	| 'jobs'
+	| 'leaves'
+	| 'managed_files'
+	| 'overtime'
+	| 'permissions'
+	| 'permission_categories'
+	| 'projects'
+	| 'projects_files'
+	| 'projects_tasks'
+	| 'users';
+
+export type PermissionObjectChoices = 'VIEW' | 'EDIT' | 'DELETE';

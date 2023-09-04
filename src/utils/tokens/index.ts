@@ -1,7 +1,5 @@
 import cookie from 'cookie';
-import crypto from 'crypto';
-import { ServerResponse } from 'http';
-import jwt from 'jsonwebtoken';
+import type { ServerResponse } from 'http';
 import type { NextApiResponse } from 'next';
 import {
 	ACCESS_TOKEN,
@@ -9,20 +7,6 @@ import {
 	ACCESS_TOKEN_LIFETIME,
 	REFRESH_TOKEN_LIFETIME,
 } from '../../config';
-import { SECRET_KEY } from '../../config/settings';
-
-export function createJWT(
-	payload: {
-		id: string;
-		type: 'access' | 'refresh';
-	},
-	options?: jwt.SignOptions
-) {
-	if (SECRET_KEY === undefined) throw new Error('Improperly Configured!!!');
-	return jwt.sign(payload, SECRET_KEY, {
-		...options,
-	});
-}
 
 // NextApiRequest && NextApiResponse
 export const removeTokens = (
@@ -72,18 +56,18 @@ export const setTokens = (
 	return response;
 };
 
-export function generateToken(options?: {
-	stringBase?: BufferEncoding;
-	byteLength?: number;
-}): Promise<string> {
-	return new Promise((resolve, reject) => {
-		crypto.randomBytes(options?.byteLength || 48, (err, buffer) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(buffer.toString(options?.stringBase || 'hex'));
-				// resolve(buffer.toString(options?.stringBase || 'base64').replace(/\+/g, '-').replace(/\//g, '-').replace(/\=/g), '');
-			}
-		});
-	});
-}
+// export function generateToken(options?: {
+// 	stringBase?: BufferEncoding;
+// 	byteLength?: number;
+// }): Promise<string> {
+// 	return new Promise((resolve, reject) => {
+// 		crypto.randomBytes(options?.byteLength || 48, (err, buffer) => {
+// 			if (err) {
+// 				reject(err);
+// 			} else {
+// 				resolve(buffer.toString(options?.stringBase || 'hex'));
+// 				// resolve(buffer.toString(options?.stringBase || 'base64').replace(/\+/g, '-').replace(/\//g, '-').replace(/\=/g), '');
+// 			}
+// 		});
+// 	});
+// }

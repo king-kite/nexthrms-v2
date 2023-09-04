@@ -1,19 +1,15 @@
-import { PermissionModelChoices } from '@prisma/client';
-
 import { PermissionPrismaModelNameType } from '../types';
 
 export const ACCESS_TOKEN = process.env.NEXT_PUBLIC_ACCESS_TOKEN
 	? process.env.NEXT_PUBLIC_ACCESS_TOKEN
 	: 'access';
-export const ACCESS_TOKEN_LIFETIME = process.env
-	.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
+export const ACCESS_TOKEN_LIFETIME = process.env.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
 	? +process.env.NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME
 	: 60 * 5; // time in seconds (result: 5 mins)
 export const REFRESH_TOKEN = process.env.NEXT_PUBLIC_REFRESH_TOKEN
 	? process.env.NEXT_PUBLIC_REFRESH_TOKEN
 	: 'refresh';
-export const REFRESH_TOKEN_LIFETIME = process.env
-	.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
+export const REFRESH_TOKEN_LIFETIME = process.env.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
 	? +process.env.NEXT_PUBLIC_REFRESH_TOKEN_LIFETIME
 	: 60 * 60 * 1; // time in seconds (result: 1 hour)
 
@@ -39,11 +35,7 @@ export const SHOW_QUERY_LOG_TIME = process.env.SHOW_QUERY_LOG_TIME
 
 export const TITLE = 'Kite Human Resources Management System';
 
-export const USE_LOCAL_MEDIA_STORAGE = process.env.USE_LOCAL_MEDIA_STORAGE
-	? Boolean(Number(process.env.USE_LOCAL_MEDIA_STORAGE))
-	: false;
-
-export const models: PermissionModelChoices[] = [
+export const models = [
 	'assets',
 	'attendance',
 	'clients',
@@ -85,9 +77,7 @@ export const prismaModels: PermissionPrismaModelNameType[] = [
 	'user',
 ];
 
-export const getPrismaModels = (
-	model: PermissionModelChoices
-): PermissionPrismaModelNameType | undefined => {
+export const getPrismaModels = (model: string): PermissionPrismaModelNameType | undefined => {
 	const modelName = model.toLowerCase();
 	switch (modelName) {
 		case 'assets':

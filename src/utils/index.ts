@@ -14,5 +14,5 @@ export { default as downloadFile } from './downloadFile';
 export { hasModelPermission } from './permission';
 export { default as toCapitalize } from './toCapitalize';
 
-export * from './client';
+export * from './serializers';
 export * from './dates';

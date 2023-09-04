@@ -1,32 +1,32 @@
-import { InferGetServerSidePropsType } from 'next';
+import axios from 'axios';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE } from '../config/app';
+import { ASSETS_URL } from '../config/services';
 import Assets from '../containers/assets';
-import { getAssets } from '../db/queries/assets';
-import { getRecords } from '../db/utils/record';
 import { authPage } from '../middlewares';
 import { ExtendedGetServerSideProps, GetAssetsResponseType } from '../types';
 import Title from '../utils/components/title';
-import { serializeUserData } from '../utils/serializers/auth';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Assets" />
 		<Assets assets={data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
+export const getServerSideProps: ExtendedGetServerSideProps = async ({ req, res }) => {
 	try {
 		await authPage().run(req, res);
 	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('ASSETS PAGE :>> ', error);
+		return {
+			props: {
+				auth: null,
+				errorPage: {
+					statusCode: 401,
+				},
+			},
+		};
 	}
 
 	if (!req.user) {
@@ -40,13 +40,11 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const auth = await serializeUserData(req.user);
-
 	// Must be admin user
 	if (!req.user.isSuperUser && !req.user.isAdmin) {
 		return {
 			props: {
-				auth,
+				auth: req.user,
 				errorPage: {
 					statusCode: 403,
 				},
@@ -54,38 +52,33 @@ export const getServerSideProps: ExtendedGetServerSideProps = async ({
 		};
 	}
 
-	const result = await getRecords<GetAssetsResponseType['data']>({
-		model: 'assets',
-		perm: 'asset',
-		placeholder: {
-			total: 0,
-			result: [],
-		},
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		user: req.user,
-		getData(params) {
-			return getAssets(params);
-		},
-	});
+	const response = await axios.get<GetAssetsResponseType>(
+		ASSETS_URL + `?limit=${DEFAULT_PAGINATION_SIZE}`
+	);
 
-	if (result) {
+	if (response.status === 200 && response.data.status === 'success') {
 		return {
 			props: {
-				auth,
-				data: result.data,
+				auth: req.user,
+				data: response.data.data,
+			},
+		};
+	}
+
+	if (response.status === 404) {
+		return {
+			props: {
+				notFound: true,
 			},
 		};
 	}
 
 	return {
 		props: {
-			auth,
+			auth: req.user,
 			errorPage: {
-				statusCode: 403,
+				statusCode: response.status,
+				title: response.data.message || response.statusText,
 			},
 		},
 	};
