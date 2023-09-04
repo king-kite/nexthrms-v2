@@ -1,10 +1,9 @@
-import { auth } from '../../../middlewares';
-import { removeTokens } from '../../../utils/tokens';
+import axios from 'axios';
 
-export default auth().post((req, res) => {
-	removeTokens(res);
-	return res.status(200).json({
-		status: 'error',
-		message: 'Signed out successfully.',
-	});
+import { LOGOUT_URL } from '../../../config/services';
+import handler from '../../../middlewares';
+
+export default handler().post(async function (req, res) {
+	const response = await axios.post(LOGOUT_URL);
+	return res.status(200).json(response.data);
 });

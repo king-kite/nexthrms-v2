@@ -1,74 +1,22 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
+import axios from 'axios';
+import { models } from '../../../../../config/app';
+import { USER_OBJECT_PERMISSIONS_URL } from '../../../../../config/services';
+import handler from '../../../../../middlewares';
+import type { PermissionModelChoices, PermissionObjectChoices } from '../../../../../types';
+import { NextErrorMessage } from '../../../../../utils/classes';
 
-import { getPrismaModels, models } from '../../../../../config';
-import prisma from '../../../../../db';
-import { getUserObjectPermissions } from '../../../../../db/utils';
-import { auth } from '../../../../../middlewares';
+export default handler().get(async (req, res) => {
+	if (!models.includes(req.query.model?.toString() || ''))
+		throw new NextErrorMessage(404, 'Table was not found.');
 
-export default auth()
-	.use(async (req, res, next) => {
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
+	if (!req.query.objectId)
+		throw new NextErrorMessage(404, 'Record with the specified ID was not found.');
 
-		// Check if modelName is in the valid models array
-		if (!models.includes(modelName))
-			return res.status(404).json({
-				status: 'error',
-				message: 'Permissions for this record table do not exist!',
-			});
+	const model = req.query.model?.toString() as PermissionModelChoices;
+	const objectId = req.query?.objectId as string;
+	const permission = req.query.permission as PermissionObjectChoices | undefined;
 
-		// Check if there is a prisma model for it
-		const prismaModel = getPrismaModels(modelName);
-		if (!prismaModel)
-			return res.status(404).json({
-				status: 'error',
-				message: 'Record table name does not exist!',
-			});
-
-		// check if the object exists
-		const obj = await (prisma[prismaModel] as any).findUnique({
-			where: {
-				id: objectId,
-			},
-			select: {
-				id: true,
-			},
-		});
-
-		if (!obj) {
-			return res.status(404).json({
-				status: 'error',
-				message: 'Record with this ID does not exist!',
-			});
-		}
-
-		next();
-	})
-	.get(async (req, res) => {
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-		const permission = req.query.permission as
-			| PermissionObjectChoices
-			| undefined;
-		const userId = req.user.id;
-
-		const data = await getUserObjectPermissions({
-			modelName,
-			objectId,
-			userId,
-			permission,
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: "Fetched user's permissions for this record successfully!",
-			data,
-		});
-	});
+	const url = USER_OBJECT_PERMISSIONS_URL(model, objectId, permission);
+	const response = await axios.get(url);
+	return res.status(200).json(response.data);
+});

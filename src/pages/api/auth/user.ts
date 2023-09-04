@@ -1,12 +1,9 @@
-import { auth } from '../../../middlewares';
-import { serializeUserData } from '../../../utils/serializers';
+import axios from 'axios';
 
-export default auth().get(async (req, res) => {
-	const data = await serializeUserData(req.user);
+import { USER_DATA_URL } from '../../../config/services';
+import handler from '../../../middlewares';
 
-	return res.status(200).json({
-		message: 'Verified successfully',
-		status: 'success',
-		data,
-	});
+export default handler().get(async function (req, res) {
+	const response = await axios.get(USER_DATA_URL);
+	return res.status(200).json(response.data);
 });
