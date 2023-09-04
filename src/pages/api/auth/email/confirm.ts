@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { EMAIL_RESEND_URL } from '../../../../config/services';
+import { EMAIL_CONFIRM_URL } from '../../../../config/services';
 import handler from '../../../../middlewares';
 import { verifyUidTokenSchema } from '../../../../validators/auth';
 
@@ -13,6 +13,6 @@ export default handler().post(async function (req, res) {
 		}
 	);
 
-	const response = await axios.post(EMAIL_RESEND_URL, data);
+	const response = await axios.post(EMAIL_CONFIRM_URL, data);
 	return res.status(200).json(response.data);
 });

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { EMAIL_CONFIRM_URL } from '../../../../config/services';
+import { EMAIL_RESEND_URL } from '../../../../config/services';
 import handler from '../../../../middlewares';
 import { NextErrorMessage } from '../../../../utils/classes';
 
@@ -12,6 +12,6 @@ export default handler().post(async function (req, res) {
 			email: 'Email address is required.',
 		});
 
-	const response = await axios.post(EMAIL_CONFIRM_URL, { email: email.toLowerCase() });
+	const response = await axios.post(EMAIL_RESEND_URL, { email: email.toLowerCase() });
 	return res.status(200).json(response.data);
 });

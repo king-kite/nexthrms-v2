@@ -1,52 +1,22 @@
-import prisma from '../../../../db';
-import { auth } from '../../../../middlewares';
-import { hashPassword } from '../../../../utils/bcrypt';
+import axios from 'axios';
+
+import { PASSWORD_CHANGE_URL } from '../../../../config/services';
+import handler from '../../../../middlewares';
+import { NextErrorMessage } from '../../../../utils/classes';
 import { passwordChangeSchema } from '../../../../validators/auth';
 
-export default auth().post(async (req, res) => {
-	const valid = await passwordChangeSchema.validate(
+export default handler().post(async function (req, res) {
+	const data = await passwordChangeSchema.validate(
 		{ ...req.body },
-		{ abortEarly: false }
+		{
+			abortEarly: false,
+			stripUnknown: true,
+		}
 	);
 
-	if (valid.newPassword1 !== valid.newPassword2) {
-		return res.status(400).json({
-			status: 'error',
-			message: 'Passwords do not match',
-		});
-	}
+	if (data.newPassword1 !== data.newPassword2)
+		throw new NextErrorMessage(400, 'Passwords do not match');
 
-	const confirmOldPassword = await req.user.checkPassword(valid.oldPassword);
-	if (confirmOldPassword) {
-		if (valid.oldPassword === valid.newPassword1) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'Old password and New password cannot be the same',
-			});
-		}
-
-		const newPassword = await hashPassword(valid.newPassword1);
-
-		await prisma.user.update({
-			where: {
-				id: req.user.id,
-			},
-			data: {
-				password: newPassword,
-			},
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Password changed successfully!',
-		});
-	} else {
-		return res.status(400).json({
-			status: 'error',
-			message: 'Old password is not valid!',
-			error: {
-				oldPassword: 'Old password is incorrect',
-			},
-		});
-	}
+	const response = await axios.post(PASSWORD_CHANGE_URL, data);
+	return res.status(200).json(response.data);
 });
