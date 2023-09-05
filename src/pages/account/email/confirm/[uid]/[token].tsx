@@ -1,12 +1,10 @@
+import axios from 'axios';
 import { GetServerSideProps } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 
 import SplashScreen from '../../../../../components/common/splash-screen';
-import {
-	LOGIN_PAGE_URL,
-	REQUEST_EMAIL_VERIFY_PAGE_URL,
-} from '../../../../../config/routes';
-import prisma from '../../../../../db';
+import { LOGIN_PAGE_URL, REQUEST_EMAIL_VERIFY_PAGE_URL } from '../../../../../config/routes';
+import { EMAIL_CONFIRM_URL } from '../../../../../config/services';
 import { verifyUidTokenSchema } from '../../../../../validators/auth';
 
 function Page() {
@@ -25,57 +23,18 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		// validate the request params
 		const valid = await verifyUidTokenSchema.validate({ uid, token });
 
-		// Get the token provided in the request body
-		const savedToken = await prisma.token.findUnique({
-			where: {
-				token: valid.token,
-			},
-			select: {
-				expires: true,
-				type: true,
-				uid: true,
-				token: true,
-			},
-		});
+		const response = await axios.post(EMAIL_CONFIRM_URL, valid);
 
-		// Return a 400 error is token is not found, expired or
-		// is not an email verification token
-		// the user id saved on the token is not the same as the uid
-		// in the request body
-		if (
-			!savedToken ||
-			savedToken.type !== 'EMAIL_VERIFICATION' ||
-			savedToken.expires.getTime() <= Date.now() ||
-			savedToken.uid !== valid.uid
-		) {
+		if (response.status === 200)
 			return {
 				redirect: {
-					destination: REQUEST_EMAIL_VERIFY_PAGE_URL,
+					destination: LOGIN_PAGE_URL,
 					permanent: false,
 				},
 			};
-		}
-
-		// Set the user email as verified
-		await prisma.user.update({
-			where: {
-				id: savedToken.uid,
-			},
-			data: {
-				isEmailVerified: true,
-			},
-		});
-
-		// Delete the token
-		await prisma.token.delete({
-			where: {
-				token: savedToken.token,
-			},
-		});
-
 		return {
 			redirect: {
-				destination: LOGIN_PAGE_URL,
+				destination: REQUEST_EMAIL_VERIFY_PAGE_URL,
 				permanent: false,
 			},
 		};

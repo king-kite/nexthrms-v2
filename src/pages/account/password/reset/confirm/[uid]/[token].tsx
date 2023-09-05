@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { GetServerSideProps } from 'next';
 import Router from 'next/router';
@@ -9,19 +10,13 @@ import {
 	RESET_PASSWORD_PAGE_URL,
 	PASSWORD_RESET_CONFIRM_URL,
 } from '../../../../../../config';
+import { PASSWORD_RESET_CONFIRM_URL as PASSWORD_RESET_CONFIRM_SERVICE_URL } from '../../../../../../config/services';
 import PasswordConfirm from '../../../../../../containers/account/password/confirm';
-import prisma from '../../../../../../db';
 import { PasswordResetType } from '../../../../../../types';
 import axiosInstance from '../../../../../../utils/axios/authRedirectInstance';
 import Title from '../../../../../../utils/components/title';
-import {
-	handleAxiosErrors,
-	handleYupErrors,
-} from '../../../../../../validators';
-import {
-	passwordResetSchema,
-	verifyUidTokenSchema,
-} from '../../../../../../validators/auth';
+import { handleAxiosErrors, handleYupErrors } from '../../../../../../validators';
+import { passwordResetSchema, verifyUidTokenSchema } from '../../../../../../validators/auth';
 
 const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 	const [errors, setErrors] = React.useState<{
@@ -51,8 +46,7 @@ const Page = ({ uid, token }: { uid: number | string; token: string }) => {
 						};
 					return {
 						...prevErrors,
-						message:
-							err?.message || 'An error occurred. Unable to set new password.',
+						message: err?.message || 'An error occurred. Unable to set new password.',
 					};
 				});
 			},
@@ -130,38 +124,20 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		// validate the request params
 		const valid = await verifyUidTokenSchema.validate({ uid, token });
 
-		// Get the token provided in the request body
-		const savedToken = await prisma.token.findUnique({
-			where: {
-				token: valid.token,
-			},
-			select: {
-				expires: true,
-				type: true,
-				uid: true,
-				token: true,
-			},
-		});
+		const response = await axios.post(PASSWORD_RESET_CONFIRM_SERVICE_URL, valid);
 
-		if (
-			!savedToken ||
-			savedToken.type !== 'PASSWORD_RESET' ||
-			savedToken.expires.getTime() <= Date.now() ||
-			savedToken.uid !== valid.uid
-		) {
+		if (response.status === 200)
 			return {
-				redirect: {
-					destination: RESET_PASSWORD_PAGE_URL,
-					permanent: false,
+				props: {
+					key: uid,
+					uid,
+					token,
 				},
 			};
-		}
-
 		return {
-			props: {
-				key: uid,
-				uid,
-				token,
+			redirect: {
+				destination: RESET_PASSWORD_PAGE_URL,
+				permanent: false,
 			},
 		};
 	} catch (error) {

@@ -9,7 +9,7 @@ import type { AuthDataType, ResponseType, SuccessResponseType } from '../../type
 type ServerDataReturnType<P> =
 	| {
 			data: P;
-			user?: AuthDataType;
+			auth?: AuthDataType;
 	  }
 	| {
 			errorPage: {
@@ -28,17 +28,17 @@ async function getServerSideData<P = any>({
 	try {
 		let route = url;
 		if (paginate) route + `?limit=${DEFAULT_PAGINATION_SIZE}`;
-		const [data, user] = await axios.all<P | AuthDataType>([
-			axios.get<P>(route).then((response) => response.data),
-			axios
-				.get<SuccessResponseType<AuthDataType>>(USER_DATA_URL)
-				.then((response) => response.data.data),
-		]);
+
+		const data = await axios.get<P>(route).then((response) => response.data);
+
+		const auth = await axios
+			.get<SuccessResponseType<AuthDataType>>(USER_DATA_URL)
+			.then((response) => response.data.data);
 
 		return {
 			props: {
-				user: user as AuthDataType,
-				data: data as P,
+				auth,
+				data,
 			},
 		};
 	} catch (err) {
