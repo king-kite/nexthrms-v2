@@ -1,53 +1,22 @@
-import Profile from '../../containers/account/profile';
-import { getProfile } from '../../db/queries/auth';
-import { authPage } from '../../middlewares';
-import { ExtendedGetServerSideProps, ProfileType } from '../../types';
-import Title from '../../utils/components/title';
-import { serializeUserData } from '../../utils/serializers/auth';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-const Page = ({ profile }: { profile: ProfileType }) => (
+import { PROFILE_URL } from '../../config/services';
+import Profile from '../../containers/account/profile';
+import type { ProfileResponseType } from '../../types';
+import Title from '../../utils/components/title';
+import { getServerSideData } from '../../utils/server';
+
+const Page = ({ data: profile }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Account Information" />
-		<Profile profile={profile} />
+		<Profile profile={profile.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV) console.log('PROFILE PAGE ERROR:>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-	const profile = await getProfile(req.user.id);
-
-	if (!profile) {
-		return {
-			notFound: true,
-		};
-	}
-
-	return {
-		props: {
-			auth,
-			profile: JSON.parse(JSON.stringify(profile)),
-		},
-	};
+export const getServerSideProps: GetServerSideProps = async () => {
+	return await getServerSideData<ProfileResponseType>({
+		url: PROFILE_URL,
+	});
 };
 
 export default Page;
