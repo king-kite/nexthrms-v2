@@ -32,7 +32,7 @@ function handler() {
 				return res.status(400).json({
 					status: 'error',
 					message: 'Invalid Data.',
-					error: yupError,
+					data: yupError,
 				});
 
 			if (err instanceof AxiosError) {
