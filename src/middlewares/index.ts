@@ -1,15 +1,13 @@
 import { AxiosError } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createRouter } from 'next-connect';
+import nextConnect from 'next-connect';
 
 import type { ResponseType } from '../types';
 import { NextErrorMessage } from '../utils/classes';
 import { handleYupErrors } from '../validators/errors';
 
-const handler = function () {
-	const router = createRouter<NextApiRequest, NextApiResponse>();
-
-	router.handler({
+function handler() {
+	return nextConnect<NextApiRequest, NextApiResponse>({
 		onNoMatch: (req, res) => {
 			return res.status(405).json({
 				status: 'error',
@@ -49,8 +47,6 @@ const handler = function () {
 			});
 		},
 	});
-
-	return router;
-};
+}
 
 export default handler;

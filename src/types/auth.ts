@@ -1,28 +1,31 @@
-import {} from '@prisma/client';
-
-import {
+import type {
 	ResponseType,
 	PermissionModelChoices,
 	PermissionObjectChoices,
 	ValidatorErrorType,
 	SuccessResponseType,
 } from './base';
-import { PermissionType } from './users';
+import type { PermissionType } from './users';
 import type { ProfileUpdateType as ValidatorProfileUpdateType } from '../validators/auth';
 
 export type { PasswordResetType } from '../validators/auth';
 
-export interface AuthDataType extends UserDataType {
+export type AuthDataType = {
+	id: string;
+	firstName: string;
+	lastName: string;
 	fullName: string;
+	email: string;
 	profile: {
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 	} | null;
-	employee?: {
+	employee: {
 		id: string;
-		job?: {
+		job: {
 			name: string;
 		} | null;
 	} | null;
@@ -31,9 +34,11 @@ export interface AuthDataType extends UserDataType {
 		modelName: PermissionModelChoices;
 		permission: PermissionObjectChoices;
 	}[];
-	isSuperUser?: boolean;
+	isActive?: boolean;
+	isEmailVerified?: boolean;
 	isAdmin?: boolean;
-}
+	isSuperUser?: boolean;
+};
 
 export type ProfileType = {
 	firstName: string;
