@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { LOGIN_URL } from '../../config';
@@ -19,41 +18,37 @@ const Login = () => {
 
 	const { login } = useAuthContext();
 
-	const { mutate: signIn, isLoading: loading } = useMutation(
-		(form: { email: string; password: string }) =>
-			axiosInstance.post(LOGIN_URL, form, {
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			}),
-		{
-			onSuccess(response: AxiosResponse<SuccessResponseType<AuthDataType>>) {
-				if (response.data && response.data.data) login(response.data.data);
-			},
-			onError(error) {
-				const err = handleAxiosErrors<{
-					email?: string;
-					password?: string;
-				}>(error);
-				setErrors((prevErrors) => {
-					if (err?.data)
-						return {
-							...prevErrors,
-							message:
-								!err.data?.email && !err.data?.password
-									? 'An error occurred. Unable to sign in.'
-									: undefined,
-							...err.data,
-						};
+	const { mutate: signIn, isLoading: loading } = useMutation({
+		mutationKey: ['auth'],
+		async mutationFn(form: { email: string; password: string }) {
+			const response = await axiosInstance.post(LOGIN_URL, form);
+			return response.data;
+		},
+		onSuccess(response: SuccessResponseType<{ user: AuthDataType }>) {
+			login(response.data.user);
+		},
+		onError(error) {
+			const err = handleAxiosErrors<{
+				email?: string;
+				password?: string;
+			}>(error);
+			setErrors((prevErrors) => {
+				if (err?.data)
 					return {
 						...prevErrors,
-						message: err?.message || 'An error occurred. Unable to sign in.',
+						message:
+							!err.data?.email && !err.data?.password
+								? 'An error occurred. Unable to sign in.'
+								: undefined,
+						...err.data,
 					};
-				});
-			},
-		}
-	);
+				return {
+					...prevErrors,
+					message: err?.message || 'An error occurred. Unable to sign in.',
+				};
+			});
+		},
+	});
 
 	const handleSubmit = React.useCallback(
 		async (form: { email: string; password: string }) => {

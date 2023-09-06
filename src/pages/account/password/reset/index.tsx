@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { PASSWORD_RESET_URL } from '../../../../config/server';
 import PasswordReset from '../../../../containers/account/password/reset';
 import useInterval from '../../../../hooks/useInterval';
-import { BaseResponseType } from '../../../../types';
+import type { ResponseType } from '../../../../types';
 import axiosInstance from '../../../../utils/axios/authRedirectInstance';
 import Title from '../../../../utils/components/title';
 import { handleAxiosErrors } from '../../../../validators';
@@ -27,16 +26,13 @@ const Page = () => {
 	);
 
 	const { mutate: sendEmail, isLoading: loading } = useMutation(
-		(form: { email: string }) =>
-			axiosInstance.post(PASSWORD_RESET_URL, form, {
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			}),
+		async function (form: { email: string }) {
+			const response = await axiosInstance.post(PASSWORD_RESET_URL, form);
+			return response.data;
+		},
 		{
-			onSuccess(response: AxiosResponse<BaseResponseType>) {
-				setSuccessMessage(response.data.message);
+			onSuccess(response: ResponseType) {
+				setSuccessMessage(response.message);
 				setResendAfter(60);
 				toggleInterval('play');
 			},
@@ -52,9 +48,7 @@ const Page = () => {
 						};
 					return {
 						...prevErrors,
-						message:
-							err?.message ||
-							'An error occurred. Unable to send password reset email.',
+						message: err?.message || 'An error occurred. Unable to send password reset email.',
 					};
 				});
 			},

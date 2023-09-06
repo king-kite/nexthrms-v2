@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { EMAIL_RESEND_URL } from '../../../config/server';
 import VerifyEmail from '../../../containers/account/email/verify';
 import useInterval from '../../../hooks/useInterval';
-import { BaseResponseType } from '../../../types';
+import { ResponseType } from '../../../types';
 import axiosInstance from '../../../utils/axios/authRedirectInstance';
 import Title from '../../../utils/components/title';
 import { handleAxiosErrors } from '../../../validators';
@@ -27,16 +26,13 @@ const Page = () => {
 	);
 
 	const { mutate: sendEmail, isLoading: loading } = useMutation(
-		(form: { email: string }) =>
-			axiosInstance.post(EMAIL_RESEND_URL, form, {
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			}),
+		async function (form: { email: string }) {
+			const response = await axiosInstance.post(EMAIL_RESEND_URL, form);
+			return response.data;
+		},
 		{
-			onSuccess(response: AxiosResponse<BaseResponseType>) {
-				setSuccessMessage(response.data.message);
+			onSuccess(response: ResponseType) {
+				setSuccessMessage(response.message);
 				setResendAfter(60);
 				toggleInterval('play');
 			},
@@ -50,9 +46,7 @@ const Page = () => {
 						};
 					return {
 						...prevErrors,
-						message:
-							err?.message ||
-							'An error occurred. Unable to send verification email.',
+						message: err?.message || 'An error occurred. Unable to send verification email.',
 					};
 				});
 			},
