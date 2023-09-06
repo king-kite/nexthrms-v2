@@ -2,9 +2,12 @@ import { AxiosError } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 
+import authenticated from './authenticated';
 import type { ResponseType } from '../types';
 import { NextErrorMessage } from '../utils/classes';
 import { handleYupErrors } from '../validators/errors';
+
+export const auth = handler().use(authenticated);
 
 function handler() {
 	return nextConnect<NextApiRequest, NextApiResponse>({

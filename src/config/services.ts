@@ -9,6 +9,7 @@ export const MANAGED_FILES_IMPORT_URL = `${ROOT_URL}/managed-files/import/`;
 export const MANAGED_FILE_URL = (id: string) => `${ROOT_URL}/managed-files/${id}/`;
 
 // Authentication and User Personal Information URLs
+export const REFRESH_TOKEN_URL = `${ROOT_URL}/auth/token/refresh`;
 export const EMAIL_CONFIRM_URL = `${ROOT_URL}/auth/email/confirm/`;
 export const EMAIL_RESEND_URL = `${ROOT_URL}/auth/email/resend/`;
 export const LOGIN_URL = `${ROOT_URL}/auth/login/`;
