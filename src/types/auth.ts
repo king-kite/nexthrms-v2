@@ -46,11 +46,12 @@ export type ProfileType = {
 	email: string;
 	isEmailVerified: boolean;
 	profile: {
-		dob: Date | string | null;
+		dob: Date | null;
 		gender: 'MALE' | 'FEMALE';
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 		address: string | null;
 		city: string | null;
@@ -59,7 +60,7 @@ export type ProfileType = {
 	} | null;
 	employee: {
 		id: string;
-		dateEmployed: Date | string;
+		dateEmployed: Date;
 		department: {
 			name: string;
 			hod: {
@@ -105,8 +106,8 @@ export type ProfileType = {
 			};
 		}[];
 		leaves: {
-			startDate: Date | string;
-			endDate: Date | string;
+			startDate: Date;
+			endDate: Date;
 			reason: string;
 			type: string;
 			approved: boolean;

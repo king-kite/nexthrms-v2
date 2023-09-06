@@ -9,12 +9,12 @@ import { getServerSideData } from '../utils/server';
 const Page = ({ data: assets }: { data: GetAssetsResponseType }) => (
 	<>
 		<Title title="Assets" />
-		<Assets assets={assets?.data} />
+		<Assets assets={assets.data} />
 	</>
 );
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-	return await getServerSideData<GetAssetsResponseType>({
+	return await getServerSideData({
 		req,
 		res,
 		url: ASSETS_URL,
