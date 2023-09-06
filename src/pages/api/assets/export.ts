@@ -1,12 +1,11 @@
-import axios from 'axios';
-
 import { ASSETS_EXPORT_URL } from '../../../config/services';
-import handler from '../../../middlewares';
+import { auth } from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
 import { getRouteParams } from '../../../validators/pagination';
 
-export default handler().get(async function (req, res) {
+export default auth().get(async function (req, res) {
 	const params = getRouteParams(req.query);
 
-	const response = await axios.get(ASSETS_EXPORT_URL + params);
+	const response = await axiosJn(req).get(ASSETS_EXPORT_URL + params);
 	return res.status(200).json(response.data);
 });

@@ -1,12 +1,11 @@
-import axios from 'axios';
-
 import { ASSET_URL } from '../../../config/services';
-import handler from '../../../middlewares';
+import auth from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
 import { createAssetSchema } from '../../../validators/assets';
 
-export default handler()
+export default auth()
 	.get(async function (req, res) {
-		const response = await axios.get(ASSET_URL((req.query.id as string).toString()));
+		const response = await axiosJn(req).get(ASSET_URL((req.query.id as string).toString()));
 		return res.status(200).json(response.data);
 	})
 	.put(async (req, res) => {
@@ -18,10 +17,10 @@ export default handler()
 			}
 		);
 
-		const response = await axios.put(ASSET_URL((req.query.id as string).toString()), data);
+		const response = await axiosJn(req).put(ASSET_URL((req.query.id as string).toString()), data);
 		return res.status(200).json(response.data);
 	})
 	.delete(async function (req, res) {
-		const response = await axios.delete(ASSET_URL((req.query.id as string).toString()));
+		const response = await axiosJn(req).delete(ASSET_URL((req.query.id as string).toString()));
 		return res.status(200).json(response.data);
 	});

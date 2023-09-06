@@ -1,8 +1,8 @@
-import axios from 'axios';
 import fs from 'fs';
 
 import { ASSETS_IMPORT_URL } from '../../../config/services';
-import handler from '../../../middlewares';
+import { auth } from '../../../middlewares';
+import { axiosAuth } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFiles } from '../../../utils/parseForm';
 
@@ -12,7 +12,7 @@ export const config = {
 	},
 };
 
-export default handler().post(async function (req, res) {
+export default auth().post(async function (req, res) {
 	const { files } = await parseForm(req);
 
 	if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
@@ -37,6 +37,6 @@ export default handler().post(async function (req, res) {
 
 	formData.append('data', blob);
 
-	const response = await axios.post(ASSETS_IMPORT_URL, formData);
+	const response = await axiosAuth(req).post(ASSETS_IMPORT_URL, formData);
 	return res.status(200).json(response.data);
 });
