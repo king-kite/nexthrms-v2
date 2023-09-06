@@ -21,13 +21,7 @@ interface ErrorType extends ProfileUpdateErrorResponseType {
 	message?: string;
 }
 
-const Form = ({
-	profile,
-	onSuccess,
-}: {
-	profile: ProfileType;
-	onSuccess: () => void;
-}) => {
+const Form = ({ profile, onSuccess }: { profile: ProfileType; onSuccess: () => void }) => {
 	const [formErrors, setErrors] = React.useState<ErrorType>();
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [form, setForm] = React.useState({ image: '' });
@@ -40,16 +34,14 @@ const Form = ({
 		(data: FormData) =>
 			axiosInstance
 				.put(PROFILE_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProfileType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ProfileType>>) => response.data.data),
 		{
 			onSuccess(data) {
 				queryClient.invalidateQueries([tags.PROFILE]);
 				login({
 					objPermissions: previousData?.objPermissions || [],
 					...previousData,
+					id: previousData?.id || '',
 					permissions: previousData ? previousData.permissions : [],
 					firstName: data.firstName,
 					lastName: data.lastName,
@@ -58,7 +50,8 @@ const Form = ({
 					profile: {
 						image: {
 							id: data.profile?.image?.id || '',
-							url: data.profile?.image?.url || DEFAULT_IMAGE,
+							location: data.profile?.image?.location || DEFAULT_IMAGE,
+							url: data.profile?.image?.url || null,
 						},
 					},
 					employee: data.employee
@@ -85,9 +78,7 @@ const Form = ({
 					else
 						return {
 							...prevState,
-							message:
-								error?.message ||
-								'An error occurred. Unable to update profile.',
+							message: error?.message || 'An error occurred. Unable to update profile.',
 						};
 				});
 			},
@@ -103,8 +94,7 @@ const Form = ({
 				});
 				if (valid) {
 					const form = new FormData();
-					valid.profile.image &&
-						form.append('image', valid.profile.image as string);
+					valid.profile.image && form.append('image', valid.profile.image as string);
 					const formJsonData = JSON.stringify(valid);
 					form.append('form', formJsonData);
 					updateProfile(form);
@@ -268,11 +258,7 @@ const Form = ({
 				</div>
 				<div className="w-full">
 					<Input
-						defaultValue={
-							profile.profile?.dob
-								? getStringedDate(profile.profile.dob)
-								: undefined
-						}
+						defaultValue={profile.profile?.dob ? getStringedDate(profile.profile.dob) : undefined}
 						disabled={loading}
 						error={formErrors?.profile?.dob}
 						label="Date Of Birth"
@@ -296,11 +282,7 @@ const Form = ({
 			</div>
 			<div className="flex items-center justify-center my-4 sm:my-5 md:mt-8">
 				<div className="w-full sm:w-1/2 md:w-1/3">
-					<Button
-						disabled={loading}
-						title={loading ? 'Updating...' : 'Update'}
-						type="submit"
-					/>
+					<Button disabled={loading} title={loading ? 'Updating...' : 'Update'} type="submit" />
 				</div>
 			</div>
 		</form>

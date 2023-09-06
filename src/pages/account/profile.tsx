@@ -13,8 +13,10 @@ const Page = ({ data: profile }: InferGetServerSidePropsType<typeof getServerSid
 	</>
 );
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 	return await getServerSideData<ProfileResponseType>({
+		req,
+		res,
 		url: PROFILE_URL,
 	});
 };

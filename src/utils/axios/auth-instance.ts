@@ -5,9 +5,6 @@ import { getToken } from '../tokens';
 
 const axiosInstance = axios.create();
 
-axiosInstance.defaults.headers.common['Accept'] = 'application/json';
-axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
-
 function axiosFn(req?: NextApiRequest) {
 	if (req) {
 		const token = getToken(req, 'access');

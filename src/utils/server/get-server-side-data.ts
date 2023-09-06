@@ -86,6 +86,7 @@ async function getServerSideData<P = any>({
 
 			return {
 				props: {
+					data: {} as P,
 					errorPage: {
 						statusCode: response?.status || 500,
 						title: response?.data.message || response?.statusText,
@@ -95,6 +96,7 @@ async function getServerSideData<P = any>({
 		}
 		return {
 			props: {
+				data: {} as P,
 				errorPage: {
 					statusCode: 500,
 				},

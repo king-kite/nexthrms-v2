@@ -51,9 +51,15 @@ function handler() {
 					return res.status(error.response.status).json(error.response.data);
 				}
 			}
+
+			let message = 'Something went wrong.';
+			if (+(process.env.TEST_MODE || 0) === 1) {
+				message = err.message;
+			}
+
 			return res.status(500).json({
 				status: 'error',
-				message: 'Something went wrong.',
+				message,
 			});
 		},
 	});
