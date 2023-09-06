@@ -1,21 +1,10 @@
-import axios from 'axios';
-
 import { LOGOUT_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { getToken, removeTokens } from '../../../utils/tokens';
+import { axiosFn } from '../../../utils/axios';
+import { removeTokens } from '../../../utils/tokens';
 
 export default auth().post(async function (req, res) {
-	const response = await axios.post(
-		LOGOUT_URL,
-		{},
-		{
-			headers: {
-				accept: 'application/json',
-				authorization: 'Bearer ' + getToken(req, 'access'),
-				'content-type': 'application/json',
-			},
-		}
-	);
+	const response = await axiosFn(req).post(LOGOUT_URL, {});
 
 	// Remove the tokens
 	removeTokens(res);

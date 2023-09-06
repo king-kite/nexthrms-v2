@@ -30,7 +30,7 @@ const authenticated: Middleware<NextApiRequest, NextApiResponse> = async functio
 
 		// set the new tokens
 		setTokens(res, tokens.access, tokens.refresh);
-		next();
+		return next();
 	}
 
 	throw new NextErrorMessage(401);
