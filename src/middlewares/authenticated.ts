@@ -10,7 +10,10 @@ import { getToken, setTokens } from '../utils/tokens';
 const authenticated: Middleware<NextApiRequest, NextApiResponse> = async function (req, res, next) {
 	// If the access token if still in the cookie
 	const accessToken = getToken(req, 'access');
-	if (accessToken) return next();
+	if (accessToken) {
+		next();
+		return;
+	}
 
 	// If the refresh token is there then refresh the token
 	const refreshToken = getToken(req, 'refresh');
@@ -30,7 +33,8 @@ const authenticated: Middleware<NextApiRequest, NextApiResponse> = async functio
 
 		// set the new tokens
 		setTokens(res, tokens.access, tokens.refresh);
-		return next();
+		next();
+		return;
 	}
 
 	throw new NextErrorMessage(401);

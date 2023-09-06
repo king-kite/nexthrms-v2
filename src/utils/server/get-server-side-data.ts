@@ -1,10 +1,12 @@
-import axios, { AxiosError } from 'axios';
-import type { GetServerSidePropsResult } from 'next';
+import { AxiosError } from 'axios';
+import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config/app';
 import { REQUEST_EMAIL_VERIFY_PAGE_URL } from '../../config/routes';
 import { USER_DATA_URL } from '../../config/services';
+import { authPage } from '../../middlewares';
 import type { AuthDataType, ResponseType, SuccessResponseType } from '../../types';
+import { axiosJn } from '../../utils/axios';
 
 type ServerDataReturnType<P> =
 	| {
@@ -19,9 +21,13 @@ type ServerDataReturnType<P> =
 	  };
 
 async function getServerSideData<P = any>({
+	req,
+	res,
 	url,
 	paginate = true,
 }: {
+	req?: GetServerSidePropsContext<any, any>['req'];
+	res?: GetServerSidePropsContext<any, any>['res'];
 	url: string;
 	paginate?: boolean;
 }): Promise<GetServerSidePropsResult<ServerDataReturnType<P>>> {
@@ -29,9 +35,22 @@ async function getServerSideData<P = any>({
 		let route = url;
 		if (paginate) route + `?limit=${DEFAULT_PAGINATION_SIZE}`;
 
-		const data = await axios.get<P>(route).then((response) => response.data);
+		// check that the user is logged in
+		if (req && res) {
+			try {
+				await authPage().run(req, res);
+			} catch (err) {
+				if (+(process.env.TEST_MODE || 0) === 1) {
+					console.log('AUTHENTICATE SERVER SIDE DATA ERROR :>> ', err);
+				}
+			}
+		}
 
-		const auth = await axios
+		const data = await axiosJn(req)
+			.get<P>(route)
+			.then((response) => response.data);
+
+		const auth = await axiosJn(req)
 			.get<SuccessResponseType<AuthDataType>>(USER_DATA_URL)
 			.then((response) => response.data.data);
 

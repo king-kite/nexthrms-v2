@@ -3,7 +3,7 @@ import { AssetCreateType } from '../validators/assets';
 
 export type AssetType = {
 	id: string;
-	assetId: true;
+	assetId: string;
 	condition: 'BAD' | 'GOOD' | 'EXCELLENT';
 	description: string | null;
 	model: string | null;
@@ -29,8 +29,8 @@ export type AssetType = {
 			} | null;
 		} | null;
 	} | null;
-	updatedAt: true;
-	createdAt: true;
+	updatedAt: Date;
+	createdAt: Date;
 };
 
 export type AssetCreateQueryType = Omit<AssetCreateType, 'purchaseDate'> & {

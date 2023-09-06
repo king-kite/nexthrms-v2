@@ -11,6 +11,11 @@ export function auth() {
 	return handler().use(authenticated);
 }
 
+// To be used in pages getServerSideProps
+export function authPage() {
+	return nextConnect().use(authenticated);
+}
+
 function handler() {
 	return nextConnect<NextApiRequest, NextApiResponse>({
 		onNoMatch: (req, res) => {
