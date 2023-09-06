@@ -2,9 +2,9 @@ import fs from 'fs';
 
 import { ASSETS_IMPORT_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { axiosAuth } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFiles } from '../../../utils/parseForm';
+import { getToken } from '../../../utils/tokens';
 
 export const config = {
 	api: {
@@ -37,6 +37,21 @@ export default auth().post(async function (req, res) {
 
 	formData.append('data', blob);
 
-	const response = await axiosAuth(req).post(ASSETS_IMPORT_URL, formData);
-	return res.status(200).json(response.data);
+	const token = getToken(req, 'access');
+
+	// Axios doesn't seem to work well with the form data
+	const response = await fetch(ASSETS_IMPORT_URL, {
+		method: 'PUT',
+		body: formData,
+		headers: {
+			Authorization: 'Bearer ' + token,
+		},
+	});
+	const result = await response.json();
+
+	if (!response.ok && response.status === 200) {
+		return res.status(200).json(result);
+	}
+
+	throw new NextErrorMessage(response.status, result.message, result.data);
 });
