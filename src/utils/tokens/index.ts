@@ -1,6 +1,6 @@
 import cookie from 'cookie';
 import type { ServerResponse } from 'http';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import {
 	ACCESS_TOKEN,
 	REFRESH_TOKEN,
@@ -54,6 +54,14 @@ export const setTokens = (
 		}),
 	]);
 	return response;
+};
+
+export const getToken = (request: NextApiRequest, title: 'access' | 'refresh') => {
+	const cookies = cookie.parse(request.headers.cookie || '');
+	const token =
+		cookies[title === 'access' ? ACCESS_TOKEN : title === 'refresh' ? REFRESH_TOKEN : title];
+	if (token) return token;
+	return '';
 };
 
 // export function generateToken(options?: {
