@@ -13,6 +13,7 @@ function axiosFn(req?: NextApiRequest) {
 		const token = getToken(req, 'access');
 		if (token) axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
 	}
+
 	return axiosInstance;
 }
 

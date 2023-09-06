@@ -1,8 +1,7 @@
-import axios from 'axios';
-
 import { LOGIN_URL } from '../../../config/services';
 import handler from '../../../middlewares';
 import type { AuthDataType, SuccessResponseType } from '../../../types';
+import { axiosJn } from '../../../utils/axios';
 import { setTokens } from '../../../utils/tokens';
 import { loginSchema } from '../../../validators/auth';
 
@@ -15,7 +14,7 @@ export default handler().post(async function (req, res) {
 		}
 	);
 
-	const response = await axios.post<
+	const response = await axiosJn().post<
 		SuccessResponseType<{
 			tokens?: {
 				access: string;

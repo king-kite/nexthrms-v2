@@ -1,10 +1,10 @@
 import { LOGOUT_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { axiosFn } from '../../../utils/axios';
+import { axiosJn } from '../../../utils/axios';
 import { removeTokens } from '../../../utils/tokens';
 
 export default auth().post(async function (req, res) {
-	const response = await axiosFn(req).post(LOGOUT_URL, {});
+	const response = await axiosJn(req).post(LOGOUT_URL, {});
 
 	// Remove the tokens
 	removeTokens(res);

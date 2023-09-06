@@ -1,8 +1,8 @@
-import axios from 'axios';
 import fs from 'fs';
 
 import { PROFILE_URL } from '../../../config/services';
-import handler from '../../../middlewares';
+import { auth } from '../../../middlewares';
+import { axiosAuth, axiosJn } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFiles, getFormFields } from '../../../utils/parseForm';
 import { profileUpdateSchema } from '../../../validators/auth';
@@ -13,9 +13,9 @@ export const config = {
 	},
 };
 
-export default handler()
+export default auth()
 	.get(async function (req, res) {
-		const response = await axios.get(PROFILE_URL);
+		const response = await axiosJn(req).get(PROFILE_URL);
 		return res.status(200).json(response.data);
 	})
 	.put(async function (req, res) {
@@ -40,6 +40,6 @@ export default handler()
 		formData.append('form', JSON.stringify(data));
 		formData.append('image', blob);
 
-		const response = await axios.post(PROFILE_URL, formData);
+		const response = await axiosAuth(req).post(PROFILE_URL, formData);
 		return res.status(200).json(response.data);
 	});
