@@ -14,9 +14,10 @@ type ServerDataReturnType<P> =
 			auth?: AuthDataType;
 	  }
 	| {
+			data: {};
 			errorPage: {
 				statusCode?: number;
-				title?: string;
+				title?: string | null;
 			};
 	  };
 
@@ -86,17 +87,17 @@ async function getServerSideData<P = any>({
 
 			return {
 				props: {
-					data: {} as P,
+					data: {},
 					errorPage: {
 						statusCode: response?.status || 500,
-						title: response?.data.message || response?.statusText,
+						title: response?.data.message || response?.statusText || null,
 					},
 				},
 			};
 		}
 		return {
 			props: {
-				data: {} as P,
+				data: {},
 				errorPage: {
 					statusCode: 500,
 				},

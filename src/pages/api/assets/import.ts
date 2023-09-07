@@ -19,21 +19,13 @@ export default auth().post(async function (req, res) {
 
 	const [data] = getFormFiles(files.data);
 
-	if (
-		data.mimetype !== 'text/csv' &&
-		data.mimetype !== 'application/zip' &&
-		data.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	)
-		throw new NextErrorMessage(
-			400,
-			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
-		);
-
 	const formData = new FormData();
 
 	const fileBuffer = fs.readFileSync(data.filepath);
 
-	const blob = new Blob([fileBuffer]);
+	const blob = new Blob([fileBuffer], {
+		type: data.mimetype || undefined,
+	});
 
 	formData.append('data', blob);
 
@@ -41,7 +33,7 @@ export default auth().post(async function (req, res) {
 
 	// Axios doesn't seem to work well with the form data
 	const response = await fetch(ASSETS_IMPORT_URL, {
-		method: 'PUT',
+		method: 'POST',
 		body: formData,
 		headers: {
 			Authorization: 'Bearer ' + token,
