@@ -23,24 +23,15 @@ import {
 } from '../../../config/routes';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useGetUserObjectPermissionsQuery } from '../../../store/queries/permissions';
-import {
-	useActivateUserMutation,
-	useDeleteUserMutation,
-} from '../../../store/queries/users';
+import { useActivateUserMutation, useDeleteUserMutation } from '../../../store/queries/users';
 import { UserType, UserObjPermType } from '../../../types';
 import { hasModelPermission } from '../../../utils/permission';
 
 function DetailActions({
 	data,
-	objPerm,
-	objClientPerm,
-	objEmployeePerm,
 	forwardedRef,
 }: {
 	data?: UserType;
-	objPerm: UserObjPermType;
-	objClientPerm: UserObjPermType;
-	objEmployeePerm: UserObjPermType;
 	forwardedRef: {
 		ref: React.ForwardedRef<{
 			canEdit: boolean;
@@ -60,18 +51,10 @@ function DetailActions({
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	// Get user's object level permissions for the users table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'users',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'users',
+		objectId: id,
+	});
 
 	// Get user's object level permissions for the employees table
 	const { data: objClientPermData, refetch: objClientPermRefetch } =
@@ -83,9 +66,6 @@ function DetailActions({
 			},
 			{
 				enabled: data && !!data.client,
-				initialData() {
-					return objClientPerm;
-				},
 			}
 		);
 
@@ -99,9 +79,6 @@ function DetailActions({
 			},
 			{
 				enabled: data && !!data.employee,
-				initialData() {
-					return objEmployeePerm;
-				},
 			}
 		);
 
@@ -156,8 +133,7 @@ function DetailActions({
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
 			canView =
 				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.client.VIEW]));
+				(!!authData.isAdmin && hasModelPermission(authData.permissions, [permissions.client.VIEW]));
 		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
@@ -174,9 +150,7 @@ function DetailActions({
 			canView =
 				!!authData.isSuperUser ||
 				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.employee.VIEW,
-					]));
+					hasModelPermission(authData.permissions, [permissions.employee.VIEW]));
 		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
@@ -201,9 +175,7 @@ function DetailActions({
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
 
 		if (canEdit)
 			action.push(
@@ -227,16 +199,11 @@ function DetailActions({
 					title: 'Change Password',
 				},
 				{
-					bg: data?.isActive
-						? 'bg-gray-500 hover:bg-gray-600'
-						: 'bg-green-500 hover:bg-green-600',
+					bg: data?.isActive ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-500 hover:bg-green-600',
 					disabled: actLoading || delLoading,
 					onClick: () =>
 						data?.email && data?.isActive !== undefined
-							? activate(
-									[data.email],
-									data.isActive ? 'deactivate' : 'activate'
-							  )
+							? activate([data.email], data.isActive ? 'deactivate' : 'activate')
 							: undefined,
 					iconLeft: data?.isActive ? FaUserSlash : FaUserCheck,
 					title: data?.isActive
@@ -352,11 +319,7 @@ function DetailActions({
 							: 'Fill in the form to update user information'
 					}
 					keepVisible
-					title={
-						formType === 'password'
-							? 'Change User Password'
-							: 'Update User Information'
-					}
+					title={formType === 'password' ? 'Change User Password' : 'Update User Information'}
 					visible={modalVisible}
 				/>
 			)}

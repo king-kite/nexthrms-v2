@@ -1,100 +1,24 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
+import { USERS_URL } from '../../../config/services';
 import Users from '../../../containers/users';
-import { getUsers } from '../../../db/queries/users';
-import { getRecords } from '../../../db/utils/record';
-import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetUsersResponseType,
-} from '../../../types';
+import type { GetUsersResponseType } from '../../../types';
 import Title from '../../../utils/components/title';
-import { serializeUserData } from '../../../utils/serializers/auth';
+import { getServerSideData } from '../../../utils/server';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: users }: { data: GetUsersResponseType }) => (
 	<>
-		<Title title="Users" />
-		<Users users={data} />
+		<Title title="User" />
+		<Users users={users.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('USERS PAGE :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-
-	// Check is admin
-	if (!req.user.isAdmin && !req.user.isSuperUser)
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-
-	const result = await getRecords<GetUsersResponseType['data']>({
-		model: 'users',
-		perm: 'user',
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		placeholder: {
-			total: 0,
-			result: [],
-			active: 0,
-			inactive: 0,
-			on_leave: 0,
-			employees: 0,
-			clients: 0,
-		},
-		user: req.user,
-		getData(params) {
-			return getUsers(params);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: USERS_URL,
 	});
-
-	if (!result)
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-
-	return {
-		props: {
-			auth,
-			data: result.data,
-		},
-	};
 };
 
 export default Page;

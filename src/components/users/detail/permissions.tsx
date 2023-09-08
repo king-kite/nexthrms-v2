@@ -16,23 +16,16 @@ import { PermissionType } from '../../../types';
 
 function UserPermissions({
 	canEditUser,
-	permissions,
 	hideOtherModals,
 }: {
 	canEditUser: boolean;
-	permissions: {
-		total: number;
-		result: PermissionType[];
-	};
 	hideOtherModals?: () => void;
 }) {
 	const [errors, setErrors] = React.useState<{
 		permissions?: string;
 		message?: string;
 	}>();
-	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>(
-		'single'
-	);
+	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>('single');
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
@@ -41,65 +34,56 @@ function UserPermissions({
 	const id = router.query.id as string;
 
 	const { open: showAlert } = useAlertContext();
-	const { visible: alertModalVisible, close: closeAlertModal } =
-		useAlertModalContext();
+	const { visible: alertModalVisible, close: closeAlertModal } = useAlertModalContext();
 
-	const { data, isLoading, isFetching } = useGetUserPermissionsQuery(
+	const { data, isLoading, isFetching } = useGetUserPermissionsQuery({
+		id,
+		limit,
+		offset,
+		search: '',
+	});
+
+	const { mutate: editPermissions, isLoading: editLoading } = useEditUserPermissionsMutation(
 		{
-			id,
-			limit,
-			offset,
-			search: '',
+			onSuccess() {
+				showAlert({
+					type: 'success',
+					message:
+						errorType === 'single'
+							? 'Permission was removed successfully!'
+							: 'User permissions were updated successfully!',
+				});
+			},
+			onError(err) {
+				if (errorType === 'single') {
+					showAlert({
+						type: 'danger',
+						message: err?.data?.permissions || err.message,
+					});
+				} else {
+					setErrors((prevState) =>
+						prevState
+							? {
+									...prevState,
+									permissions: err?.data?.permissions,
+									message: err.message,
+							  }
+							: {
+									permissions: err?.data?.permissions,
+									message: err.message,
+							  }
+					);
+				}
+			},
 		},
 		{
-			initialData() {
-				return permissions;
+			onSettled() {
+				if (alertModalVisible) closeAlertModal();
+				if (modalVisible) setModalVisible(false);
+				setErrorType('single');
 			},
 		}
 	);
-
-	const { mutate: editPermissions, isLoading: editLoading } =
-		useEditUserPermissionsMutation(
-			{
-				onSuccess() {
-					showAlert({
-						type: 'success',
-						message:
-							errorType === 'single'
-								? 'Permission was removed successfully!'
-								: 'User permissions were updated successfully!',
-					});
-				},
-				onError(err) {
-					if (errorType === 'single') {
-						showAlert({
-							type: 'danger',
-							message: err?.data?.permissions || err.message,
-						});
-					} else {
-						setErrors((prevState) =>
-							prevState
-								? {
-										...prevState,
-										permissions: err?.data?.permissions,
-										message: err.message,
-								  }
-								: {
-										permissions: err?.data?.permissions,
-										message: err.message,
-								  }
-						);
-					}
-				},
-			},
-			{
-				onSettled() {
-					if (alertModalVisible) closeAlertModal();
-					if (modalVisible) setModalVisible(false);
-					setErrorType('single');
-				},
-			}
-		);
 
 	return (
 		<React.Fragment>
@@ -134,9 +118,7 @@ function UserPermissions({
 										setErrorType('single');
 										const form = {
 											permissions: data.result
-												.filter(
-													(permission) => permission.codename !== codename
-												)
+												.filter((permission) => permission.codename !== codename)
 												.map((permission) => permission.codename),
 										};
 										editPermissions({ id, form });
@@ -158,8 +140,8 @@ function UserPermissions({
 				</div>
 			) : (
 				<p className="text-primary-500 text-xs md:text-sm">
-					There are currently no private permissions for this user. Check the
-					user&apos;s groups instead.
+					There are currently no private permissions for this user. Check the user&apos;s groups
+					instead.
 				</p>
 			)}
 			<Modal
@@ -169,7 +151,7 @@ function UserPermissions({
 						loading={editLoading}
 						errors={errors}
 						resetErrors={() => setErrors(undefined)}
-						initState={data?.result || permissions.result}
+						initState={data?.result}
 						onSubmit={(form) => {
 							editPermissions({ id, form });
 						}}

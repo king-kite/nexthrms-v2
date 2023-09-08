@@ -38,7 +38,9 @@ export default auth()
 			const [image] = getFormFiles(files.image);
 			const fileBuffer = fs.readFileSync(image.filepath);
 
-			const blob = new Blob([fileBuffer]);
+			const blob = new Blob([fileBuffer], {
+				type: image.mimetype || undefined,
+			});
 			formData.append('image', blob);
 		}
 

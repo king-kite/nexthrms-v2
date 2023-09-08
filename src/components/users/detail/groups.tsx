@@ -8,31 +8,21 @@ import UserGroupsForm from './user-groups-form';
 import { Modal, TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
-import {
-	useEditUserGroupsMutation,
-	useGetUserGroupsQuery,
-} from '../../../store/queries/users';
+import { useEditUserGroupsMutation, useGetUserGroupsQuery } from '../../../store/queries/users';
 import { UserGroupType } from '../../../types';
 
 function UserGroups({
 	canEditUser,
-	groups,
 	hideOtherModals,
 }: {
 	canEditUser: boolean;
-	groups: {
-		total: number;
-		result: UserGroupType[];
-	};
 	hideOtherModals?: () => void;
 }) {
 	const [errors, setErrors] = React.useState<{
 		groups?: string;
 		message?: string;
 	}>();
-	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>(
-		'single'
-	);
+	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>('single');
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [offset, setOffset] = React.useState(0);
@@ -43,60 +33,52 @@ function UserGroups({
 	const { open: showAlert } = useAlertContext();
 	const { close: closeAlertModal } = useAlertModalContext();
 
-	const { data, isLoading, isFetching } = useGetUserGroupsQuery(
-		{
-			id,
-			limit,
-			offset,
-			search: '',
-		},
-		{
-			initialData() {
-				return groups;
-			},
-		}
-	);
+	const { data, isLoading, isFetching } = useGetUserGroupsQuery({
+		id,
+		limit,
+		offset,
+		search: '',
+	});
 
-	const { mutate: editGroups, isLoading: editLoading } =
-		useEditUserGroupsMutation({
-			onSuccess() {
-				if (errorType === 'single') {
-					closeAlertModal();
-					showAlert({
-						type: 'success',
-						message: 'User was removed from the group successfully!',
-					});
-				} else {
-					setModalVisible(false);
-					showAlert({
-						type: 'success',
-						message: 'User groups were updated successfully!',
-					});
-				}
-			},
-			onError(err) {
-				if (errorType === 'single') {
-					closeAlertModal();
-					showAlert({
-						type: 'danger',
-						message: err?.data?.groups || err.message,
-					});
-				} else {
-					setErrors((prevState) =>
-						prevState
-							? {
-									...prevState,
-									groups: err?.data?.groups,
-									message: err.message,
-							  }
-							: {
-									groups: err?.data?.groups,
-									message: err.message,
-							  }
-					);
-				}
-			},
-		});
+	const { mutate: editGroups, isLoading: editLoading } = useEditUserGroupsMutation({
+		onSuccess() {
+			if (errorType === 'single') {
+				closeAlertModal();
+				showAlert({
+					type: 'success',
+					message: 'User was removed from the group successfully!',
+				});
+			} else {
+				setModalVisible(false);
+				showAlert({
+					type: 'success',
+					message: 'User groups were updated successfully!',
+				});
+			}
+		},
+		onError(err) {
+			if (errorType === 'single') {
+				closeAlertModal();
+				showAlert({
+					type: 'danger',
+					message: err?.data?.groups || err.message,
+				});
+			} else {
+				setErrors((prevState) =>
+					prevState
+						? {
+								...prevState,
+								groups: err?.data?.groups,
+								message: err.message,
+						  }
+						: {
+								groups: err?.data?.groups,
+								message: err.message,
+						  }
+				);
+			}
+		},
+	});
 
 	return (
 		<React.Fragment>
@@ -152,8 +134,7 @@ function UserGroups({
 				</div>
 			) : (
 				<p className="text-primary-500 text-xs md:text-sm">
-					There are currently no groups for this user. Check the user&apos;s
-					permissions instead.
+					There are currently no groups for this user. Check the user&apos;s permissions instead.
 				</p>
 			)}
 			<Modal
@@ -163,7 +144,7 @@ function UserGroups({
 						loading={editLoading}
 						errors={errors}
 						resetErrors={() => setErrors(undefined)}
-						initState={data?.result || groups.result}
+						initState={data?.result}
 						onSubmit={(form) => {
 							editGroups({ id, form });
 						}}
