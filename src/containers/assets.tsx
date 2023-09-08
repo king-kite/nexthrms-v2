@@ -12,11 +12,7 @@ import {
 	ASSETS_IMPORT_URL,
 	DEFAULT_PAGINATION_SIZE,
 } from '../config';
-import {
-	useAlertContext,
-	useAlertModalContext,
-	useAuthContext,
-} from '../store/contexts';
+import { useAlertContext, useAlertModalContext, useAuthContext } from '../store/contexts';
 import {
 	useCreateAssetMutation,
 	useDeleteAssetMutation,
@@ -31,20 +27,15 @@ import {
 } from '../types';
 import { getStringedDate, hasModelPermission } from '../utils';
 
-const DynamicAlert = dynamic<any>(
-	() => import('kite-react-tailwind').then((mod) => mod.Alert),
-	{
-		ssr: false,
-	}
-);
+const DynamicAlert = dynamic<any>(() => import('kite-react-tailwind').then((mod) => mod.Alert), {
+	ssr: false,
+});
 
 const DynamicExportForm = dynamic<any>(
 	() => import('../components/common/export-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -53,9 +44,7 @@ const DynamicImportForm = dynamic<any>(
 	() => import('../components/common/import-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -64,9 +53,7 @@ const DynamicDetails = dynamic<any>(
 	() => import('../components/assets/details').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Asset Information...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Asset Information...</p>
 		),
 		ssr: false,
 	}
@@ -75,9 +62,7 @@ const DynamicForm = dynamic<any>(
 	() => import('../components/assets/form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -89,8 +74,7 @@ const DynamicModal = dynamic<any>(
 	}
 );
 const DynamicTablePagination = dynamic<any>(
-	() =>
-		import('../components/common/table/pagination').then((mod) => mod.default),
+	() => import('../components/common/table/pagination').then((mod) => mod.default),
 	{
 		ssr: false,
 	}
@@ -124,26 +108,22 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 
 	const { open } = useAlertContext();
 
-	const { visible: alertModalVisible, close: closeModal } =
-		useAlertModalContext();
+	const { visible: alertModalVisible, close: closeModal } = useAlertModalContext();
 	const { data: authData } = useAuthContext();
 
 	const [canCreate, canExport, canView] = React.useMemo(() => {
 		const canCreate = authData
 			? authData.isSuperUser ||
-			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.asset.CREATE]))
+			  (authData.isAdmin && hasModelPermission(authData.permissions, [permissions.asset.CREATE]))
 			: false;
 		const canExport = authData
 			? authData.isSuperUser ||
-			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.asset.EXPORT]))
+			  (authData.isAdmin && hasModelPermission(authData.permissions, [permissions.asset.EXPORT]))
 			: false;
 		// Added Object Level Permissions As Well
 		const canView = authData
 			? authData.isSuperUser ||
-			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.asset.VIEW])) ||
+			  (authData.isAdmin && hasModelPermission(authData.permissions, [permissions.asset.VIEW])) ||
 			  // check object permission
 			  !!authData?.objPermissions.find(
 					(perm) => perm.modelName === 'assets' && perm.permission === 'VIEW'
@@ -192,23 +172,22 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 		}));
 	}, []);
 
-	const { mutate: createAsset, isLoading: createLoading } =
-		useCreateAssetMutation({
-			onSuccess() {
-				open({
-					message: 'Asset was added successfully!',
-					type: 'success',
-				});
-				setBulkForm(false);
-				setModalVisible(false);
-				setForm(formStaleData);
-				setEditId(undefined);
-				setErrors(undefined);
-			},
-			onError(error) {
-				setErrors({ message: error?.message, ...error?.data });
-			},
-		});
+	const { mutate: createAsset, isLoading: createLoading } = useCreateAssetMutation({
+		onSuccess() {
+			open({
+				message: 'Asset was added successfully!',
+				type: 'success',
+			});
+			setBulkForm(false);
+			setModalVisible(false);
+			setForm(formStaleData);
+			setEditId(undefined);
+			setErrors(undefined);
+		},
+		onError(error) {
+			setErrors({ message: error?.message, ...error?.data });
+		},
+	});
 
 	const { mutate: editAsset, isLoading: editLoading } = useEditAssetMutation({
 		onSuccess() {
@@ -279,9 +258,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 							component={() => (
 								<DynamicExportForm
 									all={ASSETS_EXPORT_URL}
-									filtered={`&offset=${offset}&limit=${limit}&search=${
-										searchForm?.name || ''
-									}${
+									filtered={`&offset=${offset}&limit=${limit}&search=${searchForm?.name || ''}${
 										searchForm?.startDate && searchForm?.endDate
 											? `&startDate=${searchForm.startDate}&endDate=${searchForm.endDate}`
 											: ''
@@ -484,7 +461,7 @@ function Assets({ assets }: { assets: GetAssetsResponseType['data'] }) {
 									value: '1000',
 								},
 								{
-									title: 'user',
+									title: 'user_email',
 									value: 'jandoe@gmail.com',
 								},
 								{
