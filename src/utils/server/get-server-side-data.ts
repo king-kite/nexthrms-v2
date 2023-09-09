@@ -54,7 +54,7 @@ async function getServerSideData<P = any>({
 				await authPage().run(req, res);
 			} catch (err) {
 				if (+(process.env.TEST_MODE || 0) === 1) {
-					console.log('AUTHENTICATE SERVER SIDE DATA ERROR :>> ', err);
+					console.error('AUTHENTICATE SERVER SIDE DATA ERROR :>> ', (err as any).message);
 				}
 			}
 		}
