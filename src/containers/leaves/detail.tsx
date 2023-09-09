@@ -7,12 +7,11 @@ import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetLeaveQuery } from '../../store/queries/leaves';
-import { LeaveType, UserObjPermType } from '../../types';
+import type { LeaveType } from '../../types';
 import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
-	() =>
-		import('../../components/leaves/detail-actions').then((mod) => mod.default),
+	() => import('../../components/leaves/detail-actions').then((mod) => mod.default),
 	{
 		loading: () => (
 			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
@@ -25,19 +24,7 @@ const DynamicDetailActions = dynamic<any>(
 	}
 );
 
-const Detail = ({
-	admin = false,
-	leave,
-	objPerm = {
-		delete: false,
-		edit: false,
-		view: false,
-	},
-}: {
-	admin?: boolean;
-	leave: LeaveType;
-	objPerm?: UserObjPermType;
-}) => {
+const Detail = ({ admin = false, leave }: { admin?: boolean; leave: LeaveType }) => {
 	const router = useRouter();
 
 	const id = React.useMemo(() => router.query.id as string, [router]);
@@ -70,11 +57,8 @@ const Detail = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -82,8 +66,7 @@ const Detail = ({
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
-					if (detailActionsRef.current?.refreshPerm)
-						detailActionsRef.current.refreshPerm();
+					if (detailActionsRef.current?.refreshPerm) detailActionsRef.current.refreshPerm();
 					refetch();
 				},
 			}}
@@ -93,15 +76,12 @@ const Detail = ({
 				<>
 					<InfoTopBar
 						email={data.employee.user.email}
-						full_name={
-							data.employee.user.firstName + ' ' + data.employee.user.lastName
-						}
+						full_name={data.employee.user.firstName + ' ' + data.employee.user.lastName}
 						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
 						actions={
 							<DynamicDetailActions
 								admin={admin}
 								data={data}
-								objPerm={objPerm}
 								forwardedRef={{
 									ref: detailActionsRef,
 								}}
@@ -148,10 +128,7 @@ const Detail = ({
 												: 'warning',
 									},
 									title: 'Status',
-									value:
-										data.status === 'PENDING' && data.expired
-											? 'EXPIRED'
-											: data.status,
+									value: data.status === 'PENDING' && data.expired ? 'EXPIRED' : data.status,
 									type: 'badge',
 								},
 								{
@@ -190,13 +167,8 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src:
-												data.createdBy.user.profile?.image?.url ||
-												DEFAULT_IMAGE,
-											alt:
-												data.createdBy.user.firstName +
-												' ' +
-												data.createdBy.user.lastName,
+											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											alt: data.createdBy.user.firstName + ' ' + data.createdBy.user.lastName,
 										},
 									},
 									{
@@ -231,13 +203,8 @@ const Detail = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src:
-												data.approvedBy.user.profile?.image?.url ||
-												DEFAULT_IMAGE,
-											alt:
-												data.approvedBy.user.firstName +
-												' ' +
-												data.approvedBy.user.lastName,
+											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											alt: data.approvedBy.user.firstName + ' ' + data.approvedBy.user.lastName,
 										},
 									},
 									{

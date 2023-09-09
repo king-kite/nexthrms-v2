@@ -2,13 +2,7 @@ import { Button, ButtonType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaEdit,
-	FaTimesCircle,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
+import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import Form from './form';
 import Modal from '../common/modal';
@@ -36,7 +30,6 @@ type ErrorType = CreateLeaveErrorResponseType & {
 type DetailActionsProps = {
 	admin: boolean;
 	data?: LeaveType;
-	objPerm: UserObjPermType;
 	forwardedRef: {
 		ref: React.ForwardedRef<DetailActionsRef>;
 	};
@@ -46,12 +39,7 @@ type DetailActionsRef = {
 	refreshPerm?: () => void;
 } | null;
 
-function DetailActions({
-	admin,
-	data,
-	objPerm,
-	forwardedRef,
-}: DetailActionsProps) {
+function DetailActions({ admin, data, forwardedRef }: DetailActionsProps) {
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [errors, setErrors] = React.useState<ErrorType>();
 
@@ -62,18 +50,10 @@ function DetailActions({
 	const id = React.useMemo(() => router.query.id as string, [router]);
 
 	// Get user's object level permissions for the leaves table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'leaves',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'leaves',
+		objectId: id,
+	});
 
 	React.useImperativeHandle(
 		forwardedRef.ref,
@@ -83,87 +63,76 @@ function DetailActions({
 		[objPermRefetch]
 	);
 
-	const [canEdit, canDelete, canGrant, canViewPermissions] =
-		React.useMemo(() => {
-			if (!authData) return [false, false, false, false];
-			// Not Admin Page
-			// Only check object level permissions
-			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-			else {
-				let canEdit = false;
-				let canDelete = false;
-				let canGrant = false;
-				// Check model permissions
-				if (authData.isAdmin || authData.isSuperUser) {
-					canEdit =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.EDIT,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canDelete =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.DELETE,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canGrant =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.leave.GRANT,
-							])) ||
-						false;
-				}
-
-				// If the user doesn't have model edit permissions, then check obj edit permission
-				if (!canEdit && objPermData) canEdit = objPermData.edit;
-				if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-				const canViewPermissions =
+	const [canEdit, canDelete, canGrant, canViewPermissions] = React.useMemo(() => {
+		if (!authData) return [false, false, false, false];
+		// Not Admin Page
+		// Only check object level permissions
+		if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
+		else {
+			let canEdit = false;
+			let canDelete = false;
+			let canGrant = false;
+			// Check model permissions
+			if (authData.isAdmin || authData.isSuperUser) {
+				canEdit =
 					authData.isSuperUser ||
 					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.permissionobject.VIEW,
-						])) ||
+						hasModelPermission(authData.permissions, [permissions.leave.EDIT])) ||
 					false;
-
-				return [canEdit, canDelete, canGrant, canViewPermissions];
 			}
-		}, [authData, admin, objPermData]);
+			if (authData.isAdmin || authData.isSuperUser) {
+				canDelete =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [permissions.leave.DELETE])) ||
+					false;
+			}
+			if (authData.isAdmin || authData.isSuperUser) {
+				canGrant =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [permissions.leave.GRANT])) ||
+					false;
+			}
 
-	const { mutate: updateLeave, isLoading: editLoading } =
-		useRequestLeaveUpdateMutation({
-			onSuccess() {
-				setModalVisible(false);
-				open({
-					type: 'success',
-					message: 'Leave request was updated successfully!',
-				});
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
+			// If the user doesn't have model edit permissions, then check obj edit permission
+			if (!canEdit && objPermData) canEdit = objPermData.edit;
+			if (!canDelete && objPermData) canDelete = objPermData.delete;
 
-	const { mutate: approveLeave, isLoading: appLoading } =
-		useApproveLeaveMutation({
-			onRequestComplete({ message, error }) {
-				open({
-					type: error ? 'danger' : 'success',
-					message: error || message,
-				});
-			},
-		});
+			const canViewPermissions =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW])) ||
+				false;
+
+			return [canEdit, canDelete, canGrant, canViewPermissions];
+		}
+	}, [authData, admin, objPermData]);
+
+	const { mutate: updateLeave, isLoading: editLoading } = useRequestLeaveUpdateMutation({
+		onSuccess() {
+			setModalVisible(false);
+			open({
+				type: 'success',
+				message: 'Leave request was updated successfully!',
+			});
+		},
+		onError(err) {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
+	});
+
+	const { mutate: approveLeave, isLoading: appLoading } = useApproveLeaveMutation({
+		onRequestComplete({ message, error }) {
+			open({
+				type: error ? 'danger' : 'success',
+				message: error || message,
+			});
+		},
+	});
 	const { deleteLeave } = useDeleteLeaveMutation({
 		admin,
 		onSuccess() {
@@ -191,9 +160,7 @@ function DetailActions({
 		// Regular/normal user page
 		if (!admin) {
 			const startDate =
-				typeof data.startDate === 'string'
-					? new Date(data.startDate)
-					: data.startDate;
+				typeof data.startDate === 'string' ? new Date(data.startDate) : data.startDate;
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
 			// As long as the leave is still pending, the user can edit as he/she likes
@@ -222,9 +189,7 @@ function DetailActions({
 		} else {
 			// Admin user page
 			const startDate =
-				typeof data.startDate === 'string'
-					? new Date(data.startDate)
-					: data.startDate;
+				typeof data.startDate === 'string' ? new Date(data.startDate) : data.startDate;
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
 			// If the leave start date is today or next date i.e the current date or days after today
@@ -233,8 +198,7 @@ function DetailActions({
 			// If the user is a superuser, then bypass the restriction
 			if (
 				authData?.isSuperUser ||
-				(currentDate.getTime() <= startDate.getTime() &&
-					data.status === 'PENDING')
+				(currentDate.getTime() <= startDate.getTime() && data.status === 'PENDING')
 			) {
 				if (canEdit)
 					buttons.push({
