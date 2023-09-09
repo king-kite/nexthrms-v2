@@ -1,28 +1,11 @@
-import { getPermissions } from '../../../db/queries/permissions';
-import { getRecords } from '../../../db/utils/record';
-import { admin } from '../../../middlewares';
-import { PermissionType } from '../../../types';
-import { NextErrorMessage } from '../../../utils/classes';
+import { PERMISSIONS_URL } from '../../../config/services';
+import { auth } from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
+import { getRouteParams } from '../../../validators/pagination';
 
-export default admin().get(async (req, res) => {
-	const result = await getRecords<{
-		total: number;
-		result: PermissionType[];
-	}>({
-		model: 'permissions',
-		perm: 'permission',
-		query: req.query,
-		user: req.user,
-		placeholder: {
-			total: 0,
-			result: [],
-		},
-		getData(params) {
-			return getPermissions(params);
-		},
-	});
+export default auth().get(async function (req, res) {
+	const params = getRouteParams(req.query);
 
-	if (result) return res.status(200).json(result);
-
-	throw new NextErrorMessage(403);
+	const response = await axiosJn(req).get(PERMISSIONS_URL + params);
+	return res.status(200).json(response.data);
 });

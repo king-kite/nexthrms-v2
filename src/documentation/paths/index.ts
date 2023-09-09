@@ -1,4 +1,4 @@
-import auth from './auth';
+import { auth } from './auth';
 import assets from './assets';
 import attendance from './attendance';
 import clients from './clients';

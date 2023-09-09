@@ -1,4 +1,3 @@
-import type { PermissionModelChoices } from '@prisma/client';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
@@ -8,7 +7,6 @@ import {
 	FaCalendarAlt,
 	FaClipboardList,
 	FaClock,
-	FaFileArchive,
 	FaFolder,
 	FaHandshake,
 	FaLock,
@@ -31,7 +29,7 @@ import { LinkType, LinkItemType, PropsType } from './types';
 import * as routes from '../config/routes';
 import { DEFAULT_IMAGE, PermissionKeyType, permissions } from '../config';
 import { useAuthContext } from '../store/contexts';
-import { AuthDataType } from '../types';
+import type { AuthDataType, PermissionModelChoices } from '../types';
 import { hasModelPermission } from '../utils';
 import ErrorBoundary from '../utils/components/error-boundary';
 
@@ -91,9 +89,7 @@ function checkLinkRoute(linkItem: LinkItemType) {
 		const links = linkItem.links.filter((link) => {
 			if (checkLinkRoute(link)) return link;
 		});
-		return links.length > 0
-			? { ...linkItem, links }
-			: { ...linkItem, links: [] };
+		return links.length > 0 ? { ...linkItem, links } : { ...linkItem, links: [] };
 	} else {
 		// Single link
 		// Check if there is no showRoute function and return the accumulated items
@@ -102,358 +98,332 @@ function checkLinkRoute(linkItem: LinkItemType) {
 	}
 }
 
-const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(
-	({ setVisible, visible }, ref) => {
-		const { data } = useAuthContext();
+const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(({ setVisible, visible }, ref) => {
+	const { data } = useAuthContext();
 
-		const links: LinkType[] = React.useMemo(
-			() => [
-				{
-					title: 'apps',
-					links: [
-						{
-							icon: FaThLarge,
-							title: 'dashboard',
-							href: routes.HOME_PAGE_URL,
-							// Check the route required permission
-							showRoute: () => true,
-						},
-						{
-							icon: FaFolder,
-							title: 'file manager',
-							href: routes.FILE_MANAGER_PAGE_URL,
-							// Check the route required permission
-							showRoute: () => true,
-						},
-					],
-				},
-				{
-					title: 'employees',
-					links: [
-						{
-							icon: FaUsers,
-							title: 'employees',
-							links: [
-								{
-									icon: FaUserFriends,
-									title: 'all employees',
-									href: routes.EMPLOYEES_PAGE_URL,
-									pathnames: [routes.EMPLOYEE_PAGE_URL('[id]')],
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'employee',
-											model: 'employees',
-										}),
-								},
-								{
-									icon: FaSuitcaseRolling,
-									title: 'leaves',
-									href: routes.LEAVES_PAGE_URL,
-									pathnames: [routes.LEAVE_DETAIL_PAGE_URL('[id]')],
-									// Must be an employee
-									showRoute: () => checkEmployeeRoute(data),
-								},
-								{
-									icon: FaSuitcase,
-									title: 'leaves (admin)',
-									pathnames: [routes.ADMIN_LEAVE_DETAIL_PAGE_URL('[id]')],
-									href: routes.ADMIN_LEAVES_PAGE_URL,
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'leave',
-											model: 'leaves',
-										}),
-								},
-								{
-									icon: FaClock,
-									title: 'attendance',
-									href: routes.ATTENDANCE_PAGE_URL,
-									showRoute: () => checkEmployeeRoute(data),
-								},
-								{
-									icon: FaClipboardList,
-									title: 'attendance (admin)',
-									href: routes.ATTENDANCE_ADMIN_PAGE_URL,
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'attendance',
-											model: 'attendance',
-										}),
-								},
-								{
-									icon: FaWarehouse,
-									title: 'departments',
-									href: routes.DEPARTMENTS_PAGE_URL,
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'department',
-											model: 'departments',
-										}),
-								},
-								{
-									icon: FaCalendarAlt,
-									title: 'holiday',
-									href: routes.HOLIDAYS_PAGE_URL,
-									// Must be an employee
-									showRoute: () => checkEmployeeRoute(data),
-								},
-								{
-									icon: FaClock,
-									title: 'overtime',
-									href: routes.OVERTIME_PAGE_URL,
-									pathnames: [routes.OVERTIME_DETAIL_PAGE_URL('[id]')],
-									showRoute: () => checkEmployeeRoute(data),
-								},
-								{
-									icon: FaUserClock,
-									title: 'overtime (admin)',
-									href: routes.ADMIN_OVERTIME_PAGE_URL,
-									pathnames: [routes.ADMIN_OVERTIME_DETAIL_PAGE_URL('[id]')],
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'overtime',
-											model: 'overtime',
-										}),
-								},
-							],
-						},
-						{
-							icon: FaHandshake,
-							title: 'clients',
-							href: routes.CLIENTS_PAGE_URL,
-							pathnames: [routes.CLIENT_PAGE_URL('[id]')],
-							showRoute: () =>
-								checkRoute(data, {
-									admin: true,
-									key: 'client',
-									model: 'clients',
-								}),
-						},
-						{
-							icon: FaProjectDiagram,
-							title: 'projects',
-							href: routes.PROJECTS_PAGE_URL,
-							pathnames: [
-								routes.PROJECT_PAGE_URL('[id]'),
-								routes.PROJECT_TASKS_PAGE_URL('[id]'),
-								routes.PROJECT_TASK_PAGE_URL('[id]', '[task_id]'),
-								routes.PROJECT_TEAM_PAGE_URL('[id]'),
-							],
-							showRoute: () =>
-								checkRoute(data, {
-									admin: false,
-									key: 'project',
-									model: 'projects',
-								}),
-						},
-					],
-				},
-				{
-					title: 'administration',
-					links: [
-						{
-							icon: FaArchive,
-							title: 'assets',
-							href: routes.ASSETS_PAGE_URL,
-							showRoute: () =>
-								checkRoute(data, {
-									admin: true,
-									key: 'asset',
-									model: 'assets',
-								}),
-						},
-						{
-							icon: FaFileArchive,
-							title: 'API documentation',
-							href: routes.DOCS_PAGE_URL,
-							showRoute: () =>
-								checkRoute(data, {
-									admin: true,
-									key: 'apidoc',
-								}),
-						},
-						{
-							icon: FaRProject,
-							title: 'jobs',
-							href: routes.JOBS_PAGE_URL,
-							showRoute: () =>
-								checkRoute(data, {
-									admin: true,
-									key: 'job',
-									model: 'jobs',
-								}),
-						},
-						{
-							icon: FaUsersCog,
-							title: 'users',
-							links: [
-								{
-									icon: FaPeopleArrows,
-									title: 'all users',
-									href: routes.USERS_PAGE_URL,
-									pathnames: [routes.USER_PAGE_URL('[id]')],
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'user',
-											model: 'users',
-										}),
-								},
-								{
-									icon: FaUserShield,
-									title: 'groups',
-									href: routes.GROUPS_PAGE_URL,
-									pathnames: [routes.GROUP_PAGE_URL('[id]')],
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'group',
-											model: 'groups',
-										}),
-								},
-								{
-									icon: FaLock,
-									title: 'permissions',
-									href: routes.PERMISSIONS_PAGE_URL,
-									showRoute: () =>
-										checkRoute(data, {
-											admin: true,
-											key: 'permission',
-											model: 'permissions',
-										}),
-								},
-							],
-						},
-					],
-				},
-				{
-					title: 'personal',
-					links: [
-						{
-							icon: FaUserTie,
-							title: 'profile',
-							href: routes.PROFILE_PAGE_URL,
-							showRoute: () => true,
-						},
-					],
-				},
-			],
-			[data]
-		);
-
-		const validRoutes = React.useMemo(() => {
-			const routes = links.reduce((acc: LinkType[], route) => {
-				const showLinked = route.links.reduce(
-					(accItems: LinkItemType[], linkItem) => {
-						const items = checkLinkRoute(linkItem);
-						if (!items) return accItems;
-
-						// Check if it's a single link
-						if (!items.links) return [...accItems, items];
-
-						// Check if it's a list link and is not empty
-						if (items.links && items.links.length > 0)
-							return [...accItems, items];
-
-						return accItems;
+	const links: LinkType[] = React.useMemo(
+		() => [
+			{
+				title: 'apps',
+				links: [
+					{
+						icon: FaThLarge,
+						title: 'dashboard',
+						href: routes.HOME_PAGE_URL,
+						// Check the route required permission
+						showRoute: () => true,
 					},
-					[]
-				);
-				return [...acc, { ...route, links: showLinked }];
-			}, []);
-			return routes.filter((route) => route.links.length > 0);
-		}, [links]);
+					{
+						icon: FaFolder,
+						title: 'file manager',
+						href: routes.FILE_MANAGER_PAGE_URL,
+						// Check the route required permission
+						showRoute: () => true,
+					},
+				],
+			},
+			{
+				title: 'employees',
+				links: [
+					{
+						icon: FaUsers,
+						title: 'employees',
+						links: [
+							{
+								icon: FaUserFriends,
+								title: 'all employees',
+								href: routes.EMPLOYEES_PAGE_URL,
+								pathnames: [routes.EMPLOYEE_PAGE_URL('[id]')],
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'employee',
+										model: 'employees',
+									}),
+							},
+							{
+								icon: FaSuitcaseRolling,
+								title: 'leaves',
+								href: routes.LEAVES_PAGE_URL,
+								pathnames: [routes.LEAVE_DETAIL_PAGE_URL('[id]')],
+								// Must be an employee
+								showRoute: () => checkEmployeeRoute(data),
+							},
+							{
+								icon: FaSuitcase,
+								title: 'leaves (admin)',
+								pathnames: [routes.ADMIN_LEAVE_DETAIL_PAGE_URL('[id]')],
+								href: routes.ADMIN_LEAVES_PAGE_URL,
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'leave',
+										model: 'leaves',
+									}),
+							},
+							{
+								icon: FaClock,
+								title: 'attendance',
+								href: routes.ATTENDANCE_PAGE_URL,
+								showRoute: () => checkEmployeeRoute(data),
+							},
+							{
+								icon: FaClipboardList,
+								title: 'attendance (admin)',
+								href: routes.ATTENDANCE_ADMIN_PAGE_URL,
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'attendance',
+										model: 'attendance',
+									}),
+							},
+							{
+								icon: FaWarehouse,
+								title: 'departments',
+								href: routes.DEPARTMENTS_PAGE_URL,
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'department',
+										model: 'departments',
+									}),
+							},
+							{
+								icon: FaCalendarAlt,
+								title: 'holiday',
+								href: routes.HOLIDAYS_PAGE_URL,
+								// Must be an employee
+								showRoute: () => checkEmployeeRoute(data),
+							},
+							{
+								icon: FaClock,
+								title: 'overtime',
+								href: routes.OVERTIME_PAGE_URL,
+								pathnames: [routes.OVERTIME_DETAIL_PAGE_URL('[id]')],
+								showRoute: () => checkEmployeeRoute(data),
+							},
+							{
+								icon: FaUserClock,
+								title: 'overtime (admin)',
+								href: routes.ADMIN_OVERTIME_PAGE_URL,
+								pathnames: [routes.ADMIN_OVERTIME_DETAIL_PAGE_URL('[id]')],
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'overtime',
+										model: 'overtime',
+									}),
+							},
+						],
+					},
+					{
+						icon: FaHandshake,
+						title: 'clients',
+						href: routes.CLIENTS_PAGE_URL,
+						pathnames: [routes.CLIENT_PAGE_URL('[id]')],
+						showRoute: () =>
+							checkRoute(data, {
+								admin: true,
+								key: 'client',
+								model: 'clients',
+							}),
+					},
+					{
+						icon: FaProjectDiagram,
+						title: 'projects',
+						href: routes.PROJECTS_PAGE_URL,
+						pathnames: [
+							routes.PROJECT_PAGE_URL('[id]'),
+							routes.PROJECT_TASKS_PAGE_URL('[id]'),
+							routes.PROJECT_TASK_PAGE_URL('[id]', '[task_id]'),
+							routes.PROJECT_TEAM_PAGE_URL('[id]'),
+						],
+						showRoute: () =>
+							checkRoute(data, {
+								admin: false,
+								key: 'project',
+								model: 'projects',
+							}),
+					},
+				],
+			},
+			{
+				title: 'administration',
+				links: [
+					{
+						icon: FaArchive,
+						title: 'assets',
+						href: routes.ASSETS_PAGE_URL,
+						showRoute: () =>
+							checkRoute(data, {
+								admin: true,
+								key: 'asset',
+								model: 'assets',
+							}),
+					},
+					{
+						icon: FaRProject,
+						title: 'jobs',
+						href: routes.JOBS_PAGE_URL,
+						showRoute: () =>
+							checkRoute(data, {
+								admin: true,
+								key: 'job',
+								model: 'jobs',
+							}),
+					},
+					{
+						icon: FaUsersCog,
+						title: 'users',
+						links: [
+							{
+								icon: FaPeopleArrows,
+								title: 'all users',
+								href: routes.USERS_PAGE_URL,
+								pathnames: [routes.USER_PAGE_URL('[id]')],
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'user',
+										model: 'users',
+									}),
+							},
+							{
+								icon: FaUserShield,
+								title: 'groups',
+								href: routes.GROUPS_PAGE_URL,
+								pathnames: [routes.GROUP_PAGE_URL('[id]')],
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'group',
+										model: 'groups',
+									}),
+							},
+							{
+								icon: FaLock,
+								title: 'permissions',
+								href: routes.PERMISSIONS_PAGE_URL,
+								showRoute: () =>
+									checkRoute(data, {
+										admin: true,
+										key: 'permission',
+										model: 'permissions',
+									}),
+							},
+						],
+					},
+				],
+			},
+			{
+				title: 'personal',
+				links: [
+					{
+						icon: FaUserTie,
+						title: 'profile',
+						href: routes.PROFILE_PAGE_URL,
+						showRoute: () => true,
+					},
+				],
+			},
+		],
+		[data]
+	);
 
-		return (
-			<ErrorBoundary
-				fallback={({ message }: { message: string }) => (
-					<p className="text-gray-500 text-sm dark:text-gray-50 md:text-base">
-						{message}
-					</p>
-				)}
+	const validRoutes = React.useMemo(() => {
+		const routes = links.reduce((acc: LinkType[], route) => {
+			const showLinked = route.links.reduce((accItems: LinkItemType[], linkItem) => {
+				const items = checkLinkRoute(linkItem);
+				if (!items) return accItems;
+
+				// Check if it's a single link
+				if (!items.links) return [...accItems, items];
+
+				// Check if it's a list link and is not empty
+				if (items.links && items.links.length > 0) return [...accItems, items];
+
+				return accItems;
+			}, []);
+			return [...acc, { ...route, links: showLinked }];
+		}, []);
+		return routes.filter((route) => route.links.length > 0);
+	}, [links]);
+
+	return (
+		<ErrorBoundary
+			fallback={({ message }: { message: string }) => (
+				<p className="text-gray-500 text-sm dark:text-gray-50 md:text-base">{message}</p>
+			)}
+		>
+			<nav
+				ref={ref}
+				className={`${visible ? 'translate-x-0' : '-translate-x-full'} ${sidebarStyle}`}
 			>
-				<nav
-					ref={ref}
-					className={`${
-						visible ? 'translate-x-0' : '-translate-x-full'
-					} ${sidebarStyle}`}
-				>
-					<div className="flex flex-col items-center my-4 lg:mt-2">
-						<div className="flex items-center justify-center mx-1 rounded-full">
-							<div className="h-[75px] relative rounded-full w-[75px]">
-								<Image
-									className="h-full rounded-full w-full"
-									layout="fill"
-									src={data?.profile?.image?.url || DEFAULT_IMAGE}
-									alt="user"
-								/>
-							</div>
+				<div className="flex flex-col items-center my-4 lg:mt-2">
+					<div className="flex items-center justify-center mx-1 rounded-full">
+						<div className="h-[75px] relative rounded-full w-[75px]">
+							<Image
+								className="h-full rounded-full w-full"
+								layout="fill"
+								src={data?.profile?.image?.url || DEFAULT_IMAGE}
+								alt="user"
+							/>
 						</div>
-						{data && (
-							<>
-								<p className="capitalize italic mb-1 mt-2 text-white text-xs tracking-white md:text-sm">
-									{data ? data.fullName : 'Anonymous'}
-								</p>
-								<span className="capitalize italic text-gray-300 text-tiny tracking-white md:text-xs">
-									{data.employee?.job?.name || 'user'}
-								</span>
-							</>
-						)}
 					</div>
-					<div className="mt-3">
-						{validRoutes.map(({ links, title }, index) => (
-							<div className="mb-2" key={index}>
-								<h6 className="font-bold mb-2 px-2 select-none text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
-									{title}
-								</h6>
-								{links.map(({ href, onClick, showRoute, ...props }, index) => {
-									if (
-										'links' in props &&
-										props.links !== undefined &&
-										props.links.length > 0
-									)
-										return (
-											<ListLink
-												onClick={() => {
-													if (onClick) onClick();
-													setVisible(false);
-												}}
-												links={props.links.map(
-													({ showRoute, ...link }) => link
-												)}
-												key={index}
-												{...props}
-											/>
-										);
-									else if (!props.links)
-										return (
-											<SimpleLink
-												href={href}
-												onClick={() => {
-													if (onClick) onClick();
-													setVisible(false);
-												}}
-												key={index}
-												{...props}
-											/>
-										);
-								})}
-								{title === 'personal' && (
-									<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
-								)}
-							</div>
-						))}
-					</div>
-				</nav>
-			</ErrorBoundary>
-		);
-	}
-);
+					{data && (
+						<>
+							<p className="capitalize italic mb-1 mt-2 text-white text-xs tracking-white md:text-sm">
+								{data ? data.fullName : 'Anonymous'}
+							</p>
+							<span className="capitalize italic text-gray-300 text-tiny tracking-white md:text-xs">
+								{data.employee?.job?.name || 'user'}
+							</span>
+						</>
+					)}
+				</div>
+				<div className="mt-3">
+					{validRoutes.map(({ links, title }, index) => (
+						<div className="mb-2" key={index}>
+							<h6 className="font-bold mb-2 px-2 select-none text-sm text-gray-400 tracking-widest uppercase md:text-lg lg:text-base">
+								{title}
+							</h6>
+							{links.map(({ href, onClick, showRoute, ...props }, index) => {
+								if ('links' in props && props.links !== undefined && props.links.length > 0)
+									return (
+										<ListLink
+											onClick={() => {
+												if (onClick) onClick();
+												setVisible(false);
+											}}
+											links={props.links.map(({ showRoute, ...link }) => link)}
+											key={index}
+											{...props}
+										/>
+									);
+								else if (!props.links)
+									return (
+										<SimpleLink
+											href={href}
+											onClick={() => {
+												if (onClick) onClick();
+												setVisible(false);
+											}}
+											key={index}
+											{...props}
+										/>
+									);
+							})}
+							{title === 'personal' && (
+								<DynamicLogoutButton closeSidebar={() => setVisible(false)} />
+							)}
+						</div>
+					))}
+				</div>
+			</nav>
+		</ErrorBoundary>
+	);
+});
 
 Sidebar.displayName = 'Sidebar';
 

@@ -1,139 +1,30 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
-
-import { getPrismaModels, models, permissions } from '../../../../../config';
-import prisma from '../../../../../db';
-import { getObjectPermissions } from '../../../../../db/queries/permissions';
-import { admin } from '../../../../../middlewares';
-import { hasModelPermission } from '../../../../../utils/permission';
-import { NextErrorMessage } from '../../../../../utils/classes';
+import { OBJECT_PERMISSIONS_URL } from '../../../../../config/services';
+import { auth } from '../../../../../middlewares';
+import { axiosJn } from '../../../../../utils/axios';
 import { objectPermissionSchema } from '../../../../../validators/users';
 
-export default admin()
-	.use(async (req, res, next) => {
-		// Check the user has edit or view permissions
-		const editPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.EDIT,
-			]);
-
-		const viewPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.VIEW,
-			]);
-
-		if (!editPerm && !viewPerm) throw new NextErrorMessage(403);
-
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-
-		// Check if modelName is in the valid models array
-		if (!models.includes(modelName))
-			return res.status(404).json({
-				status: 'error',
-				message: 'Permissions for this record table do not exist!',
-			});
-
-		// Check if there is a prisma model for it
-		const prismaModel = getPrismaModels(modelName);
-		if (!prismaModel)
-			return res.status(404).json({
-				status: 'error',
-				message: 'Record table name does not exist!',
-			});
-
-		// check if the object exists
-		const obj = await (prisma[prismaModel] as any).findUnique({
-			where: {
-				id: objectId,
-			},
-			select: {
-				id: true,
-			},
-		});
-
-		if (!obj) {
-			return res.status(404).json({
-				status: 'error',
-				message: 'Record with this ID does not exist!',
-			});
-		}
-
-		next();
-	})
+export default auth()
 	.get(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.VIEW,
-			]);
+		const { groupLimit, groupOffset, groupSearch, userLimit, userOffset, userSearch } = req.query;
 
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-		const permission = req.query.permission as
-			| PermissionObjectChoices
-			| undefined;
-		const {
-			groupLimit,
-			groupOffset,
-			groupSearch,
-			userLimit,
-			userOffset,
-			userSearch,
-		} = req.query;
-
-		// Check to see if the groups and users are been paginated or search
-		const groupsPaginated: boolean =
-			!!groupLimit || !!groupOffset || !!groupSearch;
-		const usersPaginated: boolean = !!userLimit || !!userOffset || !!userSearch;
-
-		const groups = groupsPaginated
-			? {
-					limit: groupLimit && !isNaN(+groupLimit) ? +groupLimit : undefined,
-					offset:
-						groupOffset && !isNaN(+groupOffset) ? +groupOffset : undefined,
-					search: groupSearch as string,
-			  }
-			: undefined;
-
-		const users = usersPaginated
-			? {
-					limit: userLimit && !isNaN(+userLimit) ? +userLimit : undefined,
-					offset: userOffset && !isNaN(+userOffset) ? +userOffset : undefined,
-					search: userSearch as string,
-			  }
-			: undefined;
-
-		const options =
-			groupsPaginated || usersPaginated
-				? {
-						groups,
-						users,
-				  }
-				: undefined;
-
-		const data = await getObjectPermissions(
-			modelName,
-			objectId,
-			permission,
-			options
+		const url = OBJECT_PERMISSIONS_URL(
+			req.query.model as string,
+			req.query.objectId as string,
+			req.query.permission as string | undefined,
+			{
+				limit: groupLimit ? parseInt(groupLimit.toString()) : undefined,
+				offset: groupOffset ? parseInt(groupOffset.toString()) : undefined,
+				search: groupSearch ? groupSearch.toString() : undefined,
+			},
+			{
+				limit: userLimit ? parseInt(userLimit.toString()) : undefined,
+				offset: userOffset ? parseInt(userOffset.toString()) : undefined,
+				search: userSearch ? userSearch.toString() : undefined,
+			}
 		);
 
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched all permissions for this record successfully!',
-			data,
-		});
+		const response = await axiosJn(req).get(url);
+		return res.status(200).json(response.data);
 	})
 	// middleware for post, put, delete
 	.use(async (req, res, next) => {
@@ -150,8 +41,7 @@ export default admin()
 		if (!groups && !users) {
 			return res.status(400).json({
 				status: 'error',
-				message:
-					'Invalid Data. Provide a groups or users field with an array of IDs',
+				message: 'Invalid Data. Provide a groups or users field with an array of IDs',
 			});
 		}
 
@@ -159,210 +49,53 @@ export default admin()
 	})
 	// Sets the users and groups permissions
 	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.EDIT,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-		const permission = (req.query.permission as string)?.toUpperCase() as
-			| 'DELETE'
-			| 'EDIT'
-			| 'VIEW';
+		const modelName = req.query.model as string;
+		const objectId = req.query.objectId as string;
+		const permission = req.query.permission as string;
 
 		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		await prisma.permissionObject.upsert({
-			create: {
-				permission,
-				modelName,
-				objectId,
-				users: data.users
-					? {
-							connect: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-				groups: data.groups
-					? {
-							connect: data.groups.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-			where: {
-				modelName_objectId_permission: {
-					modelName,
-					objectId,
-					permission,
-				},
-			},
-			update: {
-				users: data.users
-					? {
-							set: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-				groups: data.groups
-					? {
-							set: data.groups.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-		});
+		const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
 
-		const im =
-			data.groups && data.users
-				? 'users and groups'
-				: data.groups
-				? 'groups'
-				: 'users';
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Set ' + im + ' permissions successfully!',
-		});
+		const response = await axiosJn(req).post(url, data);
+		return res.status(200).json(response.data);
 	})
 	// Update/Connects the users and groups permissions
 	.put(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.EDIT,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-		const permission = (req.query.permission as string)?.toUpperCase() as
-			| 'DELETE'
-			| 'EDIT'
-			| 'VIEW';
+		const modelName = req.query.model as string;
+		const objectId = req.query.objectId as string;
+		const permission = req.query.permission as string;
 
 		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		await prisma.permissionObject.upsert({
-			create: {
-				permission,
-				modelName,
-				objectId,
-				users: data.users
-					? {
-							connect: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-				groups: data.groups
-					? {
-							connect: data.groups.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-			where: {
-				modelName_objectId_permission: {
-					modelName,
-					objectId,
-					permission,
-				},
-			},
-			update: {
-				users: data.users
-					? {
-							connect: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-				groups: data.groups
-					? {
-							connect: data.groups.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-		});
+		const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
 
-		const im =
-			data.groups && data.users
-				? 'users and groups'
-				: data.groups
-				? 'groups'
-				: 'users';
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Updated ' + im + ' successfully!',
-		});
+		const response = await axiosJn(req).put(url, data);
+		return res.status(200).json(response.data);
 	})
 	// Dissconnects the users and groups permissions
 	.delete(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.EDIT,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const modelName = (
-			req.query.model as string as PermissionModelChoices
-		)?.toLowerCase() as PermissionModelChoices;
-		const objectId = (req.query.objectId as string)?.toLowerCase() as string;
-		const permission = (req.query.permission as string)?.toUpperCase() as
-			| 'DELETE'
-			| 'EDIT'
-			| 'VIEW';
+		const modelName = req.query.model as string;
+		const objectId = req.query.objectId as string;
+		const permission = req.query.permission as string;
 
 		const data = await objectPermissionSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		await prisma.permissionObject.upsert({
-			create: {
-				permission,
-				modelName,
-				objectId,
-			},
-			where: {
-				modelName_objectId_permission: {
-					modelName,
-					objectId,
-					permission,
-				},
-			},
-			update: {
-				users: data.users
-					? {
-							disconnect: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-				groups: data.groups
-					? {
-							disconnect: data.groups.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-		});
+		const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission);
 
-		const im =
-			data.groups && data.users
-				? 'users and groups'
-				: data.groups
-				? 'groups'
-				: 'users';
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Removed ' + im + ' successfully!',
+		const response = await axiosJn(req)({
+			url,
+			method: 'DELETE',
+			data,
 		});
+		return res.status(200).json(response.data);
 	});

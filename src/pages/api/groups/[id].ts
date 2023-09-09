@@ -1,6 +1,6 @@
 import { getGroupUserRouteParams } from '.';
 import { GROUP_URL } from '../../../config/services';
-import auth from '../../../middlewares';
+import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { createGroupSchema } from '../../../validators/users';
 

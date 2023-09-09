@@ -1,5 +1,5 @@
 import { DEPARTMENT_URL } from '../../../config/services';
-import auth from '../../../middlewares';
+import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { createDepartmentSchema } from '../../../validators/departments';
 

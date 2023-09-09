@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import { EMPLOYEE_URL } from '../../../config/services';
-import auth from '../../../middlewares';
+import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFields, getFormFiles } from '../../../utils/parseForm';

@@ -129,15 +129,15 @@ export const JOBS_EXPORT_URL = `${ROOT_URL}/jobs/export/`;
 export const JOBS_IMPORT_URL = `${ROOT_URL}/jobs/import/`;
 
 type ObjectPermissionType = {
-	limit: number;
-	offset: number;
-	search: string;
+	limit?: number;
+	offset?: number;
+	search?: string;
 };
 
 export const OBJECT_PERMISSIONS_URL = (
-	model: PermissionModelChoices,
+	model: string,
 	objectId: string,
-	permission?: PermissionObjectChoices | '',
+	permission?: string,
 	groups?: ObjectPermissionType,
 	users?: ObjectPermissionType
 ) => {
