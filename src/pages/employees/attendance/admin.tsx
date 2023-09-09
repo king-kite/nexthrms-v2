@@ -1,89 +1,25 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
+import { ATTENDANCE_ADMIN_URL } from '../../../config/services';
 import Attendance from '../../../containers/attendance/admin';
-import { getAttendanceAdmin } from '../../../db/queries/attendance';
-import { getRecords } from '../../../db/utils/record';
-import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps } from '../../../types';
 import Title from '../../../utils/components/title';
-import { serializeUserData } from '../../../utils/serializers/auth';
+import { getServerSideData } from '../../../utils/server';
 
-function Page({
-	attendance,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+function Page({ data: attendance }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
 		<>
 			<Title title="Attendance (Admin)" />
-			<Attendance attendance={attendance} />
+			<Attendance attendance={attendance?.data} />
 		</>
 	);
 }
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('ATTENDANCE ERROR :>>', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-	if (!req.user.isAdmin && !req.user.isSuperUser) {
-		return {
-			props: {
-				auth,
-				error: { statusCode: 403 },
-			},
-		};
-	}
-
-	const result = await getRecords({
-		model: 'attendance',
-		perm: 'attendance',
-		user: req.user,
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		placeholder: {
-			result: [],
-			total: 0,
-		},
-		getData(params) {
-			return getAttendanceAdmin(params);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: ATTENDANCE_ADMIN_URL,
 	});
-
-	if (result)
-		return {
-			props: {
-				auth,
-				attendance: result.data,
-			},
-		};
-
-	return {
-		props: {
-			auth,
-			errorPage: { statusCode: 403 },
-		},
-	};
 };
 
 export default Page;

@@ -1,87 +1,23 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config/app';
+import { HOLIDAYS_URL } from '../../config/services';
 import Holidays from '../../containers/holiday';
-import { getHolidays } from '../../db/queries/holidays';
-import { getRecords } from '../../db/utils/record';
-import { authPage } from '../../middlewares';
-import { ExtendedGetServerSideProps } from '../../types';
 import Title from '../../utils/components/title';
-import { serializeUserData } from '../../utils/serializers/auth';
+import { getServerSideData } from '../../utils/server';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: holidays }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Holidays" />
-		<Holidays holidays={data} />
+		<Holidays holidays={holidays?.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('HOLIDAYS PAGE :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-	if (!req.user.employee) {
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-					title: 'Sorry, this page is reserverd for employees only.',
-				},
-			},
-		};
-	}
-
-	const result = await getRecords({
-		model: 'holiday',
-		perm: 'holiday',
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		user: req.user,
-		placeholder: {
-			total: 0,
-			result: [],
-		},
-		getData(params) {
-			return getHolidays(params);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: HOLIDAYS_URL,
 	});
-
-	return {
-		props: {
-			auth,
-			data: result
-				? result.data
-				: {
-						total: 0,
-						result: [],
-				  },
-		},
-	};
 };
 
 export default Page;

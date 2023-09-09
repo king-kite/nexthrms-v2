@@ -5,34 +5,22 @@ import Statistics from './statistics';
 import TimeSheet from './time-sheet';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries/attendance';
-import { GetAttendanceInfoResponseType } from '../../types';
 import { getStringedDate } from '../../utils/dates';
 
-const StatsCard = ({
-	attendanceInfo,
-}: {
-	attendanceInfo: GetAttendanceInfoResponseType['data'];
-}) => {
+const StatsCard = () => {
 	const { open } = useAlertContext();
 
 	const [date, setDate] = React.useState(getStringedDate());
 
-	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery(
-		{
-			date,
-			onError({ message }) {
-				open({
-					type: 'danger',
-					message,
-				});
-			},
+	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery({
+		date,
+		onError({ message }) {
+			open({
+				type: 'danger',
+				message,
+			});
 		},
-		{
-			initialData() {
-				return attendanceInfo;
-			},
-		}
-	);
+	});
 
 	return (
 		<div className="gap-4 grid grid-cols-1 w-full md:gap-5 md:grid-cols-2 lg:grid-cols-3">

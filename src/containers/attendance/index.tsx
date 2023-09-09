@@ -6,28 +6,16 @@ import { StatsCard, AttendanceTable } from '../../components/attendance';
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useGetAttendanceQuery } from '../../store/queries/attendance';
-import {
-	GetAttendanceResponseType,
-	GetAttendanceInfoResponseType,
-} from '../../types';
+import { GetAttendanceResponseType } from '../../types';
 
 const DynamicTablePagination = dynamic<any>(
-	() =>
-		import('../../components/common/table/pagination').then(
-			(mod) => mod.default
-		),
+	() => import('../../components/common/table/pagination').then((mod) => mod.default),
 	{
 		ssr: false,
 	}
 );
 
-const Attendance = ({
-	attendanceData,
-	attendanceInfo,
-}: {
-	attendanceData: GetAttendanceResponseType['data'];
-	attendanceInfo: GetAttendanceInfoResponseType['data'];
-}) => {
+const Attendance = ({ attendanceData }: { attendanceData: GetAttendanceResponseType['data'] }) => {
 	const [offset, setOffset] = React.useState(0);
 	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
@@ -65,12 +53,9 @@ const Attendance = ({
 		>
 			{data && (
 				<>
-					<StatsCard attendanceInfo={attendanceInfo} />
+					<StatsCard />
 					<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
-						<AttendanceTable
-							attendance={data ? data.result : []}
-							offset={offset}
-						/>
+						<AttendanceTable attendance={data ? data.result : []} offset={offset} />
 						{data && data?.total > 0 && (
 							<DynamicTablePagination
 								disabled={isFetching}
