@@ -44,17 +44,7 @@ export function getTypeFromLocation(name: string) {
 			extensions: ['mp3', 'm4a', 'wav', 'wma', 'aac', 'flac', 'ogg'],
 		},
 		image: {
-			extensions: [
-				'jpg',
-				'jpeg',
-				'png',
-				'ico',
-				'gif',
-				'tiff',
-				'webp',
-				'bmp',
-				'svg',
-			],
+			extensions: ['jpg', 'jpeg', 'png', 'ico', 'gif', 'tiff', 'webp', 'bmp', 'svg'],
 		},
 		csv: {
 			extensions: ['csv'],
@@ -69,18 +59,7 @@ export function getTypeFromLocation(name: string) {
 			extensions: ['ppt', 'pptx', 'ppsx', 'odp'],
 		},
 		video: {
-			extensions: [
-				'3gp',
-				'mp4',
-				'mov',
-				'mkv',
-				'webm',
-				'flv',
-				'swf',
-				'f4v',
-				'avi',
-				'wmv',
-			],
+			extensions: ['3gp', 'mp4', 'mov', 'mkv', 'webm', 'flv', 'swf', 'f4v', 'avi', 'wmv'],
 		},
 		word: {
 			extensions: ['doc', 'docx', 'dot', 'dotx'],
@@ -117,12 +96,12 @@ function getType(_type: string): NameKey | 'file' {
 	return 'file';
 }
 
-export function getFileType(type: string, url: string, name: string) {
-	return getTypeFromLocation(url) || getTypeFromLocation(name) || getType(type);
+export function getFileType(type: string, location: string, name: string) {
+	return getTypeFromLocation(location) || getTypeFromLocation(name) || getType(type);
 }
 
-export function getIcon(_type: string, url: string, name: string): IconType {
-	const type = getFileType(_type, name, url);
+export function getIcon(_type: string, location: string, name: string): IconType {
+	const type = getFileType(_type, name, location);
 
 	switch (type) {
 		case 'audio':
@@ -152,18 +131,15 @@ function FileComponent({
 	onClick,
 	name,
 	type,
-	url,
+	location,
 }: ManagedFileType & {
 	onClick?: () => void;
 }) {
-	if (
-		name.includes(MEDIA_HIDDEN_FILE_NAME) ||
-		url.includes(MEDIA_HIDDEN_FILE_NAME)
-	)
+	if (name.includes(MEDIA_HIDDEN_FILE_NAME) || location.includes(MEDIA_HIDDEN_FILE_NAME))
 		return null;
 
-	const icon = getIcon(type, url, name);
-	const fileType = getFileType(type, url, name);
+	const icon = getIcon(type, location, name);
+	const fileType = getFileType(type, location, name);
 
 	const bg =
 		fileType === 'image'
@@ -182,15 +158,7 @@ function FileComponent({
 			? 'bg-red-500'
 			: 'bg-gray-500';
 
-	return (
-		<BoxGridItem
-			bg={bg}
-			caps={false}
-			icon={icon}
-			onClick={onClick}
-			title={name}
-		/>
-	);
+	return <BoxGridItem bg={bg} caps={false} icon={icon} onClick={onClick} title={name} />;
 }
 
 export function FileAction({

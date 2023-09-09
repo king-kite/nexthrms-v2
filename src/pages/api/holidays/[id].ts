@@ -1,5 +1,5 @@
 import { HOLIDAY_URL } from '../../../config/services';
-import auth from '../../../middlewares';
+import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { createHolidaySchema } from '../../../validators/holidays';
 

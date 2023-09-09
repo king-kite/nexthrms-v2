@@ -14,12 +14,7 @@ import {
 	useDeleteMultipleManagedFileMutation,
 } from '../../store/queries/managed-files';
 import { ManagedFileType } from '../../types';
-import {
-	downloadFile,
-	getByteSize,
-	getStringDateTime,
-	hasModelPermission,
-} from '../../utils';
+import { downloadFile, getByteSize, getStringDateTime, hasModelPermission } from '../../utils';
 
 const style = {
 	paddingLeft: '1rem',
@@ -65,12 +60,12 @@ const getRows = (
 		showDetail,
 	}: {
 		deleteFile?: (id: string) => void;
-		download: (url: string, name: string) => void;
+		download: (location: string, name: string) => void;
 		showDetail: (file: ManagedFileType) => void | null;
 	}
 ): TableRowType[] =>
 	data.map((file) => {
-		const extension = getExtension(file.url) || getExtension(file.name) || null;
+		const extension = getExtension(file.location) || getExtension(file.name) || null;
 		const name = extension ? `${file.name}.${extension}` : file.name;
 
 		const actions: {
@@ -86,7 +81,7 @@ const getRows = (
 			{
 				color: 'success',
 				icon: FaDownload,
-				onClick: () => download(file.url, name),
+				onClick: () => download(file.location, name),
 			},
 		];
 
@@ -103,8 +98,8 @@ const getRows = (
 			rows: [
 				{
 					component: () => {
-						const icon = getIcon(file.type, file.url, file.name);
-						const fileType = getFileType(file.type, file.url, file.name);
+						const icon = getIcon(file.type, file.location, file.name);
+						const fileType = getFileType(file.type, file.location, file.name);
 						const color =
 							fileType === 'image'
 								? 'bg-blue-500'
@@ -138,28 +133,16 @@ const getRows = (
 				},
 				{
 					component: file.updatedAt
-						? () => (
-								<span className="normal-case">
-									{getStringDateTime(file.updatedAt)}
-								</span>
-						  )
+						? () => <span className="normal-case">{getStringDateTime(file.updatedAt)}</span>
 						: undefined,
 					value: !file.updatedAt ? '---' : undefined,
 				},
 				{
 					options: {
-						bg: file.projectFile
-							? 'warning'
-							: file.profile
-							? 'success'
-							: 'info',
+						bg: file.projectFile ? 'warning' : file.profile ? 'success' : 'info',
 					},
 					type: file.projectFile || file.profile ? 'badge' : undefined,
-					value: file.projectFile
-						? 'project'
-						: file.profile
-						? 'profile'
-						: '-----',
+					value: file.projectFile ? 'project' : file.profile ? 'profile' : '-----',
 				},
 				{
 					component: () => (
@@ -167,12 +150,8 @@ const getRows = (
 							<a className="cursor-pointer inline-block px-2 w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={file.user ? file.user.email : '-------------'}
-									image={file.user?.profile?.image?.url || DEFAULT_IMAGE}
-									name={
-										file.user
-											? `${file.user.firstName} ${file.user.lastName}`
-											: 'Anonymous'
-									}
+									image={file.user?.profile?.image?.location || DEFAULT_IMAGE}
+									name={file.user ? `${file.user.firstName} ${file.user.lastName}` : 'Anonymous'}
 								/>
 							</a>
 						</Link>
@@ -208,9 +187,7 @@ const FileTable = ({ files }: TableType) => {
 			if (data !== undefined && data.status !== 200) {
 				open({
 					type: 'danger',
-					message: String(
-						data.data?.message || data.data || 'Unable to download file'
-					),
+					message: String(data.data?.message || data.data || 'Unable to download file'),
 				});
 			}
 		},
@@ -221,9 +198,7 @@ const FileTable = ({ files }: TableType) => {
 		if (!authData) return [false];
 		const canDelete =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.managedfile.DELETE,
-			]);
+			hasModelPermission(authData.permissions, [permissions.managedfile.DELETE]);
 		return [canDelete];
 	}, [authData]);
 

@@ -26,8 +26,8 @@ function Detail(data: ManagedFileType) {
 
 	const { type, extension } = React.useMemo(() => {
 		return {
-			extension: getExtension(file.url) || '------',
-			type: getFileType(file.type, file.url, file.name),
+			extension: getExtension(file.location) || '------',
+			type: getFileType(file.type, file.location, file.name),
 		};
 	}, [file]);
 
@@ -43,10 +43,7 @@ function Detail(data: ManagedFileType) {
 	});
 
 	const [canEdit, canDelete] = React.useMemo(() => {
-		return [
-			authData?.isSuperUser || objPerm?.edit,
-			authData?.isSuperUser || objPerm?.delete,
-		];
+		return [authData?.isSuperUser || objPerm?.edit, authData?.isSuperUser || objPerm?.delete];
 	}, [authData, objPerm]);
 
 	const { deleteFile } = useDeleteManagedFileMutation();
@@ -96,25 +93,15 @@ function Detail(data: ManagedFileType) {
 					},
 					{
 						title: 'Label',
-						value: file.profile
-							? 'PROFILE'
-							: file.projectFile
-							? 'PROJECT'
-							: '-----',
+						value: file.profile ? 'PROFILE' : file.projectFile ? 'PROJECT' : '-----',
 						type: 'badge',
 						options: {
-							bg: file.projectFile
-								? 'warning'
-								: file.profile
-								? 'success'
-								: 'info',
+							bg: file.projectFile ? 'warning' : file.profile ? 'success' : 'info',
 						},
 					},
 					{
 						title: 'User',
-						value: file.user
-							? file.user.firstName + ' ' + file.user.lastName
-							: '----',
+						value: file.user ? file.user.firstName + ' ' + file.user.lastName : '----',
 					},
 					{
 						title: 'User Email Address',
@@ -124,10 +111,8 @@ function Detail(data: ManagedFileType) {
 						title: 'User Image',
 						type: 'image',
 						value: {
-							src: file.user?.profile?.image?.url || DEFAULT_IMAGE,
-							alt: file.user
-								? file.user.firstName + ' ' + file.user.lastName
-								: '----',
+							src: file.user?.profile?.image?.location || DEFAULT_IMAGE,
+							alt: file.user ? file.user.firstName + ' ' + file.user.lastName : '----',
 						},
 					},
 					{
@@ -168,9 +153,7 @@ function NameComponent({
 		);
 	return (
 		<div className="flex items-start justify-between">
-			<span className="text-sm text-gray-700 sm:mt-0 md:text-base">
-				{fileName}
-			</span>
+			<span className="text-sm text-gray-700 sm:mt-0 md:text-base">{fileName}</span>
 			{canEdit && (
 				<div
 					onClick={() => setEdit((prevState) => !prevState)}

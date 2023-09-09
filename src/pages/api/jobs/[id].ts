@@ -1,5 +1,5 @@
 import { JOB_URL } from '../../../config/services';
-import auth from '../../../middlewares';
+import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { createJobSchema } from '../../../validators/jobs';
 

@@ -30,11 +30,23 @@ async function getServerSideData<P = any>({
 	req?: GetServerSidePropsContext<any, any>['req'];
 	res?: GetServerSidePropsContext<any, any>['res'];
 	url: string;
-	paginate?: boolean;
+	paginate?:
+		| boolean
+		| {
+				limit?: number;
+				offset?: number;
+		  };
 }): Promise<GetServerSidePropsResult<ServerDataReturnType<P>>> {
 	try {
 		let route = url;
-		if (paginate) route + `?limit=${DEFAULT_PAGINATION_SIZE}`;
+		if (paginate) {
+			const limit =
+				typeof paginate === 'boolean'
+					? DEFAULT_PAGINATION_SIZE
+					: paginate?.limit || DEFAULT_PAGINATION_SIZE;
+			const offset = typeof paginate === 'boolean' ? 0 : paginate?.offset || 0;
+			route + `?limit=${limit}&offset=${offset}`;
+		}
 
 		// check that the user is logged in
 		if (req && res) {

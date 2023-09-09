@@ -25,24 +25,16 @@ function FileStorage({
 	const displays = React.useMemo(() => {
 		// Get the files to show that should be in "dir" directory
 		const showFiles = data.filter((file) => {
-			// Get the location of the file
-			const location =
-				file.storageInfo?.location || file.storageInfo?.public_id || file.url;
 			// Check if the file location starts with the dir
-			if (location.startsWith(dir)) return file;
+			if (file.location.startsWith(dir)) return file;
 		});
 
 		// Get the data/content to display on the screen
 		const displays: FileType[] = showFiles.reduce((acc: FileType[], file) => {
-			const location =
-				file.storageInfo?.location || file.storageInfo?.public_id || file.url;
-
 			// Split the current and forward locations out of the previous location
-			const _split = location.split(dir);
+			const _split = file.location.split(dir);
 			const forwardLocationString =
-				_split.length > 2
-					? _split.filter((h, i) => i !== 0).join(dir)
-					: _split[1];
+				_split.length > 2 ? _split.filter((h, i) => i !== 0).join(dir) : _split[1];
 			// Did the above because a file location may have similar folder names as the split dir
 			// so it may be more than two array items and some may be empty strings so you also have to join them
 			// using the dir as well
@@ -58,9 +50,7 @@ function FileStorage({
 			const type = forwardLocations.length > 1 ? 'folder' : 'file';
 
 			// Check if the currentLocation is already in the acc
-			const found = acc.find(
-				(item) => item.name === currentLocation && item.type === type
-			);
+			const found = acc.find((item) => item.name === currentLocation && item.type === type);
 			if (found) return acc;
 
 			return [
@@ -97,18 +87,14 @@ function FileStorage({
 						<Folder
 							key={index}
 							name={display.name}
-							onClick={() =>
-								setDir((prevState) => prevState + display.name + '/')
-							}
+							onClick={() => setDir((prevState) => prevState + display.name + '/')}
 						/>
 					) : (
 						display.type === 'file' &&
 						display.data && (
 							<FileComponent
 								key={index}
-								onClick={
-									showDetail ? () => showDetail(display.data) : undefined
-								}
+								onClick={showDetail ? () => showDetail(display.data) : undefined}
 								{...display.data}
 							/>
 						)

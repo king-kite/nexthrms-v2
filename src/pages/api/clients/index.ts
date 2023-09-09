@@ -61,8 +61,8 @@ export default auth()
 		});
 		const result = await response.json();
 
-		if (!response.ok && response.status === 200) {
-			return res.status(200).json(result);
+		if (!response.ok && response.status === 201) {
+			return res.status(201).json(result);
 		}
 
 		throw new NextErrorMessage(response.status, result.message, result.data);
