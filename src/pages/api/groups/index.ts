@@ -1,18 +1,9 @@
 import type { NextApiRequest } from 'next';
 
-import permissions from '../../../config/permissions';
-import prisma from '../../../db';
-import {
-	getGroups,
-	groupSelectQuery,
-	GetGroupsParamsType,
-} from '../../../db/queries/groups';
-import { addObjectPermissions, getRecords } from '../../../db/utils';
-import { admin } from '../../../middlewares';
-import { GroupType } from '../../../types';
-import { hasModelPermission } from '../../../utils/permission';
-import { NextErrorMessage } from '../../../utils/classes';
-import { validateParams } from '../../../validators';
+import { GROUPS_URL } from '../../../config/services';
+import { auth } from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
+import { getRouteParams } from '../../../validators/pagination';
 import { createGroupSchema } from '../../../validators/users';
 
 function getGroupUserParamsQuery(query: NextApiRequest['query']) {
@@ -25,83 +16,39 @@ function getGroupUserParamsQuery(query: NextApiRequest['query']) {
 	return userQuery;
 }
 
-export default admin()
-	.get(async (req, res) => {
-		const result = await getRecords<{
-			total: number;
-			result: GroupType[];
-		}>({
-			model: 'groups',
-			perm: 'group',
-			query: req.query,
-			user: req.user,
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			getData(recordParams) {
-				const params: GetGroupsParamsType = recordParams;
-				const usersParams = validateParams(getGroupUserParamsQuery(req.query));
+export function getGroupUserRouteParams(query: NextApiRequest['query']) {
+	const {
+		userLimit: limit,
+		userOFfset: offset,
+		userSearch: search,
+		userFrom: from,
+		userTo: to,
+		userDate: date,
+	} = getGroupUserParamsQuery(query);
+	const params = `userLimit=${limit || ''}&userOffset=${offset || ''}&userFrom=${
+		from || ''
+	}&userTo=${to || ''}&userSearch=${search || ''}&userDate=${date || ''}`;
 
-				const isEmpty = Object.values(usersParams).every(
-					(item) => item === undefined
-				);
+	return params;
+}
 
-				if (!isEmpty) {
-					params.users = usersParams;
-				}
+export default auth()
+	.get(async function (req, res) {
+		const params = getRouteParams(req.query);
+		const groupUserParams = getGroupUserRouteParams(req.query);
 
-				return getGroups(params);
-			},
-		});
-
-		if (result) return res.status(200).json(result);
-
-		throw new NextErrorMessage(403);
+		const response = await axiosJn(req).get(GROUPS_URL + params + '&' + groupUserParams);
+		return res.status(200).json(response.data);
 	})
-	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.group.CREATE]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
+	.post(async function (req, res) {
 		const data = await createGroupSchema.validate(
 			{ ...req.body },
 			{
 				abortEarly: false,
+				stripUnknown: true,
 			}
 		);
 
-		const group = await prisma.group.create({
-			data: {
-				name: data.name.toLowerCase(),
-				description: data.description,
-				active: data.active,
-				permissions: data.permissions
-					? {
-							connect: data.permissions.map((codename) => ({ codename })),
-					  }
-					: undefined,
-				users: data.users
-					? {
-							connect: data.users.map((id) => ({ id })),
-					  }
-					: undefined,
-			},
-			select: groupSelectQuery,
-		});
-
-		if (group.id)
-			await addObjectPermissions({
-				model: 'groups',
-				objectId: group.id,
-				users: [req.user.id],
-			});
-
-		return res.status(201).json({
-			status: 'success',
-			message: 'Group added successfully',
-			data: group,
-		});
+		const response = await axiosJn(req).post(GROUPS_URL, data);
+		return res.status(201).json(response.data);
 	});
