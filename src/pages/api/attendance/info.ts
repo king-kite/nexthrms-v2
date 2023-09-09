@@ -1,14 +1,11 @@
-import { getAttendanceInfo } from '../../../db/queries/attendance';
-import { employee } from '../../../middlewares';
-import { validateParams } from '../../../validators/pagination';
+import { ATTENDANCE_INFO_URL } from '../../../config/services';
+import { auth } from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
+import { getRouteParams } from '../../../validators/pagination';
 
-export default employee().get(async (req, res) => {
-	const { date } = validateParams(req.query);
-	const data = await getAttendanceInfo(req.user.employee.id, date);
+export default auth().get(async function (req, res) {
+	const params = getRouteParams(req.query);
 
-	return res.status(200).json({
-		status: 'success',
-		message: 'Fetched attendance statistics for this month!',
-		data,
-	});
+	const response = await axiosJn(req).get(ATTENDANCE_INFO_URL + params);
+	return res.status(200).json(response.data);
 });

@@ -1,97 +1,25 @@
-import { Prisma } from '@prisma/client';
-
-import permissions from '../../../../config/permissions';
-import prisma from '../../../../db';
-import {
-	attendanceSelectQuery as selectQuery,
-	getAttendanceAdmin,
-} from '../../../../db/queries/attendance';
-import {
-	addObjectPermissions,
-	getRecords,
-	updateObjectPermissions,
-	getEmployeeOfficersId,
-} from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
-import { AttendanceType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils/permission';
-import { NextErrorMessage } from '../../../../utils/classes';
+import { ATTENDANCE_ADMIN_URL } from '../../../../config/services';
+import { auth } from '../../../../middlewares';
+import { axiosJn } from '../../../../utils/axios';
 import { attendanceCreateSchema } from '../../../../validators/attendance';
+import { getRouteParams } from '../../../../validators/pagination';
 
-export default admin()
-	.get(async (req, res) => {
-		const result = await getRecords({
-			model: 'attendance',
-			perm: 'attendance',
-			user: req.user,
-			query: req.query,
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			getData(params) {
-				return getAttendanceAdmin(params);
-			},
-		});
+export default auth()
+	.get(async function (req, res) {
+		const params = getRouteParams(req.query);
 
-		if (result) return res.status(200).json(result);
-
-		throw new NextErrorMessage(403);
+		const response = await axiosJn(req).get(ATTENDANCE_ADMIN_URL + params);
+		return res.status(200).json(response.data);
 	})
-	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.attendance.CREATE,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
+	.post(async function (req, res) {
 		const data = await attendanceCreateSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{
+				abortEarly: false,
+				stripUnknown: true,
+			}
 		);
 
-		const date = new Date(data.date);
-
-		const input: Prisma.AttendanceCreateInput = {
-			employee: {
-				connect: {
-					id: data.employee,
-				},
-			},
-			punchIn: data.punchIn,
-			punchOut: data.punchOut,
-			date,
-		};
-
-		const result = (await prisma.attendance.create({
-			data: input,
-			select: selectQuery,
-		})) as unknown as AttendanceType;
-
-		// Add object level permissions
-		const officers = await getEmployeeOfficersId(result.employee.id);
-
-		await addObjectPermissions({
-			model: 'attendance',
-			objectId: result.id,
-			users: [req.user.id],
-		});
-		// add the admin officers for the user to edit and view
-		await updateObjectPermissions({
-			model: 'attendance',
-			permissions: ['VIEW'],
-			objectId: result.id,
-			users: [
-				...officers.filter((id) => id !== req.user.id),
-				result.employee.user.id,
-			],
-		});
-
-		return res.status(201).json({
-			status: 'success',
-			message: 'Attendance was created successfully!',
-			data: result,
-		});
+		const response = await axiosJn(req).post(ATTENDANCE_ADMIN_URL, data);
+		return res.status(201).json(response.data);
 	});

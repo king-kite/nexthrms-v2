@@ -1,122 +1,33 @@
-import { Prisma } from '@prisma/client';
-
-import permissions from '../../../../config/permissions';
-import prisma from '../../../../db';
-import {
-	attendanceSelectQuery as selectQuery,
-	getSingleAttendance,
-} from '../../../../db/queries/attendance';
-import { getRecord, getUserObjectPermissions } from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
-import { hasModelPermission } from '../../../../utils/permission';
-import { NextErrorMessage } from '../../../../utils/classes';
+import { ATTENDANCE_ADMIN_SINGLE_URL } from '../../../../config/services';
+import { auth } from '../../../../middlewares';
+import { axiosJn } from '../../../../utils/axios';
 import { attendanceCreateSchema } from '../../../../validators/attendance';
 
-export default admin()
-	.get(async (req, res) => {
-		const record = await getRecord({
-			model: 'attendance',
-			perm: 'attendance',
-			permission: 'VIEW',
-			objectId: req.query.id as string,
-			user: req.user,
-			getData() {
-				return getSingleAttendance(req.query.id as string);
-			},
-		});
-
-		if (!record) throw new NextErrorMessage(403);
-
-		if (!record.data)
-			return res.status(404).json({
-				status: 'error',
-				message: 'Attendance record with the specified ID does not exist!',
-			});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched attendance!',
-			data: record.data,
-		});
+export default auth()
+	.get(async function (req, res) {
+		const response = await axiosJn(req).get(
+			ATTENDANCE_ADMIN_SINGLE_URL((req.query.id as string).toString())
+		);
+		return res.status(200).json(response.data);
 	})
 	.put(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.attendance.EDIT,
-			]);
-
-		if (!hasPerm) {
-			const perms = await getUserObjectPermissions({
-				modelName: 'attendance',
-				permission: 'EDIT',
-				objectId: req.query.id as string,
-				userId: req.user.id,
-			});
-			hasPerm = perms.edit;
-		}
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
 		const data = await attendanceCreateSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{
+				abortEarly: false,
+				stripUnknown: true,
+			}
 		);
 
-		const date = new Date(data.date);
-
-		const input: Prisma.AttendanceUpdateInput = {
-			employee: {
-				connect: {
-					id: data.employee,
-				},
-			},
-			punchIn: data.punchIn,
-			punchOut: data.punchOut,
-			date,
-		};
-
-		const result = await prisma.attendance.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data: input,
-			select: selectQuery,
-		});
-
-		return res.status(200).json({
-			message: 'Attendance record updated successfully!',
-			status: 'success',
-			data: result,
-		});
+		const response = await axiosJn(req).put(
+			ATTENDANCE_ADMIN_SINGLE_URL((req.query.id as string).toString()),
+			data
+		);
+		return res.status(200).json(response.data);
 	})
-	.delete(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.attendance.DELETE,
-			]);
-
-		if (!hasPerm) {
-			const perms = await getUserObjectPermissions({
-				modelName: 'attendance',
-				permission: 'DELETE',
-				objectId: req.query.id as string,
-				userId: req.user.id,
-			});
-			hasPerm = perms.delete;
-		}
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		await prisma.attendance.delete({
-			where: {
-				id: req.query.id as string,
-			},
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Attendance record was deleted!',
-		});
+	.delete(async function (req, res) {
+		const response = await axiosJn(req).delete(
+			ATTENDANCE_ADMIN_SINGLE_URL((req.query.id as string).toString())
+		);
+		return res.status(200).json(response.data);
 	});
