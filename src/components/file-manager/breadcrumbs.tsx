@@ -34,9 +34,9 @@ function Crumbs({
 											setDir(location);
 										}
 									}}
-									className="cursor-pointer text-gray-500 text-sm tracking-wide transition-all uppercase hover:scale-105 md:text-base"
+									className="capitalize cursor-pointer text-gray-500 text-sm tracking-wide transition-all hover:scale-105 md:text-base"
 								>
-									{isMedia ? 'home' : value}
+									{(isMedia ? 'home' : value).toLowerCase()}
 								</span>
 							),
 						};

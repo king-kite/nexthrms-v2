@@ -81,7 +81,7 @@ const getRows = (
 			{
 				color: 'success',
 				icon: FaDownload,
-				onClick: () => download(file.location, name),
+				onClick: () => download(file.url || file.location, name),
 			},
 		];
 
@@ -150,7 +150,7 @@ const getRows = (
 							<a className="cursor-pointer inline-block px-2 w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={file.user ? file.user.email : '-------------'}
-									image={file.user?.profile?.image?.location || DEFAULT_IMAGE}
+									image={file.user?.profile?.image?.url || DEFAULT_IMAGE}
 									name={file.user ? `${file.user.firstName} ${file.user.lastName}` : 'Anonymous'}
 								/>
 							</a>

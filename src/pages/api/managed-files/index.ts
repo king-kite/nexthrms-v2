@@ -29,10 +29,10 @@ export default auth()
 	.post(async function (req, res) {
 		const { fields, files } = await parseForm(req);
 
-		const [file] = getFormFiles(files.file);
-		const [directory] = JSON.parse(getFormFields(fields.directory)[0]);
-		const [name] = JSON.parse(getFormFields(fields.name)[0]);
-		const [type] = JSON.parse(getFormFields(fields.type)[0]);
+		const file = files.file ? getFormFiles(files.file)[0] : null;
+		const directory = fields.directory ? getFormFields(fields.directory)[0] : null;
+		const name = fields.name ? getFormFields(fields.name)[0] : null;
+		const type = fields.type ? getFormFields(fields.type)[0] : null;
 
 		const data = await managedFileCreateSchema.validate(
 			{
@@ -41,7 +41,7 @@ export default auth()
 				name,
 				type,
 			},
-			{ abortEarly: false, stripUnknown: true }
+			{ abortEarly: false }
 		);
 
 		if (data.type === 'file' && !data.file) throw new NextErrorMessage(400, 'File is required.');
@@ -66,7 +66,7 @@ export default auth()
 
 		// Axios doesn't seem to work well with the form data
 		const response = await fetch(MANAGED_FILES_URL, {
-			method: 'PUT',
+			method: 'POST',
 			body: formData,
 			headers: {
 				Authorization: 'Bearer ' + token,

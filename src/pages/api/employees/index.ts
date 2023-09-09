@@ -53,7 +53,7 @@ export default auth()
 
 		// Axios doesn't seem to work well with the form data
 		const response = await fetch(EMPLOYEES_URL, {
-			method: 'PUT',
+			method: 'POST',
 			body: formData,
 			headers: {
 				Authorization: 'Bearer ' + token,
