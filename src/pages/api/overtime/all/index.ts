@@ -1,92 +1,24 @@
-import { permissions } from '../../../../config';
-import {
-	getAllOvertime,
-	createOvertime,
-} from '../../../../db/queries/overtime';
-import {
-	addObjectPermissions,
-	getEmployeeOfficersId,
-	getUserObjects,
-	updateObjectPermissions,
-} from '../../../../db/utils';
-import { employee } from '../../../../middlewares';
-import { hasModelPermission } from '../../../../utils/permission';
-import { NextErrorMessage } from '../../../../utils/classes';
-import { validateParams } from '../../../../validators';
+import { OVERTIME_URL } from '../../../../config/services';
+import { auth } from '../../../../middlewares';
+import { axiosJn } from '../../../../utils/axios';
+import { getRouteParams } from '../../../../validators';
 import { overtimeCreateSchema } from '../../../../validators/overtime';
 
-export default employee()
+export default auth()
 	.get(async (req, res) => {
-		// If the user has any view object level permissions
-		const userObjects = await getUserObjects({
-			modelName: 'overtime',
-			permission: 'VIEW',
-			userId: req.user.id,
-		});
+		const params = getRouteParams(req.query);
 
-		const params = validateParams(req.query);
-
-		// Get overtime records that only belong this employee and
-		// ones he/she can view. The user should be able to view all he creates,
-		// unless he is then removed from the view object level permission by a higher user.
-		const overtime = await getAllOvertime({
-			...params,
-			id: req.user.employee.id,
-			where: {
-				id: {
-					in: userObjects.map((obj) => obj.objectId),
-				},
-			},
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched data successfully',
-			data: overtime,
-		});
+		const response = await axiosJn(req).get(OVERTIME_URL + params);
+		return res.status(200).json(response.data);
 	})
 	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.overtime.REQUEST,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const { employee, ...data } = await overtimeCreateSchema.validate(
+		const data = await overtimeCreateSchema.validate(
 			{
 				...req.body,
 			},
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		const overtime = await createOvertime({
-			...data,
-			employeeId: req.user.employee.id,
-		});
-
-		// Get the employees admin related officers
-		const officers = await getEmployeeOfficersId(overtime.employee.id);
-
-		await addObjectPermissions({
-			model: 'overtime',
-			objectId: overtime.id,
-			users: [req.user.id],
-		});
-
-		// add the admin officers for the user to edit and view
-		await updateObjectPermissions({
-			model: 'overtime',
-			permissions: ['VIEW'],
-			objectId: overtime.id,
-			users: officers.filter((id) => id !== req.user.id),
-		});
-
-		return res.status(201).json({
-			status: 'success',
-			mesage:
-				'Request for overtime was successful. Do note that the hours may be updated to the actual time spent.',
-			data: overtime,
-		});
+		const response = await axiosJn(req).post(OVERTIME_URL, data);
+		return res.status(201).json(response.data);
 	});
