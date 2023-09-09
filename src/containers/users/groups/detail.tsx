@@ -11,34 +11,21 @@ import {
 	DEFAULT_PAGINATION_SIZE,
 	GROUP_OBJECT_PERMISSIONS_PAGE_URL,
 } from '../../../config';
-import {
-	useAlertContext,
-	useAlertModalContext,
-	useAuthContext,
-} from '../../../store/contexts';
+import { useAlertContext, useAlertModalContext, useAuthContext } from '../../../store/contexts';
 import {
 	useDeleteGroupMutation,
 	useEditGroupMutation,
 	useGetGroupQuery,
 	useGetUserObjectPermissionsQuery,
 } from '../../../store/queries/permissions';
-import {
-	GroupType,
-	CreateGroupQueryType,
-	UserObjPermType,
-} from '../../../types';
+import { GroupType, CreateGroupQueryType, UserObjPermType } from '../../../types';
 import { hasModelPermission, toCapitalize } from '../../../utils';
 
 const DynamicGroupForm = dynamic<any>(
-	() =>
-		import('../../../components/groups/detail/group-form').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/groups/detail/group-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -50,27 +37,16 @@ const DynamicModal = dynamic<any>(
 	}
 );
 const DynamicUsersGrid = dynamic<any>(
-	() =>
-		import('../../../components/groups/detail/users-grid').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/groups/detail/users-grid').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Users...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Users...</p>
 		),
 		ssr: false,
 	}
 );
 
-function GroupDetail({
-	group,
-	objPerm,
-}: {
-	group: GroupType;
-	objPerm: UserObjPermType;
-}) {
+function GroupDetail({ group }: { group: GroupType }) {
 	const [editMessage, setEditMessage] = React.useState('');
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [offset, setOffset] = React.useState(0);
@@ -98,18 +74,10 @@ function GroupDetail({
 	const { data: authData } = useAuthContext();
 
 	// Get user's object level permissions for the users table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'groups',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'groups',
+		objectId: id,
+	});
 
 	const { mutate: editGroup, isLoading: editLoading } = useEditGroupMutation({
 		onSuccess() {
@@ -161,15 +129,9 @@ function GroupDetail({
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
 
-		return [
-			canEdit || false,
-			canDelete || false,
-			canViewObjectPermissions || false,
-		];
+		return [canEdit || false, canDelete || false, canViewObjectPermissions || false];
 	}, [authData, objPermData]);
 
 	return (
@@ -179,11 +141,8 @@ function GroupDetail({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -272,17 +231,13 @@ function GroupDetail({
 											<Permissions
 												permissions={data.permissions}
 												removePermission={(codename: string) => {
-													setEditMessage(
-														'Permission was removed from this group successfully!'
-													);
+													setEditMessage('Permission was removed from this group successfully!');
 													const form: CreateGroupQueryType = {
 														name: data.name,
 														active: data.active,
 														description: data.description || '',
 														permissions: data.permissions
-															.filter(
-																(permission) => permission.codename !== codename
-															)
+															.filter((permission) => permission.codename !== codename)
 															.map((permission) => permission.codename),
 														users: data.users.map((user) => user.id),
 													};
@@ -315,16 +270,12 @@ function GroupDetail({
 														: undefined
 												}
 												removeUser={(userId: string) => {
-													setEditMessage(
-														'User was removed from this group successfully!'
-													);
+													setEditMessage('User was removed from this group successfully!');
 													const form: CreateGroupQueryType = {
 														name: data.name,
 														active: data.active,
 														description: data.description || '',
-														permissions: data.permissions.map(
-															(permission) => permission.codename
-														),
+														permissions: data.permissions.map((permission) => permission.codename),
 														users: data.users
 															.filter((user) => user.id !== userId)
 															.map((user) => user.id),

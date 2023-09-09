@@ -1,95 +1,23 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
+import { PERMISSIONS_URL } from '../../../config/services';
 import Permissions from '../../../containers/users/permissions';
-import { getPermissions } from '../../../db/queries/permissions';
-import { getRecords } from '../../../db/utils/record';
-import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetPermissionsResponseType,
-} from '../../../types';
 import Title from '../../../utils/components/title';
-import { serializeUserData } from '../../../utils/serializers/auth';
+import { getServerSideData } from '../../../utils/server';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: permissions }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Permissions" />
-		<Permissions permissions={data} />
+		<Permissions permissions={permissions?.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('PERMISSIONS PAGE :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-
-	// Check is admin
-	if (!req.user.isAdmin && !req.user.isSuperUser)
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-
-	const result = await getRecords<GetPermissionsResponseType['data']>({
-		model: 'permissions',
-		perm: 'permission',
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		placeholder: {
-			total: 0,
-			result: [],
-		},
-		user: req.user,
-		getData(params) {
-			return getPermissions(params);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: PERMISSIONS_URL,
 	});
-
-	if (!result)
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-
-	return {
-		props: {
-			auth,
-			data: result.data,
-		},
-	};
 };
 
 export default Page;

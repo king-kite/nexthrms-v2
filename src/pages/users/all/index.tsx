@@ -8,7 +8,7 @@ import { getServerSideData } from '../../../utils/server';
 
 const Page = ({ data: users }: { data: GetUsersResponseType }) => (
 	<>
-		<Title title="User" />
+		<Title title="Users" />
 		<Users users={users.data} />
 	</>
 );

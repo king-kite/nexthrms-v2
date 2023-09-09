@@ -1,106 +1,23 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../../config/app';
+import { GROUPS_URL } from '../../../config/services';
 import Groups from '../../../containers/users/groups';
-import { getGroups } from '../../../db/queries/groups';
-import { getRecords } from '../../../db/utils/record';
-import { authPage } from '../../../middlewares';
-import {
-	ExtendedGetServerSideProps,
-	GetGroupsResponseType,
-} from '../../../types';
 import Title from '../../../utils/components/title';
-import { serializeUserData } from '../../../utils/serializers/auth';
+import { getServerSideData } from '../../../utils/server';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: groups }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Groups" />
-		<Groups groups={data} />
+		<Groups groups={groups?.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('GROUPS PAGE :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-
-	// Check is admin
-	if (!req.user.isAdmin && !req.user.isSuperUser)
-		return {
-			props: {
-				auth,
-				errorPage: {
-					statusCode: 403,
-				},
-			},
-		};
-
-	const params = {
-		limit: DEFAULT_PAGINATION_SIZE,
-		offset: 0,
-		search: '',
-		users: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-	};
-
-	const result = await getRecords<GetGroupsResponseType['data']>({
-		model: 'groups',
-		perm: 'group',
-		placeholder: {
-			total: 0,
-			result: [],
-		},
-		query: params,
-		user: req.user,
-		getData(recordParams) {
-			return getGroups({
-				...recordParams,
-				...params,
-			});
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: GROUPS_URL,
 	});
-
-	if (result) {
-		return {
-			props: {
-				auth,
-				data: result.data,
-			},
-		};
-	}
-
-	return {
-		props: {
-			auth,
-			errorPage: {
-				statusCode: 403,
-			},
-		},
-	};
 };
 
 export default Page;

@@ -1,92 +1,24 @@
-import { PermissionModelChoices } from '@prisma/client';
-import { InferGetServerSidePropsType } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { models, permissions } from '../../../../../config';
+import { OBJECT_PERMISSIONS_URL } from '../../../../../config/services';
 import ObjectPermissions from '../../../../../containers/users/permissions/objects';
-import { getObjectPermissions } from '../../../../../db/queries/permissions';
-import { authPage } from '../../../../../middlewares';
-import { ExtendedGetServerSideProps } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils/permission';
 import Title from '../../../../../utils/components/title';
-import { serializeUserData } from '../../../../../utils/serializers/auth';
-import { uuidSchema } from '../../../../../validators';
+import { getServerSideData } from '../../../../../utils/server';
 
-const Page = ({
-	data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: permissions }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Record Permissions" />
-		<ObjectPermissions permissions={data} />
+		<ObjectPermissions permissions={permissions?.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-	params,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('PERMISSIONS PAGE :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const hasPerm =
-		req.user.isSuperUser ||
-		(req.user.isAdmin &&
-			hasModelPermission(req.user.allPermissions, [
-				permissions.permissionobject.VIEW,
-			]));
-
-	// User doesn't have permission, redirect to 403 page
-	if (!hasPerm) {
-		return {
-			props: {
-				errorPage: {
-					statusCode: 403,
-					title: 'You are not authorized to view this page!',
-				},
-			},
-		};
-	}
-
-	try {
-		await uuidSchema.validate(params?.objectId);
-	} catch (error) {
-		return {
-			notFound: true,
-		};
-	}
-
-	const modelName = params?.model as PermissionModelChoices;
-	const objectId = params?.objectId as string;
-
-	if (!models.includes(modelName))
-		return {
-			notFound: true,
-		};
-
-	const auth = await serializeUserData(req.user);
-	const data = await getObjectPermissions(modelName, objectId);
-
-	return {
-		props: {
-			auth,
-			data: JSON.parse(JSON.stringify(data)),
-		},
-	};
+export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: OBJECT_PERMISSIONS_URL(params?.model as string, params?.objectId as string),
+		paginate: false,
+	});
 };
 
 export default Page;
