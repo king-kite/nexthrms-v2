@@ -2,13 +2,7 @@ import { Button, ButtonType } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaEdit,
-	FaTimesCircle,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
+import { FaCheckCircle, FaEdit, FaTimesCircle, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import Form from './form';
 import Modal from '../common/modal';
@@ -25,7 +19,6 @@ import {
 	CreateOvertimeErrorResponseType,
 	CreateOvertimeQueryType,
 	OvertimeType,
-	UserObjPermType,
 } from '../../types';
 import { hasModelPermission } from '../../utils/permission';
 
@@ -36,12 +29,10 @@ type ErrorType = CreateOvertimeErrorResponseType & {
 function DetailActions({
 	admin,
 	data,
-	objPerm,
 	forwardedRef,
 }: {
 	admin: boolean;
 	data?: OvertimeType;
-	objPerm: UserObjPermType;
 	forwardedRef: {
 		ref: React.ForwardedRef<{
 			refreshPerm?: () => void;
@@ -58,18 +49,10 @@ function DetailActions({
 	const id = React.useMemo(() => router.query.id as string, [router]);
 
 	// Get user's object level permissions for the leaves table
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'leaves',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'leaves',
+		objectId: id,
+	});
 
 	React.useImperativeHandle(
 		forwardedRef.ref,
@@ -79,70 +62,60 @@ function DetailActions({
 		[objPermRefetch]
 	);
 
-	const [canEdit, canDelete, canGrant, canViewPermissions] =
-		React.useMemo(() => {
-			if (!authData) return [false, false, false, false];
-			// Not Admin Page
-			// Only check object level permissions
-			if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
-			else {
-				let canEdit = false;
-				let canDelete = false;
-				let canGrant = false;
-				// Check model permissions
-				if (authData.isAdmin || authData.isSuperUser) {
-					canEdit =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.EDIT,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canDelete =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.DELETE,
-							])) ||
-						false;
-				}
-				if (authData.isAdmin || authData.isSuperUser) {
-					canGrant =
-						authData.isSuperUser ||
-						(authData.isAdmin &&
-							hasModelPermission(authData.permissions, [
-								permissions.overtime.GRANT,
-							])) ||
-						false;
-				}
-
-				// If the user doesn't have model edit permissions, then check obj edit permission
-				if (!canEdit && objPermData) canEdit = objPermData.edit;
-				if (!canDelete && objPermData) canDelete = objPermData.delete;
-
-				const canViewPermissions =
+	const [canEdit, canDelete, canGrant, canViewPermissions] = React.useMemo(() => {
+		if (!authData) return [false, false, false, false];
+		// Not Admin Page
+		// Only check object level permissions
+		if (!admin) return [objPermData?.edit, objPermData?.delete, false, false];
+		else {
+			let canEdit = false;
+			let canDelete = false;
+			let canGrant = false;
+			// Check model permissions
+			if (authData.isAdmin || authData.isSuperUser) {
+				canEdit =
 					authData.isSuperUser ||
 					(authData.isAdmin &&
-						hasModelPermission(authData.permissions, [
-							permissions.permissionobject.VIEW,
-						])) ||
+						hasModelPermission(authData.permissions, [permissions.overtime.EDIT])) ||
 					false;
-
-				return [canEdit, canDelete, canGrant, canViewPermissions];
 			}
-		}, [authData, admin, objPermData]);
+			if (authData.isAdmin || authData.isSuperUser) {
+				canDelete =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [permissions.overtime.DELETE])) ||
+					false;
+			}
+			if (authData.isAdmin || authData.isSuperUser) {
+				canGrant =
+					authData.isSuperUser ||
+					(authData.isAdmin &&
+						hasModelPermission(authData.permissions, [permissions.overtime.GRANT])) ||
+					false;
+			}
 
-	const { mutate: approveOvertime, isLoading: appLoading } =
-		useApproveOvertimeMutation({
-			onRequestComplete({ message, error }) {
-				open({
-					type: error ? 'danger' : 'success',
-					message: error || message,
-				});
-			},
-		});
+			// If the user doesn't have model edit permissions, then check obj edit permission
+			if (!canEdit && objPermData) canEdit = objPermData.edit;
+			if (!canDelete && objPermData) canDelete = objPermData.delete;
+
+			const canViewPermissions =
+				authData.isSuperUser ||
+				(authData.isAdmin &&
+					hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW])) ||
+				false;
+
+			return [canEdit, canDelete, canGrant, canViewPermissions];
+		}
+	}, [authData, admin, objPermData]);
+
+	const { mutate: approveOvertime, isLoading: appLoading } = useApproveOvertimeMutation({
+		onRequestComplete({ message, error }) {
+			open({
+				type: error ? 'danger' : 'success',
+				message: error || message,
+			});
+		},
+	});
 	const { deleteOvertime } = useDeleteOvertimeMutation({
 		admin,
 		onSuccess() {
@@ -155,22 +128,21 @@ function DetailActions({
 			});
 		},
 	});
-	const { mutate: updateOvertime, isLoading: editLoading } =
-		useRequestOvertimeUpdateMutation({
-			onSuccess() {
-				setModalVisible(false);
-				open({
-					type: 'success',
-					message: 'Overtime request was updated successfully!',
-				});
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
+	const { mutate: updateOvertime, isLoading: editLoading } = useRequestOvertimeUpdateMutation({
+		onSuccess() {
+			setModalVisible(false);
+			open({
+				type: 'success',
+				message: 'Overtime request was updated successfully!',
+			});
+		},
+		onError(err) {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
+	});
 
 	const handleSubmit = React.useCallback(
 		(form: CreateOvertimeQueryType) => {
@@ -185,16 +157,12 @@ function DetailActions({
 		if (!data) return buttons;
 		// Regular/normal user page
 		if (!admin) {
-			const date =
-				typeof data.date === 'string' ? new Date(data.date) : data.date;
+			const date = typeof data.date === 'string' ? new Date(data.date) : data.date;
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
 			// As long as the overtime is still pending, the user can edit as he/she likes
 			// Also if the date has not yet been reached
-			if (
-				data.status !== 'APPROVED' &&
-				date.getTime() >= currentDate.getTime()
-			) {
+			if (data.status !== 'APPROVED' && date.getTime() >= currentDate.getTime()) {
 				if (canEdit)
 					buttons.push({
 						disabled: editLoading,
@@ -213,8 +181,7 @@ function DetailActions({
 			}
 		} else {
 			// Admin user page
-			const date =
-				typeof data.date === 'string' ? new Date(data.date) : data.date;
+			const date = typeof data.date === 'string' ? new Date(data.date) : data.date;
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
 			// If the overtime date is today or next date i.e the current date or days after today
