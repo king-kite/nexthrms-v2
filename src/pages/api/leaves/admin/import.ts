@@ -1,22 +1,10 @@
-import { leaveHeaders as headers, permissions } from '../../../../config';
-import prisma from '../../../../db';
-import {
-	addObjectPermissions,
-	createNotification,
-	handleNotificationErrors as handleErrors,
-	importData,
-	importPermissions,
-	updateObjectPermissions,
-} from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
-import {
-	LeaveImportQueryType,
-	ObjectPermissionImportType,
-	NextApiRequestExtendUser,
-} from '../../../../types';
-import { hasModelPermission } from '../../../../utils/permission';
+import fs from 'fs';
+
+import { LEAVES_ADMIN_IMPORT_URL } from '../../../../config/services';
+import { auth } from '../../../../middlewares';
 import { NextErrorMessage } from '../../../../utils/classes';
-import parseForm from '../../../../utils/parseForm';
+import parseForm, { getFormFiles } from '../../../../utils/parseForm';
+import { getToken } from '../../../../utils/tokens';
 
 export const config = {
 	api: {
@@ -24,171 +12,38 @@ export const config = {
 	},
 };
 
-function getDataInput(data: LeaveImportQueryType) {
-	return {
-		id: data.id && data.id.length > 0 ? data.id : undefined,
-		reason: data.reason,
-		startDate: new Date(data.start_date),
-		endDate: new Date(data.end_date),
-		type: data.type,
-		status: data.status,
-		employeeId: data.employee_id,
-		createdById: data.created_by ? data.created_by : null,
-		approvedById: data.approved_by ? data.approved_by : null,
-		updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
-		createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-	};
-}
-
-function createData(
-	req: NextApiRequestExtendUser,
-	data: LeaveImportQueryType[],
-	perms?: ObjectPermissionImportType[]
-) {
-	return new Promise(async (resolve, reject) => {
-		try {
-			const input = data.map(getDataInput);
-			// check that every value input has an ID.
-			const invalid = input.filter((value) => !value.id);
-			if (invalid.length > 0) {
-				return reject({
-					data: {
-						message:
-							`An id field is required to avoid duplicate records. The following records do not have an id: ` +
-							input
-								.map(
-									(value) => value.employeeId + ' ' + new Date(value.startDate)
-								)
-								.join(','),
-						title: 'ID field is required.',
-					},
-					status: 400,
-				});
-			}
-			const result = await prisma.$transaction(
-				input.map((data) =>
-					prisma.leave.upsert({
-						where: { id: data.id },
-						update: data,
-						create: data,
-						select: {
-							id: true,
-							employee: {
-								select: {
-									user: {
-										select: { id: true },
-									},
-									department: {
-										select: {
-											hod: {
-												select: {
-													user: {
-														select: {
-															id: true,
-														},
-													},
-												},
-											},
-										},
-									},
-									supervisors: {
-										select: {
-											user: {
-												select: {
-													id: true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					})
-				)
-			);
-			await Promise.all(
-				result.map((data) =>
-					addObjectPermissions({
-						model: 'leaves',
-						objectId: data.id,
-						users: [req.user.id, data.employee.user.id],
-					})
-				)
-			);
-			if (perms) await importPermissions(perms);
-			else {
-				// Let supervisors and hod view and edit
-				await Promise.all(
-					result.map((data) => {
-						const users = [];
-						if (data.employee.department?.hod)
-							users.push(data.employee.department.hod.user.id);
-						data.employee.supervisors.forEach((supervisor) => {
-							users.push(supervisor.user.id);
-						});
-						return updateObjectPermissions({
-							model: 'leaves',
-							permissions: ['VIEW', 'EDIT'],
-							objectId: data.id,
-							users,
-						});
-					})
-				);
-			}
-			resolve(result);
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
-
-export default admin().post(async (req, res) => {
-	const hasExportPerm =
-		req.user.isSuperUser ||
-		hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
-
-	if (!hasExportPerm) throw new NextErrorMessage(403);
-
-	const { files } = (await parseForm(req)) as { files: any };
+export default auth().post(async function (req, res) {
+	const { files } = await parseForm(req);
 
 	if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
 
-	if (
-		files.data.mimetype !== 'text/csv' &&
-		files.data.mimetype !== 'application/zip' &&
-		files.data.mimetype !==
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	)
-		throw new NextErrorMessage(
-			400,
-			'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
-		);
+	const [data] = getFormFiles(files.data);
 
-	importData<LeaveImportQueryType>({
-		headers,
-		path: files.data.filepath,
-		type: files.data.mimetype,
-	})
-		.then((result) => createData(req, result.data, result.permissions))
-		.then(() =>
-			createNotification({
-				message: 'Leaves data was imported successfully.',
-				recipient: req.user.id,
-				title: 'Import Leave Data Success.',
-				type: 'SUCCESS',
-			})
-		)
-		.catch((error) =>
-			handleErrors(error, {
-				recipient: req.user.id,
-				title: 'Import Leave Data Error',
-			})
-		);
+	const formData = new FormData();
 
-	return res.status(200).json({
-		status: 'success',
-		message:
-			'Import file was received successfully. ' +
-			'A notification will be sent to you when the task is completed',
+	const fileBuffer = fs.readFileSync(data.filepath);
+
+	const blob = new Blob([fileBuffer], {
+		type: data.mimetype || undefined,
 	});
+
+	formData.append('data', blob);
+
+	const token = getToken(req, 'access');
+
+	// Axios doesn't seem to work well with the form data
+	const response = await fetch(LEAVES_ADMIN_IMPORT_URL, {
+		method: 'POST',
+		body: formData,
+		headers: {
+			Authorization: 'Bearer ' + token,
+		},
+	});
+	const result = await response.json();
+
+	if (!response.ok && response.status === 200) {
+		return res.status(200).json(result);
+	}
+
+	throw new NextErrorMessage(response.status, result.message, result.data);
 });

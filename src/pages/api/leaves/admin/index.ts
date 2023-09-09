@@ -1,105 +1,24 @@
-import { permissions } from '../../../../config';
-import prisma from '../../../../db';
-import {
-	getLeavesAdmin,
-	leaveSelectQuery as selectQuery,
-} from '../../../../db/queries/leaves';
-import {
-	addObjectPermissions,
-	getRecords,
-	getEmployeeOfficersId,
-	updateObjectPermissions,
-} from '../../../../db/utils';
-import { admin } from '../../../../middlewares';
-import { employeeMiddleware as employee } from '../../../../middlewares/api';
-import { GetLeavesResponseType, LeaveType } from '../../../../types';
-import { hasModelPermission } from '../../../../utils/permission';
-import { NextErrorMessage } from '../../../../utils/classes';
+import { LEAVES_ADMIN_URL as LEAVES_URL } from '../../../../config/services';
+import { auth } from '../../../../middlewares';
+import { axiosJn } from '../../../../utils/axios';
+import { getRouteParams } from '../../../../validators';
 import { leaveCreateSchema } from '../../../../validators/leaves';
 
-export default admin()
+export default auth()
 	.get(async (req, res) => {
-		const result = await getRecords<GetLeavesResponseType['data']>({
-			model: 'leaves',
-			perm: 'leave',
-			query: req.query,
-			user: req.user,
-			placeholder: {
-				total: 0,
-				approved: 0,
-				denied: 0,
-				pending: 0,
-				result: [],
-			},
-			getData(params) {
-				return getLeavesAdmin(params);
-			},
-		});
+		const params = getRouteParams(req.query);
 
-		if (result) return res.status(200).json(result);
-
-		throw new NextErrorMessage(403);
+		const response = await axiosJn(req).get(LEAVES_URL + params);
+		return res.status(200).json(response.data);
 	})
-	.use(employee)
 	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.leave.CREATE]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
 		const data = await leaveCreateSchema.validate(
 			{
 				...req.body,
 			},
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		if (!data.employee) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'Employee ID is required',
-			});
-		}
-
-		const leave = (await prisma.leave.create({
-			data: {
-				...data,
-				employee: {
-					connect: {
-						id: data.employee,
-					},
-				},
-				createdBy: {
-					connect: {
-						id: req.user.employee?.id,
-					},
-				},
-			},
-			select: selectQuery,
-		})) as unknown as LeaveType;
-
-		// Get the employees admin related officers
-		const officers = await getEmployeeOfficersId(leave.employee.id);
-
-		await addObjectPermissions({
-			model: 'leaves',
-			objectId: leave.id,
-			users: [req.user.id, leave.employee.user.id],
-		});
-		// add the admin officers for the user to edit and view
-		await updateObjectPermissions({
-			model: 'leaves',
-			permissions: ['VIEW'],
-			objectId: leave.id,
-			users: officers.filter(
-				(id) => id !== req.user.id && id !== leave.employee.user.id
-			),
-		});
-
-		return res.status(201).json({
-			status: 'success',
-			mesage: 'Leave was created successfully!',
-			data: leave,
-		});
+		const response = await axiosJn(req).post(LEAVES_URL, data);
+		return res.status(201).json(response.data);
 	});
