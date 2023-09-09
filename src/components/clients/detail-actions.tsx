@@ -16,26 +16,19 @@ import UpdateForm from './update-form';
 import Modal from '../common/modal';
 import ChangePasswordForm from '../employees/detail/change-password-form';
 import permissions from '../../config/permissions';
-import {
-	CLIENT_OBJECT_PERMISSIONS_PAGE_URL,
-	USER_PAGE_URL,
-} from '../../config/routes';
+import { CLIENT_OBJECT_PERMISSIONS_PAGE_URL, USER_PAGE_URL } from '../../config/routes';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useDeleteClientMutation } from '../../store/queries/clients';
 import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import { useActivateUserMutation } from '../../store/queries/users';
-import { ClientType, UserObjPermType } from '../../types';
+import { ClientType } from '../../types';
 import { hasModelPermission } from '../../utils/permission';
 
 function DetailActions({
 	data,
-	objPerm,
-	objUserPerm,
 	forwardedRef,
 }: {
 	data?: ClientType;
-	objPerm: UserObjPermType;
-	objUserPerm: UserObjPermType;
 	forwardedRef: {
 		ref: React.ForwardedRef<{
 			refreshPerm: () => void;
@@ -50,40 +43,27 @@ function DetailActions({
 	const { data: authData } = useAuthContext();
 
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [formType, setFormType] = React.useState<'client' | 'password'>(
-		'client'
-	);
+	const [formType, setFormType] = React.useState<'client' | 'password'>('client');
 
 	const {
 		data: objPermData,
 		isLoading: permLoading,
 		refetch: objPermRefetch,
-	} = useGetUserObjectPermissionsQuery(
-		{
-			modelName: 'clients',
-			objectId: id,
-		},
-		{
-			initialData() {
-				return objPerm;
-			},
-		}
-	);
+	} = useGetUserObjectPermissionsQuery({
+		modelName: 'clients',
+		objectId: id,
+	});
 
 	// check if the user has edit user permission
-	const { data: objUserPermData, refetch: objUserPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'users',
-				objectId: data?.contact.id || '',
-			},
-			{
-				enabled: data && !!data.contact.id,
-				initialData() {
-					return objUserPerm;
-				},
-			}
-		);
+	const { data: objUserPermData, refetch: objUserPermRefetch } = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'users',
+			objectId: data?.contact.id || '',
+		},
+		{
+			enabled: data && !!data.contact.id,
+		}
+	);
 
 	React.useImperativeHandle(
 		forwardedRef.ref,
@@ -102,14 +82,12 @@ function DetailActions({
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
 			canEdit =
 				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
+				(!!authData.isAdmin && hasModelPermission(authData.permissions, [permissions.user.EDIT]));
 		}
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
 			canView =
 				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.VIEW]));
+				(!!authData.isAdmin && hasModelPermission(authData.permissions, [permissions.user.VIEW]));
 		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
@@ -144,9 +122,7 @@ function DetailActions({
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
 
 		if (canViewUser)
 			buttons.push({
@@ -184,10 +160,7 @@ function DetailActions({
 					disabled: loading || delLoading,
 					onClick: () =>
 						data?.contact
-							? activate(
-									[data.contact.email],
-									data.contact.isActive ? 'deactivate' : 'activate'
-							  )
+							? activate([data.contact.email], data.contact.isActive ? 'deactivate' : 'activate')
 							: () => {},
 					iconLeft: data.contact.isActive ? FaUserSlash : FaUserCheck,
 					title: data.contact.isActive
@@ -282,11 +255,7 @@ function DetailActions({
 							: 'Fill in the form to update client information'
 					}
 					keepVisible
-					title={
-						formType === 'password'
-							? 'Change Client Password'
-							: 'Update Client Information'
-					}
+					title={formType === 'password' ? 'Change Client Password' : 'Update Client Information'}
 					visible={modalVisible}
 				/>
 			)}

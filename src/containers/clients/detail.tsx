@@ -8,14 +8,11 @@ import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetClientQuery } from '../../store/queries/clients';
-import { ClientType, UserObjPermType } from '../../types';
+import { ClientType } from '../../types';
 import { getDate, toCapitalize } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
-	() =>
-		import('../../components/clients/detail-actions').then(
-			(mod) => mod.default
-		),
+	() => import('../../components/clients/detail-actions').then((mod) => mod.default),
 	{
 		loading: () => (
 			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
@@ -28,15 +25,7 @@ const DynamicDetailActions = dynamic<any>(
 	}
 );
 
-const ClientDetail = ({
-	client,
-	objPerm,
-	objUserPerm,
-}: {
-	client: ClientType;
-	objPerm: UserObjPermType;
-	objUserPerm: UserObjPermType;
-}) => {
+const ClientDetail = ({ client }: { client: ClientType }) => {
 	const router = useRouter();
 	const id = React.useMemo(() => router.query.id as string, [router]);
 	const detailActionsRef = React.useRef<{
@@ -59,20 +48,15 @@ const ClientDetail = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
 			refresh={{
 				onClick: () => {
-					if (detailActionsRef.current?.refreshPerm)
-						detailActionsRef.current.refreshPerm();
-					if (detailActionsRef.current?.refreshUserPerm)
-						detailActionsRef.current.refreshUserPerm();
+					if (detailActionsRef.current?.refreshPerm) detailActionsRef.current.refreshPerm();
+					if (detailActionsRef.current?.refreshUserPerm) detailActionsRef.current.refreshUserPerm();
 					refetch();
 				},
 				loading: isFetching,
@@ -85,15 +69,11 @@ const ClientDetail = ({
 				<>
 					<InfoTopBar
 						email={data?.contact.email}
-						full_name={toCapitalize(
-							`${data?.contact.firstName} ${data?.contact.lastName}`
-						)}
+						full_name={toCapitalize(`${data?.contact.firstName} ${data?.contact.lastName}`)}
 						image={data?.contact.profile?.image?.url || DEFAULT_IMAGE}
 						actions={
 							<DynamicDetailActions
 								data={data}
-								objPerm={objPerm}
-								objUserPerm={objUserPerm}
 								forwardedRef={{
 									ref: detailActionsRef,
 								}}

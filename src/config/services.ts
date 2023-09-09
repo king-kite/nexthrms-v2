@@ -1,6 +1,6 @@
 import type { PermissionModelChoices, PermissionObjectChoices } from '../types';
 
-const ROOT_URL = 'http://localhost:8000/api';
+const ROOT_URL = process.env.SERVER_URL + '/api';
 
 // Apps URLs
 export const MANAGED_FILES_URL = `${ROOT_URL}/managed-files/`;

@@ -18,6 +18,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 		req,
 		res,
 		url: PROFILE_URL,
+		paginate: false,
 	});
 };
 
