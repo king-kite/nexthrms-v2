@@ -1,92 +1,26 @@
-import permissions from '../../../config/permissions';
-import prisma from '../../../db';
-import { getJob } from '../../../db/queries/jobs';
-import { getRecord, getUserObjectPermissions } from '../../../db/utils';
-import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../utils/permission';
-import { NextErrorMessage } from '../../../utils/classes';
+import { JOB_URL } from '../../../config/services';
+import auth from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
 import { createJobSchema } from '../../../validators/jobs';
 
-export default admin()
-	.get(async (req, res) => {
-		const record = await getRecord({
-			model: 'jobs',
-			perm: 'job',
-			objectId: req.query.id as string,
-			user: req.user,
-			permission: 'VIEW',
-			getData() {
-				return getJob(req.query.id as string);
-			},
-		});
-
-		if (!record) throw new NextErrorMessage(403);
-
-		if (!record.data)
-			return res.status(404).json({
-				status: 'error',
-				message: 'Job with the specified ID does not exist.',
-			});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched job successfully',
-			data: record.data,
-		});
+export default auth()
+	.get(async function (req, res) {
+		const response = await axiosJn(req).get(JOB_URL((req.query.id as string).toString()));
+		return res.status(200).json(response.data);
 	})
 	.put(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.job.EDIT]);
-
-		if (!hasPerm) {
-			const perms = await getUserObjectPermissions({
-				userId: req.user.id,
-				objectId: req.query.id as string,
-				modelName: 'jobs',
-				permission: 'EDIT',
-			});
-			hasPerm = perms.edit;
-		}
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
 		const data = await createJobSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{
+				abortEarly: false,
+				stripUnknown: true,
+			}
 		);
-		const job = await prisma.job.update({
-			where: {
-				id: req.query.id as string,
-			},
-			data,
-		});
-		return res.status(200).json({
-			status: 'success',
-			message: 'Job updated successfully',
-			data: job,
-		});
+
+		const response = await axiosJn(req).put(JOB_URL((req.query.id as string).toString()), data);
+		return res.status(200).json(response.data);
 	})
-	.delete(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.job.DELETE]);
-
-		if (!hasPerm) {
-			const perms = await getUserObjectPermissions({
-				userId: req.user.id,
-				objectId: req.query.id as string,
-				modelName: 'jobs',
-				permission: 'DELETE',
-			});
-			hasPerm = perms.delete;
-		}
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		await prisma.job.delete({ where: { id: req.query.id as string } });
-		return res.status(200).json({
-			status: 'success',
-			message: 'Job deleted successfully',
-		});
+	.delete(async function (req, res) {
+		const response = await axiosJn(req).delete(JOB_URL((req.query.id as string).toString()));
+		return res.status(200).json(response.data);
 	});

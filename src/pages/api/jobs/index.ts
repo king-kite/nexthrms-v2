@@ -1,97 +1,44 @@
-import { permissions } from '../../../config';
-import prisma from '../../../db';
-import { getJobs } from '../../../db/queries/jobs';
-import { getRecords, getUserObjects } from '../../../db/utils';
-import { admin } from '../../../middlewares';
-import { hasModelPermission } from '../../../utils/permission';
-import { NextErrorMessage } from '../../../utils/classes';
+import { JOBS_URL } from '../../../config/services';
+import { auth } from '../../../middlewares';
+import { axiosJn } from '../../../utils/axios';
 import { multipleDeleteSchema } from '../../../validators';
-import { createJobSchema } from '../../../validators/jobs';
+import { createHolidaySchema } from '../../../validators/holidays';
+import { getRouteParams } from '../../../validators/pagination';
 
-export default admin()
-	.get(async (req, res) => {
-		const result = await getRecords({
-			query: req.query,
-			user: req.user,
-			model: 'jobs',
-			perm: 'job',
-			placeholder: {
-				total: 0,
-				result: [],
-			},
-			getData(params) {
-				return getJobs(params);
-			},
-		});
-		if (result) return res.status(200).json(result);
+export default auth()
+	.get(async function (req, res) {
+		const params = getRouteParams(req.query);
 
-		throw new NextErrorMessage(403);
+		const response = await axiosJn(req).get(JOBS_URL + params);
+		return res.status(200).json(response.data);
 	})
-	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.job.CREATE]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		const data = await createJobSchema.validate(
+	.post(async function (req, res) {
+		const data = await createHolidaySchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{
+				abortEarly: false,
+				stripUnknown: true,
+			}
 		);
-		const job = await prisma.job.create({
-			data,
-			select: {
-				id: true,
-				name: true,
-			},
-		});
-		return res.status(201).json({
-			status: 'success',
-			message: 'Job created successfully!',
-			data: job,
-		});
-	})
-	.delete(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [permissions.job.DELETE]);
 
-		const valid = await multipleDeleteSchema.validate(
+		const response = await axiosJn(req).post(JOBS_URL, data);
+		return res.status(201).json(response.data);
+	})
+	.delete(async function (req, res) {
+		const data = await multipleDeleteSchema.validate(
 			{
 				...req.body,
 			},
-			{ abortEarly: false }
+			{
+				abortEarly: false,
+				stripUnknown: true,
+			}
 		);
 
-		if (!hasPerm) {
-			const userObjects = await getUserObjects({
-				modelName: 'jobs',
-				userId: req.user.id,
-				permission: 'DELETE',
-			});
-			const everyId = userObjects.every((obj) =>
-				valid.values.includes(obj.objectId)
-			);
-			if (!everyId)
-				return res.status(403).json({
-					status: 'error',
-					message:
-						'Sorry, you are not authorized to delete some of the jobs requested.',
-				});
-		}
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
-		await prisma.job.deleteMany({
-			where: {
-				id: {
-					in: valid.values,
-				},
-			},
+		const response = await axiosJn(req)({
+			url: JOBS_URL,
+			method: 'DELETE',
+			data,
 		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Deleted jobs successfully',
-		});
+		return res.status(200).json(response.data);
 	});
