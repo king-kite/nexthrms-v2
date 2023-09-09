@@ -6,7 +6,7 @@ import { axiosJn } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFields, getFormFiles } from '../../../utils/parseForm';
 import { getToken } from '../../../utils/tokens';
-import { createUserSchema } from '../../../validators/users';
+import { createClientSchema } from '../../../validators/clients';
 import { getRouteParams } from '../../../validators/pagination';
 
 export const config = {
@@ -29,7 +29,7 @@ export default auth()
 
 		const [form] = JSON.parse(getFormFields(fields.form)[0]);
 
-		const data = await createUserSchema.validate(form, {
+		const data = await createClientSchema.validate(form, {
 			abortEarly: false,
 			stripUnknown: true,
 		});
