@@ -7,14 +7,11 @@ import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetEmployeeQuery } from '../../store/queries/employees';
-import { EmployeeType, UserObjPermType } from '../../types';
+import { EmployeeType } from '../../types';
 import { getDate, toCapitalize } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
-	() =>
-		import('../../components/employees/detail/detail-actions').then(
-			(mod) => mod.default
-		),
+	() => import('../../components/employees/detail/detail-actions').then((mod) => mod.default),
 	{
 		loading: () => (
 			<div className="flex items-center justify-center p-4 w-full md:h-1/2 md:mt-auto md:pb-0 md:w-2/3">
@@ -27,15 +24,7 @@ const DynamicDetailActions = dynamic<any>(
 	}
 );
 
-const Employee = ({
-	employee,
-	objPerm,
-	objUserPerm,
-}: {
-	employee: EmployeeType;
-	objPerm: UserObjPermType;
-	objUserPerm: UserObjPermType;
-}) => {
+const Employee = ({ employee }: { employee: EmployeeType }) => {
 	const router = useRouter();
 	const id = React.useMemo(() => router.query.id as string, [router]);
 	const detailActionsRef = React.useRef<{
@@ -60,11 +49,8 @@ const Employee = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -72,10 +58,8 @@ const Employee = ({
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
-					if (detailActionsRef.current?.refreshPerm)
-						detailActionsRef.current.refreshPerm();
-					if (detailActionsRef.current?.refreshUserPerm)
-						detailActionsRef.current.refreshUserPerm();
+					if (detailActionsRef.current?.refreshPerm) detailActionsRef.current.refreshPerm();
+					if (detailActionsRef.current?.refreshUserPerm) detailActionsRef.current.refreshUserPerm();
 					refetch();
 				},
 			}}
@@ -86,15 +70,11 @@ const Employee = ({
 				<>
 					<InfoTopBar
 						email={data?.user.email}
-						full_name={toCapitalize(
-							data.user.firstName + ' ' + data.user.lastName
-						)}
+						full_name={toCapitalize(data.user.firstName + ' ' + data.user.lastName)}
 						image={data.user.profile?.image?.url || DEFAULT_IMAGE}
 						actions={
 							<DynamicDetailActions
 								data={data}
-								objPerm={objPerm}
-								objUserPerm={objUserPerm}
 								forwardedRef={{
 									ref: detailActionsRef,
 								}}
@@ -171,22 +151,16 @@ const Employee = ({
 								},
 								{
 									title: 'Department',
-									value: data?.department
-										? toCapitalize(data.department.name)
-										: '-------',
+									value: data?.department ? toCapitalize(data.department.name) : '-------',
 								},
 								{
 									title: 'Current Leave Date',
 									value:
 										data.leaves.length > 0
 											? `${(
-													getDate(
-														data.leaves[data.leaves.length - 1].startDate
-													) as Date
+													getDate(data.leaves[data.leaves.length - 1].startDate) as Date
 											  ).toDateString()} --- ${(
-													getDate(
-														data.leaves[data.leaves.length - 1].endDate
-													) as Date
+													getDate(data.leaves[data.leaves.length - 1].endDate) as Date
 											  ).toDateString()}`
 											: '-------',
 								},
@@ -194,20 +168,14 @@ const Employee = ({
 									title: 'Length Of Leave',
 									value:
 										data.leaves.length > 0
-											? (new Date(
-													data.leaves[data.leaves.length - 1].endDate
-											  ).getTime() -
-													new Date(
-														data.leaves[data.leaves.length - 1].startDate
-													).getTime()) /
+											? (new Date(data.leaves[data.leaves.length - 1].endDate).getTime() -
+													new Date(data.leaves[data.leaves.length - 1].startDate).getTime()) /
 											  (24 * 60 * 60 * 1000)
 											: '-------',
 								},
 								{
 									title: 'Date Employed',
-									value: data?.dateEmployed
-										? (getDate(data.dateEmployed, true) as string)
-										: '----',
+									value: data?.dateEmployed ? (getDate(data.dateEmployed, true) as string) : '----',
 								},
 							]}
 							title="Additional information"
@@ -222,10 +190,7 @@ const Employee = ({
 										type: 'image',
 										value: {
 											src: supervisor.user.profile?.image?.url || DEFAULT_IMAGE,
-											alt:
-												supervisor.user.firstName +
-												' ' +
-												supervisor.user.lastName,
+											alt: supervisor.user.firstName + ' ' + supervisor.user.lastName,
 										},
 									},
 									{
@@ -256,9 +221,7 @@ const Employee = ({
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src:
-												data.department.hod.user.profile?.image?.url ||
-												DEFAULT_IMAGE,
+											src: data.department.hod.user.profile?.image?.url || DEFAULT_IMAGE,
 											alt:
 												data.department.hod.user.firstName +
 												' ' +

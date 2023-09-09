@@ -16,10 +16,7 @@ import ChangePasswordForm from './change-password-form';
 import EmployeeForm from './employee-form';
 import Modal from '../../common/modal';
 import permissions from '../../../config/permissions';
-import {
-	EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL,
-	USER_PAGE_URL,
-} from '../../../config/routes';
+import { EMPLOYEE_OBJECT_PERMISSIONS_PAGE_URL, USER_PAGE_URL } from '../../../config/routes';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useDeleteEmployeeMutation } from '../../../store/queries/employees';
 import { useGetUserObjectPermissionsQuery } from '../../../store/queries/permissions';
@@ -29,13 +26,9 @@ import { hasModelPermission } from '../../../utils/permission';
 
 function DetailActions({
 	data,
-	objPerm,
-	objUserPerm,
 	forwardedRef,
 }: {
 	data?: EmployeeType;
-	objPerm: UserObjPermType;
-	objUserPerm: UserObjPermType;
 	forwardedRef: {
 		ref: React.ForwardedRef<{
 			refreshPerm: () => void;
@@ -48,41 +41,28 @@ function DetailActions({
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const [formType, setFormType] = React.useState<'employee' | 'password'>(
-		'employee'
-	);
+	const [formType, setFormType] = React.useState<'employee' | 'password'>('employee');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const {
 		data: objPermData,
 		isLoading: permLoading,
 		refetch: objPermRefetch,
-	} = useGetUserObjectPermissionsQuery(
-		{
-			modelName: 'employees',
-			objectId: id,
-		},
-		{
-			initialData() {
-				return objPerm;
-			},
-		}
-	);
+	} = useGetUserObjectPermissionsQuery({
+		modelName: 'employees',
+		objectId: id,
+	});
 
 	// check if the user has edit user permission
-	const { data: objUserPermData, refetch: objUserPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'users',
-				objectId: data?.user.id || '',
-			},
-			{
-				enabled: data && !!data.user.id,
-				initialData() {
-					return objUserPerm;
-				},
-			}
-		);
+	const { data: objUserPermData, refetch: objUserPermRefetch } = useGetUserObjectPermissionsQuery(
+		{
+			modelName: 'users',
+			objectId: data?.user.id || '',
+		},
+		{
+			enabled: data && !!data.user.id,
+		}
+	);
 
 	React.useImperativeHandle(
 		forwardedRef.ref,
@@ -128,14 +108,12 @@ function DetailActions({
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
 			canEdit =
 				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.EDIT]));
+				(!!authData.isAdmin && hasModelPermission(authData.permissions, [permissions.user.EDIT]));
 		}
 		if (authData && (authData.isAdmin || authData.isSuperUser)) {
 			canView =
 				!!authData.isSuperUser ||
-				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [permissions.user.VIEW]));
+				(!!authData.isAdmin && hasModelPermission(authData.permissions, [permissions.user.VIEW]));
 		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
@@ -159,9 +137,7 @@ function DetailActions({
 		const canViewObjectPermissions =
 			authData.isSuperUser ||
 			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [
-					permissions.permissionobject.VIEW,
-				]));
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
 
 		if (canViewUser)
 			buttons.push({
@@ -199,10 +175,7 @@ function DetailActions({
 					disabled: actLoading || delLoading,
 					onClick: () =>
 						data?.user.email && data.user.isActive !== undefined
-							? activate(
-									[data.user.email],
-									data.user.isActive ? 'deactivate' : 'activate'
-							  )
+							? activate([data.user.email], data.user.isActive ? 'deactivate' : 'activate')
 							: undefined,
 					iconLeft: data.user.isActive ? FaUserSlash : FaUserCheck,
 					title: data.user.isActive
@@ -298,9 +271,7 @@ function DetailActions({
 					}
 					keepVisible
 					title={
-						formType === 'password'
-							? 'Change Employee Password'
-							: 'Update Employee Information'
+						formType === 'password' ? 'Change Employee Password' : 'Update Employee Information'
 					}
 					visible={modalVisible}
 				/>
