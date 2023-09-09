@@ -24,7 +24,7 @@ export default auth()
 
 		if (!fields.form) throw new NextErrorMessage(400, "'Form' field is required");
 
-		const [form] = JSON.parse(getFormFields(fields.form)[0]);
+		const form = JSON.parse(getFormFields(fields.form)[0]);
 
 		const data = await createEmployeeSchema.validate(form, {
 			abortEarly: false,

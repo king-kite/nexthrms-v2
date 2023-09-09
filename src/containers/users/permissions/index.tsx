@@ -5,34 +5,12 @@ import Container from '../../../components/common/container';
 import { PermissionTable, Topbar } from '../../../components/permissions';
 import {
 	permissions,
-	samples,
 	DEFAULT_PAGINATION_SIZE,
-	PERMISSIONS_EXPORT_URL,
-	PERMISSIONS_IMPORT_URL,
 } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useGetPermissionsQuery } from '../../../store/queries/permissions';
 import { GetPermissionsResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
-
-const DynamicImportForm = dynamic<any>(
-	() =>
-		import('../../../components/common/import-form').then((mod) => mod.default),
-	{
-		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
-		),
-		ssr: false,
-	}
-);
-const DynamicModal = dynamic<any>(
-	() => import('../../../components/common/modal').then((mod) => mod.default),
-	{
-		ssr: false,
-	}
-);
 
 const DynamicTablePagination = dynamic<any>(
 	() =>
@@ -117,15 +95,6 @@ const Permissions = ({
 					paginateRef.current?.changePage(1);
 					setSearch(name);
 				}}
-				openModal={canEdit ? () => setModalVisible(true) : undefined}
-				exportData={
-					!canExport
-						? undefined
-						: {
-								all: PERMISSIONS_EXPORT_URL,
-								filtered: `&offset=${offset}&limit=${DEFAULT_PAGINATION_SIZE}&search=${search}`,
-						  }
-				}
 			/>
 			{canView && data && (
 				<div className="mt-4 rounded-lg py-2 md:py-3 lg:py-4">
@@ -144,52 +113,6 @@ const Permissions = ({
 						/>
 					)}
 				</div>
-			)}
-			{canEdit && (
-				<DynamicModal
-					close={() => setModalVisible(false)}
-					component={
-						<DynamicImportForm
-							onSuccess={(data: any) => {
-								open({
-									type: 'success',
-									message: data.message,
-								});
-								setModalVisible(false);
-							}}
-							requirements={[
-								{
-									required: false,
-									title: 'id',
-									value: 'c2524fca-9182-4455-8367-c7a27abe1b73',
-								},
-								{
-									title: 'name',
-									value: 'can view user',
-								},
-								{
-									title: 'codename',
-									value: 'can_view_user',
-								},
-								{
-									required: false,
-									title: 'description',
-									value: '"Specifies that a user can view the users table"',
-								},
-								{
-									required: false,
-									title: 'category',
-									value: 'user',
-								},
-							]}
-							sample={samples.permissions}
-							url={PERMISSIONS_IMPORT_URL}
-						/>
-					}
-					description="Upload a valid documentation to update permissions"
-					title="Update Permissions"
-					visible={modalVisible}
-				/>
 			)}
 		</Container>
 	);

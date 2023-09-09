@@ -62,7 +62,7 @@ export const HOLIDAYS_EXPORT_URL = `${ROOT_URL}/holidays/export/`;
 export const HOLIDAYS_IMPORT_URL = `${ROOT_URL}/holidays/import/`;
 export const HOLIDAY_URL = (id: string) => `${ROOT_URL}/holidays/${id}/`;
 
-export const LEAVES_URL = `${ROOT_URL}/leaves/all/`;
+export const LEAVES_URL = `${ROOT_URL}/leaves/`;
 export const LEAVE_URL = (id: string) => `${LEAVES_URL}${id}/`;
 
 export const LEAVES_ADMIN_URL = `${ROOT_URL}/leaves/admin/`;
@@ -70,7 +70,7 @@ export const LEAVE_ADMIN_URL = (id: string) => `${ROOT_URL}/leaves/admin/${id}/`
 export const LEAVES_ADMIN_EXPORT_URL = `${ROOT_URL}/leaves/admin/export/`;
 export const LEAVES_ADMIN_IMPORT_URL = `${ROOT_URL}/leaves/admin/import/`;
 
-export const OVERTIME_URL = `${ROOT_URL}/overtime/all/`;
+export const OVERTIME_URL = `${ROOT_URL}/overtime/`;
 export const OVERTIME_DETAIL_URL = (id: string) => `${OVERTIME_URL}${id}/`;
 
 export const OVERTIME_ADMIN_URL = `${ROOT_URL}/overtime/admin/`;
@@ -155,12 +155,6 @@ export const OBJECT_PERMISSIONS_URL = (
 };
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
-export const PERMISSION_URL = (id: string) => `${PERMISSIONS_URL}${id}/`;
-export const PERMISSIONS_EXPORT_URL = `${ROOT_URL}/permissions/export/`;
-export const PERMISSIONS_IMPORT_URL = `${ROOT_URL}/permissions/import/`;
-
-export const PERMISSION_CATEGORIES_URL = `${ROOT_URL}/permissions/categories/`;
-export const PERMISSION_CATEGORY_URL = (id: string) => `${PERMISSION_CATEGORIES_URL}${id}/`;
 
 // Users URLs Start
 export const ACTIVATE_USER_URL = `${ROOT_URL}/users/activate/`;
