@@ -28,9 +28,7 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 		if (!authData) return [];
 		const canCreateFile =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projectfile.CREATE,
-			]);
+			hasModelPermission(authData.permissions, [permissions.projectfile.CREATE]);
 		return [canCreateFile];
 	}, [authData]);
 
@@ -88,9 +86,7 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 						const time = date.toLocaleTimeString();
 						const size = String(file.file.size / (1024 * 1024));
 						const part1 = size.split('.')[0];
-						const part2 = size.split('.')[1]
-							? size.split('.')[1].slice(0, 2)
-							: '';
+						const part2 = size.split('.')[1] ? size.split('.')[1].slice(0, 2) : '';
 						const sizeString = part1 + '.' + part2;
 
 						return (
@@ -99,14 +95,14 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 									<Image
 										className="h-full rounded-md w-full"
 										layout="fill"
-										src={file.file.url}
+										src={file.file.url || file.file.location}
 										alt=""
 									/>
 								</div>
 								<span
 									onClick={() =>
 										downloadFile({
-											url: file.file.url,
+											url: file.file.url || file.file.location,
 											name: file.file.name,
 										})
 									}
@@ -119,24 +115,14 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 									{date.toDateString()} {time}
 								</p>
 								<p className="capitalize text-gray-700 text-sm">
-									Size:{' '}
-									<span className="font-medium mx-1 uppercase">
-										{sizeString}MB
-									</span>
+									Size: <span className="font-medium mx-1 uppercase">{sizeString}MB</span>
 								</p>
 								{file.employee && (
 									<p className="text-gray-700 text-sm">
 										Uploaded by:
-										<Link
-											href={
-												file.employee.id
-													? EMPLOYEE_PAGE_URL(file.employee.id)
-													: '#'
-											}
-										>
+										<Link href={file.employee.id ? EMPLOYEE_PAGE_URL(file.employee.id) : '#'}>
 											<a className="capitalize cursor-pointer inline-block mx-1 text-blue-600 text-sm hover:text-blue-500 hover:underline">
-												{file.employee.user.firstName}{' '}
-												{file.employee.user.lastName}
+												{file.employee.user.firstName} {file.employee.user.lastName}
 											</a>
 										</Link>
 									</p>

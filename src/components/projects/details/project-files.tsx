@@ -27,9 +27,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 		if (!authData) return [];
 		const canCreateFile =
 			authData.isSuperUser ||
-			hasModelPermission(authData.permissions, [
-				permissions.projectfile.CREATE,
-			]);
+			hasModelPermission(authData.permissions, [permissions.projectfile.CREATE]);
 		return [canCreateFile];
 	}, [authData]);
 
@@ -59,11 +57,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 									<FaTimes className="text-xs sm:text-sm" />
 								</div>
 							</div>
-							<Form
-								label="File"
-								projectId={id}
-								onClose={() => setVisible(false)}
-							/>
+							<Form label="File" projectId={id} onClose={() => setVisible(false)} />
 						</div>
 					) : (
 						<div className="flex justify-start my-2 w-full px-3">
@@ -85,8 +79,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 						const date = new Date(file.updatedAt);
 						const time = date.toLocaleTimeString();
 						const size = String(file.file.size / (1024 * 1024));
-						const sizeString =
-							size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
+						const sizeString = size.split('.')[0] + '.' + size.split('.')[1].slice(0, 2);
 						return (
 							<li key={index} className="flex items-start py-2">
 								<div className="flex items-center justify-center py-4 w-[15%]">
@@ -98,7 +91,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 									<h5
 										onClick={() =>
 											downloadFile({
-												url: file.file.url,
+												url: file.file.url || file.file.location,
 												name: file.file.name,
 											})
 										}
@@ -110,24 +103,14 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 										{date.toDateString()} {time}
 									</p>
 									<p className="capitalize text-gray-700 text-sm">
-										Size:{' '}
-										<span className="font-medium mx-1 uppercase">
-											{sizeString}MB
-										</span>
+										Size: <span className="font-medium mx-1 uppercase">{sizeString}MB</span>
 									</p>
 									{file.employee && (
 										<p className="text-gray-700 text-sm">
 											Uploaded by:
-											<Link
-												href={
-													file.employee.id
-														? EMPLOYEE_PAGE_URL(file.employee.id)
-														: '#'
-												}
-											>
+											<Link href={file.employee.id ? EMPLOYEE_PAGE_URL(file.employee.id) : '#'}>
 												<a className="capitalize cursor-pointer inline-block mx-1 text-blue-600 text-sm hover:text-blue-500 hover:underline">
-													{file.employee.user.firstName}{' '}
-													{file.employee.user.lastName}
+													{file.employee.user.firstName} {file.employee.user.lastName}
 												</a>
 											</Link>
 										</p>
