@@ -1,115 +1,26 @@
-import { InferGetServerSidePropsType } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
+import { PROJECT_URL } from '../../../config/services';
 import Project from '../../../containers/projects/detail';
-import { getProject, getProjectFiles } from '../../../db/queries/projects';
-import { getRecord, getRecords } from '../../../db/utils/record';
-import { authPage } from '../../../middlewares';
-import { ExtendedGetServerSideProps } from '../../../types';
 import Title from '../../../utils/components/title';
-import { serializeUserData } from '../../../utils/serializers/auth';
-import { uuidSchema } from '../../../validators';
+import { getServerSideData } from '../../../utils/server';
 
-function Page({
-	objPerm,
-	project,
-	projectFiles,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+function Page({ data: project }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
 		<>
-			<Title title={`${project.name} - Project Information`} />
-			<Project
-				objPerm={objPerm}
-				project={project}
-				projectFiles={projectFiles}
-			/>
+			<Title title={`${project?.data.name} - Project Information`} />
+			<Project project={project?.data} />
 		</>
 	);
 }
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	params,
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('PROJECT ERROR :<< ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-
-	try {
-		await uuidSchema.validate(params?.id);
-	} catch (error) {
-		return {
-			notFound: true,
-		};
-	}
-
-	const record = await getRecord({
-		model: 'projects',
-		perm: 'project',
-		objectId: params?.id as string,
-		user: req.user,
-		getData() {
-			return getProject(params?.id as string);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: PROJECT_URL(params?.id as string),
+		paginate: false,
 	});
-
-	if (!record)
-		return {
-			props: {
-				auth,
-				errorPage: { statusCode: 403 },
-			},
-		};
-
-	if (!record.data)
-		return {
-			notFound: true,
-		};
-
-	const projectFiles = await getRecords({
-		model: 'projects_files',
-		perm: 'projectfile',
-		user: req.user,
-		query: {},
-		placeholder: {
-			result: [],
-		},
-		getData(queryParams) {
-			return getProjectFiles({
-				...queryParams,
-				id: params?.id as string,
-			});
-		},
-	});
-
-	return {
-		props: {
-			auth,
-			objPerm: record.perm,
-			project: record.data,
-			projectFiles: projectFiles
-				? projectFiles.data
-				: {
-						result: [],
-				  },
-		},
-	};
 };
 
 export default Page;

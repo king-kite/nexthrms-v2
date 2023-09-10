@@ -35,51 +35,34 @@ const DynamicForm = dynamic<any>(
 	() => import('../../../components/projects/form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 const DynamicProjectImages = dynamic<any>(
-	() =>
-		import('../../../components/projects/details/project-images').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/projects/details/project-images').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 const DynamicProjectFiles = dynamic<any>(
-	() =>
-		import('../../../components/projects/details/project-files').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/projects/details/project-files').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 const DynamicImportExport = dynamic<any>(
-	() =>
-		import('../../../components/projects/details/import-export').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/projects/details/import-export').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -91,21 +74,12 @@ const DynamicModal = dynamic<any>(
 	}
 );
 
-const Detail = ({
-	objPerm,
-	projectFiles,
-	project,
-}: {
-	objPerm: UserObjPermType;
-	project: SuccessResponseType<ProjectType>['data'];
-	projectFiles: GetProjectFilesResponseType['data'];
-}) => {
+const Detail = ({ project }: { project: SuccessResponseType<ProjectType>['data'] }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [formErrors, setFormErrors] =
-		React.useState<CreateProjectErrorResponseType>();
+	const [formErrors, setFormErrors] = React.useState<CreateProjectErrorResponseType>();
 
 	const { open: showAlert } = useAlertContext();
 	const { data: authData } = useAuthContext();
@@ -118,84 +92,60 @@ const Detail = ({
 			},
 		}
 	);
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'projects',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
-	const { data: files, refetch: filesRefetch } = useGetProjectFilesQuery(
-		{
-			id,
-			onError() {
-				showAlert({
-					type: 'danger',
-					message: 'Sorry. Unable to get project files!',
-				});
-			},
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'projects',
+		objectId: id,
+	});
+	const { data: files, refetch: filesRefetch } = useGetProjectFilesQuery({
+		id,
+		onError() {
+			showAlert({
+				type: 'danger',
+				message: 'Sorry. Unable to get project files!',
+			});
 		},
-		{
-			initialData() {
-				return projectFiles;
-			},
-		}
-	);
+	});
 
-	const { mutate: updateProject, isLoading: editLoading } =
-		useEditProjectMutation({
-			onSuccess() {
-				showAlert({
-					message: 'Project updated successfully!',
-					type: 'success',
-				});
-				setModalVisible(false);
-			},
-			onError(err) {
-				setFormErrors((prevState) => ({ ...prevState, ...err }));
-			},
-		});
+	const { mutate: updateProject, isLoading: editLoading } = useEditProjectMutation({
+		onSuccess() {
+			showAlert({
+				message: 'Project updated successfully!',
+				type: 'success',
+			});
+			setModalVisible(false);
+		},
+		onError(err) {
+			setFormErrors((prevState) => ({ ...prevState, ...err }));
+		},
+	});
 	const { deleteProject, isLoading: delLoading } = useDeleteProjectMutation({
 		onSuccess() {
 			router.back();
 		},
 	});
 
-	const [canEdit, canDelete, canViewObjectPermissions, canViewTasks] =
-		React.useMemo(() => {
-			if (!authData) return [];
-			const canEdit =
-				authData.isSuperUser ||
-				hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
-				(objPermData && objPermData.edit);
-			const canDelete =
-				authData.isSuperUser ||
-				hasModelPermission(authData.permissions, [
-					permissions.project.DELETE,
-				]) ||
-				(objPermData && objPermData.delete);
-			const canViewObjectPermissions =
-				authData.isSuperUser ||
-				(authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					]));
-			const canViewTasks =
-				authData.isSuperUser ||
-				hasModelPermission(authData.permissions, [
-					permissions.projecttask.VIEW,
-				]) ||
-				!!authData.objPermissions.find(
-					(perm) =>
-						perm.modelName === 'projects_tasks' && perm.permission === 'VIEW'
-				);
-			return [canEdit, canDelete, canViewObjectPermissions, canViewTasks];
-		}, [authData, objPermData]);
+	const [canEdit, canDelete, canViewObjectPermissions, canViewTasks] = React.useMemo(() => {
+		if (!authData) return [];
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.project.EDIT]) ||
+			(objPermData && objPermData.edit);
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.project.DELETE]) ||
+			(objPermData && objPermData.delete);
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
+		const canViewTasks =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.projecttask.VIEW]) ||
+			!!authData.objPermissions.find(
+				(perm) => perm.modelName === 'projects_tasks' && perm.permission === 'VIEW'
+			);
+		return [canEdit, canDelete, canViewObjectPermissions, canViewTasks];
+	}, [authData, objPermData]);
 
 	return (
 		<Container
@@ -214,11 +164,8 @@ const Detail = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -315,32 +262,22 @@ const Detail = ({
 								</div>
 							</div>
 
-							{(authData?.isAdmin || authData?.isSuperUser) && (
-								<DynamicImportExport id={id} />
-							)}
+							{(authData?.isAdmin || authData?.isSuperUser) && <DynamicImportExport id={id} />}
 
 							{files && (
 								<>
 									<DynamicProjectImages
-										files={files.result.filter(
-											(file) => file.file.type.split('/')[0] === 'image'
-										)}
+										files={files.result.filter((file) => file.file.type.split('/')[0] === 'image')}
 									/>
 
 									<DynamicProjectFiles
-										files={files.result.filter(
-											(file) => file.file.type.split('/')[0] !== 'image'
-										)}
+										files={files.result.filter((file) => file.file.type.split('/')[0] !== 'image')}
 									/>
 								</>
 							)}
 						</div>
 
-						<ProjectDetail
-							canEdit={canEdit}
-							data={data}
-							progress={data?.progress || 0}
-						/>
+						<ProjectDetail canEdit={canEdit} data={data} progress={data?.progress || 0} />
 					</div>
 					{canEdit && (
 						<DynamicModal

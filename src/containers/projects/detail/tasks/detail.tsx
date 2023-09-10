@@ -3,13 +3,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import {
-	FaCloudDownloadAlt,
-	FaCloudUploadAlt,
-	FaPen,
-	FaTrash,
-	FaUserShield,
-} from 'react-icons/fa';
+import { FaCloudDownloadAlt, FaCloudUploadAlt, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import {
 	permissions,
@@ -40,51 +34,33 @@ import {
 import { hasModelPermission } from '../../../../utils';
 
 const DynamicForm = dynamic<any>(
-	() =>
-		import('../../../../components/projects/tasks/form').then(
-			(mod) => mod.default
-		),
+	() => import('../../../../components/projects/tasks/form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 const DynamicImportForm = dynamic<any>(
-	() =>
-		import('../../../../components/common/import-form').then(
-			(mod) => mod.default
-		),
+	() => import('../../../../components/common/import-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 const DynamicModal = dynamic<any>(
-	() =>
-		import('../../../../components/common/modal').then((mod) => mod.default),
+	() => import('../../../../components/common/modal').then((mod) => mod.default),
 	{
 		ssr: false,
 	}
 );
 
-const Detail = ({
-	task,
-	objPerm,
-}: {
-	task: ProjectTaskType;
-	objPerm: UserObjPermType;
-}) => {
+const Detail = ({ task }: { task: ProjectTaskType }) => {
 	const [bulkForm, setBulkForm] = React.useState(false);
-	const [errors, setErrors] =
-		React.useState<CreateProjectTaskErrorResponseType>();
+	const [errors, setErrors] = React.useState<CreateProjectTaskErrorResponseType>();
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const router = useRouter();
@@ -105,47 +81,37 @@ const Detail = ({
 		},
 	});
 
-	const { data, error, isLoading, isFetching, refetch } =
-		useGetProjectTaskQuery(
-			{
-				projectId: id,
-				id: taskId,
+	const { data, error, isLoading, isFetching, refetch } = useGetProjectTaskQuery(
+		{
+			projectId: id,
+			id: taskId,
+		},
+		{
+			initialData() {
+				return task;
 			},
-			{
-				initialData() {
-					return task;
-				},
-			}
-		);
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'projects_tasks',
-				objectId: taskId,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+		}
+	);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'projects_tasks',
+		objectId: taskId,
+	});
 
-	const { mutate: updateTask, isLoading: editLoading } =
-		useEditProjectTaskMutation({
-			onSuccess() {
-				open({
-					type: 'success',
-					message: 'Task was updated successfully',
-				});
-				setModalVisible(false);
-			},
-			onError(err) {
-				setErrors((prevState) => ({
-					...prevState,
-					...err,
-				}));
-			},
-		});
+	const { mutate: updateTask, isLoading: editLoading } = useEditProjectTaskMutation({
+		onSuccess() {
+			open({
+				type: 'success',
+				message: 'Task was updated successfully',
+			});
+			setModalVisible(false);
+		},
+		onError(err) {
+			setErrors((prevState) => ({
+				...prevState,
+				...err,
+			}));
+		},
+	});
 
 	const { deleteFollower } = useDeleteProjectTaskFollowerMutation({
 		onSuccess() {
@@ -163,15 +129,14 @@ const Detail = ({
 		},
 	});
 
-	const { appointFollower, isLoading: appointLoading } =
-		useAppointProjectTaskLeaderMutation({
-			onSuccess() {
-				open({
-					type: 'success',
-					message: 'Task follower was re-appointed successfully!',
-				});
-			},
-		});
+	const { appointFollower, isLoading: appointLoading } = useAppointProjectTaskLeaderMutation({
+		onSuccess() {
+			open({
+				type: 'success',
+				message: 'Task follower was re-appointed successfully!',
+			});
+		},
+	});
 
 	const { deleteTask } = useDeleteProjectTaskMutation({
 		onSuccess() {
@@ -205,35 +170,26 @@ const Detail = ({
 		[id, taskId]
 	);
 
-	const [canEdit, canDelete, canExport, canViewObjectPermissions] =
-		React.useMemo(() => {
-			if (!authData) return [];
-			const canEdit =
-				authData.isSuperUser ||
-				hasModelPermission(authData.permissions, [
-					permissions.projecttask.EDIT,
-				]) ||
-				(objPermData && objPermData.edit);
-			const canDelete =
-				authData.isSuperUser ||
-				hasModelPermission(authData.permissions, [
-					permissions.projecttask.DELETE,
-				]) ||
-				(objPermData && objPermData.delete);
-			const canExport =
-				authData.isSuperUser ||
-				(authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.projecttask.EXPORT,
-					]));
-			const canViewObjectPermissions =
-				authData.isSuperUser ||
-				(authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					]));
-			return [canEdit, canDelete, canExport, canViewObjectPermissions];
-		}, [authData, objPermData]);
+	const [canEdit, canDelete, canExport, canViewObjectPermissions] = React.useMemo(() => {
+		if (!authData) return [];
+		const canEdit =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.projecttask.EDIT]) ||
+			(objPermData && objPermData.edit);
+		const canDelete =
+			authData.isSuperUser ||
+			hasModelPermission(authData.permissions, [permissions.projecttask.DELETE]) ||
+			(objPermData && objPermData.delete);
+		const canExport =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [permissions.projecttask.EXPORT]));
+		const canViewObjectPermissions =
+			authData.isSuperUser ||
+			(authData.isAdmin &&
+				hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]));
+		return [canEdit, canDelete, canExport, canViewObjectPermissions];
+	}, [authData, objPermData]);
 
 	return (
 		<Container
@@ -250,11 +206,8 @@ const Detail = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -317,9 +270,7 @@ const Detail = ({
 							<div className="my-1">
 								<p className="font-medium mr-1 text-gray-800 text-sm md:text-base">
 									{data.followers.length}
-									<span className="font-bold ml-1 text-gray-600">
-										followers
-									</span>
+									<span className="font-bold ml-1 text-gray-600">followers</span>
 								</p>
 							</div>
 							<div className="my-1">
@@ -329,8 +280,7 @@ const Detail = ({
 							</div>
 						</div>
 
-						{(canExport ||
-							(canEdit && (authData?.isAdmin || authData?.isSuperUser))) && (
+						{(canExport || (canEdit && (authData?.isAdmin || authData?.isSuperUser))) && (
 							<div className="flex flex-wrap items-center w-full sm:px-4 md:pl-0">
 								{canExport && (
 									<div className="my-2 w-full sm:px-2 sm:w-1/3 md:pl-0 md:max-w-[230px]">
@@ -389,8 +339,7 @@ const Detail = ({
 										const actions: ButtonType[] = [
 											{
 												bg: 'bg-white hover:bg-blue-100',
-												border:
-													'border border-primary-500 hover:border-primary-600',
+												border: 'border border-primary-500 hover:border-primary-600',
 												color: 'text-primary-500',
 												link: EMPLOYEE_PAGE_URL(leader.member.employee.id),
 												title: 'view profile',
@@ -420,17 +369,14 @@ const Detail = ({
 												}
 												label={leader.member.employee.job?.name || '-----'}
 												image={{
-													src:
-														leader.member.employee.user.profile?.image?.url ||
-														DEFAULT_IMAGE,
+													src: leader.member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
 														? [
 																{
 																	bg: 'bg-white hover:bg-red-100',
-																	border:
-																		'border border-red-500 hover:border-red-600',
+																	border: 'border border-red-500 hover:border-red-600',
 																	color: 'text-red-500',
 																	disabled: appointLoading,
 																	onClick: () =>
@@ -472,8 +418,7 @@ const Detail = ({
 										const actions: ButtonType[] = [
 											{
 												bg: 'bg-white hover:bg-blue-100',
-												border:
-													'border border-primary-500 hover:border-primary-600',
+												border: 'border border-primary-500 hover:border-primary-600',
 												color: 'text-primary-500',
 												link: EMPLOYEE_PAGE_URL(follower.member.id),
 												title: 'view profile',
@@ -503,17 +448,14 @@ const Detail = ({
 												}
 												label={follower.member.employee.job?.name || '-----'}
 												image={{
-													src:
-														follower.member.employee.user.profile?.image?.url ||
-														DEFAULT_IMAGE,
+													src: follower.member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
 														? [
 																{
 																	bg: 'bg-white hover:bg-blue-100',
-																	border:
-																		'border border-primary-500 hover:border-primary-600',
+																	border: 'border border-primary-500 hover:border-primary-600',
 																	color: 'text-primary-500',
 																	disabled: appointLoading,
 																	onClick: () =>

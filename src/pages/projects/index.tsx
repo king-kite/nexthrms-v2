@@ -1,81 +1,23 @@
-import type { InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
-import { DEFAULT_PAGINATION_SIZE } from '../../config/app';
+import { PROJECTS_URL } from '../../config/services';
 import Projects from '../../containers/projects';
-import { getProjects } from '../../db/queries/projects';
-import { getRecords } from '../../db/utils/record';
-import { authPage } from '../../middlewares';
-import { ExtendedGetServerSideProps } from '../../types';
 import Title from '../../utils/components/title';
-import { serializeUserData } from '../../utils/serializers/auth';
+import { getServerSideData } from '../../utils/server';
 
-const Page = ({
-	projects,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: projects }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="Projects" />
-		<Projects projects={projects} />
+		<Projects projects={projects?.data} />
 	</>
 );
 
-export const getServerSideProps: ExtendedGetServerSideProps = async ({
-	req,
-	res,
-}) => {
-	try {
-		await authPage().run(req, res);
-	} catch (error) {
-		if (process.env.NODE_ENV === 'development')
-			console.log('PROJECTS PAGE ERROR :>> ', error);
-	}
-
-	if (!req.user) {
-		return {
-			props: {
-				auth: null,
-				errorPage: {
-					statusCode: 401,
-				},
-			},
-		};
-	}
-
-	const auth = await serializeUserData(req.user);
-
-	const result = await getRecords({
-		model: 'projects',
-		perm: 'project',
-		user: req.user,
-		query: {
-			limit: DEFAULT_PAGINATION_SIZE,
-			offset: 0,
-			search: '',
-		},
-		placeholder: {
-			total: 0,
-			result: [],
-			completed: 0,
-			ongoing: 0,
-		},
-		getData(params) {
-			return getProjects(params);
-		},
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	return await getServerSideData({
+		req,
+		res,
+		url: PROJECTS_URL,
 	});
-
-	if (result)
-		return {
-			props: {
-				auth,
-				projects: result.data,
-			},
-		};
-
-	return {
-		props: {
-			auth,
-			errorPage: { statusCode: 403 },
-		},
-	};
 };
 
 export default Page;

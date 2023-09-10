@@ -23,27 +23,17 @@ import {
 	useAppointProjectTeamLeaderMutation,
 	useDeleteProjectTeamMemberMutation,
 } from '../../../store/queries/projects';
-import {
-	ProjectType,
-	SuccessResponseType,
-	UserObjPermType,
-} from '../../../types';
+import type { ProjectType, SuccessResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 
-const DynamicAlert = dynamic<any>(
-	() => import('kite-react-tailwind').then((mod) => mod.Alert),
-	{
-		ssr: false,
-	}
-);
+const DynamicAlert = dynamic<any>(() => import('kite-react-tailwind').then((mod) => mod.Alert), {
+	ssr: false,
+});
 const DynamicImportForm = dynamic<any>(
-	() =>
-		import('../../../components/common/import-form').then((mod) => mod.default),
+	() => import('../../../components/common/import-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
@@ -55,13 +45,7 @@ const DynamicModal = dynamic<any>(
 	}
 );
 
-const Team = ({
-	objPerm,
-	projectData,
-}: {
-	objPerm: UserObjPermType;
-	projectData: SuccessResponseType<ProjectType>['data'];
-}) => {
+const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['data'] }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 
@@ -78,18 +62,10 @@ const Team = ({
 			},
 		}
 	);
-	const { data: objPermData, refetch: objPermRefetch } =
-		useGetUserObjectPermissionsQuery(
-			{
-				modelName: 'projects',
-				objectId: id,
-			},
-			{
-				initialData() {
-					return objPerm;
-				},
-			}
-		);
+	const { data: objPermData, refetch: objPermRefetch } = useGetUserObjectPermissionsQuery({
+		modelName: 'projects',
+		objectId: id,
+	});
 	const { execute, loading } = useAxiosInstance({
 		onSettled(response) {
 			open({
@@ -147,8 +123,7 @@ const Team = ({
 			(objPermData && objPermData.edit);
 		const canExport =
 			authData.isSuperUser ||
-			(authData.isAdmin &&
-				hasModelPermission(authData.permissions, [permissions.project.EXPORT]));
+			(authData.isAdmin && hasModelPermission(authData.permissions, [permissions.project.EXPORT]));
 		return [canEdit, canExport];
 	}, [authData, objPermData]);
 
@@ -168,11 +143,8 @@ const Team = ({
 			error={
 				error
 					? {
-							statusCode:
-								(error as any).response?.status || (error as any).status || 500,
-							title:
-								(error as any)?.response?.data?.message ||
-								(error as any).message,
+							statusCode: (error as any).response?.status || (error as any).status || 500,
+							title: (error as any)?.response?.data?.message || (error as any).message,
 					  }
 					: undefined
 			}
@@ -238,22 +210,15 @@ const Team = ({
 								<div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-4">
 									<PersonCard
 										title={data.client.company || '------'}
-										name={
-											data.client.contact.firstName +
-											' ' +
-											data.client.contact.lastName
-										}
+										name={data.client.contact.firstName + ' ' + data.client.contact.lastName}
 										label={data.client.position || '------'}
 										image={{
-											src:
-												data.client.contact.profile?.image?.url ||
-												DEFAULT_IMAGE,
+											src: data.client.contact.profile?.image?.url || DEFAULT_IMAGE,
 										}}
 										actions={[
 											{
 												bg: 'bg-white hover:bg-green-100',
-												border:
-													'border border-green-500 hover:border-green-600',
+												border: 'border border-green-500 hover:border-green-600',
 												color: 'text-green-600',
 												loader: true,
 												link: CLIENT_PAGE_URL(data.client.id),
@@ -280,8 +245,7 @@ const Team = ({
 										const actions: ButtonType[] = [
 											{
 												bg: 'bg-white hover:bg-blue-100',
-												border:
-													'border border-primary-500 hover:border-primary-600',
+												border: 'border border-primary-500 hover:border-primary-600',
 												color: 'text-primary-500',
 												link: EMPLOYEE_PAGE_URL(leader.employee.id),
 												title: 'view profile',
@@ -303,28 +267,17 @@ const Team = ({
 											<PersonCard
 												key={index}
 												title="Team Leader"
-												name={
-													leader.employee.user.firstName +
-													' ' +
-													leader.employee.user.lastName
-												}
-												label={
-													leader.employee.job
-														? leader.employee.job.name
-														: '-----'
-												}
+												name={leader.employee.user.firstName + ' ' + leader.employee.user.lastName}
+												label={leader.employee.job ? leader.employee.job.name : '-----'}
 												image={{
-													src:
-														leader.employee.user.profile?.image?.url ||
-														DEFAULT_IMAGE,
+													src: leader.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
 														? [
 																{
 																	bg: 'bg-white hover:bg-red-100',
-																	border:
-																		'border border-red-500 hover:border-red-600',
+																	border: 'border border-red-500 hover:border-red-600',
 																	color: 'text-red-500',
 																	onClick: () =>
 																		appointMember({
@@ -364,8 +317,7 @@ const Team = ({
 										const actions: ButtonType[] = [
 											{
 												bg: 'bg-white hover:bg-blue-100',
-												border:
-													'border border-primary-500 hover:border-primary-600',
+												border: 'border border-primary-500 hover:border-primary-600',
 												color: 'text-primary-500',
 												link: EMPLOYEE_PAGE_URL(member.employee.id),
 												title: 'view profile',
@@ -387,28 +339,17 @@ const Team = ({
 											<PersonCard
 												key={index}
 												title="Team member"
-												name={
-													member.employee.user.firstName +
-													' ' +
-													member.employee.user.lastName
-												}
-												label={
-													member.employee.job
-														? member.employee.job.name
-														: '------'
-												}
+												name={member.employee.user.firstName + ' ' + member.employee.user.lastName}
+												label={member.employee.job ? member.employee.job.name : '------'}
 												image={{
-													src:
-														member.employee.user.profile?.image?.url ||
-														DEFAULT_IMAGE,
+													src: member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
 														? [
 																{
 																	bg: 'bg-white hover:bg-success-100',
-																	border:
-																		'border border-success-500 hover:border-success-600',
+																	border: 'border border-success-500 hover:border-success-600',
 																	color: 'text-success-500',
 																	onClick: () =>
 																		appointMember({
