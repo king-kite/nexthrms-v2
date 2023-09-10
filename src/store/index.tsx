@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React from 'react';
 
 import { AlertProvider, AlertModalProvider, AuthProvider } from './contexts';
@@ -22,10 +21,7 @@ function GlobalProvider({ children }: { children: React.ReactNode }) {
 		<AlertProvider>
 			<AlertModalProvider>
 				<AuthProvider>
-					<QueryClientProvider client={queryClient}>
-						{children}
-						<ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-					</QueryClientProvider>
+					<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 				</AuthProvider>
 			</AlertModalProvider>
 		</AlertProvider>
