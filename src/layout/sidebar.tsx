@@ -25,12 +25,13 @@ import {
 	FaWarehouse,
 } from './icons';
 import { SimpleLink, ListLink } from './link';
-import { LinkType, LinkItemType, PropsType } from './types';
+import type { LinkType, LinkItemType, PropsType } from './types';
 import * as routes from '../config/routes';
-import { DEFAULT_IMAGE, PermissionKeyType, permissions } from '../config';
-import { useAuthContext } from '../store/contexts';
+import permissions, { PermissionKeyType } from '../config/permissions';
+import { DEFAULT_IMAGE } from '../config/static';
+import { useAuthContext } from '../store/contexts/auth';
 import type { AuthDataType, PermissionModelChoices } from '../types';
-import { hasModelPermission } from '../utils';
+import { hasModelPermission } from '../utils/permission';
 import ErrorBoundary from '../utils/components/error-boundary';
 
 const DynamicLogoutButton = dynamic<any>(

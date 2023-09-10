@@ -1,25 +1,20 @@
-import { AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 import dynamic from 'next/dynamic';
 import React from 'react';
 
 import { USER_DATA_URL } from '../../config/server';
 import { useAuthContext } from '../../store/contexts/auth';
-import { SuccessResponseType, AuthDataType } from '../../types';
+import type { SuccessResponseType, AuthDataType } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
 
-const DynamicSplashScreen = dynamic<any>(
-	() => import('../../components/common/splash-screen'),
-	{
-		loading: () => (
-			<div className="flex items-center justify-center min-h-[100vh] w-full">
-				<p className="text-gray-500 text-center text-sm md:text-base">
-					Loading...
-				</p>
-			</div>
-		),
-		ssr: false,
-	}
-);
+const DynamicSplashScreen = dynamic<any>(() => import('../../components/common/splash-screen'), {
+	loading: () => (
+		<div className="flex items-center justify-center min-h-[100vh] w-full">
+			<p className="text-gray-500 text-center text-sm md:text-base">Loading...</p>
+		</div>
+	),
+	ssr: false,
+});
 
 const CheckAuth = ({
 	children,
@@ -57,11 +52,7 @@ const CheckAuth = ({
 		checkAuth();
 	}, [login, logout, authData]);
 
-	return loading ? (
-		<DynamicSplashScreen />
-	) : (
-		<React.Fragment>{children}</React.Fragment>
-	);
+	return loading ? <DynamicSplashScreen /> : <React.Fragment>{children}</React.Fragment>;
 };
 
 export default CheckAuth;

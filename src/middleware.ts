@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { models, OBJECT_PERMISSIONS_PAGE_URL } from './config';
+import { models } from './config/app';
+import { OBJECT_PERMISSIONS_PAGE_URL } from './config/routes';
 
 export function middleware(request: NextRequest) {
 	// Check to see if the url endswith object-permissions
