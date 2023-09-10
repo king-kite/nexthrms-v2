@@ -4,13 +4,9 @@ import React from 'react';
 
 import { useAlertModalContext } from '../contexts';
 import * as tags from '../tagTypes';
+import { EMPLOYEE_URL, EMPLOYEES_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
-	EMPLOYEE_URL,
-	EMPLOYEES_URL,
-	DEFAULT_PAGINATION_SIZE,
-} from '../../config';
-import {
-	BaseResponseType,
+	ResponseType,
 	CreateEmployeeErrorResponseType,
 	CreateEmployeeResponseType,
 	EmployeeType,
@@ -43,11 +39,8 @@ export function useGetEmployeesQuery(
 	const query = useQuery(
 		[tags.EMPLOYEES, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				EMPLOYEES_URL + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
-				(response: AxiosResponse<GetEmployeesResponseType>) =>
-					response.data.data
+			axiosInstance(EMPLOYEES_URL + `?limit=${limit}&offset=${offset}&search=${search}`).then(
+				(response: AxiosResponse<GetEmployeesResponseType>) => response.data.data
 			),
 		{
 			onError(err) {
@@ -55,8 +48,7 @@ export function useGetEmployeesQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get employees.',
+						message: error?.message || 'An error occurred. Unable to get employees.',
 					});
 			},
 			...options,
@@ -72,13 +64,7 @@ export function useGetEmployeeQuery(
 		onError,
 	}: {
 		id?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		enabled?: boolean;
@@ -92,18 +78,14 @@ export function useGetEmployeeQuery(
 		() =>
 			axiosInstance
 				.get(EMPLOYEE_URL(id || ''))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<EmployeeType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<EmployeeType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get employees.',
+						message: error?.message || 'An error occurred. Unable to get employees.',
 					});
 			},
 			enabled: !!id,
@@ -136,10 +118,7 @@ export function useCreateEmployeeMutation(
 		(data: FormData) =>
 			axiosInstance
 				.post(EMPLOYEES_URL, data)
-				.then(
-					(response: AxiosResponse<CreateEmployeeResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateEmployeeResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.EMPLOYEES]);
@@ -149,8 +128,7 @@ export function useCreateEmployeeMutation(
 			async onError(err) {
 				if (options?.onError) {
 					if (options?.onError) {
-						const error =
-							handleAxiosErrors<CreateEmployeeErrorResponseType>(err);
+						const error = handleAxiosErrors<CreateEmployeeErrorResponseType>(err);
 						if (error) options.onError(error);
 					}
 				}
@@ -172,7 +150,7 @@ export function useDeleteEmployeeMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -183,7 +161,7 @@ export function useDeleteEmployeeMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(EMPLOYEE_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.EMPLOYEES]);
@@ -193,8 +171,7 @@ export function useDeleteEmployeeMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete employee',
+						message: error?.message || 'An error occurred. Unable to delete employee',
 					});
 				}
 			},
@@ -260,10 +237,7 @@ export function useEditEmployeeMutation(
 		(data: { id: string; form: FormData }) =>
 			axiosInstance
 				.put(EMPLOYEE_URL(data.id), data.form)
-				.then(
-					(response: AxiosResponse<CreateEmployeeResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateEmployeeResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.EMPLOYEES]);

@@ -4,12 +4,12 @@ import Link from 'next/link';
 import React from 'react';
 import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa';
 
-import { BaseResponseType } from '../../types';
+import type { ResponseType } from '../../types';
 import { downloadFile } from '../../utils';
 import { axiosFileInstance } from '../../utils/axios';
 
 type ImportFormProps = {
-	onSuccess: (data: BaseResponseType) => void;
+	onSuccess: (data: ResponseType) => void;
 	requirements: {
 		links?: {
 			href: string;
@@ -45,11 +45,9 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 					onSuccess(response.data);
 				})
 				.catch((err) => {
-					const error = err as AxiosError<BaseResponseType>;
-					let message =
-						'Sorry an error occurred, unable to send/complete this request.';
-					if (error.response && error.response.data.message)
-						message = error.response.data.message;
+					const error = err as AxiosError<ResponseType>;
+					let message = 'Sorry an error occurred, unable to send/complete this request.';
+					if (error.response && error.response.data.message) message = error.response.data.message;
 
 					setError(message);
 				})
@@ -74,48 +72,40 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 			)}
 			<div className="bg-yellow-200 border border-yellow-300 my-1 px-4 py-2 rounded-md">
 				<p className="text-gray-500 text-xs md:text-sm">
-					Please note that only a csv (.csv) file, excel (.xlsx) or zip (.zip)
-					file can be uploaded in the below format. The file must have the
-					required headers/keys at the start of the file.
+					Please note that only a csv (.csv) file, excel (.xlsx) or zip (.zip) file can be uploaded
+					in the below format. The file must have the required headers/keys at the start of the
+					file.
 				</p>
 			</div>
 			<div className="mt-4 mx-1">
 				<p className="text-gray-500 text-xs md:text-sm">
 					Below are the list of keywords needed in the file.
-					<br /> - The zip file must contain the data.csv and the
-					permissions.csv files.
+					<br /> - The zip file must contain the data.csv and the permissions.csv files.
 					<br /> - Required keys are starred red.
 				</p>
 				<ul className="bg-gray-200 divide-y divide-white divide-opacity-100 mt-4 px-3 py-1 rounded-md md:px-6">
-					{requirements.map(
-						({ links, required = true, title, value }, index) => (
-							<li key={index} className="py-3">
-								<div className="flex flex-wrap items-center">
-									<span className="mr-1 text-gray-600 text-xs md:text-sm">
-										{index + 1}.
-									</span>
-									<p className="text-gray-600 text-xs md:text-sm">
-										{title}
-										{required && (
-											<sup className="text-red-500 text-base">*</sup>
-										)}
-										:
-									</p>
-									<p className="bg-primary-500 mx-2 mt-1 rounded px-2 py-1 text-white text-xs tracking-wider sm:my-0">
-										e.g. {value}
-									</p>
-									{links &&
-										links.map(({ href, title }, index) => (
-											<Link href={href} key={index}>
-												<span className="cursor-pointer text-red-500 text-xs hover:underline md:text-sm">
-													{title}
-												</span>
-											</Link>
-										))}
-								</div>
-							</li>
-						)
-					)}
+					{requirements.map(({ links, required = true, title, value }, index) => (
+						<li key={index} className="py-3">
+							<div className="flex flex-wrap items-center">
+								<span className="mr-1 text-gray-600 text-xs md:text-sm">{index + 1}.</span>
+								<p className="text-gray-600 text-xs md:text-sm">
+									{title}
+									{required && <sup className="text-red-500 text-base">*</sup>}:
+								</p>
+								<p className="bg-primary-500 mx-2 mt-1 rounded px-2 py-1 text-white text-xs tracking-wider sm:my-0">
+									e.g. {value}
+								</p>
+								{links &&
+									links.map(({ href, title }, index) => (
+										<Link href={href} key={index}>
+											<span className="cursor-pointer text-red-500 text-xs hover:underline md:text-sm">
+												{title}
+											</span>
+										</Link>
+									))}
+							</div>
+						</li>
+					))}
 				</ul>
 			</div>
 			<form
@@ -123,8 +113,7 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 				onSubmit={(e) => {
 					e.preventDefault();
 					if (ref.current) {
-						if (!ref.current.data.files[0])
-							setError('Import file is required!');
+						if (!ref.current.data.files[0]) setError('Import file is required!');
 						else handleSubmit(ref.current.data.files[0]);
 					}
 				}}
@@ -148,9 +137,7 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 				</div>
 				{sample && (
 					<>
-						<p className="mt-4 text-base text-center text-gray-500 uppercase md:text-lg">
-							or
-						</p>
+						<p className="mt-4 text-base text-center text-gray-500 uppercase md:text-lg">or</p>
 						<div className="flex items-center justify-center">
 							<div>
 								<Button
@@ -163,19 +150,14 @@ function ImportForm({ onSuccess, requirements, sample, url }: ImportFormProps) {
 											name: sample.title,
 											setLoading: setDownloadLoading,
 										}).catch((error) => {
-											const message =
-												(error as any)?.data || (error as any)?.message;
+											const message = (error as any)?.data || (error as any)?.message;
 											setError(message);
 										});
 									}}
 									margin="lg:mr-6"
 									padding="px-3 py-2 md:px-6"
 									rounded="rounded-md"
-									title={
-										downloadLoading
-											? 'Downloading...'
-											: 'Download sample format.zip'
-									}
+									title={downloadLoading ? 'Downloading...' : 'Download sample format.zip'}
 								/>
 							</div>
 						</div>

@@ -12,7 +12,7 @@ import {
 	LEAVE_ADMIN_URL,
 } from '../../config';
 import {
-	BaseResponseType,
+	ResponseType,
 	GetLeavesResponseType,
 	CreateLeaveQueryType,
 	CreateLeaveErrorResponseType,
@@ -44,18 +44,14 @@ export function useGetLeaveQuery(
 		() =>
 			axiosInstance
 				.get(admin ? LEAVE_ADMIN_URL(id) : LEAVE_URL(id))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<LeaveType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get leave.',
+						message: error?.message || 'An error occurred. Unable to get leave.',
 					});
 			},
 			...options,
@@ -96,9 +92,7 @@ export function useGetLeavesQuery(
 			}
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetLeavesResponseType>) => response.data.data
-				);
+				.then((response: AxiosResponse<GetLeavesResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -106,8 +100,7 @@ export function useGetLeavesQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get leaves.',
+						message: error?.message || 'An error occurred. Unable to get leaves.',
 					});
 			},
 			...options,
@@ -139,10 +132,7 @@ export function useRequestLeaveMutation(
 		(data: CreateLeaveQueryType) =>
 			axiosInstance
 				.post(LEAVES_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<LeaveType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.LEAVES]);
@@ -154,8 +144,7 @@ export function useRequestLeaveMutation(
 					const error = handleAxiosErrors<CreateLeaveErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message || 'An error occurred. Unable to request leave!',
+						message: error?.message || 'An error occurred. Unable to request leave!',
 					});
 				}
 			},
@@ -188,14 +177,8 @@ export function useRequestLeaveUpdateMutation(
 	const mutation = useMutation(
 		(query: { id: string; admin?: boolean; data: CreateLeaveQueryType }) =>
 			axiosInstance
-				.put(
-					query.admin ? LEAVE_ADMIN_URL(query.id) : LEAVE_URL(query.id),
-					query.data
-				)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
-						response.data.data
-				),
+				.put(query.admin ? LEAVE_ADMIN_URL(query.id) : LEAVE_URL(query.id), query.data)
+				.then((response: AxiosResponse<SuccessResponseType<LeaveType>>) => response.data.data),
 		{
 			async onSuccess(data, variables) {
 				if (!variables.admin) queryClient.invalidateQueries([tags.LEAVES]);
@@ -210,9 +193,7 @@ export function useRequestLeaveUpdateMutation(
 					const error = handleAxiosErrors<CreateLeaveErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message ||
-							'An error occurred. Unable to request leave update!',
+						message: error?.message || 'An error occurred. Unable to request leave update!',
 					});
 				}
 			},
@@ -245,7 +226,7 @@ export function useDeleteLeaveMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(options?.admin ? LEAVE_ADMIN_URL(id) : LEAVE_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.LEAVES]);
@@ -257,8 +238,7 @@ export function useDeleteLeaveMutation(
 					const error = handleAxiosErrors<CreateLeaveErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message || 'An error occurred. Unable to delete leave!',
+						message: error?.message || 'An error occurred. Unable to delete leave!',
 					});
 				}
 			},
@@ -335,9 +315,7 @@ export function useGetLeavesAdminQuery(
 			}
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetLeavesResponseType>) => response.data.data
-				);
+				.then((response: AxiosResponse<GetLeavesResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -345,8 +323,7 @@ export function useGetLeavesAdminQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get leaves.',
+						message: error?.message || 'An error occurred. Unable to get leaves.',
 					});
 			},
 			...options,
@@ -378,10 +355,7 @@ export function useCreateLeaveMutation(
 		(data: CreateLeaveQueryType) =>
 			axiosInstance
 				.post(LEAVES_ADMIN_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<LeaveType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<LeaveType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
@@ -393,8 +367,7 @@ export function useCreateLeaveMutation(
 					const error = handleAxiosErrors<CreateLeaveErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message || 'An error occurred. Unable to create leave!',
+						message: error?.message || 'An error occurred. Unable to create leave!',
 					});
 				}
 			},
@@ -425,7 +398,7 @@ export function useApproveLeaveMutation(
 		(query: { id: string; approval: 'APPROVED' | 'DENIED' }) =>
 			axiosInstance
 				.post(LEAVE_ADMIN_URL(query.id), { approval: query.approval })
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.LEAVES_ADMIN]);
@@ -441,9 +414,7 @@ export function useApproveLeaveMutation(
 				const error = handleAxiosErrors(err);
 				if (options?.onError) {
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to approve/denied leave!',
+						message: error?.message || 'An error occurred. Unable to approve/denied leave!',
 					});
 				}
 				if (options?.onRequestComplete) {

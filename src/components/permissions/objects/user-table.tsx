@@ -1,25 +1,12 @@
-import { PermissionModelChoices } from '@prisma/client';
-import {
-	Button,
-	Input,
-	Table,
-	TableHeadType,
-	TableRowType,
-} from 'kite-react-tailwind';
+import { Button, Input, Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaPen,
-	FaTimesCircle,
-	FaTrash,
-	FaUserEdit,
-} from 'react-icons/fa';
+import { FaCheckCircle, FaPen, FaTimesCircle, FaTrash, FaUserEdit } from 'react-icons/fa';
 
 import { TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
-import { ObjPermUser } from '../../../types';
+import type { PermissionModelChoices, ObjPermUser } from '../../../types';
 import { toCapitalize } from '../../../utils';
 
 const heads: TableHeadType = [
@@ -43,27 +30,21 @@ const getRows = (
 			{ value: user.email },
 			{
 				options: {
-					className: `${
-						user.view ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${user.view ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: user.view ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
-					className: `${
-						user.edit ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${user.edit ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: user.edit ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
-					className: `${
-						user.delete ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${user.delete ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: user.delete ? FaCheckCircle : FaTimesCircle,
@@ -181,8 +162,7 @@ const UserPermissionsTable = ({
 		const searchInput = search.trim().toLowerCase();
 		if (searchInput.length >= 0) {
 			values = users.filter((user) => {
-				const userSearchVariable =
-					`${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
+				const userSearchVariable = `${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
 				if (userSearchVariable.includes(searchInput)) return user;
 			});
 			values = values.sort((a, b) => {

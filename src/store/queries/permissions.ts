@@ -1,7 +1,3 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import React from 'react';
@@ -16,7 +12,9 @@ import {
 	USER_OBJECT_PERMISSIONS_URL,
 } from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
-import {
+import type {
+	PermissionModelChoices,
+	PermissionObjectChoices,
 	CreateGroupQueryType,
 	CreateGroupErrorResponseType,
 	GroupType,
@@ -25,7 +23,7 @@ import {
 	GetObjectPermissionsResponseType,
 	CreateGroupResponseType,
 	SuccessResponseType,
-	BaseResponseType,
+	ResponseType,
 } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
@@ -126,25 +124,13 @@ export function useGetObjectPermissionsQuery(
 	}
 ) {
 	const query = useQuery(
-		[
-			tags.PERMISSIONS_OBJECT,
-			{ modelName, objectId, permission, groups, users },
-		],
+		[tags.PERMISSIONS_OBJECT, { modelName, objectId, permission, groups, users }],
 		async () => {
-			const url = OBJECT_PERMISSIONS_URL(
-				modelName,
-				objectId,
-				permission,
-				groups,
-				users
-			);
+			const url = OBJECT_PERMISSIONS_URL(modelName, objectId, permission, groups, users);
 
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetObjectPermissionsResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetObjectPermissionsResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -153,8 +139,7 @@ export function useGetObjectPermissionsQuery(
 					onError({
 						status: error?.status || 500,
 						message:
-							error?.message ||
-							'An error occurred. Unable to getting this record permissions.',
+							error?.message || 'An error occurred. Unable to getting this record permissions.',
 					});
 			},
 			...options,
@@ -184,7 +169,7 @@ export function useEditObjectPermissionMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryAsset = useQueryClient();
@@ -234,22 +219,18 @@ export function useEditObjectPermissionMutation(
 			}[]
 		) => {
 			const input = data.map(async (info) => {
-				const url = OBJECT_PERMISSIONS_URL(
-					object.model,
-					object.id,
-					info.permission
-				);
+				const url = OBJECT_PERMISSIONS_URL(object.model, object.id, info.permission);
 
 				return axiosInstance({
 					url,
 					method: info.method,
 					data: info.form,
 				});
-				// .then((response: AxiosResponse<BaseResponseType>) => response.data);
+				// .then((response: AxiosResponse<ResponseType>) => response.data);
 			});
 
 			return Promise.all(input).then(
-				(responses: AxiosResponse<BaseResponseType>[]) => responses[0].data
+				(responses: AxiosResponse<ResponseType>[]) => responses[0].data
 			);
 		},
 		{
@@ -297,9 +278,7 @@ export function useGetPermissionsQuery(
 	const query = useQuery(
 		[tags.PERMISSIONS, { limit, offset, search, date }],
 		async () => {
-			let url = `${PERMISSIONS_URL}?limit=${limit || ''}&offset=${
-				offset || ''
-			}&search=${search}`;
+			let url = `${PERMISSIONS_URL}?limit=${limit || ''}&offset=${offset || ''}&search=${search}`;
 
 			if (date) {
 				url += `&from=${date.start}&to=${date.end}`;
@@ -307,10 +286,7 @@ export function useGetPermissionsQuery(
 
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetPermissionsResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetPermissionsResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -318,8 +294,7 @@ export function useGetPermissionsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get permissions.',
+						message: error?.message || 'An error occurred. Unable to get permissions.',
 					});
 			},
 			...options,
@@ -364,9 +339,7 @@ export function useGetGroupsQuery(
 	const query = useQuery(
 		[tags.GROUPS, { limit, offset, search, date, users }],
 		async () => {
-			let url = `${GROUPS_URL}?limit=${limit}&offset=${offset}&search=${
-				search || ''
-			}`;
+			let url = `${GROUPS_URL}?limit=${limit}&offset=${offset}&search=${search || ''}`;
 
 			if (date) {
 				url += `&from=${date.start}&to=${date.end}`;
@@ -382,9 +355,7 @@ export function useGetGroupsQuery(
 
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetGroupsResponseType>) => response.data.data
-				);
+				.then((response: AxiosResponse<GetGroupsResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -392,8 +363,7 @@ export function useGetGroupsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get groups.',
+						message: error?.message || 'An error occurred. Unable to get groups.',
 					});
 			},
 			...options,
@@ -416,13 +386,7 @@ export function useGetGroupQuery(
 			search?: string;
 			date?: { start: Date; end: Date };
 		};
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		enabled?: boolean;
@@ -437,9 +401,9 @@ export function useGetGroupQuery(
 			let url = GROUP_URL(id || '');
 
 			if (users) {
-				url += `?userLimit=${users?.limit}&userOffset=${
-					users?.offset
-				}&userSearch=${users?.search || ''}`;
+				url += `?userLimit=${users?.limit}&userOffset=${users?.offset}&userSearch=${
+					users?.search || ''
+				}`;
 
 				if (users.date) {
 					url += `&userFom=${users.date.start}&userTo=${users.date.end}`;
@@ -448,10 +412,7 @@ export function useGetGroupQuery(
 
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<GroupType>>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<SuccessResponseType<GroupType>>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -459,8 +420,7 @@ export function useGetGroupQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get group.',
+						message: error?.message || 'An error occurred. Unable to get group.',
 					});
 			},
 			enabled: !!id,
@@ -493,10 +453,7 @@ export function useCreateGroupMutation(
 		(data: CreateGroupQueryType) =>
 			axiosInstance
 				.post(GROUPS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateGroupResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateGroupResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryAsset.invalidateQueries([tags.GROUPS]);
@@ -526,7 +483,7 @@ export function useDeleteGroupMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -537,7 +494,7 @@ export function useDeleteGroupMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(GROUP_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryAsset.invalidateQueries([tags.GROUPS]);
@@ -547,8 +504,7 @@ export function useDeleteGroupMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to remove group',
+						message: error?.message || 'An error occurred. Unable to remove group',
 					});
 				}
 			},
@@ -614,10 +570,7 @@ export function useEditGroupMutation(
 		(data: { id: string; form: CreateGroupQueryType }) =>
 			axiosInstance
 				.put(GROUP_URL(data.id), data.form)
-				.then(
-					(response: AxiosResponse<CreateGroupResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateGroupResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryAsset.invalidateQueries([tags.GROUPS]);

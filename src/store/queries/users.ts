@@ -14,7 +14,7 @@ import {
 } from '../../config';
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
-	BaseResponseType,
+	ResponseType,
 	CreateUserErrorResponseType,
 	CreateUserResponseType,
 	GetUsersResponseType,
@@ -38,15 +38,11 @@ export function useActivateUserMutation(
 	queryOptions?: {
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: showAlert } = useAlertContext();
-	const {
-		open: openModal,
-		close: closeModal,
-		showLoader,
-	} = useAlertModalContext();
+	const { open: openModal, close: closeModal, showLoader } = useAlertModalContext();
 
 	const queryClient = useQueryClient();
 
@@ -54,7 +50,7 @@ export function useActivateUserMutation(
 		(data: { action: 'activate' | 'deactivate'; emails: string[] }) =>
 			axiosInstance
 				.post(ACTIVATE_USER_URL, data)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries({
@@ -74,8 +70,7 @@ export function useActivateUserMutation(
 					if (error) {
 						options.onError({
 							status: error.status,
-							message:
-								error.data?.action || error.data?.emails || error.message,
+							message: error.data?.action || error.data?.emails || error.message,
 						});
 					}
 				}
@@ -151,7 +146,7 @@ export function useChangeUserPasswordMutation(
 		(data: { password1: string; password2: string }) =>
 			axiosInstance
 				.post(CHANGE_USER_PASSWORD_URL, data)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				if (options?.onSuccess) options.onSuccess();
@@ -196,9 +191,7 @@ export function useGetUsersQuery(
 	const query = useQuery(
 		[tags.USERS, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				USERS_URL + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
+			axiosInstance(USERS_URL + `?limit=${limit}&offset=${offset}&search=${search}`).then(
 				(response: AxiosResponse<GetUsersResponseType>) => response.data.data
 			),
 		{
@@ -207,8 +200,7 @@ export function useGetUsersQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get users.',
+						message: error?.message || 'An error occurred. Unable to get users.',
 					});
 			},
 			...options,
@@ -224,13 +216,7 @@ export function useGetUserQuery(
 		onError,
 	}: {
 		id?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		enabled?: boolean;
@@ -244,10 +230,7 @@ export function useGetUserQuery(
 		() =>
 			axiosInstance
 				.get(USER_URL(id || ''))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<UserType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<UserType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
@@ -287,10 +270,7 @@ export function useCreateUserMutation(
 		(data: FormData) =>
 			axiosInstance
 				.post(USERS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateUserResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateUserResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.USERS]);
@@ -322,7 +302,7 @@ export function useDeleteUserMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -333,7 +313,7 @@ export function useDeleteUserMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(USER_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.USERS]);
@@ -343,8 +323,7 @@ export function useDeleteUserMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete user',
+						message: error?.message || 'An error occurred. Unable to delete user',
 					});
 				}
 			},
@@ -410,10 +389,7 @@ export function useEditUserMutation(
 		(data: { id: string; form: FormData }) =>
 			axiosInstance
 				.put(USER_URL(data.id), data.form)
-				.then(
-					(response: AxiosResponse<CreateUserResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateUserResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.USERS]);
@@ -466,8 +442,7 @@ export function useGetUserPermissionsQuery(
 		[tags.USER_PERMISSIONS, { id, limit, offset, search }],
 		() =>
 			axiosInstance(
-				USER_PERMISSIONS_URL(id) +
-					`?limit=${limit}&offset=${offset}&search=${search}`
+				USER_PERMISSIONS_URL(id) + `?limit=${limit}&offset=${offset}&search=${search}`
 			).then(
 				(
 					response: AxiosResponse<
@@ -484,9 +459,7 @@ export function useGetUserPermissionsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get user permissions.',
+						message: error?.message || 'An error occurred. Unable to get user permissions.',
 					});
 			},
 			...options,
@@ -511,7 +484,7 @@ export function useEditUserPermissionsMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryClient = useQueryClient();
@@ -525,7 +498,7 @@ export function useEditUserPermissionsMutation(
 		}) =>
 			axiosInstance
 				.put(USER_PERMISSIONS_URL(data.id), data.form)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.USER_PERMISSIONS]);
@@ -579,10 +552,7 @@ export function useGetUserGroupsQuery(
 	const query = useQuery(
 		[tags.USER_GROUPS, { id, limit, offset, search }],
 		() =>
-			axiosInstance(
-				USER_GROUPS_URL(id) +
-					`?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
+			axiosInstance(USER_GROUPS_URL(id) + `?limit=${limit}&offset=${offset}&search=${search}`).then(
 				(
 					response: AxiosResponse<
 						SuccessResponseType<{
@@ -598,8 +568,7 @@ export function useGetUserGroupsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get user groups.',
+						message: error?.message || 'An error occurred. Unable to get user groups.',
 					});
 			},
 			...options,
@@ -624,7 +593,7 @@ export function useEditUserGroupsMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryClient = useQueryClient();
@@ -638,7 +607,7 @@ export function useEditUserGroupsMutation(
 		}) =>
 			axiosInstance
 				.put(USER_GROUPS_URL(data.id), data.form)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.USER_GROUPS]);

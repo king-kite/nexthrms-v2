@@ -3,14 +3,10 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import * as tags from '../tagTypes';
-import {
-	MANAGED_FILES_URL,
-	MANAGED_FILE_URL,
-	DEFAULT_PAGINATION_SIZE,
-} from '../../config';
+import { MANAGED_FILES_URL, MANAGED_FILE_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertContext, useAlertModalContext } from '../../store/contexts';
 import {
-	BaseResponseType,
+	ResponseType,
 	CreateManagedFileErrorType,
 	GetManagedFilesResponseType,
 	ManagedFileType,
@@ -45,15 +41,11 @@ export function useGetManagedFilesQuery(
 	const query = useQuery(
 		[tags.MANAGED_FILES, { limit, offset, search, from, to }],
 		async () => {
-			let url =
-				MANAGED_FILES_URL + `?limit=${limit}&offset=${offset}&search=${search}`;
+			let url = MANAGED_FILES_URL + `?limit=${limit}&offset=${offset}&search=${search}`;
 			if (from && to) url += `&from=${from}&to=${to}`;
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetManagedFilesResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetManagedFilesResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -61,8 +53,7 @@ export function useGetManagedFilesQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get files.',
+						message: error?.message || 'An error occurred. Unable to get files.',
 					});
 			},
 			...options,
@@ -95,8 +86,7 @@ export function useCreateManagedFileMutation(
 			axiosInstance
 				.post(MANAGED_FILES_URL, data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) => response.data.data
 				),
 		{
 			async onSuccess() {
@@ -129,7 +119,7 @@ export function useDeleteManagedFileMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -142,7 +132,7 @@ export function useDeleteManagedFileMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(MANAGED_FILE_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.MANAGED_FILES]);
@@ -158,14 +148,12 @@ export function useDeleteManagedFileMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete file.',
+						message: error?.message || 'An error occurred. Unable to delete file.',
 					});
 				} else {
 					const error = handleAxiosErrors(err);
 					open({
-						message:
-							error?.message || 'An error occurred. Unable to delete file.',
+						message: error?.message || 'An error occurred. Unable to delete file.',
 						type: 'danger',
 					});
 				}
@@ -220,7 +208,7 @@ export function useDeleteMultipleManagedFileMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -235,7 +223,7 @@ export function useDeleteMultipleManagedFileMutation(
 				url: MANAGED_FILES_URL,
 				method: 'DELETE',
 				data,
-			}).then((response: AxiosResponse<BaseResponseType>) => response.data),
+			}).then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.MANAGED_FILES]);
@@ -283,9 +271,7 @@ export function useDeleteMultipleManagedFileMutation(
 				closeOnButtonClick: false,
 				header: data.files ? 'Delete Files?' : 'Delete Folder?',
 				color: 'danger',
-				message: `Do you want to delete ${
-					data.folder ? 'this folder' : 'these files'
-				}?`,
+				message: `Do you want to delete ${data.folder ? 'this folder' : 'these files'}?`,
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -331,8 +317,7 @@ export function useEditManagedFileMutation(
 			axiosInstance
 				.put(MANAGED_FILE_URL(params.id), params.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ManagedFileType>>) => response.data.data
 				),
 		{
 			async onSuccess(data) {
@@ -344,8 +329,7 @@ export function useEditManagedFileMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to edit file.',
+						message: error?.message || 'An error occurred. Unable to edit file.',
 					});
 				}
 			},

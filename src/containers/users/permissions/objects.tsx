@@ -1,4 +1,3 @@
-import { PermissionModelChoices } from '@prisma/client';
 import { TabNavigator } from 'kite-react-tailwind';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -7,22 +6,18 @@ import React from 'react';
 import Container from '../../../components/common/container';
 import Users from '../../../components/permissions/objects/users';
 import { useGetObjectPermissionsQuery } from '../../../store/queries/permissions';
-import {
+import type {
+	PermissionModelChoices,
 	ObjPermGroupType,
 	ObjPermUser,
 	GetObjectPermissionsResponseType,
 } from '../../../types';
 
 const DynamicGroups = dynamic<any>(
-	() =>
-		import('../../../components/permissions/objects/groups').then(
-			(mod) => mod.default
-		),
+	() => import('../../../components/permissions/objects/groups').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Groups...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Groups...</p>
 		),
 		ssr: false,
 	}
@@ -134,23 +129,13 @@ function ObjectPermissions({
 			<TabNavigator
 				screens={[
 					{
-						component: (
-							<Users modelName={modelName} objectId={objectId} users={users} />
-						),
-						description:
-							'This screen shows the users with access to this record',
+						component: <Users modelName={modelName} objectId={objectId} users={users} />,
+						description: 'This screen shows the users with access to this record',
 						title: 'Users',
 					},
 					{
-						component: (
-							<DynamicGroups
-								groups={groups}
-								modelName={modelName}
-								objectId={objectId}
-							/>
-						),
-						description:
-							'This screen shows the groups with access to this record',
+						component: <DynamicGroups groups={groups} modelName={modelName} objectId={objectId} />,
+						description: 'This screen shows the groups with access to this record',
 						title: 'Groups',
 					},
 				]}

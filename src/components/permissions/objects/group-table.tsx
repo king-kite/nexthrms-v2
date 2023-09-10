@@ -1,26 +1,12 @@
-import { PermissionModelChoices } from '@prisma/client';
-
-import {
-	Button,
-	Input,
-	Table,
-	TableHeadType,
-	TableRowType,
-} from 'kite-react-tailwind';
+import { Button, Input, Table, TableHeadType, TableRowType } from 'kite-react-tailwind';
 import React from 'react';
-import {
-	FaCheckCircle,
-	FaPen,
-	FaTimesCircle,
-	FaTrash,
-	FaUserFriends,
-} from 'react-icons/fa';
+import { FaCheckCircle, FaPen, FaTimesCircle, FaTrash, FaUserFriends } from 'react-icons/fa';
 
 import { TablePagination } from '../../common';
 import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
-import { ObjPermGroupType } from '../../../types';
+import type { PermissionModelChoices, ObjPermGroupType } from '../../../types';
 
 const heads: TableHeadType = [
 	{ value: 'name' },
@@ -41,27 +27,21 @@ const getRows = (
 			{ value: group.name },
 			{
 				options: {
-					className: `${
-						group.view ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${group.view ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: group.view ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
-					className: `${
-						group.edit ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${group.edit ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: group.edit ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
-					className: `${
-						group.delete ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${group.delete ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: group.delete ? FaCheckCircle : FaTimesCircle,

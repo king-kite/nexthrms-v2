@@ -8,7 +8,7 @@ import { useAlertModalContext } from '../../store/contexts';
 import {
 	AssetCreateQueryType,
 	AssetType,
-	BaseResponseType,
+	ResponseType,
 	CreateAssetErrorResponseType,
 	CreateAssetResponseType,
 	GetAssetsResponseType,
@@ -48,9 +48,7 @@ export function useGetAssetsQuery(
 
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetAssetsResponseType>) => response.data.data
-				);
+				.then((response: AxiosResponse<GetAssetsResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -58,8 +56,7 @@ export function useGetAssetsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get assets.',
+						message: error?.message || 'An error occurred. Unable to get assets.',
 					});
 			},
 			...options,
@@ -91,10 +88,7 @@ export function useCreateAssetMutation(
 		(data: AssetCreateQueryType) =>
 			axiosInstance
 				.post(ASSETS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateAssetResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateAssetResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryAsset.invalidateQueries([tags.ASSETS]);
@@ -124,7 +118,7 @@ export function useDeleteAssetMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -135,7 +129,7 @@ export function useDeleteAssetMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(ASSET_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryAsset.invalidateQueries([tags.ASSETS]);
@@ -145,8 +139,7 @@ export function useDeleteAssetMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to remove asset',
+						message: error?.message || 'An error occurred. Unable to remove asset',
 					});
 				}
 			},
@@ -212,10 +205,7 @@ export function useEditAssetMutation(
 		(data: { id: string; form: AssetCreateQueryType }) =>
 			axiosInstance
 				.put(ASSET_URL(data.id), data.form)
-				.then(
-					(response: AxiosResponse<CreateAssetResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateAssetResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryAsset.invalidateQueries([tags.ASSETS]);

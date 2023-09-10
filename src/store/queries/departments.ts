@@ -2,13 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 
 import * as tags from '../tagTypes';
+import { DEPARTMENT_URL, DEPARTMENTS_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
-	DEPARTMENT_URL,
-	DEPARTMENTS_URL,
-	DEFAULT_PAGINATION_SIZE,
-} from '../../config';
-import {
-	BaseResponseType,
+	ResponseType,
 	CreateDepartmentResponseType,
 	GetDepartmentsResponseType,
 	DepartmentType,
@@ -39,11 +35,8 @@ export function useGetDepartmentsQuery(
 	const query = useQuery(
 		[tags.DEPARTMENTS, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				DEPARTMENTS_URL + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
-				(response: AxiosResponse<GetDepartmentsResponseType>) =>
-					response.data.data
+			axiosInstance(DEPARTMENTS_URL + `?limit=${limit}&offset=${offset}&search=${search}`).then(
+				(response: AxiosResponse<GetDepartmentsResponseType>) => response.data.data
 			),
 		{
 			onError(err) {
@@ -51,8 +44,7 @@ export function useGetDepartmentsQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get departments.',
+						message: error?.message || 'An error occurred. Unable to get departments.',
 					});
 			},
 			...options,
@@ -79,10 +71,7 @@ export function useCreateDepartmentMutation(
 		(data: { name: string; hod: string | null }) =>
 			axiosInstance
 				.post(DEPARTMENTS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateDepartmentResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateDepartmentResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.DEPARTMENTS]);
@@ -106,7 +95,7 @@ export function useDeleteDepartmentMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryClient = useQueryClient();
@@ -115,7 +104,7 @@ export function useDeleteDepartmentMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(DEPARTMENT_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.DEPARTMENTS]);
@@ -126,9 +115,7 @@ export function useDeleteDepartmentMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete department',
+						message: error?.message || 'An error occurred. Unable to delete department',
 					});
 				}
 			},
@@ -149,7 +136,7 @@ export function useDeleteDepartmentsMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryClient = useQueryClient();
@@ -160,7 +147,7 @@ export function useDeleteDepartmentsMutation(
 				url: DEPARTMENTS_URL,
 				method: 'DELETE',
 				data: { values: data },
-			}).then((response: AxiosResponse<BaseResponseType>) => response.data),
+			}).then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.DEPARTMENTS]);
@@ -171,9 +158,7 @@ export function useDeleteDepartmentsMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete department',
+						message: error?.message || 'An error occurred. Unable to delete department',
 					});
 				}
 			},
@@ -201,10 +186,7 @@ export function useEditDepartmentMutation(
 		(params: { id: string; data: { name: string; hod: string | null } }) =>
 			axiosInstance
 				.put(DEPARTMENT_URL(params.id), params.data)
-				.then(
-					(response: AxiosResponse<CreateDepartmentResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateDepartmentResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.DEPARTMENTS]);

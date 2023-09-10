@@ -1,15 +1,12 @@
 import {
 	PermissionModelChoices,
 	PermissionObjectChoices,
-} from '@prisma/client';
-
-import { SuccessResponseType, ValidatorErrorType } from './base';
+	SuccessResponseType,
+	ValidatorErrorType,
+} from './base';
 import { CreateGroupType, CreateUserType } from '../validators/users';
 
-export type {
-	CreatePermissionType,
-	CreatePermissionCategoryType,
-} from '../validators/users';
+export type { CreatePermissionType, CreatePermissionCategoryType } from '../validators/users';
 
 // Groups Types Start
 export type GroupUserType = {

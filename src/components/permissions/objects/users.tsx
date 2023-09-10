@@ -1,7 +1,3 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
 import React from 'react';
 
 import UserForm, { FormType } from './user-form';
@@ -9,7 +5,7 @@ import UserTable from './user-table';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
-import { ObjPermUser } from '../../../types';
+import type { PermissionModelChoices, PermissionObjectChoices, ObjPermUser } from '../../../types';
 
 function Users({
 	modelName,
@@ -55,12 +51,9 @@ function Users({
 	const handleSubmit = React.useCallback(
 		(form: FormType) => {
 			reset();
-			const canDelete =
-				form.permissions.find((item) => item.name === 'DELETE')?.value || false;
-			const canEdit =
-				form.permissions.find((item) => item.name === 'EDIT')?.value || false;
-			const canView =
-				form.permissions.find((item) => item.name === 'VIEW')?.value || false;
+			const canDelete = form.permissions.find((item) => item.name === 'DELETE')?.value || false;
+			const canEdit = form.permissions.find((item) => item.name === 'EDIT')?.value || false;
+			const canView = form.permissions.find((item) => item.name === 'VIEW')?.value || false;
 
 			if (!editMode && (canDelete || canEdit || canView)) {
 				// If not in edit mode this means that we want to connect the users
@@ -205,11 +198,7 @@ function Users({
 					modalVisible ? (
 						<UserForm
 							editMode={editMode}
-							error={
-								error
-									? (error as any).data?.users || (error as any).message
-									: undefined
-							}
+							error={error ? (error as any).data?.users || (error as any).message : undefined}
 							initUsers={initUsers}
 							initState={initState}
 							loading={isLoading}

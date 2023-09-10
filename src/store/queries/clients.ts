@@ -6,7 +6,7 @@ import * as tags from '../tagTypes';
 import { CLIENT_URL, CLIENTS_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
 import {
-	BaseResponseType,
+	ResponseType,
 	ClientType,
 	CreateClientErrorResponseType,
 	CreateClientResponseType,
@@ -23,13 +23,7 @@ export function useGetClientQuery(
 		onError,
 	}: {
 		id?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: ClientType) => void;
@@ -42,18 +36,14 @@ export function useGetClientQuery(
 		() =>
 			axiosInstance
 				.get(CLIENT_URL(id || ''))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ClientType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ClientType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get client.',
+						message: error?.message || 'An error occurred. Unable to get client.',
 					});
 			},
 			enabled: !!id,
@@ -87,18 +77,14 @@ export function useGetClientsQuery(
 		() =>
 			axiosInstance
 				.get(`${CLIENTS_URL}?limit=${limit}&offset=${offset}&search=${search}`)
-				.then(
-					(response: AxiosResponse<GetClientsResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetClientsResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get clients.',
+						message: error?.message || 'An error occurred. Unable to get clients.',
 					});
 			},
 			...options,
@@ -125,10 +111,7 @@ export function useCreateClientMutation(
 		(data: FormData) =>
 			axiosInstance
 				.post(CLIENTS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateClientResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateClientResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.CLIENTS]);
@@ -152,7 +135,7 @@ export function useDeleteClientMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -163,7 +146,7 @@ export function useDeleteClientMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(CLIENT_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.CLIENTS]);
@@ -173,8 +156,7 @@ export function useDeleteClientMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete client',
+						message: error?.message || 'An error occurred. Unable to delete client',
 					});
 				}
 			},
@@ -240,10 +222,7 @@ export function useEditClientMutation(
 		(data: { id: string; form: FormData }) =>
 			axiosInstance
 				.put(CLIENT_URL(data.id), data.form)
-				.then(
-					(response: AxiosResponse<CreateClientResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<CreateClientResponseType>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.CLIENTS]);

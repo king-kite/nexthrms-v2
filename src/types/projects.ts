@@ -1,7 +1,5 @@
-import { ProjectPriority } from '@prisma/client';
-
 import {
-	BaseResponseType,
+	ResponseType,
 	PaginatedResponseType,
 	SuccessResponseType,
 	ValidatorErrorType,
@@ -18,7 +16,7 @@ import type {
 
 export type ProjectType = {
 	id: string;
-	client?: {
+	client: {
 		id: string;
 		company: string;
 		position: string;
@@ -30,6 +28,7 @@ export type ProjectType = {
 			profile: {
 				image: {
 					id: string;
+					location: string;
 					url: string;
 				} | null;
 			};
@@ -42,32 +41,16 @@ export type ProjectType = {
 	endDate: Date | string;
 	initialCost: number;
 	rate: number;
-	priority: ProjectPriority;
+	priority: 'HIGH' | 'MEDIUM' | 'LOW';
 	team: ProjectTeamType[];
 	progress?: number; // In Decimal. Multiply by 100 to get percentage
 	createdAt: Date | string;
 	updatedAt: Date | string;
 };
 
-export type ProjectImportQueryType = {
-	id: string;
-	client_id?: string | null;
-	name: string;
-	description: string;
-	completed: boolean;
-	start_date: Date | string;
-	end_date: Date | string;
-	initial_cost: number;
-	rate: number;
-	priority: ProjectPriority;
-	created_at: Date | string;
-	updated_at: Date | string;
-};
-
 export type CreateProjectQueryType = ProjectCreateType;
 
-export type CreateProjectErrorResponseType =
-	ValidatorErrorType<CreateProjectQueryType>;
+export type CreateProjectErrorResponseType = ValidatorErrorType<CreateProjectQueryType>;
 
 export type GetProjectsResponseType = SuccessResponseType<{
 	result: ProjectType[];
@@ -90,6 +73,7 @@ export type ProjectTeamType = {
 			profile: {
 				image: {
 					id: string;
+					location: string;
 					url: string;
 				} | null;
 			};
@@ -103,22 +87,11 @@ export type ProjectTeamType = {
 	updatedAt: Date | string;
 };
 
-export type ProjectTeamImportQueryType = {
-	id?: string | null;
-	is_leader: boolean;
-	employee_id: string;
-	project_id: string;
-	created_at?: Date | string | null;
-	updated_at?: Date | string | null;
-};
-
-export type GetProjectTeamResponseType = PaginatedResponseType<
-	ProjectTeamType[]
->;
+export type GetProjectTeamResponseType = PaginatedResponseType<ProjectTeamType[]>;
 
 export type CreateProjectTeamQueryType = ProjectTeamCreateType;
 
-export type CreateProjectTeamResponseType = BaseResponseType;
+export type CreateProjectTeamResponseType = ResponseType;
 // ****** Project Team ******
 
 // ****** Project File ******
@@ -127,6 +100,7 @@ export type ProjectFileType = {
 	id: string;
 	file: {
 		id: string;
+		location: string;
 		name: string;
 		url: string;
 		size: number;
@@ -147,21 +121,6 @@ export type ProjectFileType = {
 	};
 	createdAt: Date | string;
 	updatedAt: Date | string;
-};
-
-export type ProjectFileImportQueryType = {
-	id?: string | null;
-	name: string;
-	file: string;
-	file_id: string | null;
-	size: number;
-	storage_info_keys?: string | null;
-	storage_info_values?: string | null;
-	type: string;
-	project_id: string;
-	uploaded_by?: string | null;
-	created_at?: Date | string | null;
-	updated_at?: Date | string | null;
 };
 
 export type CreateProjectFileQueryType = ProjectFileCreateType;
@@ -186,7 +145,7 @@ export type ProjectTaskType = {
 	description: string;
 	completed: boolean;
 	dueDate: Date | string;
-	priority: ProjectPriority;
+	priority: 'HIGH' | 'MEDIUM' | 'LOW';
 	followers: ProjectTaskFollowerType[];
 	project: {
 		id: string;
@@ -207,27 +166,6 @@ export type ProjectTaskFollowerType = {
 	updatedAt: Date | string;
 };
 
-export type ProjectTaskImportQueryType = {
-	project_id: string;
-	id?: string;
-	name: string;
-	description: string;
-	completed?: boolean;
-	priority: ProjectPriority;
-	due_date: Date | string;
-	created_at?: Date | string | null;
-	updated_at?: Date | string | null;
-};
-
-export type ProjectTaskFollowerImportQueryType = {
-	id?: string | null;
-	is_leader: boolean;
-	member_id: string;
-	task_id: string;
-	created_at?: Date | string | null;
-	updated_at?: Date | string | null;
-};
-
 export type GetProjectTasksResponseType = SuccessResponseType<{
 	total: number;
 	result: ProjectTaskType[];
@@ -241,11 +179,9 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 
 export type CreateProjectTaskQueryType = ProjectTaskCreateType;
 
-export type CreateProjectTaskErrorResponseType =
-	ValidatorErrorType<ProjectTaskCreateType> & {
-		message?: string;
-	};
+export type CreateProjectTaskErrorResponseType = ValidatorErrorType<ProjectTaskCreateType> & {
+	message?: string;
+};
 
-export type CreateProjectTaskFollowersQueryType =
-	ProjectTaskFollowersCreateType;
+export type CreateProjectTaskFollowersQueryType = ProjectTaskFollowersCreateType;
 // ****** Project Tasks ******

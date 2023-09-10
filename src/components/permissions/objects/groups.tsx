@@ -1,7 +1,3 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-} from '@prisma/client';
 import React from 'react';
 
 import GroupForm, { FormType } from './group-form';
@@ -9,7 +5,11 @@ import GroupTable from './group-table';
 import { Modal } from '../../common';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditObjectPermissionMutation } from '../../../store/queries/permissions';
-import { ObjPermGroupType } from '../../../types';
+import type {
+	PermissionModelChoices,
+	PermissionObjectChoices,
+	ObjPermGroupType,
+} from '../../../types';
 
 function Groups({
 	modelName,
@@ -55,12 +55,9 @@ function Groups({
 	const handleSubmit = React.useCallback(
 		(form: FormType) => {
 			reset();
-			const canDelete =
-				form.permissions.find((item) => item.name === 'DELETE')?.value || false;
-			const canEdit =
-				form.permissions.find((item) => item.name === 'EDIT')?.value || false;
-			const canView =
-				form.permissions.find((item) => item.name === 'VIEW')?.value || false;
+			const canDelete = form.permissions.find((item) => item.name === 'DELETE')?.value || false;
+			const canEdit = form.permissions.find((item) => item.name === 'EDIT')?.value || false;
+			const canView = form.permissions.find((item) => item.name === 'VIEW')?.value || false;
 
 			if (!editMode && (canDelete || canEdit || canView)) {
 				// If not in edit mode this means that we want to connect the groups
@@ -205,11 +202,7 @@ function Groups({
 					modalVisible ? (
 						<GroupForm
 							editMode={editMode}
-							error={
-								error
-									? (error as any).data?.groups || (error as any).message
-									: undefined
-							}
+							error={error ? (error as any).data?.groups || (error as any).message : undefined}
 							initGroups={initGroups}
 							initState={initState}
 							loading={isLoading}

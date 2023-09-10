@@ -3,12 +3,7 @@ import { AxiosResponse } from 'axios';
 
 import * as tags from '../tagTypes';
 import { JOB_URL, JOBS_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
-import {
-	BaseResponseType,
-	CreateJobResponseType,
-	GetJobsResponseType,
-	JobType,
-} from '../../types';
+import { ResponseType, CreateJobResponseType, GetJobsResponseType, JobType } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
 import { handleAxiosErrors } from '../../validators';
 
@@ -35,9 +30,7 @@ export function useGetJobsQuery(
 	const query = useQuery(
 		[tags.JOBS, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				JOBS_URL + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
+			axiosInstance(JOBS_URL + `?limit=${limit}&offset=${offset}&search=${search}`).then(
 				(response: AxiosResponse<GetJobsResponseType>) => response.data.data
 			),
 		{
@@ -65,7 +58,7 @@ export function useDeleteJobMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const queryClient = useQueryClient();
@@ -74,7 +67,7 @@ export function useDeleteJobMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(JOB_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.JOBS]);
@@ -85,8 +78,7 @@ export function useDeleteJobMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete job',
+						message: error?.message || 'An error occurred. Unable to delete job',
 					});
 				}
 			},
@@ -115,9 +107,7 @@ export function useCreateJobMutation(
 		(data: { name: string }) =>
 			axiosInstance
 				.post(JOBS_URL, data)
-				.then(
-					(response: AxiosResponse<CreateJobResponseType>) => response.data.data
-				),
+				.then((response: AxiosResponse<CreateJobResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.JOBS]);
@@ -149,9 +139,7 @@ export function useEditJobMutation(
 		(params: { id: string; data: { name: string } }) =>
 			axiosInstance
 				.put(JOB_URL(params.id), params.data)
-				.then(
-					(response: AxiosResponse<CreateJobResponseType>) => response.data.data
-				),
+				.then((response: AxiosResponse<CreateJobResponseType>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.JOBS]);

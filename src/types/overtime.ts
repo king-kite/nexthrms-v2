@@ -1,23 +1,43 @@
-import { LeaveStatus, OvertimeChoices } from '@prisma/client';
-
 import { ValidatorErrorType, SuccessResponseType } from './base';
 import { OvertimeCreateType } from '../validators/overtime';
 
-import type { OvertimeType } from '../db/queries/overtime';
-export type { OvertimeType } from '../db/queries/overtime';
+type OvertimeChoices = 'COMPULSORY' | 'HOLIDAY' | 'VOLUNTARY';
 
-export type OvertimeImportQueryType = {
-	id?: string;
-	employee: string; // employee email
-	type: OvertimeChoices;
-	date: string;
+type EmployeeType = {
+	id: string;
+	user: {
+		id: string;
+		firstName: string;
+		lastName: string;
+		email: string;
+		profile: {
+			image: {
+				id: string;
+				location: string;
+				url: string | null;
+			} | null;
+		} | null;
+	};
+	department: {
+		name: string;
+	} | null;
+	job: {
+		name: string;
+	} | null;
+};
+
+export type OvertimeType = {
+	id: string;
+	date: Date | string;
 	hours: number;
 	reason: string;
-	status: LeaveStatus;
-	created_by?: string;
-	approved_by?: string;
-	updated_at?: string;
-	created_at?: string;
+	type: OvertimeChoices;
+	status: 'APPROVED' | 'DENIED' | 'PENDING';
+	updatedAt: Date | string;
+	createdAt: Date | string;
+	employee: EmployeeType;
+	approvedBy: EmployeeType | null;
+	createdBy: EmployeeType | null;
 };
 
 export type GetAllOvertimeResponseType = SuccessResponseType<{
@@ -30,5 +50,4 @@ export type GetAllOvertimeResponseType = SuccessResponseType<{
 
 export type CreateOvertimeQueryType = OvertimeCreateType;
 
-export type CreateOvertimeErrorResponseType =
-	ValidatorErrorType<CreateOvertimeQueryType>;
+export type CreateOvertimeErrorResponseType = ValidatorErrorType<CreateOvertimeQueryType>;

@@ -5,13 +5,9 @@ import { FaExclamationCircle } from 'react-icons/fa';
 
 import { useAlertModalContext } from '../contexts';
 import * as tags from '../tagTypes';
+import { HOLIDAY_URL, HOLIDAYS_URL, DEFAULT_PAGINATION_SIZE } from '../../config';
 import {
-	HOLIDAY_URL,
-	HOLIDAYS_URL,
-	DEFAULT_PAGINATION_SIZE,
-} from '../../config';
-import {
-	BaseResponseType,
+	ResponseType,
 	GetHolidaysResponseType,
 	SuccessResponseType,
 	HolidayType,
@@ -41,9 +37,7 @@ export function useGetHolidaysQuery(
 	const query = useQuery(
 		[tags.HOLIDAYS, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				HOLIDAYS_URL + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
+			axiosInstance(HOLIDAYS_URL + `?limit=${limit}&offset=${offset}&search=${search}`).then(
 				(response: AxiosResponse<GetHolidaysResponseType>) => response.data.data
 			),
 		{
@@ -52,8 +46,7 @@ export function useGetHolidaysQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get holidays.',
+						message: error?.message || 'An error occurred. Unable to get holidays.',
 					});
 			},
 			...options,
@@ -72,7 +65,7 @@ export function useDeleteHolidayMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -83,7 +76,7 @@ export function useDeleteHolidayMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(HOLIDAY_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.HOLIDAYS]);
@@ -93,8 +86,7 @@ export function useDeleteHolidayMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete holiday',
+						message: error?.message || 'An error occurred. Unable to delete holiday',
 					});
 				}
 			},
@@ -144,7 +136,7 @@ export function useDeleteHolidaysMutation(
 		onError?: (error: { message: string }) => void;
 	},
 	queryOptions?: {
-		onSuccess?: (data: BaseResponseType) => void;
+		onSuccess?: (data: ResponseType) => void;
 		onError?: (err: unknown) => void;
 	}
 ) {
@@ -158,7 +150,7 @@ export function useDeleteHolidaysMutation(
 				url: HOLIDAYS_URL,
 				method: 'DELETE',
 				data,
-			}).then((response: AxiosResponse<BaseResponseType>) => response.data),
+			}).then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.HOLIDAYS]);
@@ -168,9 +160,7 @@ export function useDeleteHolidaysMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete departments',
+						message: error?.message || 'An error occurred. Unable to delete departments',
 					});
 				}
 			},
@@ -234,10 +224,7 @@ export function useCreateHolidayMutation(
 		(data: { name: string }) =>
 			axiosInstance
 				.post(HOLIDAYS_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<HolidayType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<HolidayType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.HOLIDAYS]);
@@ -269,10 +256,7 @@ export function useEditHolidayMutation(
 		(params: { id: string; data: { name: string } }) =>
 			axiosInstance
 				.put(HOLIDAY_URL(params.id), params.data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<HolidayType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<HolidayType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.HOLIDAYS]);

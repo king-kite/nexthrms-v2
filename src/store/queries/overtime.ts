@@ -12,7 +12,7 @@ import {
 	OVERTIME_ADMIN_DETAIL_URL,
 } from '../../config';
 import {
-	BaseResponseType,
+	ResponseType,
 	GetAllOvertimeResponseType,
 	CreateOvertimeQueryType,
 	CreateOvertimeErrorResponseType,
@@ -44,18 +44,14 @@ export function useGetOvertimeQuery(
 		() =>
 			axiosInstance
 				.get(admin ? OVERTIME_ADMIN_DETAIL_URL(id) : OVERTIME_DETAIL_URL(id))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<OvertimeType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get overtime.',
+						message: error?.message || 'An error occurred. Unable to get overtime.',
 					});
 			},
 			...options,
@@ -96,10 +92,7 @@ export function useGetAllOvertimeQuery(
 			}
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetAllOvertimeResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetAllOvertimeResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -107,9 +100,7 @@ export function useGetAllOvertimeQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get all overtime data.',
+						message: error?.message || 'An error occurred. Unable to get all overtime data.',
 					});
 			},
 			...options,
@@ -141,10 +132,7 @@ export function useRequestOvertimeMutation(
 		(data: CreateOvertimeQueryType) =>
 			axiosInstance
 				.post(OVERTIME_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<OvertimeType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.OVERTIME]);
@@ -156,9 +144,7 @@ export function useRequestOvertimeMutation(
 					const error = handleAxiosErrors<CreateOvertimeErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message ||
-							'An error occurred. Unable to request overtime!',
+						message: error?.message || 'An error occurred. Unable to request overtime!',
 					});
 				}
 			},
@@ -192,15 +178,10 @@ export function useRequestOvertimeUpdateMutation(
 		(query: { id: string; admin?: boolean; data: CreateOvertimeQueryType }) =>
 			axiosInstance
 				.put(
-					query.admin
-						? OVERTIME_ADMIN_DETAIL_URL(query.id)
-						: OVERTIME_DETAIL_URL(query.id),
+					query.admin ? OVERTIME_ADMIN_DETAIL_URL(query.id) : OVERTIME_DETAIL_URL(query.id),
 					query.data
 				)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<OvertimeType>>) => response.data.data),
 		{
 			async onSuccess(data, variables) {
 				if (!variables.admin) queryClient.invalidateQueries([tags.OVERTIME]);
@@ -213,9 +194,7 @@ export function useRequestOvertimeUpdateMutation(
 					const error = handleAxiosErrors<CreateOvertimeErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message ||
-							'An error occurred. Unable to request overtime update!',
+						message: error?.message || 'An error occurred. Unable to request overtime update!',
 					});
 				}
 			},
@@ -247,12 +226,8 @@ export function useDeleteOvertimeMutation(
 	const { mutate, ...mutation } = useMutation(
 		(id: string) =>
 			axiosInstance
-				.delete(
-					options?.admin
-						? OVERTIME_ADMIN_DETAIL_URL(id)
-						: OVERTIME_DETAIL_URL(id)
-				)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.delete(options?.admin ? OVERTIME_ADMIN_DETAIL_URL(id) : OVERTIME_DETAIL_URL(id))
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.OVERTIME]);
@@ -265,8 +240,7 @@ export function useDeleteOvertimeMutation(
 					const error = handleAxiosErrors<CreateOvertimeErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message || 'An error occurred. Unable to delete overtime!',
+						message: error?.message || 'An error occurred. Unable to delete overtime!',
 					});
 				}
 			},
@@ -343,10 +317,7 @@ export function useGetAllOvertimeAdminQuery(
 			}
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetAllOvertimeResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetAllOvertimeResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -354,9 +325,7 @@ export function useGetAllOvertimeAdminQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get all overtime data.',
+						message: error?.message || 'An error occurred. Unable to get all overtime data.',
 					});
 			},
 			...options,
@@ -388,10 +357,7 @@ export function useCreateOvertimeMutation(
 		(data: CreateOvertimeQueryType) =>
 			axiosInstance
 				.post(OVERTIME_ADMIN_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<OvertimeType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<OvertimeType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.OVERTIME_ADMIN]);
@@ -403,8 +369,7 @@ export function useCreateOvertimeMutation(
 					const error = handleAxiosErrors<CreateOvertimeErrorResponseType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message || 'An error occurred. Unable to create overtime!',
+						message: error?.message || 'An error occurred. Unable to create overtime!',
 					});
 				}
 			},
@@ -435,7 +400,7 @@ export function useApproveOvertimeMutation(
 		(query: { id: string; approval: 'APPROVED' | 'DENIED' }) =>
 			axiosInstance
 				.post(OVERTIME_ADMIN_DETAIL_URL(query.id), { approval: query.approval })
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.OVERTIME]);
@@ -452,9 +417,7 @@ export function useApproveOvertimeMutation(
 				const error = handleAxiosErrors(err);
 				if (options?.onError) {
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to approve/denied overtime!',
+						message: error?.message || 'An error occurred. Unable to approve/denied overtime!',
 					});
 				}
 				if (options?.onRequestComplete) {

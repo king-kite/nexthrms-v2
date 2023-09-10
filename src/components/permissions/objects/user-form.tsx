@@ -1,4 +1,3 @@
-import { PermissionObjectChoices } from '@prisma/client';
 import { Alert, Button, Checkbox, Input, Select2 } from 'kite-react-tailwind';
 import Image from 'next/image';
 import React from 'react';
@@ -6,7 +5,7 @@ import { FaTimes } from 'react-icons/fa';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useGetUsersQuery } from '../../../store/queries/users';
-import { ObjPermUser } from '../../../types';
+import type { PermissionObjectChoices, ObjPermUser } from '../../../types';
 import { handleAxiosErrors } from '../../../validators';
 
 export type FormType = {
@@ -61,16 +60,12 @@ function UserForm({
 	const [errorMessage, setErrorMessage] = React.useState(error);
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 	const [form, setForm] = React.useState(initState || defaultValue);
-	const [selectedUsers, setSelectedUsers] =
-		React.useState<ObjPermUser[]>(initUsers);
+	const [selectedUsers, setSelectedUsers] = React.useState<ObjPermUser[]>(initUsers);
 
 	const [search, setSearch] = React.useState('');
 	const [usrLimit, setUsrLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
-	const users = useGetUsersQuery(
-		{ limit: usrLimit, offset: 0, search },
-		{ enabled: !editMode }
-	);
+	const users = useGetUsersQuery({ limit: usrLimit, offset: 0, search }, { enabled: !editMode });
 
 	const usersError = handleDataError(users.error);
 
@@ -92,16 +87,10 @@ function UserForm({
 							btn={{
 								caps: true,
 								disabled:
-									users.isFetching ||
-									(users.data && users.data.result.length >= users.data.total),
+									users.isFetching || (users.data && users.data.result.length >= users.data.total),
 								onClick: () => {
-									if (
-										users.data &&
-										users.data.total > users.data.result.length
-									) {
-										setUsrLimit(
-											(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-										);
+									if (users.data && users.data.total > users.data.result.length) {
+										setUsrLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 									}
 								},
 								title: users.isFetching
@@ -129,24 +118,18 @@ function UserForm({
 							disabled={users.isFetching}
 							onSelect={({ value }) => {
 								// Check if the user with this value as id is selected
-								const selected = selectedUsers.find(
-									(item) => item.id === value
-								);
+								const selected = selectedUsers.find((item) => item.id === value);
 								if (selected) {
 									// Remove from selection
 									setForm((prevState) => ({
 										...prevState,
 										users: prevState.users.filter((item) => item !== value),
 									}));
-									setSelectedUsers((prevState) =>
-										prevState.filter((item) => item.id !== value)
-									);
+									setSelectedUsers((prevState) => prevState.filter((item) => item.id !== value));
 								} else {
 									// Add to selection
 									// First find the user to get more info
-									const user = users.data?.result.find(
-										(item) => item.id === value
-									);
+									const user = users.data?.result.find((item) => item.id === value);
 									if (user) {
 										setForm((prevState) => ({
 											...prevState,
@@ -174,10 +157,8 @@ function UserForm({
 								users.data
 									? users.data.result
 											.sort((a, b) => {
-												const aName: string =
-													`${a.firstName} ${a.lastName}`.toLowerCase();
-												const bName: string =
-													`${b.firstName} ${b.lastName}`.toLowerCase();
+												const aName: string = `${a.firstName} ${a.lastName}`.toLowerCase();
+												const bName: string = `${b.firstName} ${b.lastName}`.toLowerCase();
 												return aName < bName ? -1 : aName > bName ? 1 : 0;
 											})
 											.map((user) => ({
@@ -204,15 +185,11 @@ function UserForm({
 						permissions: form.permissions.map((permission) => ({
 							name: permission.name,
 							value: formRef.current
-								? formRef.current[permission.name.toLowerCase()].checked ||
-								  false
+								? formRef.current[permission.name.toLowerCase()].checked || false
 								: false,
 						})),
 					};
-					if (
-						!editMode &&
-						data.permissions.every((perm) => perm.value === false)
-					) {
+					if (!editMode && data.permissions.every((perm) => perm.value === false)) {
 						setErrorMessage('Please select at least one permission!');
 					} else if (data.users.length <= 0) {
 						setErrorMessage('Please select at leaset one user!');
@@ -224,9 +201,7 @@ function UserForm({
 						<div className="my-1 w-1/3">
 							<Checkbox
 								defaultChecked={
-									form.permissions.find(
-										(permission) => permission.name === 'VIEW'
-									)?.value || false
+									form.permissions.find((permission) => permission.name === 'VIEW')?.value || false
 								}
 								label="VIEW"
 								labelColor="text-gray-500"
@@ -239,9 +214,7 @@ function UserForm({
 						<div className="my-1 w-1/3">
 							<Checkbox
 								defaultChecked={
-									form.permissions.find(
-										(permission) => permission.name === 'EDIT'
-									)?.value || false
+									form.permissions.find((permission) => permission.name === 'EDIT')?.value || false
 								}
 								label="EDIT"
 								labelColor="text-gray-500"
@@ -254,9 +227,8 @@ function UserForm({
 						<div className="my-1 w-1/3">
 							<Checkbox
 								defaultChecked={
-									form.permissions.find(
-										(permission) => permission.name === 'DELETE'
-									)?.value || false
+									form.permissions.find((permission) => permission.name === 'DELETE')?.value ||
+									false
 								}
 								label="DELETE"
 								labelColor="text-gray-500"
@@ -274,10 +246,8 @@ function UserForm({
 					) : (
 						selectedUsers
 							.sort((a, b) => {
-								const aName: string =
-									`${a.firstName} ${a.lastName}`.toLowerCase();
-								const bName: string =
-									`${b.firstName} ${b.lastName}`.toLowerCase();
+								const aName: string = `${a.firstName} ${a.lastName}`.toLowerCase();
+								const bName: string = `${b.firstName} ${b.lastName}`.toLowerCase();
 								return aName < bName ? -1 : aName > bName ? 1 : 0;
 							})
 							.map((user, index) => (
@@ -304,9 +274,7 @@ function UserForm({
 						<Button
 							disabled={loading}
 							title={
-								loading
-									? 'Updating User Record Permissions...'
-									: 'Set User Record Permissions'
+								loading ? 'Updating User Record Permissions...' : 'Set User Record Permissions'
 							}
 							type="submit"
 						/>
@@ -342,9 +310,7 @@ function UserTag({
 			</div>
 			<div style={{ width: `calc(100% - 30px)` }}>
 				<div className="flex items-center justify-between py-1 w-full">
-					<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">
-						{name}
-					</h4>
+					<h4 className="capitalize font-bold text-base text-gray-800 w-full md:text-lg">{name}</h4>
 					<div
 						onClick={removeUser}
 						className="cursor-pointer duration-500 mx-4 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-white hover:scale-110 hover:text-gray-600 md:text-sm"
@@ -352,9 +318,7 @@ function UserTag({
 						<FaTimes className="text-xs sm:text-sm" />
 					</div>
 				</div>
-				<p className="font-medium pr-2 text-gray-700 text-sm md:text-base">
-					{email}
-				</p>
+				<p className="font-medium pr-2 text-gray-700 text-sm md:text-base">{email}</p>
 			</div>
 		</div>
 	);

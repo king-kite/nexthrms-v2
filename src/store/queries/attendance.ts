@@ -15,7 +15,7 @@ import {
 	AttendanceType,
 	AttendanceCreateType,
 	AttendanceCreateErrorType,
-	BaseResponseType,
+	ResponseType,
 	GetAttendanceResponseType,
 	GetAttendanceInfoResponseType,
 	SuccessResponseType,
@@ -45,19 +45,14 @@ export function useGetAttendanceQuery(
 		() =>
 			axiosInstance
 				.get(ATTENDANCE_URL + `?limit=${limit}&offset=${offset}`)
-				.then(
-					(response: AxiosResponse<GetAttendanceResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetAttendanceResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get attendance records.',
+						message: error?.message || 'An error occurred. Unable to get attendance records.',
 					});
 			},
 			...options,
@@ -87,19 +82,14 @@ export function useGetAttendanceInfoQuery(
 		() =>
 			axiosInstance
 				.get(ATTENDANCE_INFO_URL + (date ? `?date=${date}` : ''))
-				.then(
-					(response: AxiosResponse<GetAttendanceInfoResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetAttendanceInfoResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get attendance statistics.',
+						message: error?.message || 'An error occurred. Unable to get attendance statistics.',
 					});
 			},
 			...options,
@@ -130,10 +120,7 @@ export function usePunchAttendanceMutation(
 		(action: 'IN' | 'OUT') =>
 			axiosInstance
 				.post(ATTENDANCE_URL, { action })
-				.then(
-					(response: AxiosResponse<SuccessResponseType<AttendanceType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<AttendanceType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.ATTENDANCE_INFO]);
@@ -145,8 +132,7 @@ export function usePunchAttendanceMutation(
 					const error = handleAxiosErrors(err);
 					options.onError({
 						message:
-							error?.message ||
-							'An error occurred. Unable to update your attendance record.',
+							error?.message || 'An error occurred. Unable to update your attendance record.',
 					});
 				}
 			},
@@ -219,18 +205,13 @@ export function useGetAttendanceAdminQuery(
 	const query = useQuery(
 		[tags.ATTENDANCE_ADMIN, { limit, offset, search, date }],
 		async () => {
-			let url =
-				ATTENDANCE_ADMIN_URL +
-				`?limit=${limit}&offset=${offset}&search=${search}`;
+			let url = ATTENDANCE_ADMIN_URL + `?limit=${limit}&offset=${offset}&search=${search}`;
 			if (date) {
 				url += `&from=${date.from}&to=${date.to}`;
 			}
 			return axiosInstance
 				.get(url)
-				.then(
-					(response: AxiosResponse<GetAttendanceResponseType>) =>
-						response.data.data
-				);
+				.then((response: AxiosResponse<GetAttendanceResponseType>) => response.data.data);
 		},
 		{
 			onError(err) {
@@ -238,9 +219,7 @@ export function useGetAttendanceAdminQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get attendance records.',
+						message: error?.message || 'An error occurred. Unable to get attendance records.',
 					});
 			},
 			...options,
@@ -273,10 +252,7 @@ export function useCreateAttendanceMutation(
 		(data: AttendanceCreateType) =>
 			axiosInstance
 				.post(ATTENDANCE_ADMIN_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<AttendanceType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<AttendanceType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.ATTENDANCE_ADMIN]);
@@ -288,9 +264,7 @@ export function useCreateAttendanceMutation(
 					const error = handleAxiosErrors<AttendanceCreateErrorType>(err);
 					options.onError({
 						...error?.data,
-						message:
-							error?.message ||
-							'An error occurred. Unable to add attendance record!',
+						message: error?.message || 'An error occurred. Unable to add attendance record!',
 					});
 				}
 			},
@@ -322,7 +296,7 @@ export function useDeleteAttendanceMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(ATTENDANCE_ADMIN_SINGLE_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.ATTENDANCE_ADMIN]);
@@ -333,9 +307,7 @@ export function useDeleteAttendanceMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete attendance record!',
+						message: error?.message || 'An error occurred. Unable to delete attendance record!',
 					});
 				}
 			},
@@ -396,10 +368,7 @@ export function useEditAttendanceMutation(
 		(params: { id: string; data: AttendanceCreateType }) =>
 			axiosInstance
 				.put(ATTENDANCE_ADMIN_SINGLE_URL(params.id), params.data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<AttendanceType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<AttendanceType>>) => response.data.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.ATTENDANCE_ADMIN]);

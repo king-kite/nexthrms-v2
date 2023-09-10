@@ -1,5 +1,3 @@
-import { LeaveChoices, LeaveStatus } from '@prisma/client';
-
 import { ValidatorErrorType, SuccessResponseType } from './base';
 import { LeaveCreateType } from '../validators/leaves';
 
@@ -13,7 +11,8 @@ type EmployeeType = {
 		profile: {
 			image: {
 				id: string;
-				url: string;
+				location: string;
+				url: string | null;
 			} | null;
 		} | null;
 	};
@@ -30,34 +29,13 @@ export type LeaveType = {
 	startDate: Date | string;
 	endDate: Date | string;
 	reason: string;
-	type:
-		| 'ANNUAL'
-		| 'CASUAL'
-		| 'HOSPITALIZATION'
-		| 'LOP'
-		| 'MATERNITY'
-		| 'PATERNITY'
-		| 'SICK';
+	type: 'ANNUAL' | 'CASUAL' | 'HOSPITALIZATION' | 'LOP' | 'MATERNITY' | 'PATERNITY' | 'SICK';
 	status: 'APPROVED' | 'DENIED' | 'PENDING';
 	updatedAt: Date | string;
 	createdAt: Date | string;
 	employee: EmployeeType;
 	approvedBy: EmployeeType | null;
 	createdBy: EmployeeType | null;
-};
-
-export type LeaveImportQueryType = {
-	id?: string;
-	reason: string;
-	start_date: string;
-	end_date: string;
-	type: LeaveChoices;
-	status: LeaveStatus;
-	employee_id: string;
-	created_by?: string;
-	approved_by?: string;
-	created_at?: string;
-	updated_at?: string;
 };
 
 export type GetLeavesResponseType = SuccessResponseType<{
@@ -68,13 +46,9 @@ export type GetLeavesResponseType = SuccessResponseType<{
 	result: LeaveType[];
 }>;
 
-export type CreateLeaveQueryType = Omit<
-	LeaveCreateType,
-	'startDate' | 'endDate'
-> & {
+export type CreateLeaveQueryType = Omit<LeaveCreateType, 'startDate' | 'endDate'> & {
 	startDate: Date | string;
 	endDate: Date | string;
 };
 
-export type CreateLeaveErrorResponseType =
-	ValidatorErrorType<CreateLeaveQueryType>;
+export type CreateLeaveErrorResponseType = ValidatorErrorType<CreateLeaveQueryType>;

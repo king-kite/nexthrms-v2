@@ -18,7 +18,7 @@ import {
 	PROJECT_TEAM_MEMBER_URL,
 } from '../../config';
 import {
-	BaseResponseType,
+	ResponseType,
 	CreateProjectQueryType,
 	CreateProjectFileQueryType,
 	CreateProjectErrorResponseType,
@@ -49,13 +49,7 @@ export function useGetProjectQuery(
 		onError,
 	}: {
 		id?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: ProjectType) => void;
@@ -68,18 +62,14 @@ export function useGetProjectQuery(
 		() =>
 			axiosInstance
 				.get(PROJECT_URL(id || ''))
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ProjectType>>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get project.',
+						message: error?.message || 'An error occurred. Unable to get project.',
 					});
 			},
 			enabled: !!id,
@@ -113,18 +103,14 @@ export function useGetProjectsQuery(
 		() =>
 			axiosInstance
 				.get(`${PROJECTS_URL}?limit=${limit}&offset=${offset}&search=${search}`)
-				.then(
-					(response: AxiosResponse<GetProjectsResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetProjectsResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message || 'An error occurred. Unable to get projects.',
+						message: error?.message || 'An error occurred. Unable to get projects.',
 					});
 			},
 			...options,
@@ -137,9 +123,7 @@ export function useGetProjectsQuery(
 export function useCreateProjectMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -154,10 +138,7 @@ export function useCreateProjectMutation(
 		(data: CreateProjectQueryType) =>
 			axiosInstance
 				.post(PROJECTS_URL, data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ProjectType>>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECTS]);
@@ -184,9 +165,7 @@ export function useCreateProjectMutation(
 export function useEditProjectMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -201,10 +180,7 @@ export function useEditProjectMutation(
 		(form: { id: string; data: CreateProjectQueryType }) =>
 			axiosInstance
 				.put(PROJECT_URL(form.id), form.data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ProjectType>>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECTS]);
@@ -237,7 +213,7 @@ export function useDeleteProjectMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -248,7 +224,7 @@ export function useDeleteProjectMutation(
 		(id: string) =>
 			axiosInstance
 				.delete(PROJECT_URL(id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECTS]);
@@ -258,8 +234,7 @@ export function useDeleteProjectMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message || 'An error occurred. Unable to delete project.',
+						message: error?.message || 'An error occurred. Unable to delete project.',
 					});
 				}
 			},
@@ -306,9 +281,7 @@ export function useDeleteProjectMutation(
 export function useMarkProjectMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -325,10 +298,7 @@ export function useMarkProjectMutation(
 		(form: { id: string; data: CreateProjectQueryType }) =>
 			axiosInstance
 				.put(PROJECT_URL(form.id), form.data)
-				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectType>>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<SuccessResponseType<ProjectType>>) => response.data.data),
 		{
 			onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECTS]);
@@ -358,8 +328,7 @@ export function useMarkProjectMutation(
 				header: 'Mark ' + (!project.completed ? 'Completed?' : 'Ongoing?'),
 				color: project.completed ? 'warning' : 'success',
 				message:
-					'Do you want to mark this project as ' +
-					(!project.completed ? 'completed?' : 'ongoing?'),
+					'Do you want to mark this project as ' + (!project.completed ? 'completed?' : 'ongoing?'),
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -412,13 +381,7 @@ export function useGetProjectFilesQuery(
 		onError,
 	}: {
 		id: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: GetProjectFilesResponseType['data']) => void;
@@ -431,19 +394,14 @@ export function useGetProjectFilesQuery(
 		() =>
 			axiosInstance
 				.get(PROJECT_FILES_URL(id))
-				.then(
-					(response: AxiosResponse<GetProjectFilesResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetProjectFilesResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get project files.',
+						message: error?.message || 'An error occurred. Unable to get project files.',
 					});
 			},
 			enabled: !!id,
@@ -457,9 +415,7 @@ export function useGetProjectFilesQuery(
 export function useCreateProjectFileMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectFileErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectFileErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -488,8 +444,7 @@ export function useCreateProjectFileMutation(
 			},
 			onError(error) {
 				if (options?.onError) {
-					const err =
-						handleAxiosErrors<CreateProjectFileErrorResponseType>(error);
+					const err = handleAxiosErrors<CreateProjectFileErrorResponseType>(error);
 					options.onError({
 						...err?.data,
 						message: err?.message || (error as any)?.message,
@@ -513,7 +468,7 @@ export function useDeleteProjectFileMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -524,7 +479,7 @@ export function useDeleteProjectFileMutation(
 		(query: { projectId: string; id: string }) =>
 			axiosInstance
 				.delete(PROJECT_FILE_URL(query.projectId, query.id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess() {
 				queryClient.invalidateQueries([tags.PROJECT_FILES]);
@@ -534,9 +489,7 @@ export function useDeleteProjectFileMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete project file.',
+						message: error?.message || 'An error occurred. Unable to delete project file.',
 					});
 				}
 			},
@@ -596,13 +549,7 @@ export function useGetProjectTeamQuery(
 		limit?: number;
 		offset?: number;
 		search?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: GetProjectTeamResponseType['data']) => void;
@@ -614,24 +561,15 @@ export function useGetProjectTeamQuery(
 		[tags.PROJECT_TEAM, { id }],
 		() =>
 			axiosInstance
-				.get(
-					`${PROJECT_TEAM_URL(
-						id
-					)}?limit=${limit}&offset=${offset}&search=${search}`
-				)
-				.then(
-					(response: AxiosResponse<GetProjectTeamResponseType>) =>
-						response.data.data
-				),
+				.get(`${PROJECT_TEAM_URL(id)}?limit=${limit}&offset=${offset}&search=${search}`)
+				.then((response: AxiosResponse<GetProjectTeamResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get project team.',
+						message: error?.message || 'An error occurred. Unable to get project team.',
 					});
 			},
 			enabled: !!id,
@@ -651,9 +589,7 @@ export function useAppointProjectTeamLeaderMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (
-			response: SuccessResponseType<ProjectTeamType>['data']
-		) => void;
+		onSuccess?: (response: SuccessResponseType<ProjectTeamType>['data']) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -672,25 +608,19 @@ export function useAppointProjectTeamLeaderMutation(
 			axiosInstance
 				.put(PROJECT_TEAM_MEMBER_URL(query.projectId, query.id), query.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) => response.data.data
 				),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TEAM]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 				if (options?.onSuccess) options.onSuccess();
 			},
 			async onError(err) {
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to update team member.',
+						message: error?.message || 'An error occurred. Unable to update team member.',
 					});
 				}
 			},
@@ -716,15 +646,10 @@ export function useAppointProjectTeamLeaderMutation(
 		}) => {
 			openModal({
 				closeOnButtonClick: false,
-				header:
-					decision === 'appoint'
-						? 'Appoint Team Leader?'
-						: 'Re-Appoint Team Leader?',
+				header: decision === 'appoint' ? 'Appoint Team Leader?' : 'Re-Appoint Team Leader?',
 				color: 'danger',
 				message:
-					'Do you want to ' +
-					(decision === 'appoint' ? 'appoint' : 're-appoint') +
-					' team leader?',
+					'Do you want to ' + (decision === 'appoint' ? 'appoint' : 're-appoint') + ' team leader?',
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -760,7 +685,7 @@ export function useDeleteProjectTeamMemberMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -771,23 +696,18 @@ export function useDeleteProjectTeamMemberMutation(
 		(query: { projectId: string; id: string }) =>
 			axiosInstance
 				.delete(PROJECT_TEAM_MEMBER_URL(query.projectId, query.id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TEAM]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 				if (options?.onSuccess) options.onSuccess();
 			},
 			async onError(err) {
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to remove project team member.',
+						message: error?.message || 'An error occurred. Unable to remove project team member.',
 					});
 				}
 			},
@@ -847,13 +767,7 @@ export function useGetProjectTasksQuery(
 		limit?: number;
 		offset?: number;
 		search?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: GetProjectTasksResponseType['data']) => void;
@@ -865,24 +779,15 @@ export function useGetProjectTasksQuery(
 		[tags.PROJECT_TASKS, { id, limit, offset, search }],
 		() =>
 			axiosInstance
-				.get(
-					`${PROJECT_TASKS_URL(
-						id
-					)}?limit=${limit}&offset=${offset}&search=${search}`
-				)
-				.then(
-					(response: AxiosResponse<GetProjectTasksResponseType>) =>
-						response.data.data
-				),
+				.get(`${PROJECT_TASKS_URL(id)}?limit=${limit}&offset=${offset}&search=${search}`)
+				.then((response: AxiosResponse<GetProjectTasksResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get project tasks.',
+						message: error?.message || 'An error occurred. Unable to get project tasks.',
 					});
 			},
 			enabled: !!id,
@@ -901,13 +806,7 @@ export function useGetProjectTaskQuery(
 	}: {
 		projectId: string;
 		id: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: SuccessResponseType<ProjectTaskType>['data']) => void;
@@ -921,8 +820,7 @@ export function useGetProjectTaskQuery(
 			axiosInstance
 				.get(PROJECT_TASK_URL(projectId, id))
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) => response.data.data
 				),
 		{
 			onError(err) {
@@ -930,9 +828,7 @@ export function useGetProjectTaskQuery(
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get project task.',
+						message: error?.message || 'An error occurred. Unable to get project task.',
 					});
 			},
 			enabled: !!id,
@@ -952,7 +848,7 @@ export function useDeleteProjectTaskMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -963,23 +859,18 @@ export function useDeleteProjectTaskMutation(
 		(query: { projectId: string; id: string }) =>
 			axiosInstance
 				.delete(PROJECT_TASK_URL(query.projectId, query.id))
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 				if (options?.onSuccess) options.onSuccess();
 			},
 			async onError(err) {
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to delete project task.',
+						message: error?.message || 'An error occurred. Unable to delete project task.',
 					});
 				}
 			},
@@ -1026,9 +917,7 @@ export function useDeleteProjectTaskMutation(
 export function useCreateProjectTaskMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectTaskErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectTaskErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -1044,23 +933,18 @@ export function useCreateProjectTaskMutation(
 			axiosInstance
 				.post(PROJECT_TASKS_URL(query.projectId), query.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) => response.data.data
 				),
 		{
 			onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
 			onError(error) {
 				if (options?.onError) {
-					const err =
-						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					const err = handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
 					options.onError({
 						...err?.data,
 						message: err?.message || (error as any)?.message,
@@ -1078,9 +962,7 @@ export function useCreateProjectTaskMutation(
 export function useEditProjectTaskMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectTaskErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectTaskErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -1092,31 +974,22 @@ export function useEditProjectTaskMutation(
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation(
-		(query: {
-			projectId: string;
-			id: string;
-			data: CreateProjectTaskQueryType;
-		}) =>
+		(query: { projectId: string; id: string; data: CreateProjectTaskQueryType }) =>
 			axiosInstance
 				.put(PROJECT_TASK_URL(query.projectId, query.id), query.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) => response.data.data
 				),
 		{
 			onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
 			onError(error) {
 				if (options?.onError) {
-					const err =
-						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					const err = handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
 					options.onError({
 						...err?.data,
 						message: err?.message || (error as any)?.message,
@@ -1134,9 +1007,7 @@ export function useEditProjectTaskMutation(
 export function useMarkProjectTaskMutation(
 	options?: {
 		onSuccess?: () => void;
-		onError?: (
-			e: CreateProjectTaskErrorResponseType & { message?: string }
-		) => void;
+		onError?: (e: CreateProjectTaskErrorResponseType & { message?: string }) => void;
 	},
 	queryOptions?: {
 		onError?: (e: unknown) => void;
@@ -1150,31 +1021,22 @@ export function useMarkProjectTaskMutation(
 	const queryClient = useQueryClient();
 
 	const { mutate, ...mutation } = useMutation(
-		(query: {
-			projectId: string;
-			id: string;
-			data: CreateProjectTaskQueryType;
-		}) =>
+		(query: { projectId: string; id: string; data: CreateProjectTaskQueryType }) =>
 			axiosInstance
 				.put(PROJECT_TASK_URL(query.projectId, query.id), query.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTaskType>>) => response.data.data
 				),
 		{
 			onSuccess(data, variables) {
 				queryClient.invalidateQueries([tags.PROJECT_TASKS]);
-				queryClient.invalidateQueries([
-					tags.PROJECTS,
-					{ id: variables.projectId },
-				]);
+				queryClient.invalidateQueries([tags.PROJECTS, { id: variables.projectId }]);
 
 				if (options?.onSuccess) options.onSuccess();
 			},
 			onError(error) {
 				if (options?.onError) {
-					const err =
-						handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
+					const err = handleAxiosErrors<CreateProjectTaskErrorResponseType>(error);
 					options.onError({
 						...err?.data,
 						message: err?.message || (error as any)?.message,
@@ -1195,8 +1057,7 @@ export function useMarkProjectTaskMutation(
 				header: 'Mark ' + (!task.completed ? 'Completed?' : 'Ongoing?'),
 				color: task.completed ? 'warning' : 'success',
 				message:
-					'Do you want to mark this task as ' +
-					(!task.completed ? 'completed?' : 'ongoing?'),
+					'Do you want to mark this task as ' + (!task.completed ? 'completed?' : 'ongoing?'),
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -1254,13 +1115,7 @@ export function useGetProjectTaskFollowersQuery(
 		limit?: number;
 		offset?: number;
 		search?: string;
-		onError?: ({
-			status,
-			message,
-		}: {
-			status: number;
-			message: string;
-		}) => void;
+		onError?: ({ status, message }: { status: number; message: string }) => void;
 	},
 	options?: {
 		onSuccess?: (data: GetProjectTeamResponseType['data']) => void;
@@ -1278,19 +1133,14 @@ export function useGetProjectTaskFollowersQuery(
 						id
 					)}?limit=${limit}&offset=${offset}&search=${search}`
 				)
-				.then(
-					(response: AxiosResponse<GetProjectTeamResponseType>) =>
-						response.data.data
-				),
+				.then((response: AxiosResponse<GetProjectTeamResponseType>) => response.data.data),
 		{
 			onError(err) {
 				const error = handleAxiosErrors(err);
 				if (onError)
 					onError({
 						status: error?.status || 500,
-						message:
-							error?.message ||
-							'An error occurred. Unable to get project task followers.',
+						message: error?.message || 'An error occurred. Unable to get project task followers.',
 					});
 			},
 			enabled: !!id,
@@ -1310,9 +1160,7 @@ export function useAppointProjectTaskLeaderMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (
-			response: SuccessResponseType<ProjectTeamType>['data']
-		) => void;
+		onSuccess?: (response: SuccessResponseType<ProjectTeamType>['data']) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -1330,13 +1178,9 @@ export function useAppointProjectTaskLeaderMutation(
 			};
 		}) =>
 			axiosInstance
-				.put(
-					PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id),
-					query.data
-				)
+				.put(PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id), query.data)
 				.then(
-					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) =>
-						response.data.data
+					(response: AxiosResponse<SuccessResponseType<ProjectTeamType>>) => response.data.data
 				),
 		{
 			async onSuccess(data, variables) {
@@ -1354,9 +1198,7 @@ export function useAppointProjectTaskLeaderMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to update task follower.',
+						message: error?.message || 'An error occurred. Unable to update task follower.',
 					});
 				}
 			},
@@ -1383,15 +1225,10 @@ export function useAppointProjectTaskLeaderMutation(
 		}) => {
 			openModal({
 				closeOnButtonClick: false,
-				header:
-					decision === 'appoint'
-						? 'Appoint Task Leader?'
-						: 'Re-Appoint Task Leader?',
+				header: decision === 'appoint' ? 'Appoint Task Leader?' : 'Re-Appoint Task Leader?',
 				color: decision === 'appoint' ? 'success' : 'danger',
 				message:
-					'Do you want to ' +
-					(decision === 'appoint' ? 'appoint' : 're-appoint') +
-					' team leader?',
+					'Do you want to ' + (decision === 'appoint' ? 'appoint' : 're-appoint') + ' team leader?',
 				decisions: [
 					{
 						bg: 'bg-gray-600 hover:bg-gray-500',
@@ -1430,7 +1267,7 @@ export function useDeleteProjectTaskFollowerMutation(
 		onError?: (e: unknown) => void;
 		onMutate?: () => void;
 		onSettled?: () => void;
-		onSuccess?: (response: BaseResponseType) => void;
+		onSuccess?: (response: ResponseType) => void;
 	}
 ) {
 	const { open: openModal, close, showLoader } = useAlertModalContext();
@@ -1440,10 +1277,8 @@ export function useDeleteProjectTaskFollowerMutation(
 	const { mutate, ...mutation } = useMutation(
 		(query: { projectId: string; taskId: string; id: string }) =>
 			axiosInstance
-				.delete(
-					PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id)
-				)
-				.then((response: AxiosResponse<BaseResponseType>) => response.data),
+				.delete(PROJECT_TASK_FOLLOWER_URL(query.projectId, query.taskId, query.id))
+				.then((response: AxiosResponse<ResponseType>) => response.data),
 		{
 			async onSuccess(data, variables) {
 				queryClient.invalidateQueries([
@@ -1463,9 +1298,7 @@ export function useDeleteProjectTaskFollowerMutation(
 				if (options?.onError) {
 					const error = handleAxiosErrors(err);
 					options.onError({
-						message:
-							error?.message ||
-							'An error occurred. Unable to remove task follower.',
+						message: error?.message || 'An error occurred. Unable to remove task follower.',
 					});
 				}
 			},

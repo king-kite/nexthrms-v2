@@ -1,5 +1,3 @@
-import { NotificationChoices } from '@prisma/client';
-
 import { PaginatedResponseType } from './base';
 
 export type ParticipantType = {
@@ -9,10 +7,13 @@ export type ParticipantType = {
 	profile: {
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 	};
 };
+
+type NotificationChoices = 'DOWNLOAD' | 'ERROR' | 'LEAVE' | 'OVERTIME' | 'SUCCESS';
 
 export type NotificationType = {
 	id: string;
@@ -26,6 +27,4 @@ export type NotificationType = {
 	createdAt: Date;
 };
 
-export type GetNotificationResponseType = PaginatedResponseType<
-	NotificationType[]
->;
+export type GetNotificationResponseType = PaginatedResponseType<NotificationType[]>;
