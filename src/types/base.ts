@@ -8,9 +8,9 @@ export type ParamsType = {
 	offset?: number;
 	limit?: number;
 	search?: string;
-	from?: Date;
-	to?: Date;
-	date?: Date;
+	from?: Date | string;
+	to?: Date | string;
+	date?: Date | string;
 };
 
 export type UserObjPermType = {

@@ -19,15 +19,15 @@ export function validateParams(query: NextApiRequest['query'] | ParamsType): Par
 		typeof query.search === 'string' && query.search.trim() !== '' ? query.search : undefined;
 	const from =
 		query.from && (typeof query.from === 'string' || query.from instanceof Date)
-			? (getDate(query.from) as Date)
+			? (getDate(query.from, true) as string)
 			: undefined;
 	const to =
 		query.to && (typeof query.to === 'string' || query.to instanceof Date)
-			? (getDate(query.to) as Date)
+			? (getDate(query.to, true) as string)
 			: undefined;
 	const date =
 		query.date && (typeof query.date === 'string' || query.date instanceof Date)
-			? (getDate(query.date) as Date)
+			? (getDate(query.date, true) as string)
 			: undefined;
 	return { limit, offset, search, from, to, date };
 }
