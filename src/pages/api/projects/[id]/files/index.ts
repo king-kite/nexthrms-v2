@@ -1,26 +1,12 @@
-import { Prisma } from '@prisma/client';
+import fs from 'fs';
 
-import { permissions, MEDIA_PROJECT_URL } from '../../../../../config';
-import prisma from '../../../../../db';
-import {
-	getProject,
-	getProjectFiles,
-	projectFileSelectQuery as selectQuery,
-} from '../../../../../db/queries/projects';
-import {
-	addObjectPermissions,
-	getRecord,
-	getRecords,
-	hasViewPermission,
-	updateObjectPermissions,
-} from '../../../../../db/utils';
+import { PROJECT_FILES_URL } from '../../../../../config/services';
 import { auth } from '../../../../../middlewares';
-import { ProjectFileType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils/permission';
+import { axiosJn } from '../../../../../utils/axios';
 import { NextErrorMessage } from '../../../../../utils/classes';
-import { upload as uploadFile } from '../../../../../utils/files';
-import parseForm from '../../../../../utils/parseForm';
-import { projectFileCreateSchema } from '../../../../../validators/projects';
+import parseForm, { getFormFields, getFormFiles } from '../../../../../utils/parseForm';
+import { getToken } from '../../../../../utils/tokens';
+import { getRouteParams } from '../../../../../validators/pagination';
 
 export const config = {
 	api: {
@@ -29,164 +15,47 @@ export const config = {
 };
 
 export default auth()
-	.use(async (req, res, next) => {
-		// Check the user can view the project
-		const canViewProject = await hasViewPermission({
-			model: 'projects',
-			perm: 'project',
-			objectId: req.query.id as string,
-			user: req.user,
-		});
-		if (!canViewProject) throw new NextErrorMessage(403);
-		next();
-	})
 	.get(async (req, res) => {
-		const result = await getRecords({
-			model: 'projects_files',
-			perm: 'projectfile',
-			query: req.query,
-			user: req.user,
-			placeholder: {
-				result: [],
-			},
-			getData(params) {
-				return getProjectFiles({
-					...params,
-					id: req.query.id as string,
-				});
-			},
-		});
+		const params = getRouteParams(req.query);
+		const url = PROJECT_FILES_URL(req.query.id as string) + params;
 
-		return res.status(200).json(
-			result || {
-				status: 'success',
-				message: 'Fetched data successfully',
-				data: {
-					result: [],
-				},
-			}
-		);
+		const response = await axiosJn(req).get(url);
+		return res.status(200).json(response.data);
 	})
 	.post(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projectfile.CREATE,
-			]);
+		const { fields, files } = await parseForm(req);
 
-		if (!hasPerm) throw new NextErrorMessage(403);
+		if (!files.file) throw new NextErrorMessage(400, 'File was not provided.');
 
-		const project = await getRecord({
-			model: 'projects',
-			perm: 'project',
-			objectId: req.query.id as string,
-			permission: 'VIEW',
-			user: req.user,
-			getData() {
-				return getProject(req.query.id as string);
-			},
+		const name = JSON.parse(getFormFields(fields.name)[0]);
+		const [file] = getFormFiles(files.file);
+
+		const formData = new FormData();
+		formData.append('name', name);
+
+		const fileBuffer = fs.readFileSync(file.filepath);
+
+		const blob = new Blob([fileBuffer], {
+			type: file.mimetype || undefined,
 		});
 
-		if (!project?.data)
-			throw new NextErrorMessage(
-				404,
-				'Project with the specified ID was not found'
-			);
+		formData.append('file', blob);
 
-		const { fields, files } = (await parseForm(req)) as {
-			fields: any;
-			files: any;
-		};
+		const token = getToken(req, 'access');
 
-		if (!files.file || Array.isArray(files.file)) {
-			return res.status(400).json({
-				status: 'error',
-				message: 'File was not provided or is invalid!',
-			});
+		// Axios doesn't seem to work well with the form data
+		const response = await fetch(PROJECT_FILES_URL(req.query.id as string), {
+			method: 'POST',
+			body: formData,
+			headers: {
+				Authorization: 'Bearer ' + token,
+			},
+		});
+		const result = await response.json();
+
+		if (!response.ok && response.status === 201) {
+			return res.status(201).json(result);
 		}
 
-		const form = await projectFileCreateSchema.validate(
-			{
-				...fields,
-				file: files.file,
-			},
-			{ abortEarly: false }
-		);
-
-		const location =
-			MEDIA_PROJECT_URL +
-			`${form.name.toLowerCase()}_${files.file.originalFilename?.toLowerCase()}`;
-
-		const result = await uploadFile({
-			file: files.file,
-			location,
-		});
-
-		let data: Prisma.ProjectFileCreateInput = {
-			project: {
-				connect: {
-					id: req.query.id as string,
-				},
-			},
-			file: {
-				create: {
-					type: files.file.mimetype || 'file',
-					name: String(fields.name),
-					url: result.secure_url || result.url,
-					size: files.file.size,
-					storageInfo: {
-						name: result.original_filename,
-						location: result.location,
-						public_id: result.public_id,
-						type: result.resource_type,
-					},
-					userId: req.user.id,
-				},
-			},
-		};
-
-		if (req.user.employee)
-			data.employee = {
-				connect: {
-					id: req.user.employee.id,
-				},
-			};
-
-		const finalResult = (await prisma.projectFile.create({
-			data,
-			select: selectQuery,
-		})) as unknown as ProjectFileType;
-
-		await Promise.all([
-			addObjectPermissions({
-				model: 'projects_files',
-				objectId: finalResult.id,
-				users: [req.user.id],
-			}),
-			addObjectPermissions({
-				model: 'managed_files',
-				objectId: finalResult.file.id,
-				users: [req.user.id],
-			}),
-		]);
-
-		const viewers = [];
-		if (project.data.client) viewers.push(project.data.client.contact.id);
-
-		project.data.team.forEach((member) => {
-			viewers.push(member.employee.user.id);
-		});
-
-		await updateObjectPermissions({
-			model: 'projects_files',
-			permissions: ['VIEW'],
-			objectId: finalResult.id,
-			users: viewers,
-		});
-
-		return res.status(201).json({
-			status: 'success',
-			message: 'Project file created successfully',
-			data: finalResult,
-		});
+		throw new NextErrorMessage(response.status, result.message, result.data);
 	});
