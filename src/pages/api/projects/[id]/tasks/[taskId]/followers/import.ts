@@ -1,20 +1,10 @@
-import {
-	projectTaskFollowerHeaders as headers,
-	permissions,
-} from '../../../../../../../config';
-import {
-	createNotification,
-	handleNotificationErrors as handleErrors,
-	hasViewPermission,
-	hasObjectPermission,
-	importData,
-} from '../../../../../../../db/utils';
-import { importProjectTaskFollowers } from '../../../../../../../db/utils/projects';
-import { admin } from '../../../../../../../middlewares';
-import { ProjectTaskFollowerImportQueryType } from '../../../../../../../types';
-import { hasModelPermission } from '../../../../../../../utils/permission';
+import fs from 'fs';
+
+import { PROJECT_TASK_FOLLOWERS_IMPORT_URL } from '../../../../../../../config/services';
+import { auth } from '../../../../../../../middlewares';
 import { NextErrorMessage } from '../../../../../../../utils/classes';
-import parseForm from '../../../../../../../utils/parseForm';
+import parseForm, { getFormFiles } from '../../../../../../../utils/parseForm';
+import { getToken } from '../../../../../../../utils/tokens';
 
 export const config = {
 	api: {
@@ -22,89 +12,41 @@ export const config = {
 	},
 };
 
-export default admin()
-	.use(async (req, res, next) => {
-		// Check the user can view the project
-		const canViewProject = await hasViewPermission({
-			model: 'projects',
-			perm: 'project',
-			objectId: req.query.id as string,
-			user: req.user,
-		});
-		if (!canViewProject) throw new NextErrorMessage(403);
+export default auth().post(async function (req, res) {
+	const { files } = await parseForm(req);
 
-		// Check the user can view the task
-		const canViewTask = await hasViewPermission({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			objectId: req.query.taskId as string,
-			user: req.user,
-		});
-		if (!canViewTask) throw new NextErrorMessage(403);
-		next();
-	})
-	.post(async (req, res) => {
-		const hasExportPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttask.EDIT,
-			]);
+	if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
 
-		if (!hasExportPerm) {
-			const hasPerm = await hasObjectPermission({
-				model: 'projects_tasks',
-				objectId: req.query.taskId as string,
-				permission: 'EDIT',
-				userId: req.user.id,
-			});
-			if (!hasPerm) throw new NextErrorMessage(403);
-		}
+	const [data] = getFormFiles(files.data);
 
-		const { files } = (await parseForm(req)) as { files: any };
+	const formData = new FormData();
 
-		if (!files.data) throw new NextErrorMessage(400, 'Data field is required!');
+	const fileBuffer = fs.readFileSync(data.filepath);
 
-		if (
-			files.data.mimetype !== 'text/csv' &&
-			files.data.mimetype !== 'application/zip' &&
-			files.data.mimetype !==
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		)
-			throw new NextErrorMessage(
-				400,
-				'Sorry, only CSVs, Microsoft excel files and Zip files are allowed!'
-			);
-
-		importData<ProjectTaskFollowerImportQueryType>({
-			headers,
-			path: files.data.filepath,
-			type: files.data.mimetype,
-		})
-			.then((result) =>
-				importProjectTaskFollowers({
-					taskId: req.query.taskId as string,
-					data: result.data,
-				})
-			)
-			.then(() =>
-				createNotification({
-					message: 'Task followers data was imported successfully.',
-					recipient: req.user.id,
-					title: 'Import Task Followers Data Success.',
-					type: 'SUCCESS',
-				})
-			)
-			.catch((error) =>
-				handleErrors(error, {
-					recipient: req.user.id,
-					title: 'Import Task Followers Data Error',
-				})
-			);
-
-		return res.status(200).json({
-			status: 'success',
-			message:
-				'Import file was received successfully. ' +
-				'A notification will be sent to you when the task is completed',
-		});
+	const blob = new Blob([fileBuffer], {
+		type: data.mimetype || undefined,
 	});
+
+	formData.append('data', blob);
+
+	const token = getToken(req, 'access');
+
+	// Axios doesn't seem to work well with the form data
+	const response = await fetch(
+		PROJECT_TASK_FOLLOWERS_IMPORT_URL(req.query.id as string, req.query.taskId as string),
+		{
+			method: 'POST',
+			body: formData,
+			headers: {
+				Authorization: 'Bearer ' + token,
+			},
+		}
+	);
+	const result = await response.json();
+
+	if (!response.ok && response.status === 200) {
+		return res.status(200).json(result);
+	}
+
+	throw new NextErrorMessage(response.status, result.message, result.data);
+});

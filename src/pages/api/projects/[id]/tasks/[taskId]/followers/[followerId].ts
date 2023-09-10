@@ -1,111 +1,41 @@
-import permissions from '../../../../../../../config/permissions';
-import prisma from '../../../../../../../db';
-import {
-	getTaskFollower,
-	taskFollowerSelectQuery as selectQuery,
-} from '../../../../../../../db/queries/projects';
-import {
-	hasObjectPermission,
-	hasViewPermission,
-} from '../../../../../../../db/utils';
+import { PROJECT_TASK_FOLLOWER_URL } from '../../../../../../../config/services';
 import { auth } from '../../../../../../../middlewares';
-import { hasModelPermission } from '../../../../../../../utils/permission';
-import { NextErrorMessage } from '../../../../../../../utils/classes';
+import { axiosJn } from '../../../../../../../utils/axios';
 import { projectTaskFollowerUpdateSchema } from '../../../../../../../validators/projects';
 
 export default auth()
-	.use(async (req, res, next) => {
-		// Check the user can view the project
-		const canViewProject = await hasViewPermission({
-			model: 'projects',
-			perm: 'project',
-			objectId: req.query.id as string,
-			user: req.user,
-		});
-		if (!canViewProject) throw new NextErrorMessage(403);
-
-		// Check the user can view the task
-		const canViewTask = await hasViewPermission({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			objectId: req.query.taskId as string,
-			user: req.user,
-		});
-		if (!canViewTask) throw new NextErrorMessage(403);
-		next();
-	})
 	.get(async (req, res) => {
-		const data = await getTaskFollower(req.query.followerId as string);
+		const url = PROJECT_TASK_FOLLOWER_URL(
+			req.query.id as string,
+			req.query.taskId as string,
+			req.query.followerId as string
+		);
 
-		if (data) {
-			return res.status(404).json({
-				status: 'error',
-				message: 'Task follower with the specified ID does not exist!',
-			});
-		}
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Fetched task follower successfully!',
-			data,
-		});
+		const response = await axiosJn(req).get(url);
+		return res.status(200).json(response.data);
 	})
 	.put(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttask.EDIT,
-			]);
-		if (!hasPerm) {
-			hasPerm = await hasObjectPermission({
-				model: 'projects_tasks',
-				permission: 'EDIT',
-				objectId: req.query.taskId as string,
-				userId: req.user.id,
-			});
-		}
-
-		if (!hasPerm) throw new NextErrorMessage();
+		const url = PROJECT_TASK_FOLLOWER_URL(
+			req.query.id as string,
+			req.query.taskId as string,
+			req.query.followerId as string
+		);
 
 		const data = await projectTaskFollowerUpdateSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		const follower = await prisma.projectTaskFollower.update({
-			where: { id: req.query.followerId as string },
-			data,
-			select: selectQuery,
-		});
-
-		return res.status(200).json({
-			status: 'success',
-			message: 'Task Follower was updated successfully!',
-			data: follower,
-		});
+		const response = await axiosJn(req).put(url, data);
+		return res.status(200).json(response.data);
 	})
 	.delete(async (req, res) => {
-		let hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttask.EDIT,
-			]);
-		if (!hasPerm) {
-			hasPerm = await hasObjectPermission({
-				model: 'projects_tasks',
-				permission: 'EDIT',
-				objectId: req.query.taskId as string,
-				userId: req.user.id,
-			});
-		}
+		const url = PROJECT_TASK_FOLLOWER_URL(
+			req.query.id as string,
+			req.query.taskId as string,
+			req.query.followerId as string
+		);
 
-		if (!hasPerm) throw new NextErrorMessage();
-
-		await prisma.projectTaskFollower.delete({
-			where: { id: req.query.followerId as string },
-		});
-		return res.status(200).json({
-			status: 'success',
-			message: 'Task Follower was deleted successfully!',
-		});
+		const response = await axiosJn(req).delete(url);
+		return res.status(200).json(response.data);
 	});

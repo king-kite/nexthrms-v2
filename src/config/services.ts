@@ -94,7 +94,7 @@ export const PROJECT_FILE_URL = (project_id: string, id: string) =>
 	`${ROOT_URL}/projects/${project_id}/files/${id}/`;
 export const PROJECT_TASKS_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/`;
-export const PROJECT_TASKS_EXPORTS_URL = (project_id: string) =>
+export const PROJECT_TASKS_EXPORT_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/export/`;
 export const PROJECT_TASKS_IMPORT_URL = (project_id: string) =>
 	`${ROOT_URL}/projects/${project_id}/tasks/import/`;

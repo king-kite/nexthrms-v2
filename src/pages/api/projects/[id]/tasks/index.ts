@@ -1,188 +1,22 @@
-import permissions from '../../../../../config/permissions';
-import prisma from '../../../../../db';
-import {
-	getProjectTasks,
-	taskSelectQuery as selectQuery,
-} from '../../../../../db/queries/projects';
-import {
-	addObjectPermissions,
-	getRecords,
-	hasViewPermission,
-	updateObjectPermissions,
-} from '../../../../../db/utils';
+import { PROJECT_TASKS_URL } from '../../../../../config/services';
 import { auth } from '../../../../../middlewares';
-import { ProjectTaskType } from '../../../../../types';
-import { hasModelPermission } from '../../../../../utils/permission';
-import { NextErrorMessage } from '../../../../../utils/classes';
+import { axiosJn } from '../../../../../utils/axios';
+import { getRouteParams } from '../../../../../validators/pagination';
 import { taskCreateSchema } from '../../../../../validators/projects';
 
 export default auth()
-	.use(async (req, res, next) => {
-		// Check the user can view the project
-		const canViewProject = await hasViewPermission({
-			model: 'projects',
-			perm: 'project',
-			objectId: req.query.id as string,
-			user: req.user,
-		});
-		if (!canViewProject) throw new NextErrorMessage(403);
-		next();
-	})
 	.get(async (req, res) => {
-		const placeholder = {
-			total: 0,
-			result: [],
-			completed: 0,
-			ongoing: 0,
-			project: {
-				id: req.query.id as string,
-				name: '',
-			},
-		};
+		const params = getRouteParams(req.query);
 
-		const result = await getRecords({
-			model: 'projects_tasks',
-			perm: 'projecttask',
-			placeholder,
-			query: req.query,
-			user: req.user,
-			getData(params) {
-				return getProjectTasks({
-					...params,
-					id: req.query.id as string,
-				});
-			},
-		});
-
-		if (result) return res.status(200).json(result);
-
-		// If result is empty that means that he doesnt
-		// have any task that he can view. check that the user is in the team and return an empty array
-		if (req.user.employee) {
-			const member = await prisma.projectTeam.findFirst({
-				where: {
-					projectId: req.query.id as string,
-					employeeId: req.user.employee?.id,
-				},
-				select: { id: true },
-			});
-			if (member) {
-				return res.status(200).json({
-					status: 'success',
-					message: 'Fetched data successfully!',
-					data: placeholder,
-				});
-			}
-		}
-
-		throw new NextErrorMessage(403);
+		const response = await axiosJn(req).get(PROJECT_TASKS_URL(req.query.id as string) + params);
+		return res.status(200).json(response.data);
 	})
 	.post(async (req, res) => {
-		const hasPerm =
-			req.user.isSuperUser ||
-			hasModelPermission(req.user.allPermissions, [
-				permissions.projecttask.CREATE,
-			]);
-
-		if (!hasPerm) throw new NextErrorMessage(403);
-
 		const data = await taskCreateSchema.validate(
 			{ ...req.body },
-			{ abortEarly: false }
+			{ abortEarly: false, stripUnknown: true }
 		);
 
-		// Have Distinct followers.
-		const filteredFollowers = data.followers?.reduce(
-			(
-				acc: {
-					memberId: string;
-					isLeader: boolean;
-				}[],
-				follower
-			) => {
-				// check if the follower is already in the acc
-				const found = acc.find((item) => item.memberId === follower.memberId);
-				if (found) {
-					const newAccumulator = acc;
-					const index = newAccumulator.indexOf(found);
-					newAccumulator[index] = {
-						memberId: found.memberId,
-						isLeader: follower.isLeader || found.isLeader,
-					};
-					return newAccumulator;
-				}
-				return [
-					...acc,
-					{
-						...follower,
-						isLeader: follower.isLeader || false,
-					},
-				];
-			},
-			[]
-		);
-
-		const task = (await prisma.projectTask.create({
-			data: {
-				...data,
-				description: data.description || '',
-				project: {
-					connect: {
-						id: req.query.id as string,
-					},
-				},
-				followers:
-					filteredFollowers && filteredFollowers.length > 0
-						? {
-								createMany: {
-									data: filteredFollowers.map(
-										({ memberId, isLeader = false }) => ({
-											memberId,
-											isLeader,
-										})
-									),
-									skipDuplicates: true,
-								},
-						  }
-						: {},
-			},
-			select: selectQuery,
-		})) as unknown as ProjectTaskType;
-
-		// Assign all object level permissions for the task and task followers to the request user only
-		await addObjectPermissions({
-			model: 'projects_tasks',
-			objectId: task.id,
-			users: [req.user.id],
-		});
-
-		// Assign view object level permissions for the project team and client
-		// and also give create project task permissions to the project leaders
-		const followers = task.followers.map(
-			(follower) => follower.member.employee.user.id
-		);
-		const leaders = task.followers
-			.filter((follower) => follower.isLeader === true)
-			.map((follower) => follower.member.employee.user.id);
-
-		await Promise.all([
-			updateObjectPermissions({
-				model: 'projects_tasks',
-				permissions: ['VIEW'],
-				objectId: task.id,
-				users: followers,
-			}),
-			updateObjectPermissions({
-				model: 'projects_tasks',
-				permissions: ['EDIT'],
-				objectId: task.id,
-				users: leaders,
-			}),
-		]);
-
-		return res.status(201).json({
-			status: 'success',
-			message: 'Created Project Task successfully!',
-			data: task,
-		});
+		const response = await axiosJn(req).post(PROJECT_TASKS_URL(req.query.id as string), data);
+		return res.status(201).json(response.data);
 	});
