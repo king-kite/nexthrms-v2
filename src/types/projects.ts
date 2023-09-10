@@ -29,7 +29,7 @@ export type ProjectType = {
 				image: {
 					id: string;
 					location: string;
-					url: string;
+					url: string | null;
 				} | null;
 			};
 		};
@@ -74,7 +74,7 @@ export type ProjectTeamType = {
 				image: {
 					id: string;
 					location: string;
-					url: string;
+					url: string | null;
 				} | null;
 			};
 		};
@@ -102,7 +102,7 @@ export type ProjectFileType = {
 		id: string;
 		location: string;
 		name: string;
-		url: string;
+		url: string | null;
 		size: number;
 		type: string;
 	};

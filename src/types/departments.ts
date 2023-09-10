@@ -1,8 +1,4 @@
-import {
-	PaginatedResponseType,
-	SuccessResponseType,
-	ValidatorErrorType,
-} from './base';
+import { PaginatedResponseType, SuccessResponseType, ValidatorErrorType } from './base';
 import { CreateDepartmentType } from '../validators/departments';
 
 export type DepartmentType = {
@@ -20,7 +16,8 @@ export type DepartmentType = {
 			profile: {
 				image: {
 					id: string;
-					url: string;
+					location: string;
+					url: string | null;
 				} | null;
 			} | null;
 			employee: {
@@ -35,20 +32,10 @@ export type DepartmentType = {
 	};
 };
 
-export type DepartmentImportQueryType = {
-	id?: string;
-	name: string;
-	created_at?: string;
-	updated_at?: string;
-};
-
 export type DepartmentCreateType = CreateDepartmentType;
 
-export type DepartmentCreateErrorType =
-	ValidatorErrorType<DepartmentCreateType>;
+export type DepartmentCreateErrorType = ValidatorErrorType<DepartmentCreateType>;
 
 export type CreateDepartmentResponseType = SuccessResponseType<DepartmentType>;
 
-export type GetDepartmentsResponseType = PaginatedResponseType<
-	DepartmentType[]
->;
+export type GetDepartmentsResponseType = PaginatedResponseType<DepartmentType[]>;

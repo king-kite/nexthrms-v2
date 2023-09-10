@@ -13,7 +13,8 @@ export type ClientType = {
 		profile: {
 			image: {
 				id: string;
-				url: string;
+				location: string;
+				url: string | null;
 			} | null;
 			gender: 'MALE' | 'FEMALE';
 			city: string | null;
@@ -28,26 +29,14 @@ export type ClientType = {
 	createdAt: Date | string;
 };
 
-export type ClientImportQueryType = {
-	id?: string | null;
-	company: string;
-	position: string;
-	contact_id: string;
-	updated_at?: Date | string;
-	created_at?: Date | string;
-};
-
 export type ClientCreateQueryType = CreateClientType;
-export type ClientCreateProfileErrorType = ValidatorErrorType<
-	ClientType['contact']['profile']
->;
+export type ClientCreateProfileErrorType = ValidatorErrorType<ClientType['contact']['profile']>;
 
-export type CreateClientErrorResponseType =
-	ValidatorErrorType<CreateClientType> & {
-		contact?: ValidatorErrorType<CreateClientType['contact']> & {
-			profile?: ClientCreateProfileErrorType;
-		};
+export type CreateClientErrorResponseType = ValidatorErrorType<CreateClientType> & {
+	contact?: ValidatorErrorType<CreateClientType['contact']> & {
+		profile?: ClientCreateProfileErrorType;
 	};
+};
 
 export type CreateClientResponseType = SuccessResponseType<ClientType>;
 

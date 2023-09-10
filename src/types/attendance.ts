@@ -18,7 +18,8 @@ export type AttendanceType = {
 			profile: {
 				image: {
 					id: string;
-					url: string;
+					location: string;
+					url: string | null;
 				} | null;
 			} | null;
 		};
@@ -57,9 +58,7 @@ export type AttendanceCreateType = Omit<
 	punchOut?: Date | string | null;
 };
 
-export type AttendanceCreateErrorType = ValidatorErrorType<
-	Omit<AttendanceCreateType, 'overtime'>
->;
+export type AttendanceCreateErrorType = ValidatorErrorType<Omit<AttendanceCreateType, 'overtime'>>;
 
 export type GetAttendanceResponseType = SuccessResponseType<{
 	total: number;

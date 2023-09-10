@@ -9,14 +9,6 @@ export type HolidayType = {
 	updatedAt: Date | string;
 };
 
-export type HolidayImportQueryType = {
-	id: string;
-	name: string;
-	date: string;
-	created_at?: string;
-	updated_at?: string;
-};
-
 export type HolidayCreateType = CreateHolidayType;
 
 export type HolidayCreateErrorType = ValidatorErrorType<HolidayCreateType>;

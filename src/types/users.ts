@@ -1,9 +1,4 @@
-import {
-	PermissionModelChoices,
-	PermissionObjectChoices,
-	SuccessResponseType,
-	ValidatorErrorType,
-} from './base';
+import { PermissionObjectChoices, SuccessResponseType, ValidatorErrorType } from './base';
 import { CreateGroupType, CreateUserType } from '../validators/users';
 
 export type { CreatePermissionType, CreatePermissionCategoryType } from '../validators/users';
@@ -15,10 +10,11 @@ export type GroupUserType = {
 	lastName: string;
 	email: string;
 	isActive: boolean;
-	profile?: {
+	profile: {
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 	} | null;
 };
@@ -34,14 +30,6 @@ export type GroupType = {
 	_count?: {
 		users: number;
 	};
-};
-
-export type GroupImportQueryType = {
-	id?: string;
-	name: string;
-	description?: string | null;
-	active: boolean;
-	permissions: string;
 };
 
 export type CreateGroupQueryType = CreateGroupType;
@@ -82,14 +70,6 @@ export type ObjectPermissionType = {
 	}[];
 };
 
-export type ObjectPermissionImportType = {
-	model_name: PermissionModelChoices;
-	name: string;
-	object_id: string;
-	permission: PermissionObjectChoices;
-	is_user: boolean;
-};
-
 export type GetObjectPermissionsResponseType = SuccessResponseType<{
 	result: ObjectPermissionType[];
 }>;
@@ -103,14 +83,6 @@ export type PermissionType = {
 	category?: PermissionCategoryType | null;
 	codename: string;
 	description?: string | null;
-};
-
-export type PermissionImportQueryType = {
-	id?: string;
-	name: string;
-	codename: string;
-	description?: string | null;
-	category?: string | null;
 };
 
 export type PermissionCategoryType = {
@@ -184,7 +156,8 @@ export type UserType = {
 		gender: 'MALE' | 'FEMALE';
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 		address: string | null;
 		city: string | null;
@@ -199,29 +172,6 @@ export type UserGroupType = {
 	id: string;
 	name: string;
 	description?: string;
-};
-
-export type UserImportQueryType = {
-	id?: string;
-	email: string;
-	first_name: string;
-	last_name: string;
-	dob?: Date | string | null;
-	gender: 'MALE' | 'FEMALE';
-	image?: string | null;
-	image_id?: string | null;
-	address?: string | null;
-	city?: string | null;
-	state?: string | null;
-	phone?: string | null;
-	permissions?: string | null;
-	groups?: string | null;
-	is_active?: boolean;
-	is_admin?: boolean;
-	is_superuser?: boolean;
-	email_verified?: boolean;
-	updated_at?: Date | string;
-	created_at?: Date | string;
 };
 
 export type CreateUserQueryType = CreateUserType;

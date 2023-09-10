@@ -71,7 +71,8 @@ export type ProfileType = {
 					profile: {
 						image: {
 							id: string;
-							url: string;
+							location: string;
+							url: string | null;
 						} | null;
 					} | null;
 					employee: {
@@ -94,7 +95,8 @@ export type ProfileType = {
 				profile: {
 					image: {
 						id: string;
-						url: string;
+						location: string;
+						url: string | null;
 					} | null;
 				} | null;
 				employee: {

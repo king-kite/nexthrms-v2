@@ -8,7 +8,8 @@ type UserDataType = {
 	profile: {
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 	} | null;
 	isActive: boolean;
@@ -16,16 +17,13 @@ type UserDataType = {
 
 export type CreateEmployeeQueryType = CreateEmployeeType;
 
-type EmployeeCreateProfileErrorType = ValidatorErrorType<
-	EmployeeUserType['profile']
->;
+type EmployeeCreateProfileErrorType = ValidatorErrorType<EmployeeUserType['profile']>;
 
-export type CreateEmployeeErrorResponseType =
-	ValidatorErrorType<CreateEmployeeType> & {
-		user?: ValidatorErrorType<CreateEmployeeType['user']> & {
-			profile?: EmployeeCreateProfileErrorType;
-		};
+export type CreateEmployeeErrorResponseType = ValidatorErrorType<CreateEmployeeType> & {
+	user?: ValidatorErrorType<CreateEmployeeType['user']> & {
+		profile?: EmployeeCreateProfileErrorType;
 	};
+};
 
 interface EmployeeUserType extends UserDataType {
 	id: string;
@@ -34,7 +32,8 @@ interface EmployeeUserType extends UserDataType {
 		gender: 'MALE' | 'FEMALE';
 		image: {
 			id: string;
-			url: string;
+			location: string;
+			url: string | null;
 		} | null;
 		address: string | null;
 		city: string | null;
@@ -72,18 +71,6 @@ export type EmployeeType = {
 		type: string;
 		approved: boolean;
 	}[];
-};
-
-export type EmployeeImportQueryType = {
-	id: string;
-	department?: string;
-	job?: string;
-	user_id: string;
-	is_hod?: string;
-	supervisors?: string;
-	date_employed?: string;
-	updated_at?: string;
-	created_at?: string;
 };
 
 export type CreateEmployeeResponseType = SuccessResponseType<EmployeeType>;

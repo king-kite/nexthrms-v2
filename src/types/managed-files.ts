@@ -7,7 +7,7 @@ export type ManagedFileType = {
 	id: string;
 	name: string;
 	location: string;
-	url?: string;
+	url: string | null;
 	size: number;
 	storageInfo?: {
 		public_id?: string;
@@ -24,7 +24,7 @@ export type ManagedFileType = {
 			image: {
 				id: string;
 				location: string;
-				url?: string;
+				url: string | null;
 			} | null;
 		} | null;
 	} | null;
