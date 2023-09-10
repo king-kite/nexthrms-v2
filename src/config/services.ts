@@ -155,6 +155,7 @@ export const OBJECT_PERMISSIONS_URL = (
 };
 
 export const PERMISSIONS_URL = `${ROOT_URL}/permissions/`;
+export const PERMISSION_URL = (id: string) => `${ROOT_URL}/permissions/${id}/`;
 
 // Users URLs Start
 export const ACTIVATE_USER_URL = `${ROOT_URL}/users/activate/`;
