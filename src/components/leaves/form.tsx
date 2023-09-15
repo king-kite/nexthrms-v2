@@ -3,12 +3,15 @@ import React from 'react';
 
 import { DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetEmployeesQuery } from '../../store/queries/employees';
+import { CreateLeaveQueryType, CreateLeaveErrorResponseType, LeaveType } from '../../types';
 import {
-	CreateLeaveQueryType,
-	CreateLeaveErrorResponseType,
-	LeaveType,
-} from '../../types';
-import { getDate, getNextDate, getNoOfDays, toCapitalize } from '../../utils';
+	getDate,
+	getNextDate,
+	getNoOfDays,
+	isBeforeDate,
+	isEqualDate,
+	toCapitalize,
+} from '../../utils';
 import { handleYupErrors } from '../../validators';
 import { leaveCreateSchema } from '../../validators/leaves';
 
@@ -23,46 +26,39 @@ type FormProps = {
 	onSubmit: (form: CreateLeaveQueryType) => void;
 };
 
-const Form = ({
-	adminView,
-	initState,
-	errors,
-	loading,
-	onSubmit,
-	success,
-}: FormProps) => {
+const Form = ({ adminView, initState, errors, loading, onSubmit, success }: FormProps) => {
 	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [form, setForm] = React.useState<
 		CreateLeaveQueryType & {
 			noOfDays: number;
 		}
-	>(
-		initState
-			? {
-					employee: initState.employee.id,
-					endDate: getDate(initState.endDate, true) as string,
-					startDate: getDate(initState.startDate, true) as string,
-					noOfDays: getNoOfDays(
-						getDate(undefined, true),
-						getNextDate(getDate(), 1)
-					),
-					reason: initState.reason,
-					type: initState.type,
-			  }
-			: {
-					endDate: getNextDate(getDate(), 1, true) as string,
-					startDate: getDate(undefined, true) as string,
-					noOfDays: getNoOfDays(
-						getDate(undefined, true),
-						getNextDate(getDate(), 1)
-					),
-					reason: '',
-					type: 'CASUAL',
-			  }
-	);
+	>(() => {
+		if (initState) {
+			const startDate = getDate(initState.startDate, true) as string;
+			const endDate = getDate(initState.endDate, true) as string;
 
-	const [formErrors, setErrors] =
-		React.useState<CreateLeaveErrorResponseType>();
+			return {
+				employee: initState.employee.id,
+				endDate,
+				startDate,
+				noOfDays: getNoOfDays(startDate, endDate),
+				reason: initState.reason,
+				type: initState.type,
+			};
+		}
+		const startDate = getDate(undefined, true) as string;
+		const endDate = getNextDate(startDate, 1, true) as string;
+
+		return {
+			endDate,
+			startDate,
+			noOfDays: getNoOfDays(startDate, endDate),
+			reason: '',
+			type: 'CASUAL',
+		};
+	});
+
+	const [formErrors, setErrors] = React.useState<CreateLeaveErrorResponseType>();
 
 	const employees = useGetEmployeesQuery(
 		{ limit: empLimit, offset: 0, search: '' },
@@ -74,32 +70,39 @@ const Form = ({
 	const employeesError = employees.error ? 'unable to fetch employees' : '';
 
 	React.useEffect(() => {
-		if (success)
+		if (success) {
+			const startDate = getDate(undefined, true) as string;
+			const endDate = getNextDate(getDate(), 1, true) as string;
+
 			setForm({
-				endDate: getNextDate(getDate(), 1, true) as string,
-				startDate: getDate(undefined, true) as string,
-				noOfDays: getNoOfDays(
-					getDate(undefined, true),
-					getNextDate(getDate(), 1)
-				),
+				endDate,
+				startDate,
+				noOfDays: getNoOfDays(startDate, endDate),
 				reason: '',
 				type: 'CASUAL',
 			});
+		}
 	}, [success]);
 
 	React.useEffect(() => {
-		if (getDate(form.startDate) < getDate()) {
+		if (isBeforeDate(form.startDate, new Date())) {
 			setErrors((prevState) => ({
 				...prevState,
 				startDate: "Start date must not be before today's date",
 			}));
 		} else if (
 			form.endDate &&
-			getDate(form.endDate) < getDate(form.startDate)
+			(isBeforeDate(form.endDate, form.startDate) || isEqualDate(form.startDate, form.endDate))
 		) {
 			setErrors((prevState) => ({
 				...prevState,
-				endDate: 'End date must not be before the start date',
+				endDate: 'Resumption date must not be on or before the start date',
+			}));
+		} else {
+			setErrors((prevState) => ({
+				...prevState,
+				startDate: undefined,
+				endDate: undefined,
 			}));
 		}
 	}, [form]);
@@ -118,14 +121,11 @@ const Form = ({
 				}));
 
 			if (name === 'noOfDays') {
-				const nod = parseInt(value) * 24 * 60 * 60 * 1000; // nod => no_of_days
-				const sd = new Date(form.startDate).getTime(); // sd => start_date
-
-				const ed = getDate(new Date(nod + sd), true) as string; // ed => end_date
+				const endDate = getNextDate(form.startDate, +value, true) as string;
 
 				setForm((prevState) => ({
 					...prevState,
-					endDate: ed,
+					endDate,
 				}));
 			} else if (name === 'endDate') {
 				const nod = getNoOfDays(form.startDate, value); // ed => no. of days
@@ -135,14 +135,11 @@ const Form = ({
 					noOfDays: nod,
 				}));
 			} else if (name === 'startDate' && form.noOfDays) {
-				const nod = form.noOfDays * 24 * 60 * 60 * 1000; // nod => no_of_days
-				const sd = new Date(value).getTime(); // sd => start_date
-
-				const ed = getDate(new Date(nod + sd), true) as string; // ed => end_date
+				const endDate = getNextDate(getDate(value), form.noOfDays, true) as string;
 
 				setForm((prevState) => ({
 					...prevState,
-					endDate: ed,
+					endDate,
 				}));
 			}
 		},
@@ -198,22 +195,15 @@ const Form = ({
 								caps: true,
 								disabled:
 									employees.isFetching ||
-									(employees.data &&
-										employees.data.result.length >= employees.data.total),
+									(employees.data && employees.data.result.length >= employees.data.total),
 								onClick: () => {
-									if (
-										employees.data &&
-										employees.data.total > employees.data.result.length
-									) {
-										setEmpLimit(
-											(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-										);
+									if (employees.data && employees.data.total > employees.data.result.length) {
+										setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 									}
 								},
 								title: employees.isFetching
 									? 'loading...'
-									: employees.data &&
-									  employees.data.result.length >= employees.data.total
+									: employees.data && employees.data.result.length >= employees.data.total
 									? 'loaded all'
 									: 'load more',
 							}}
@@ -221,9 +211,7 @@ const Form = ({
 							error={employeesError || formErrors?.employee}
 							label="Employee"
 							name="employee"
-							onChange={({ target: { value } }) =>
-								handleChange('employee', value)
-							}
+							onChange={({ target: { value } }) => handleChange('employee', value)}
 							placeholder="Select Employee"
 							options={
 								employees.data
@@ -240,9 +228,7 @@ const Form = ({
 														...total,
 														{
 															title: toCapitalize(
-																employee.user.firstName +
-																	' ' +
-																	employee.user.lastName
+																employee.user.firstName + ' ' + employee.user.lastName
 															),
 															value: employee.id,
 														},
@@ -279,12 +265,10 @@ const Form = ({
 				<div className="w-full md:col-span-2">
 					<Input
 						disabled={loading}
-						label="Number Of Days (optional)"
+						label="Number Of Days"
 						min="1"
 						name="noOfDays"
-						onChange={({ target: { value } }) =>
-							handleChange('noOfDays', value)
-						}
+						onChange={({ target: { value } }) => handleChange('noOfDays', value)}
 						placeholder="Enter Number of Days"
 						requirements={[
 							{
@@ -302,9 +286,7 @@ const Form = ({
 						error={formErrors?.startDate || errors?.startDate}
 						label="Select Start Date"
 						name="startDate"
-						onChange={({ target: { value } }) =>
-							handleChange('startDate', value)
-						}
+						onChange={({ target: { value } }) => handleChange('startDate', value)}
 						placeholder="Enter Date"
 						type="date"
 						value={
@@ -318,7 +300,7 @@ const Form = ({
 					<Input
 						disabled={loading}
 						error={formErrors?.endDate || errors?.endDate}
-						label="Select End Date"
+						label="Select Resumption Date"
 						name="endDate"
 						onChange={({ target: { value } }) => handleChange('endDate', value)}
 						placeholder="Enter Date"
