@@ -7,12 +7,7 @@ import { TableAvatarEmailNameCell } from '../../common';
 import { ADMIN_LEAVE_DETAIL_PAGE_URL } from '../../../config/routes';
 import { DEFAULT_IMAGE } from '../../../config/static';
 import { LeaveType } from '../../../types';
-import {
-	getDate,
-	getNextDate,
-	getNoOfDays,
-	serializeLeave,
-} from '../../../utils';
+import { getDate, getNoOfDays, serializeLeave } from '../../../utils';
 
 const heads: TableHeadType = [
 	{
@@ -25,7 +20,6 @@ const heads: TableHeadType = [
 	},
 	{ value: 'type' },
 	{ value: 'start date' },
-	{ value: 'end date' },
 	{ value: 'resumption' },
 	{ value: 'days' },
 	{ value: 'status' },
@@ -45,9 +39,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 							<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={leave.employee.user.email}
-									image={
-										leave.employee.user.profile?.image?.url || DEFAULT_IMAGE
-									}
+									image={leave.employee.user.profile?.image?.url || DEFAULT_IMAGE}
 									name={`${leave.employee.user.firstName} ${leave.employee.user.lastName}`}
 								/>
 							</a>
@@ -57,7 +49,6 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 				{ value: leave.type },
 				{ value: getDate(leave.startDate, true) },
 				{ value: getDate(leave.endDate, true) },
-				{ value: getNextDate(leave.endDate, 1, true) },
 				{ value: getNoOfDays(leave.startDate, leave.endDate) },
 				{
 					options: {
@@ -71,10 +62,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value:
-						leave.status === 'PENDING' && leave.expired
-							? 'EXPIRED'
-							: leave.status,
+					value: leave.status === 'PENDING' && leave.expired ? 'EXPIRED' : leave.status,
 				},
 				{
 					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
@@ -99,12 +87,14 @@ type TableType = {
 };
 
 const LeaveTable = ({ leaves, offset = 0 }: TableType) => {
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'approved' | 'denied' | 'pending'
-	>('all');
+	const [activeRow, setActiveRow] = React.useState<'all' | 'approved' | 'denied' | 'pending'>(
+		'all'
+	);
 
-	const { leaves: deferredValue, offset: deferredOffset } =
-		React.useDeferredValue({ leaves, offset });
+	const { leaves: deferredValue, offset: deferredOffset } = React.useDeferredValue({
+		leaves,
+		offset,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {

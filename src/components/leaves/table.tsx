@@ -5,12 +5,11 @@ import { FaArrowRight } from 'react-icons/fa';
 
 import { LEAVE_DETAIL_PAGE_URL } from '../../config/routes';
 import { LeaveType } from '../../types';
-import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
+import { getDate, getNoOfDays, serializeLeave } from '../../utils';
 
 const heads: TableHeadType = [
 	{ value: 'type' },
 	{ value: 'start date' },
-	{ value: 'end date' },
 	{ value: 'resumption' },
 	{ value: 'days' },
 	{ value: 'status' },
@@ -30,7 +29,6 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 				},
 				{ value: getDate(leave.startDate, true) },
 				{ value: getDate(leave.endDate, true) },
-				{ value: getNextDate(leave.endDate, 1, true) },
 				{ value: getNoOfDays(leave.startDate, leave.endDate) },
 				{
 					options: {
@@ -44,10 +42,7 @@ const getRows = (data: LeaveType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value:
-						leave.status === 'PENDING' && leave.expired
-							? 'EXPIRED'
-							: leave.status,
+					value: leave.status === 'PENDING' && leave.expired ? 'EXPIRED' : leave.status,
 				},
 				{
 					value: leave.updatedAt ? getDate(leave.updatedAt, true) : '---',
@@ -72,12 +67,14 @@ type TableType = {
 };
 
 const LeaveTable = ({ leaves, offset = 0 }: TableType) => {
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'approved' | 'denied' | 'pending'
-	>('all');
+	const [activeRow, setActiveRow] = React.useState<'all' | 'approved' | 'denied' | 'pending'>(
+		'all'
+	);
 
-	const { leaves: deferredValue, offset: deferredOffset } =
-		React.useDeferredValue({ leaves, offset });
+	const { leaves: deferredValue, offset: deferredOffset } = React.useDeferredValue({
+		leaves,
+		offset,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {
