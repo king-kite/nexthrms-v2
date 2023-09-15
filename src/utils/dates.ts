@@ -1,11 +1,41 @@
-export function getOffsetDate(_date?: any, str = false) {
+import dayjs from 'dayjs';
+
+type DateParamType = null | string | Date | number | dayjs.Dayjs;
+type DateStringParamType = boolean | 'dayjs';
+
+export function getDate(passedDate?: DateParamType, str: DateStringParamType = false) {
+	const date = dayjs(passedDate);
+	if (str === 'dayjs') return date;
+	if (str === true) return date.format('YYYY-MM-DD');
+	return date.toDate();
+}
+
+export function getNextDate(passedDate?: DateParamType, nod = 1, str: DateStringParamType = false) {
+	// nod => no_of_days
+	const date = getDate(passedDate, 'dayjs') as dayjs.Dayjs;
+	const newDate = date.add(nod, 'day');
+
+	return getDate(newDate, str);
+}
+
+export function getNoOfDays(start: DateParamType, end: DateParamType) {
+	return dayjs(end).diff(start, 'day');
+}
+
+export function isEqualDate(start: DateParamType, end: DateParamType) {
+	return dayjs(start).isSame(end, 'day');
+}
+
+export function isBeforeDate(start: DateParamType, end: DateParamType) {
+	return dayjs(start).isBefore(end, 'day');
+}
+
+export function getOffsetDate(_date?: Date | string | number, str = false) {
 	const date = getDate(_date) as Date;
 	const offset = date.getTimezoneOffset();
 	const add = offset < 0;
 	date.setMinutes(
-		add
-			? date.getMinutes() + Math.abs(offset)
-			: date.getMinutes() - Math.abs(offset)
+		add ? date.getMinutes() + Math.abs(offset) : date.getMinutes() - Math.abs(offset)
 	);
 	return getDate(date, str);
 }
@@ -34,29 +64,7 @@ export function getStringTime(_date?: Date | string) {
 	return `${hour}:${minutes} ${suffix.toUpperCase()}`;
 }
 
-export const getDate = (
-	dateString?: string | Date,
-	str = false
-): Date | string => {
-	if (dateString) {
-		const date =
-			typeof dateString === 'string' ? new Date(dateString) : dateString;
-		return str ? getStringedDate(date) : date;
-	} else {
-		const currentDate = new Date();
-		const date = new Date(
-			currentDate.getFullYear(),
-			currentDate.getMonth(),
-			currentDate.getDate()
-		);
-		return str ? getStringedDate(date) : date;
-	}
-};
-
-export const getDateString = (
-	_date?: Date,
-	_type?: 'date' | 'day' | 'month' | 'year'
-) => {
+export const getDateString = (_date?: Date, _type?: 'date' | 'day' | 'month' | 'year') => {
 	const date = _date || new Date();
 	const days = [
 		'sunday',
@@ -97,30 +105,6 @@ export const getDateString = (
 	}
 };
 
-export const getNextDate = (
-	date: Date | string,
-	nod = 1,
-	str = false
-): Date | string => {
-	// nod => no_of_days
-	const number_of_days = nod * 24 * 60 * 60 * 1000;
-	const dateTime = getDate(date) as Date;
-	dateTime.setHours(0, 0, 0, 0);
-
-	const nd = new Date(number_of_days + dateTime.getTime());
-	return str ? getStringedDate(nd) : nd;
-};
-
-export function getNoOfDays(start: Date | string, end: Date | string): number {
-	const startEdit = getDate(start) as Date;
-	startEdit.setHours(0, 0, 0, 0);
-	const endEdit = getDate(end) as Date;
-	endEdit.setHours(23, 59, 59, 0);
-	const startDate = startEdit.getTime();
-	const endDate = endEdit.getTime();
-	return Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-}
-
 /*
 
 Return sunday in the specified week
@@ -131,16 +115,10 @@ const monday = getWeekDate(new Date(), 1)
 
 */
 
-export function getWeekDate(
-	weekDate: Date | string = new Date(),
-	day: number = 0
-) {
+export function getWeekDate(weekDate: Date | string = new Date(), day: number = 0) {
 	const aDay = 24 * 60 * 60 * 1000;
-	const currentDate =
-		typeof weekDate === 'string' ? new Date(weekDate) : weekDate;
-	const weekDay = new Date(
-		currentDate.getTime() - +(currentDate.getDay() - day) * aDay
-	);
+	const currentDate = typeof weekDate === 'string' ? new Date(weekDate) : weekDate;
+	const weekDay = new Date(currentDate.getTime() - +(currentDate.getDay() - day) * aDay);
 	weekDay.setHours(0, 0, 0, 0);
 	return weekDay;
 }
