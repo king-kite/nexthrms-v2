@@ -136,12 +136,8 @@ const Detail = ({ admin = false, leave }: { admin?: boolean; leave: LeaveType })
 									value: getDate(data.startDate, true) as string,
 								},
 								{
-									title: 'End Date',
+									title: 'Resumption',
 									value: getDate(data.endDate, true) as string,
-								},
-								{
-									title: 'Resumption Date',
-									value: getNextDate(data.endDate, 1, true) as string,
 								},
 								{
 									title: 'Number Of Days',

@@ -5,7 +5,7 @@ import Leave from '../../../containers/leaves/detail';
 import Title from '../../../utils/components/title';
 import { getServerSideData } from '../../../utils/server';
 
-const Page = ({ leave }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: leave }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
 		<Title title="My Leave Request" />
 		<Leave leave={leave?.data} />
