@@ -1,10 +1,8 @@
 import { Alert, Button, Input } from 'kite-react-tailwind';
 import React from 'react';
 
-import {
-	useCreateHolidayMutation,
-	useEditHolidayMutation,
-} from '../../store/queries/holidays';
+import { useCreateHolidayMutation, useEditHolidayMutation } from '../../store/queries/holidays';
+import { getDate } from '../../utils/dates';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { createHolidaySchema } from '../../validators/holidays';
 
@@ -25,52 +23,52 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		date?: string;
 	}>();
 
-	const { mutate: createHoliday, isLoading: createLoading } =
-		useCreateHolidayMutation(
-			{ onSuccess },
-			{
-				onError(error) {
-					const err = handleAxiosErrors<{
-						name?: string;
-						date?: string;
-					}>(error);
-					if (err) {
-						setError((prevState) => ({
-							...prevState,
-							...err?.data,
-							message:
-								err?.message || 'An error occurred. Unable to create holiday.',
-						}));
-					}
-				},
-			}
-		);
-
-	const { mutate: editHoliday, isLoading: editLoading } =
-		useEditHolidayMutation(
-			{ onSuccess },
-			{
-				onError(error) {
-					const err = handleAxiosErrors<{
-						name?: string;
-						date?: string;
-					}>(error);
+	const { mutate: createHoliday, isLoading: createLoading } = useCreateHolidayMutation(
+		{ onSuccess },
+		{
+			onError(error) {
+				const err = handleAxiosErrors<{
+					name?: string;
+					date?: string;
+				}>(error);
+				if (err) {
 					setError((prevState) => ({
 						...prevState,
 						...err?.data,
-						message:
-							err?.message || 'An error occurred. Unable to create holiday.',
+						message: err?.message || 'An error occurred. Unable to create holiday.',
 					}));
-				},
-			}
-		);
+				}
+			},
+		}
+	);
+
+	const { mutate: editHoliday, isLoading: editLoading } = useEditHolidayMutation(
+		{ onSuccess },
+		{
+			onError(error) {
+				const err = handleAxiosErrors<{
+					name?: string;
+					date?: string;
+				}>(error);
+				setError((prevState) => ({
+					...prevState,
+					...err?.data,
+					message: err?.message || 'An error occurred. Unable to create holiday.',
+				}));
+			},
+		}
+	);
 
 	const handleSubmit = React.useCallback(
 		async (form: { name: string }) => {
 			try {
-				const data = await createHolidaySchema.validate(form, {
+				const valid = await createHolidaySchema.validate(form, {
 					abortEarly: false,
 				});
+				const data = {
+					...valid,
+					date: getDate(valid.date, true) as string,
+				};
 				if (editId) {
 					editHoliday({ id: editId, data });
 				} else {

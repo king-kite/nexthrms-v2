@@ -40,61 +40,63 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 		},
 	});
 
-	const { mutate: createAttendance, isLoading: createLoading } =
-		useCreateAttendanceMutation(
-			{
-				onSuccess() {
-					onSuccess();
-					if (formRef.current) formRef.current.reset();
-				},
+	const { mutate: createAttendance, isLoading: createLoading } = useCreateAttendanceMutation(
+		{
+			onSuccess() {
+				onSuccess();
+				if (formRef.current) formRef.current.reset();
 			},
-			{
-				onError(error) {
-					const err = handleAxiosErrors<
-						AttendanceCreateErrorType & {
-							message?: string;
-						}
-					>(error);
-					setError((prevState) => ({
-						...prevState,
-						...err?.data,
-						message: err?.message,
-					}));
-				},
-			}
-		);
+		},
+		{
+			onError(error) {
+				const err = handleAxiosErrors<
+					AttendanceCreateErrorType & {
+						message?: string;
+					}
+				>(error);
+				setError((prevState) => ({
+					...prevState,
+					...err?.data,
+					message: err?.message,
+				}));
+			},
+		}
+	);
 
-	const { mutate: editAttendance, isLoading: editLoading } =
-		useEditAttendanceMutation(
-			{
-				onSuccess() {
-					onSuccess();
-					if (formRef.current) formRef.current.reset();
-				},
+	const { mutate: editAttendance, isLoading: editLoading } = useEditAttendanceMutation(
+		{
+			onSuccess() {
+				onSuccess();
+				if (formRef.current) formRef.current.reset();
 			},
-			{
-				onError(error) {
-					const err = handleAxiosErrors<
-						AttendanceCreateErrorType & {
-							message?: string;
-						}
-					>(error);
-					setError((prevState) => ({
-						...prevState,
-						...err?.data,
-						message: err?.message,
-					}));
-				},
-			}
-		);
+		},
+		{
+			onError(error) {
+				const err = handleAxiosErrors<
+					AttendanceCreateErrorType & {
+						message?: string;
+					}
+				>(error);
+				setError((prevState) => ({
+					...prevState,
+					...err?.data,
+					message: err?.message,
+				}));
+			},
+		}
+	);
 
 	const handleSubmit = React.useCallback(
 		async (form: AttendanceCreateType) => {
 			try {
 				setError(undefined);
-				const data = await attendanceCreateSchema.validate(form, {
+				const valid = await attendanceCreateSchema.validate(form, {
 					abortEarly: false,
 				});
+				const data = {
+					...valid,
+					date: getDate(valid.date, true) as string,
+				};
 				if (editId) {
 					editAttendance({ id: editId, data });
 				} else {
@@ -178,9 +180,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 									empLoading,
 								onClick: () => {
 									if (employees && employees.total >= employees.result.length) {
-										setLimit(
-											(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-										);
+										setLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 									}
 								},
 								title: empFetching
@@ -205,8 +205,7 @@ function Form({ form, editId, onChange, onSuccess }: FormProps) {
 							options={
 								employees?.result
 									? employees.result.map((employee) => ({
-											title:
-												employee.user.firstName + ' ' + employee.user.lastName,
+											title: employee.user.firstName + ' ' + employee.user.lastName,
 											value: employee.id,
 									  }))
 									: []

@@ -48,7 +48,10 @@ export type ProjectType = {
 	updatedAt: Date | string;
 };
 
-export type CreateProjectQueryType = ProjectCreateType;
+export type CreateProjectQueryType = Omit<ProjectCreateType, 'startDate' | 'endDate'> & {
+	startDate: Date | string;
+	endDate: Date | string;
+};
 
 export type CreateProjectErrorResponseType = ValidatorErrorType<CreateProjectQueryType>;
 
@@ -177,7 +180,9 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 	};
 }>;
 
-export type CreateProjectTaskQueryType = ProjectTaskCreateType;
+export type CreateProjectTaskQueryType = Omit<ProjectTaskCreateType, 'dueDate'> & {
+	dueDate: Date | string;
+};
 
 export type CreateProjectTaskErrorResponseType = ValidatorErrorType<ProjectTaskCreateType> & {
 	message?: string;

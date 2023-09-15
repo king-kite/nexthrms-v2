@@ -1,22 +1,11 @@
-import {
-	Alert,
-	Button,
-	Input,
-	Select,
-	Select2,
-	Textarea,
-} from 'kite-react-tailwind';
+import { Alert, Button, Input, Select, Select2, Textarea } from 'kite-react-tailwind';
 import React from 'react';
 
 import { DEFAULT_IMAGE, DEFAULT_PAGINATION_SIZE } from '../../config';
 import { useGetClientsQuery } from '../../store/queries/clients';
 import { useGetEmployeesQuery } from '../../store/queries/employees';
-import {
-	CreateProjectErrorResponseType,
-	CreateProjectQueryType,
-	ProjectType,
-} from '../../types';
-import { getStringedDate, toCapitalize } from '../../utils';
+import { CreateProjectErrorResponseType, CreateProjectQueryType, ProjectType } from '../../types';
+import { getStringedDate, getDate, toCapitalize } from '../../utils';
 import { handleYupErrors } from '../../validators';
 import { projectCreateSchema } from '../../validators/projects';
 
@@ -27,9 +16,7 @@ interface ErrorType extends CreateProjectErrorResponseType {
 export type FormProps = {
 	editMode?: boolean;
 	errors?: ErrorType;
-	resetErrors?: React.Dispatch<
-		React.SetStateAction<CreateProjectErrorResponseType | undefined>
-	>;
+	resetErrors?: React.Dispatch<React.SetStateAction<CreateProjectErrorResponseType | undefined>>;
 	initState?: ProjectType;
 	loading: boolean;
 	success?: boolean;
@@ -61,8 +48,7 @@ const Form = ({
 				.filter((member) => member.isLeader && member)
 				.map((member) => member.employee.id) || [],
 	});
-	const [formErrors, setErrors] =
-		React.useState<CreateProjectErrorResponseType>();
+	const [formErrors, setErrors] = React.useState<CreateProjectErrorResponseType>();
 
 	const [clientLimit, setClientLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
@@ -125,7 +111,12 @@ const Form = ({
 				const valid = await projectCreateSchema.validate(form, {
 					abortEarly: false,
 				});
-				if (valid) onSubmit(form);
+				const data = {
+					...valid,
+					startDate: getDate(valid.startDate, true) as string,
+					endDate: getDate(valid.endDate, true) as string,
+				};
+				onSubmit(data);
 			} catch (error) {
 				const err = handleYupErrors<CreateProjectErrorResponseType>(error);
 				if (err) {
@@ -203,31 +194,22 @@ const Form = ({
 							caps: true,
 							disabled:
 								clients.isFetching ||
-								(clients.data &&
-									clients.data.result.length >= clients.data.total),
+								(clients.data && clients.data.result.length >= clients.data.total),
 							onClick: () => {
-								if (
-									clients.data &&
-									clients.data.total > clients.data.result.length
-								) {
-									setClientLimit(
-										(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-									);
+								if (clients.data && clients.data.total > clients.data.result.length) {
+									setClientLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
 							title: clients.isFetching
 								? 'loading...'
-								: clients.data &&
-								  clients.data.result.length >= clients.data.total
+								: clients.data && clients.data.result.length >= clients.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
 						disabled={clients.isLoading || loading}
 						error={clientsError || formErrors?.client || errors?.client}
 						label="Client"
-						onChange={({ target: { value } }) =>
-							handleFormChange('client', value)
-						}
+						onChange={({ target: { value } }) => handleFormChange('client', value)}
 						required={false}
 						placeholder="Select Client"
 						options={
@@ -245,9 +227,7 @@ const Form = ({
 													...total,
 													{
 														title: toCapitalize(
-															client.contact.firstName +
-																' ' +
-																client.contact.lastName
+															client.contact.firstName + ' ' + client.contact.lastName
 														),
 														value: client.id,
 													},
@@ -263,11 +243,7 @@ const Form = ({
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end">
 					<Input
-						defaultValue={
-							initState?.startDate
-								? getStringedDate(initState.startDate)
-								: undefined
-						}
+						defaultValue={initState?.startDate ? getStringedDate(initState.startDate) : undefined}
 						disabled={loading}
 						error={formErrors?.startDate || errors?.startDate}
 						label="Start Date"
@@ -279,11 +255,7 @@ const Form = ({
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end">
 					<Input
-						defaultValue={
-							initState?.endDate
-								? getStringedDate(initState.endDate)
-								: undefined
-						}
+						defaultValue={initState?.endDate ? getStringedDate(initState.endDate) : undefined}
 						disabled={loading}
 						error={formErrors?.endDate || errors?.endDate}
 						label="Deadline"
@@ -359,22 +331,15 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data &&
-									employees.data.result.length >= employees.data.total),
+								(employees.data && employees.data.result.length >= employees.data.total),
 							onClick: () => {
-								if (
-									employees.data &&
-									employees.data.total > employees.data.result.length
-								) {
-									setEmpLimit(
-										(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-									);
+								if (employees.data && employees.data.total > employees.data.result.length) {
+									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
 							title: employees.isFetching
 								? 'loading...'
-								: employees.data &&
-								  employees.data.result.length >= employees.data.total
+								: employees.data && employees.data.result.length >= employees.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
@@ -412,13 +377,8 @@ const Form = ({
 													return [
 														...total,
 														{
-															image:
-																employee.user.profile?.image?.url ||
-																DEFAULT_IMAGE,
-															title:
-																employee.user.firstName +
-																' ' +
-																employee.user.lastName,
+															image: employee.user.profile?.image?.url || DEFAULT_IMAGE,
+															title: employee.user.firstName + ' ' + employee.user.lastName,
 															value: employee.id,
 														},
 													];
@@ -452,22 +412,15 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data &&
-									employees.data.result.length >= employees.data.total),
+								(employees.data && employees.data.result.length >= employees.data.total),
 							onClick: () => {
-								if (
-									employees.data &&
-									employees.data.total > employees.data.result.length
-								) {
-									setEmpLimit(
-										(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-									);
+								if (employees.data && employees.data.total > employees.data.result.length) {
+									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
 							title: employees.isFetching
 								? 'loading...'
-								: employees.data &&
-								  employees.data.result.length >= employees.data.total
+								: employees.data && employees.data.result.length >= employees.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
@@ -505,13 +458,8 @@ const Form = ({
 													return [
 														...total,
 														{
-															image:
-																employee.user.profile?.image?.url ||
-																DEFAULT_IMAGE,
-															title:
-																employee.user.firstName +
-																' ' +
-																employee.user.lastName,
+															image: employee.user.profile?.image?.url || DEFAULT_IMAGE,
+															title: employee.user.firstName + ' ' + employee.user.lastName,
 															value: employee.id,
 														},
 													];

@@ -23,17 +23,9 @@ type FormProps = {
 	onSubmit: (form: CreateOvertimeQueryType) => void;
 };
 
-const Form = ({
-	adminView,
-	initState,
-	errors,
-	loading,
-	onSubmit,
-	success,
-}: FormProps) => {
+const Form = ({ adminView, initState, errors, loading, onSubmit, success }: FormProps) => {
 	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
-	const [formErrors, setErrors] =
-		React.useState<CreateOvertimeErrorResponseType>();
+	const [formErrors, setErrors] = React.useState<CreateOvertimeErrorResponseType>();
 
 	const formRef = React.useRef<HTMLFormElement | null>(null);
 
@@ -68,7 +60,11 @@ const Form = ({
 				const valid = await overtimeCreateSchema.validate(form, {
 					abortEarly: false,
 				});
-				onSubmit(valid);
+				const data = {
+					...valid,
+					date: getDate(valid.date, true) as string,
+				};
+				onSubmit(data);
 			} catch (error) {
 				const err = handleYupErrors<CreateOvertimeErrorResponseType>(error);
 				if (err) {
@@ -114,35 +110,24 @@ const Form = ({
 								caps: true,
 								disabled:
 									employees.isFetching ||
-									(employees.data &&
-										employees.data.result.length >= employees.data.total),
+									(employees.data && employees.data.result.length >= employees.data.total),
 								onClick: () => {
-									if (
-										employees.data &&
-										employees.data.total > employees.data.result.length
-									) {
-										setEmpLimit(
-											(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-										);
+									if (employees.data && employees.data.total > employees.data.result.length) {
+										setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 									}
 								},
 								title: employees.isFetching
 									? 'loading...'
-									: employees.data &&
-									  employees.data.result.length >= employees.data.total
+									: employees.data && employees.data.result.length >= employees.data.total
 									? 'loaded all'
 									: 'load more',
 							}}
-							defaultValue={
-								(!employees.isLoading && initState?.employee.id) || undefined
-							}
+							defaultValue={(!employees.isLoading && initState?.employee.id) || undefined}
 							disabled={employees.isLoading || loading}
 							error={employeesError || formErrors?.employee}
 							label="Employee"
 							name="employee"
-							onChange={({ target: { value } }) =>
-								handleChange('employee', value)
-							}
+							onChange={({ target: { value } }) => handleChange('employee', value)}
 							placeholder="Select Employee"
 							options={
 								employees.data
@@ -159,9 +144,7 @@ const Form = ({
 														...total,
 														{
 															title: toCapitalize(
-																employee.user.firstName +
-																	' ' +
-																	employee.user.lastName
+																employee.user.firstName + ' ' + employee.user.lastName
 															),
 															value: employee.id,
 														},

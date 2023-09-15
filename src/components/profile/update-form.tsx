@@ -12,7 +12,7 @@ import {
 	ProfileUpdateErrorResponseType,
 	SuccessResponseType,
 } from '../../types';
-import { getStringedDate } from '../../utils';
+import { getStringedDate, getDate } from '../../utils/dates';
 import { axiosInstance } from '../../utils/axios';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { profileUpdateSchema } from '../../validators/auth';
@@ -89,9 +89,16 @@ const Form = ({ profile, onSuccess }: { profile: ProfileType; onSuccess: () => v
 		async (form: ProfileUpdateType) => {
 			try {
 				setErrors(undefined);
-				const valid = await profileUpdateSchema.validate(form, {
+				const data = await profileUpdateSchema.validate(form, {
 					abortEarly: false,
 				});
+				const valid = {
+					...data,
+					profile: {
+						...data.profile,
+						dob: data.profile.dob ? (getDate(data.profile.dob, true) as string) : undefined,
+					},
+				};
 				if (valid) {
 					const form = new FormData();
 					valid.profile.image && form.append('image', valid.profile.image as string);

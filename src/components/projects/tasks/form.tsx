@@ -1,11 +1,4 @@
-import {
-	Alert,
-	Button,
-	Input,
-	Select,
-	Select2,
-	Textarea,
-} from 'kite-react-tailwind';
+import { Alert, Button, Input, Select, Select2, Textarea } from 'kite-react-tailwind';
 import { useRouter } from 'next/router';
 import React from 'react';
 
@@ -16,7 +9,7 @@ import {
 	CreateProjectTaskQueryType,
 	ProjectTaskType,
 } from '../../../types';
-import { getStringedDate, toCapitalize } from '../../../utils';
+import { getStringedDate, getDate, toCapitalize } from '../../../utils';
 import { handleYupErrors } from '../../../validators';
 import { taskCreateSchema } from '../../../validators/projects';
 
@@ -57,8 +50,7 @@ const Form = ({
 				.filter((follower) => follower.isLeader && follower)
 				.map((follower) => follower.member.id) || [],
 	});
-	const [formErrors, setErrors] =
-		React.useState<CreateProjectTaskErrorResponseType>();
+	const [formErrors, setErrors] = React.useState<CreateProjectTaskErrorResponseType>();
 
 	const [empLimit, setEmpLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
 
@@ -107,7 +99,11 @@ const Form = ({
 				const valid = await taskCreateSchema.validate(form, {
 					abortEarly: false,
 				});
-				if (valid) onSubmit(form);
+				const data = {
+					...valid,
+					dueDate: getDate(valid.dueDate, true) as string,
+				};
+				onSubmit(data);
 			} catch (error) {
 				const err = handleYupErrors<CreateProjectTaskErrorResponseType>(error);
 				if (err) {
@@ -192,11 +188,7 @@ const Form = ({
 				</div>
 				<div className="w-full md:flex md:flex-col md:justify-end">
 					<Input
-						defaultValue={
-							initState?.dueDate
-								? getStringedDate(initState.dueDate)
-								: undefined
-						}
+						defaultValue={initState?.dueDate ? getStringedDate(initState.dueDate) : undefined}
 						disabled={loading}
 						error={formErrors?.dueDate || errors?.dueDate}
 						label="Due Date"
@@ -233,22 +225,15 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data &&
-									employees.data.result.length >= employees.data.total),
+								(employees.data && employees.data.result.length >= employees.data.total),
 							onClick: () => {
-								if (
-									employees.data &&
-									employees.data.total > employees.data.result.length
-								) {
-									setEmpLimit(
-										(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-									);
+								if (employees.data && employees.data.total > employees.data.result.length) {
+									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
 							title: employees.isFetching
 								? 'loading...'
-								: employees.data &&
-								  employees.data.result.length >= employees.data.total
+								: employees.data && employees.data.result.length >= employees.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
@@ -285,13 +270,9 @@ const Form = ({
 												return [
 													...total,
 													{
-														image:
-															member.employee.user.profile?.image?.url ||
-															DEFAULT_IMAGE,
+														image: member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 														title: toCapitalize(
-															member.employee.user.firstName +
-																' ' +
-																member.employee.user.lastName
+															member.employee.user.firstName + ' ' + member.employee.user.lastName
 														),
 														value: member.id,
 													},
@@ -325,22 +306,15 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data &&
-									employees.data.result.length >= employees.data.total),
+								(employees.data && employees.data.result.length >= employees.data.total),
 							onClick: () => {
-								if (
-									employees.data &&
-									employees.data.total > employees.data.result.length
-								) {
-									setEmpLimit(
-										(prevState) => prevState + DEFAULT_PAGINATION_SIZE
-									);
+								if (employees.data && employees.data.total > employees.data.result.length) {
+									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
 							title: employees.isFetching
 								? 'loading...'
-								: employees.data &&
-								  employees.data.result.length >= employees.data.total
+								: employees.data && employees.data.result.length >= employees.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
@@ -352,9 +326,7 @@ const Form = ({
 								// Remove from selection
 								setForm((prevState) => ({
 									...prevState,
-									followers: prevState.followers.filter(
-										(item) => item !== value
-									),
+									followers: prevState.followers.filter((item) => item !== value),
 								}));
 							} else {
 								// Add to selection
@@ -379,13 +351,9 @@ const Form = ({
 												return [
 													...total,
 													{
-														image:
-															member.employee.user.profile?.image?.url ||
-															DEFAULT_IMAGE,
+														image: member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
 														title: toCapitalize(
-															member.employee.user.firstName +
-																' ' +
-																member.employee.user.lastName
+															member.employee.user.firstName + ' ' + member.employee.user.lastName
 														),
 														value: member.id,
 													},

@@ -48,6 +48,8 @@ export type GetAllOvertimeResponseType = SuccessResponseType<{
 	result: OvertimeType[];
 }>;
 
-export type CreateOvertimeQueryType = OvertimeCreateType;
+export type CreateOvertimeQueryType = Omit<OvertimeCreateType, 'date'> & {
+	date: Date | string;
+};
 
 export type CreateOvertimeErrorResponseType = ValidatorErrorType<CreateOvertimeQueryType>;
