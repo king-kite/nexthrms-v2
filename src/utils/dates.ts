@@ -40,28 +40,22 @@ export function getOffsetDate(_date?: Date | string | number, str = false) {
 	return getDate(date, str);
 }
 
-export function getStringedDate(_date?: Date | string) {
-	const date = _date ? (getDate(_date) as Date) : new Date();
-	let day: string | number = date.getDate();
-	if (day < 10) day = `0${day}`;
-	let month: string | number = date.getMonth() + 1; // month starts from 0 to 11
-	if (month < 10) month = `0${month}`;
-	const year = date.getFullYear();
-	return `${year}-${month}-${day}`;
+export function getStringedDate(date?: DateParamType) {
+	return getDate(date, true) as string;
 }
 
-export function getStringDateTime(_date?: Date | string) {
-	const date = _date ? (getDate(_date) as Date) : new Date();
-	return `${date.toDateString()}, ${getStringTime(date)}`;
-}
-
-export function getStringTime(_date?: Date | string) {
-	const date = _date ? (getDate(_date) as Date) : new Date();
+export function getStringTime(passedDate?: DateParamType) {
+	const date = passedDate ? (getDate(passedDate, false) as Date) : new Date();
 	const _hour = date.getHours();
 	const hour = _hour === 0 ? 12 : _hour > 12 ? _hour - 12 : _hour;
 	const minutes = date.getMinutes().toString().padStart(2, '0');
 	const suffix = _hour > 11 ? 'pm' : 'am';
 	return `${hour}:${minutes} ${suffix.toUpperCase()}`;
+}
+
+export function getStringDateTime(_date?: Date | string) {
+	const date = _date ? (getDate(_date, false) as Date) : new Date();
+	return `${date.toDateString()}, ${getStringTime(date)}`;
 }
 
 export const getDateString = (_date?: Date, _type?: 'date' | 'day' | 'month' | 'year') => {
