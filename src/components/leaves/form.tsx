@@ -153,7 +153,12 @@ const Form = ({ adminView, initState, errors, loading, onSubmit, success }: Form
 				const valid = await leaveCreateSchema.validate(form, {
 					abortEarly: false,
 				});
-				onSubmit(valid);
+				const data = {
+					...valid,
+					startDate: getDate(valid.startDate, true) as string,
+					endDate: getDate(valid.endDate, true) as string,
+				};
+				onSubmit(data);
 			} catch (error) {
 				const err = handleYupErrors<CreateLeaveErrorResponseType>(error);
 				if (err) {
