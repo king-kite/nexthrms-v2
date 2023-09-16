@@ -96,6 +96,12 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 				message: 'Employee was re-appointed successfully!',
 			});
 		},
+		onError(error) {
+			open({
+				type: 'danger',
+				message: error.message,
+			});
+		},
 	});
 
 	const { deleteMember } = useDeleteProjectTeamMemberMutation({
@@ -103,6 +109,12 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 			open({
 				type: 'success',
 				message: 'Employee was removed successfully!',
+			});
+		},
+		onError(error) {
+			open({
+				type: 'danger',
+				message: error.message,
 			});
 		},
 	});
