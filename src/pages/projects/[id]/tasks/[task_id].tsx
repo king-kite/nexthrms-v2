@@ -8,7 +8,7 @@ import { getServerSideData } from '../../../../utils/server';
 
 const Page = ({ data: task }: { data: SuccessResponseType<ProjectTaskType> }) => (
 	<>
-		<Title title={task?.data.name + ' Task Information'} />
+		<Title title={task?.data?.name + ' Task Information'} />
 		<TaskDetailPage task={task?.data} />
 	</>
 );

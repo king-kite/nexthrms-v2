@@ -8,7 +8,7 @@ import { getServerSideData } from '../../../utils/server';
 function Page({ data: project }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	return (
 		<>
-			<Title title={`${project?.data.name} - Project Information`} />
+			<Title title={`${project?.data?.name} - Project Information`} />
 			<Project project={project?.data} />
 		</>
 	);

@@ -121,11 +121,11 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 			});
 			setModalVisible(false);
 		},
-		onError(err) {
-			setErrors((prevState) => ({
-				...prevState,
-				...err,
-			}));
+		onError(error) {
+			open({
+				type: 'danger',
+				message: error.message,
+			});
 		},
 	});
 
@@ -136,6 +136,12 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 				message: 'Task follower was re-appointed successfully!',
 			});
 		},
+		onError(error) {
+			open({
+				type: 'danger',
+				message: error.message,
+			});
+		},
 	});
 
 	const { deleteTask } = useDeleteProjectTaskMutation({
@@ -144,6 +150,12 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 			open({
 				type: 'success',
 				message: 'Task was deleted successfully!',
+			});
+		},
+		onError(error) {
+			open({
+				type: 'danger',
+				message: error.message,
 			});
 		},
 	});
@@ -431,7 +443,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 												color: 'text-red-500',
 												onClick: () =>
 													deleteFollower({
-														id: follower.member.id,
+														id: follower.id,
 														taskId,
 														projectId: id,
 													}),
@@ -463,7 +475,7 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 																			decision: 'appoint',
 																			projectId: id,
 																			taskId,
-																			id: follower.member.id,
+																			id: follower.id,
 																			data: {
 																				memberId: follower.member.id,
 																				isLeader: true,

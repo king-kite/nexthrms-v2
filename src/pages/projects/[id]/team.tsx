@@ -8,7 +8,7 @@ import { getServerSideData } from '../../../utils/server';
 
 const Page = ({ data: project }: { data: GetProjectTeamResponseType }) => (
 	<>
-		<Title title={`Project Team - ${project?.data?.project.name} - Project Team Information`} />
+		<Title title={`Project Team - ${project?.data?.project?.name} - Project Team Information`} />
 		<Team projectData={project?.data} />
 	</>
 );

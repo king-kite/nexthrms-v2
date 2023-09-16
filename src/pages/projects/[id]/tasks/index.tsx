@@ -7,7 +7,7 @@ import { getServerSideData } from '../../../../utils/server';
 
 const Page = ({ data: tasks }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
 	<>
-		<Title title={tasks?.data.project.name + ' Project Tasks'} />
+		<Title title={tasks?.data?.project.name + ' Project Tasks'} />
 		<Tasks tasks={tasks?.data} />
 	</>
 );
