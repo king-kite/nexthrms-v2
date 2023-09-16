@@ -1,13 +1,14 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps } from 'next';
 
 import { PROJECT_TEAM_URL } from '../../../config/services';
 import Team from '../../../containers/projects/detail/team';
+import type { GetProjectTeamResponseType } from '../../../types';
 import Title from '../../../utils/components/title';
 import { getServerSideData } from '../../../utils/server';
 
-const Page = ({ data: project }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
+const Page = ({ data: project }: { data: GetProjectTeamResponseType }) => (
 	<>
-		<Title title={`Project Team - ${project.name} - Project Team Information`} />
+		<Title title={`Project Team - ${project?.data?.project.name} - Project Team Information`} />
 		<Team projectData={project?.data} />
 	</>
 );

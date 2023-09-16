@@ -19,11 +19,11 @@ import { useAxiosInstance } from '../../../hooks';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useGetUserObjectPermissionsQuery } from '../../../store/queries/permissions';
 import {
-	useGetProjectQuery,
+	useGetProjectTeamQuery,
 	useAppointProjectTeamLeaderMutation,
 	useDeleteProjectTeamMemberMutation,
 } from '../../../store/queries/projects';
-import type { ProjectType, SuccessResponseType } from '../../../types';
+import type { ProjectType, GetProjectTeamResponseType, SuccessResponseType } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 
 const DynamicAlert = dynamic<any>(() => import('kite-react-tailwind').then((mod) => mod.Alert), {
@@ -45,7 +45,7 @@ const DynamicModal = dynamic<any>(
 	}
 );
 
-const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['data'] }) => {
+const Team = ({ projectData }: { projectData: GetProjectTeamResponseType['data'] }) => {
 	const router = useRouter();
 	const id = router.query.id as string;
 
@@ -54,7 +54,7 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
-	const { data, error, isLoading, isFetching, refetch } = useGetProjectQuery(
+	const { data, error, isLoading, isFetching, refetch } = useGetProjectTeamQuery(
 		{ id },
 		{
 			initialData() {
@@ -77,14 +77,14 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 
 	const leaders = React.useMemo(() => {
 		if (data) {
-			return data.team.filter((member) => member.isLeader === true);
+			return data.result.filter((member) => member.isLeader === true);
 		}
 		return [];
 	}, [data]);
 
 	const team = React.useMemo(() => {
 		if (data) {
-			return data.team.filter((member) => member.isLeader === false);
+			return data.result.filter((member) => member.isLeader === false);
 		}
 		return [];
 	}, [data]);
@@ -143,7 +143,7 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 		<Container
 			background="bg-gray-100"
 			loading={isLoading}
-			heading={data ? `${data.name} - Team Information` : 'Team Information'}
+			heading={data ? `${data.project.name} - Team Information` : 'Team Information'}
 			refresh={{
 				loading: isFetching,
 				onClick: () => {
@@ -208,7 +208,7 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 						<div className="bg-white p-4 rounded-md">
 							<div className="my-2">
 								<h3 className="capitalize font-bold text-lg text-gray-800 tracking-wide md:text-xl">
-									{data.name}
+									{data.project.name}
 								</h3>
 							</div>
 						</div>
@@ -218,14 +218,18 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 									Client
 								</h3>
 							</div>
-							{data && data.client ? (
+							{data && data.project.client ? (
 								<div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-4">
 									<PersonCard
-										title={data.client.company || '------'}
-										name={data.client.contact.firstName + ' ' + data.client.contact.lastName}
-										label={data.client.position || '------'}
+										title={data.project.client.company || '------'}
+										name={
+											data.project.client.contact.firstName +
+											' ' +
+											data.project.client.contact.lastName
+										}
+										label={data.project.client.position || '------'}
 										image={{
-											src: data.client.contact.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.project.client.contact.profile?.image?.url || DEFAULT_IMAGE,
 										}}
 										actions={[
 											{
@@ -233,7 +237,7 @@ const Team = ({ projectData }: { projectData: SuccessResponseType<ProjectType>['
 												border: 'border border-green-500 hover:border-green-600',
 												color: 'text-green-600',
 												loader: true,
-												link: CLIENT_PAGE_URL(data.client.id),
+												link: CLIENT_PAGE_URL(data.project.client.id),
 												title: 'view profile',
 											},
 										]}

@@ -225,7 +225,7 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data && employees.data.result.length >= employees.data.total),
+								(employees.data?.result && employees.data.result.length >= employees.data.total),
 							onClick: () => {
 								if (employees.data && employees.data.total > employees.data.result.length) {
 									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
@@ -233,7 +233,7 @@ const Form = ({
 							},
 							title: employees.isFetching
 								? 'loading...'
-								: employees.data && employees.data.result.length >= employees.data.total
+								: employees.data?.result && employees.data.result.length >= employees.data.total
 								? 'loaded all'
 								: 'load more',
 						}}
@@ -257,7 +257,7 @@ const Form = ({
 						}}
 						error={employeesError || formErrors?.followers || errors?.followers}
 						options={
-							employees.data
+							employees.data?.result
 								? employees.data.result
 										.reduce(
 											(
@@ -306,9 +306,12 @@ const Form = ({
 							caps: true,
 							disabled:
 								employees.isFetching ||
-								(employees.data && employees.data.result.length >= employees.data.total),
+								(employees.data?.result && employees.data.result.length >= employees.data.total),
 							onClick: () => {
-								if (employees.data && employees.data.total > employees.data.result.length) {
+								if (
+									employees.data?.result &&
+									employees.data?.total > employees.data?.result.length
+								) {
 									setEmpLimit((prevState) => prevState + DEFAULT_PAGINATION_SIZE);
 								}
 							},
@@ -338,7 +341,7 @@ const Form = ({
 						}}
 						error={employeesError || formErrors?.followers || errors?.followers}
 						options={
-							employees.data
+							employees.data?.result
 								? employees.data.result
 										.reduce(
 											(

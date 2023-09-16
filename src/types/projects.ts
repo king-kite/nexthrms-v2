@@ -90,7 +90,32 @@ export type ProjectTeamType = {
 	updatedAt: Date | string;
 };
 
-export type GetProjectTeamResponseType = PaginatedResponseType<ProjectTeamType[]>;
+export type GetProjectTeamResponseType = SuccessResponseType<{
+	total: number;
+	result: ProjectTeamType[];
+	project: {
+		id: string;
+		name: string;
+		client: {
+			id: string;
+			company: string;
+			position: string;
+			contact: {
+				id: string;
+				firstName: string;
+				lastName: string;
+				email: string;
+				profile: {
+					image: {
+						id: string;
+						url: string | null;
+						location: string;
+					} | null;
+				} | null;
+			};
+		} | null;
+	};
+}>;
 
 export type CreateProjectTeamQueryType = ProjectTeamCreateType;
 
@@ -181,6 +206,19 @@ export type GetProjectTasksResponseType = SuccessResponseType<{
 	project: {
 		id: string;
 		name: string;
+	};
+}>;
+
+export type GetProjectTaskFollowersResponseType = SuccessResponseType<{
+	total: number;
+	result: ProjectTeamType[];
+	task: {
+		id: string;
+		name: string;
+		project: {
+			id: string;
+			name: string;
+		};
 	};
 }>;
 
