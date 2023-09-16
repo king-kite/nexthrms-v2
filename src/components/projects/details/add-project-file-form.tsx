@@ -22,25 +22,22 @@ const AddProjectFileForm = ({
 	const [imageName, setImageName] = React.useState<string>();
 
 	const { open } = useAlertModalContext();
-	const [formErrors, setFormErrors] =
-		React.useState<CreateProjectFileErrorResponseType>();
+	const [formErrors, setFormErrors] = React.useState<CreateProjectFileErrorResponseType>();
 
-	const { mutate: createProjectFile, isLoading } = useCreateProjectFileMutation(
-		{
-			onError(err) {
-				setFormErrors((prevState) => ({ ...prevState, ...err }));
-			},
-			onSuccess() {
-				onClose();
-				setImageName(undefined);
-				open({
-					header: 'File Added',
-					color: 'success',
-					message: 'File was added to project successfully',
-				});
-			},
-		}
-	);
+	const { mutate: createProjectFile, isLoading } = useCreateProjectFileMutation({
+		onError(err) {
+			setFormErrors((prevState) => ({ ...prevState, ...err }));
+		},
+		onSuccess() {
+			onClose();
+			setImageName(undefined);
+			open({
+				header: 'File Added',
+				color: 'success',
+				message: 'File was added to project successfully',
+			});
+		},
+	});
 
 	const handleSubmit = React.useCallback(
 		async (form: { name: string; file: File }) => {
@@ -115,7 +112,13 @@ const AddProjectFileForm = ({
 						<File
 							accept={accept}
 							disabled={isLoading}
-							error={formErrors?.file}
+							error={
+								formErrors?.file
+									? typeof formErrors.file === 'string'
+										? formErrors.file
+										: formErrors.file.url
+									: undefined
+							}
 							label={label || 'File'}
 							name="file"
 							onChange={({ target: { files } }) => {

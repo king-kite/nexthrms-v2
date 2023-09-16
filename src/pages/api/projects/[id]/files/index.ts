@@ -27,7 +27,7 @@ export default auth()
 
 		if (!files.file) throw new NextErrorMessage(400, 'File was not provided.');
 
-		const name = JSON.parse(getFormFields(fields.name)[0]);
+		const name = getFormFields(fields.name)[0];
 		const [file] = getFormFiles(files.file);
 
 		const formData = new FormData();

@@ -95,14 +95,14 @@ const ProjectImages = ({ files }: ProjectImagesProps) => {
 									<Image
 										className="h-full rounded-md w-full"
 										layout="fill"
-										src={file.file.url || file.file.location}
+										src={file.file.url || `/${file.file.location}`}
 										alt=""
 									/>
 								</div>
 								<span
 									onClick={() =>
 										downloadFile({
-											url: file.file.url || file.file.location,
+											url: file.file.url || `/${file.file.location}`,
 											name: file.file.name,
 										})
 									}

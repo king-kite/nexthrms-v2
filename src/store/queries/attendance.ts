@@ -21,6 +21,7 @@ import {
 	SuccessResponseType,
 } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
+import { getDate } from '../../utils/dates';
 import { handleAxiosErrors } from '../../validators';
 
 // get attendance records
@@ -117,9 +118,9 @@ export function usePunchAttendanceMutation(
 	const queryClient = useQueryClient();
 
 	const { mutate, ...mutation } = useMutation(
-		(action: 'IN' | 'OUT') =>
+		(data: { action: 'IN' | 'OUT'; date?: string | Date }) =>
 			axiosInstance
-				.post(ATTENDANCE_URL, { action })
+				.post(ATTENDANCE_URL, data)
 				.then((response: AxiosResponse<SuccessResponseType<AttendanceType>>) => response.data.data),
 		{
 			async onSuccess() {
@@ -137,7 +138,7 @@ export function usePunchAttendanceMutation(
 				}
 			},
 			async onSettled(data, error, variables) {
-				if (variables === 'OUT') close();
+				if (variables.action === 'OUT') close();
 			},
 			...queryOptions,
 		}
@@ -161,7 +162,7 @@ export function usePunchAttendanceMutation(
 					caps: true,
 					onClick: () => {
 						showLoader();
-						mutate('OUT');
+						mutate({ date: getDate(undefined, true) as string, action: 'OUT' });
 					},
 					title: 'Punch Out',
 				},
@@ -171,7 +172,7 @@ export function usePunchAttendanceMutation(
 
 	const handlePunch = React.useCallback(
 		(action: 'IN' | 'OUT') => {
-			if (action === 'IN') mutate('IN');
+			if (action === 'IN') mutate({ date: getDate(undefined, true) as string, action: 'IN' });
 			else punchOut();
 		},
 		[mutate, punchOut]

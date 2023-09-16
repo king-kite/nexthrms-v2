@@ -3,11 +3,7 @@ import { InferType, array, boolean, date, mixed, number, object, string } from '
 export const projectCreateSchema = object({
 	name: string().required().label('Name'),
 	description: string().nullable().optional().label('Description'),
-	priority: string()
-		.optional()
-		.oneOf(['HIGH', 'MEDIUM', 'LOW'])
-		.default('HIGH')
-		.label('Priority'),
+	priority: string().optional().oneOf(['HIGH', 'MEDIUM', 'LOW']).default('HIGH').label('Priority'),
 	initialCost: number().min(0).optional().default(0).label('Initial Cost'),
 	rate: number().min(0).optional().default(0).label('Rate'),
 	startDate: date().required().label('Start Date'),
@@ -51,11 +47,7 @@ export const projectTeamMemberUpdateSchema = object({
 export const taskCreateSchema = object({
 	name: string().required().label('Name'),
 	description: string().nullable().optional().label('Description'),
-	priority: string()
-		.optional()
-		.oneOf(['HIGH', 'MEDIUM', 'LOW'])
-		.default('HIGH')
-		.label('Priority'),
+	priority: string().optional().oneOf(['HIGH', 'MEDIUM', 'LOW']).default('HIGH').label('Priority'),
 	dueDate: date().required().label('Due Date'),
 	completed: boolean().optional().label('Completed'),
 	followers: array()
@@ -90,13 +82,7 @@ export const projectTaskFollowerUpdateSchema = object({
 export type ProjectCreateType = InferType<typeof projectCreateSchema>;
 export type ProjectFileCreateType = InferType<typeof projectFileCreateSchema>;
 export type ProjectTeamCreateType = InferType<typeof projectTeamCreateSchema>;
-export type ProjectTeamMemberUpdateType = InferType<
-	typeof projectTeamMemberUpdateSchema
->;
+export type ProjectTeamMemberUpdateType = InferType<typeof projectTeamMemberUpdateSchema>;
 export type ProjectTaskCreateType = InferType<typeof taskCreateSchema>;
-export type ProjectTaskFollowersCreateType = InferType<
-	typeof projectTaskFollowersCreateSchema
->;
-export type ProjectTaskFollowerUpdateType = InferType<
-	typeof projectTaskFollowerUpdateSchema
->;
+export type ProjectTaskFollowersCreateType = InferType<typeof projectTaskFollowersCreateSchema>;
+export type ProjectTaskFollowerUpdateType = InferType<typeof projectTaskFollowerUpdateSchema>;

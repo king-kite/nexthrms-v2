@@ -133,7 +133,11 @@ export type CreateProjectFileErrorResponseType = Omit<
 	'file'
 > & {
 	message?: string;
-	file?: string;
+	file?:
+		| string
+		| {
+				url?: string;
+		  };
 };
 
 export type GetProjectFilesResponseType = SuccessResponseType<{
