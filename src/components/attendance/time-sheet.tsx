@@ -1,13 +1,15 @@
+import type { Dayjs } from 'dayjs';
 import { Button, Loader } from 'kite-react-tailwind';
 import React from 'react';
 import { BiRefresh } from 'react-icons/bi';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 import { permissions } from '../../config';
+import { useInterval } from '../../hooks';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { usePunchAttendanceMutation } from '../../store/queries/attendance';
 import { AttendanceInfoType } from '../../types';
-import { hasModelPermission } from '../../utils';
+import { hasModelPermission, getDate } from '../../utils';
 import { getHours } from '../../utils/serializers/attendance';
 
 // time is in minutes
@@ -30,6 +32,13 @@ function TimeSheet({
 	refetch: () => void;
 	timesheet?: AttendanceInfoType | null;
 }) {
+	const [currentTime, setCurrentTime] = React.useState(() => {
+		// Get the current time i.e set the date to 1st Jan, 1970
+		let currentTime = getDate(undefined, 'dayjs') as Dayjs;
+		currentTime = currentTime.set('year', 1970).set('month', 0).set('date', 1);
+		return currentTime.toDate();
+	});
+
 	const { open } = useAlertContext();
 	const { data: authData } = useAuthContext();
 
@@ -63,35 +72,37 @@ function TimeSheet({
 		},
 	});
 
-	const { disabled, punchIn, suffix, time } = React.useMemo(() => {
-		// Get the current time i.e set the date to 1st Jan, 1970
-		const currentDate = new Date();
-		currentDate.setFullYear(1970, 0, 1);
-		const punchIn = timesheet?.punchIn
-			? new Date(timesheet.punchIn)
-			: undefined;
-		const punchOut = timesheet?.punchOut
-			? new Date(timesheet.punchOut)
-			: undefined;
+	// Use Intervals to update the time
+	const checkTime = React.useCallback(() => {
+		let nowTime = getDate(undefined, 'dayjs') as Dayjs;
+		nowTime = nowTime.set('year', 1970).set('month', 0).set('date', 1);
+		if (!nowTime.isSame(currentTime, 'minute')) setCurrentTime(nowTime.toDate());
+	}, [currentTime]);
 
-		const disabled = punchIn && punchOut ? false : true;
+	useInterval(checkTime, 1000);
+
+	const { disabled, punchIn, suffix, time } = React.useMemo(() => {
+		if (!timesheet) return { disabled: false, punchIn: undefined, suffix: 'min', time: 0 };
+
+		const punchIn = getDate(timesheet.punchIn) as Date;
+		const punchOut = timesheet.punchOut ? new Date(timesheet.punchOut) : undefined;
+
+		const disabled = punchIn && punchOut ? true : false;
 
 		// Get difference of time in minutes, rounded off and taking the absolute value.
 		const diff = punchIn
 			? Math.abs(
 					Math.round(
-						((punchOut ? punchOut.getTime() : currentDate.getTime()) -
-							punchIn.getTime()) /
+						((punchOut ? punchOut.getTime() : currentTime.getTime()) - punchIn.getTime()) /
 							(1000 * 60)
 					)
 			  )
 			: 0;
 		let time = diff >= 60 ? getTime(diff) : diff;
 
-		const suffix =
-			diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
+		const suffix = diff <= 1 ? 'min' : diff < 60 ? 'mins' : time === 1 ? 'hr' : 'hrs';
 		return { disabled, punchIn, suffix, time };
-	}, [timesheet]);
+	}, [timesheet, currentTime]);
 
 	return (
 		<div className="bg-white px-4 py-2 rounded-lg shadow-lg">
@@ -103,9 +114,7 @@ function TimeSheet({
 					onClick={refetch}
 					className="bg-white cursor-pointer duration-500 p-2 rounded-full text-gray-700 text-xs transform transition-all hover:bg-gray-200 hover:scale-110 hover:text-gray-600 md:text-sm"
 				>
-					<BiRefresh
-						className={`${fetching ? 'animate-spin' : ''} text-xs sm:text-sm`}
-					/>
+					<BiRefresh className={`${fetching ? 'animate-spin' : ''} text-xs sm:text-sm`} />
 				</div>
 			</div>
 			<div className="bg-gray-100 border border-gray-300 max-w-xs mx-auto my-1 px-3 py-2 rounded-lg">
@@ -137,14 +146,12 @@ function TimeSheet({
 									: 'bg-primary-500 hover:bg-primary-600 focus:ring-primary-300'
 							} group focus:outline-none focus:ring-2 focus:ring-offset-2"`}
 							caps
-							disabled={fetching || isLoading || disabled === false}
+							disabled={fetching || isLoading || disabled}
 							padding="px-4 py-2 md:px-6 md:py-3 lg:px-4 lg:py-2"
 							rounded="rounded-xl"
-							onClick={
-								disabled ? () => handlePunch(punchIn ? 'OUT' : 'IN') : undefined
-							}
+							onClick={!disabled ? () => handlePunch(punchIn ? 'OUT' : 'IN') : undefined}
 							title={
-								disabled === false
+								disabled
 									? 'Punched Out'
 									: punchIn
 									? isLoading
@@ -161,17 +168,11 @@ function TimeSheet({
 			)}
 			<div className="grid grid-cols-2 gap-4 my-3 pt-2 lg:my-1">
 				<div className="bg-gray-100 border border-gray-300 px-3 py-2 rounded-lg text-center w-full">
-					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">
-						Break
-					</span>
-					<p className="text-gray-500 tracking-wide text-sm uppercase">
-						coming soon
-					</p>
+					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">Break</span>
+					<p className="text-gray-500 tracking-wide text-sm uppercase">coming soon</p>
 				</div>
 				<div className="bg-gray-100 border border-gray-300 px-3 py-2 rounded-lg text-center w-full">
-					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">
-						Overtime
-					</span>
+					<span className="font-semibold my-1 inline-block text-gray-900 text-sm">Overtime</span>
 					<p className="flex justify-center text-center text-gray-500 tracking-wide text-base">
 						{overtime === null ? (
 							<FaTimesCircle className="text-sm text-red-700" />
