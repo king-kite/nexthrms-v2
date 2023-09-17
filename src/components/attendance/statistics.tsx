@@ -53,13 +53,10 @@ function Statistics({
 	const overtime = React.useMemo(() => {
 		const date = getDate(timesheet?.date || statistics[0]?.date) as Date;
 
-		const totalOvertimeHoursSpent = statistics.reduce(
-			(acc: number, current) => {
-				const value = getHours(current);
-				return acc + value.overtime;
-			},
-			0
-		);
+		const totalOvertimeHoursSpent = statistics.reduce((acc: number, current) => {
+			const value = getHours(current);
+			return acc + value.overtime;
+		}, 0);
 		const total = totalOvertimeMonthHours(date);
 		return {
 			overtime: totalOvertimeHoursSpent,
