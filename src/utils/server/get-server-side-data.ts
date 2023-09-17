@@ -6,7 +6,7 @@ import { REQUEST_EMAIL_VERIFY_PAGE_URL } from '../../config/routes';
 import { USER_DATA_URL } from '../../config/services';
 import { authPage } from '../../middlewares';
 import type { AuthDataType, ResponseType, SuccessResponseType } from '../../types';
-import { axiosJn } from '../../utils/axios';
+import axiosJn from '../axios/jsonInstance';
 
 type ServerDataReturnType<P> =
 	| {
