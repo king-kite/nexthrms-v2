@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 import React from 'react';
 
 import * as tags from '../tagTypes';
@@ -11,7 +11,7 @@ import {
 	DEFAULT_PAGINATION_SIZE,
 } from '../../config';
 import { useAlertModalContext } from '../../store/contexts';
-import {
+import type {
 	AttendanceType,
 	AttendanceCreateType,
 	AttendanceCreateErrorType,
@@ -21,7 +21,6 @@ import {
 	SuccessResponseType,
 } from '../../types';
 import axiosInstance from '../../utils/axios/authRedirectInstance';
-import { getDate } from '../../utils/dates';
 import { handleAxiosErrors } from '../../validators';
 
 // get attendance records
@@ -162,7 +161,7 @@ export function usePunchAttendanceMutation(
 					caps: true,
 					onClick: () => {
 						showLoader();
-						mutate({ date: getDate(undefined, true) as string, action: 'OUT' });
+						mutate({ action: 'OUT' });
 					},
 					title: 'Punch Out',
 				},
@@ -172,7 +171,7 @@ export function usePunchAttendanceMutation(
 
 	const handlePunch = React.useCallback(
 		(action: 'IN' | 'OUT') => {
-			if (action === 'IN') mutate({ date: getDate(undefined, true) as string, action: 'IN' });
+			if (action === 'IN') mutate({ action: 'IN' });
 			else punchOut();
 		},
 		[mutate, punchOut]
