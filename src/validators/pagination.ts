@@ -5,6 +5,7 @@ import { getDate } from '../utils/dates';
 
 export function getRouteParams(query: NextApiRequest['query'] | ParamsType) {
 	const { limit, offset, search, from, to, date } = validateParams(query);
+
 	const params = `?limit=${limit || ''}&offset=${offset || ''}&from=${from || ''}&to=${
 		to || ''
 	}&search=${search || ''}&date=${date || ''}`;
@@ -19,15 +20,15 @@ export function validateParams(query: NextApiRequest['query'] | ParamsType): Par
 		typeof query.search === 'string' && query.search.trim() !== '' ? query.search : undefined;
 	const from =
 		query.from && (typeof query.from === 'string' || query.from instanceof Date)
-			? (getDate(query.from, true) as string)
+			? (getDate(query.from) as Date).toISOString()
 			: undefined;
 	const to =
 		query.to && (typeof query.to === 'string' || query.to instanceof Date)
-			? (getDate(query.to, true) as string)
+			? (getDate(query.to) as Date).toISOString()
 			: undefined;
 	const date =
 		query.date && (typeof query.date === 'string' || query.date instanceof Date)
-			? (getDate(query.date, true) as string)
+			? (getDate(query.date) as Date).toISOString()
 			: undefined;
 	return { limit, offset, search, from, to, date };
 }

@@ -2,7 +2,6 @@ import { InferType, date, object, string } from 'yup';
 
 export const attendanceActionSchema = object({
 	action: string().oneOf(['IN', 'OUT']).required().label('Action'),
-	date: date().optional().label('Date'),
 });
 
 export const attendanceCreateSchema = object({
