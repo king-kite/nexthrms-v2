@@ -30,6 +30,30 @@ export function isBeforeDate(start: DateParamType, end: DateParamType) {
 	return dayjs(start).isBefore(end, 'day');
 }
 
+export function getFirstDateOfWeek(pdate: Date | string = new Date()) {
+	const date = getDate(pdate, 'dayjs') as dayjs.Dayjs;
+	const firstDate = date.startOf('week');
+	return firstDate.toDate();
+}
+
+export function getLastDateOfWeek(pdate: Date | string = new Date()) {
+	const date = getDate(pdate, 'dayjs') as dayjs.Dayjs;
+	const endDate = date.endOf('week');
+	return endDate.toDate();
+}
+
+export function getFirstDateOfMonth(pdate: Date | string = new Date()) {
+	const date = getDate(pdate, 'dayjs') as dayjs.Dayjs;
+	const firstDate = date.startOf('month');
+	return firstDate.toDate();
+}
+
+export function getLastDateOfMonth(pdate: Date | string) {
+	const date = getDate(pdate, 'dayjs') as dayjs.Dayjs;
+	const endDate = date.endOf('month');
+	return endDate.toDate();
+}
+
 export function getOffsetDate(_date?: Date | string | number, str = false) {
 	const date = getDate(_date) as Date;
 	const offset = date.getTimezoneOffset();
@@ -115,21 +139,6 @@ export function getWeekDate(weekDate: Date | string = new Date(), day: number = 
 	const weekDay = new Date(currentDate.getTime() - +(currentDate.getDay() - day) * aDay);
 	weekDay.setHours(0, 0, 0, 0);
 	return weekDay;
-}
-
-export function getFirstDateOfMonth(pdate: Date | string = new Date()) {
-	const date = getDate(pdate) as Date;
-	const firstDate = new Date(date.getFullYear(), date.getMonth(), 1);
-	return firstDate;
-}
-
-export function getLastDateOfMonth(_date: Date | string) {
-	const date = getDate(_date) as Date;
-	const month = date.getMonth() >= 11 ? 0 : date.getMonth() + 1;
-	// Get the fisrt date for next month
-	const nextMonth = new Date(date.getFullYear(), month, 1, 0, 0, 0, 0);
-	// then go back 1ms to get the previous date at 11:59:59pm
-	return new Date(nextMonth.getTime() - 1000);
 }
 
 export default getDate;
