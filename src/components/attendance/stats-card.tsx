@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import React from 'react';
 
 import Activity from './activity';
@@ -5,12 +6,14 @@ import Statistics from './statistics';
 import TimeSheet from './time-sheet';
 import { useAlertContext } from '../../store/contexts';
 import { useGetAttendanceInfoQuery } from '../../store/queries/attendance';
-import { getStringedDate } from '../../utils/dates';
 
 const StatsCard = () => {
 	const { open } = useAlertContext();
 
-	const [date, setDate] = React.useState(getStringedDate());
+	const [date] = React.useState(() => {
+		const currentDate = dayjs();
+		return currentDate.format('YYYY-MM-DD');
+	});
 
 	const { data, refetch, isFetching, isLoading } = useGetAttendanceInfoQuery({
 		date,
