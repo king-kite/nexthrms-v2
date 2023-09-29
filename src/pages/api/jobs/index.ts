@@ -2,7 +2,7 @@ import { JOBS_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
 import { axiosJn } from '../../../utils/axios';
 import { multipleDeleteSchema } from '../../../validators';
-import { createHolidaySchema } from '../../../validators/holidays';
+import { createJobSchema } from '../../../validators/jobs';
 import { getRouteParams } from '../../../validators/pagination';
 
 export default auth()
@@ -13,7 +13,7 @@ export default auth()
 		return res.status(200).json(response.data);
 	})
 	.post(async function (req, res) {
-		const data = await createHolidaySchema.validate(
+		const data = await createJobSchema.validate(
 			{ ...req.body },
 			{
 				abortEarly: false,

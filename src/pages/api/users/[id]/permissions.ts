@@ -17,7 +17,7 @@ export default auth()
 		const response = await axiosJn(req).put(
 			USER_PERMISSIONS_URL((req.query.id as string).toString()),
 			{
-				ids: data.permissions,
+				codenames: data.permissions,
 			}
 		);
 		return res.status(200).json(response.data);
