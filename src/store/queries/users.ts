@@ -56,7 +56,7 @@ export function useActivateUserMutation(
 				queryClient.invalidateQueries({
 					predicate: (query) =>
 						Array.isArray(query.queryKey) &&
-						[tags.CLIENTS, tags.USERS, tags.USERS].includes(query.queryKey[0]),
+						[tags.CLIENTS, tags.EMPLOYEES, tags.USERS].includes(query.queryKey[0]),
 				});
 
 				if (options?.onSuccess) options.onSuccess();
