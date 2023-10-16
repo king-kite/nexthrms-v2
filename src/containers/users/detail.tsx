@@ -8,7 +8,7 @@ import InfoTopBar from '../../components/common/info-topbar';
 import UserInfo from '../../components/users/detail/user-info';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetUserQuery } from '../../store/queries/users';
-import { PermissionType, UserType, UserObjPermType, UserGroupType } from '../../types';
+import type { UserType } from '../../types';
 import toCapitalize from '../../utils/toCapitalize';
 
 const DynamicDetailActions = dynamic<any>(

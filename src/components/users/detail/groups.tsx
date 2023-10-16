@@ -6,10 +6,8 @@ import { FaPen } from 'react-icons/fa';
 import GroupCards from './group-cards';
 import UserGroupsForm from './user-groups-form';
 import { Modal, TablePagination } from '../../common';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import { useEditUserGroupsMutation, useGetUserGroupsQuery } from '../../../store/queries/users';
-import { UserGroupType } from '../../../types';
 
 function UserGroups({
 	canEditUser,
@@ -24,7 +22,7 @@ function UserGroups({
 	}>();
 	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>('single');
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [limit, setLimit] = React.useState(5);
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
@@ -33,12 +31,13 @@ function UserGroups({
 	const { open: showAlert } = useAlertContext();
 	const { close: closeAlertModal } = useAlertModalContext();
 
-	const { data, isLoading, isFetching } = useGetUserGroupsQuery({
-		id,
-		limit,
-		offset,
-		search: '',
-	});
+	const { data, isLoading, isFetching } = useGetUserGroupsQuery({ id });
+
+	const groups = React.useMemo(() => {
+		if (!data) return undefined;
+		const result = data.result.slice(offset, limit + offset);
+		return result;
+	}, [data, limit, offset]);
 
 	const { mutate: editGroups, isLoading: editLoading } = useEditUserGroupsMutation({
 		onSuccess() {
@@ -101,14 +100,15 @@ function UserGroups({
 			)}
 			{isLoading ? (
 				<p className="text-primary-500 text-xs md:text-sm">Loading...</p>
-			) : data && data.result.length > 0 ? (
+			) : groups && groups.length > 0 ? (
 				<div className="mt-3">
 					<GroupCards
-						groups={data.result}
+						groups={groups}
 						removeGroup={
 							!canEditUser
 								? undefined
 								: (groupId: string) => {
+										if (!data) return;
 										setErrorType('single');
 										const form = {
 											groups: data.result
@@ -119,7 +119,7 @@ function UserGroups({
 								  }
 						}
 					/>
-					{data.total > 0 && (
+					{(data?.total || groups.length) > 0 && (
 						<TablePagination
 							disabled={isFetching}
 							onChange={(pageNo: number) => {
@@ -128,7 +128,7 @@ function UserGroups({
 							}}
 							pageSize={limit}
 							onSizeChange={(size) => setLimit(size)}
-							totalItems={data.total}
+							totalItems={data?.total || groups.length}
 						/>
 					)}
 				</div>

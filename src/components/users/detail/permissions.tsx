@@ -6,13 +6,11 @@ import { FaPen } from 'react-icons/fa';
 import PermissionsForm from './permissions-form';
 import { Modal, TablePagination } from '../../common';
 import { Permissions } from '../../groups/detail';
-import { DEFAULT_PAGINATION_SIZE } from '../../../config';
 import { useAlertContext, useAlertModalContext } from '../../../store/contexts';
 import {
 	useEditUserPermissionsMutation,
 	useGetUserPermissionsQuery,
 } from '../../../store/queries/users';
-import { PermissionType } from '../../../types';
 
 function UserPermissions({
 	canEditUser,
@@ -27,7 +25,7 @@ function UserPermissions({
 	}>();
 	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>('single');
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [limit, setLimit] = React.useState(DEFAULT_PAGINATION_SIZE);
+	const [limit, setLimit] = React.useState(5);
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
@@ -36,12 +34,13 @@ function UserPermissions({
 	const { open: showAlert } = useAlertContext();
 	const { visible: alertModalVisible, close: closeAlertModal } = useAlertModalContext();
 
-	const { data, isLoading, isFetching } = useGetUserPermissionsQuery({
-		id,
-		limit,
-		offset,
-		search: '',
-	});
+	const { data, isLoading, isFetching } = useGetUserPermissionsQuery({ id });
+
+	const permissions = React.useMemo(() => {
+		if (!data) return undefined;
+		const result = data.result.slice(offset, limit + offset);
+		return result;
+	}, [data, limit, offset]);
 
 	const { mutate: editPermissions, isLoading: editLoading } = useEditUserPermissionsMutation(
 		{
@@ -93,7 +92,7 @@ function UserPermissions({
 						<Button
 							iconLeft={FaPen}
 							rounded="rounded-xl"
-							title="Update Permissions"
+							title="Update"
 							disabled={isFetching || editLoading}
 							onClick={() => {
 								if (hideOtherModals) hideOtherModals();
@@ -106,15 +105,16 @@ function UserPermissions({
 			)}
 			{isLoading ? (
 				<p className="text-primary-500 text-xs md:text-sm">Loading...</p>
-			) : data && data.result.length > 0 ? (
+			) : permissions && permissions.length > 0 ? (
 				<div>
 					<Permissions
 						name="user"
-						permissions={data.result}
+						permissions={permissions}
 						removePermission={
 							!canEditUser
 								? undefined
 								: (codename: string) => {
+										if (!data) return;
 										setErrorType('single');
 										const form = {
 											permissions: data.result
@@ -125,7 +125,7 @@ function UserPermissions({
 								  }
 						}
 					/>
-					{data.total > 0 && (
+					{(data?.total || permissions.length) > 0 && (
 						<TablePagination
 							disabled={isFetching}
 							onChange={(pageNo: number) => {
@@ -134,7 +134,7 @@ function UserPermissions({
 							}}
 							pageSize={limit}
 							onSizeChange={(size) => setLimit(size)}
-							totalItems={data.total}
+							totalItems={data?.total || permissions.length}
 						/>
 					)}
 				</div>

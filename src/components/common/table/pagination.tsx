@@ -40,10 +40,7 @@ function Pagination({
 		React.useDeferredValue(paginatedData);
 
 	const canPreviousPage = React.useMemo(() => currentPage > 1, [currentPage]);
-	const canNextPage = React.useMemo(
-		() => currentPage < totalPages,
-		[currentPage, totalPages]
-	);
+	const canNextPage = React.useMemo(() => currentPage < totalPages, [currentPage, totalPages]);
 
 	const goToPage = React.useCallback(
 		(pageNumber = 1) => {
@@ -99,11 +96,7 @@ function Pagination({
 								title: `Show ${pageSize}`,
 								value: pageSize.toString(),
 							}))}
-							value={(
-								pageSize ||
-								props.pageSize ||
-								DEFAULT_PAGE_SIZE
-							).toString()}
+							value={(pageSize || props.pageSize || DEFAULT_PAGE_SIZE).toString()}
 						/>
 					</div>
 				</div>
@@ -118,15 +111,9 @@ function Pagination({
 							disabled={!canPreviousPage || disabled}
 						>
 							<span className="sr-only">First</span>
-							<FaAngleDoubleLeft
-								className="text-xs md:text-sm"
-								aria-hidden="true"
-							/>
+							<FaAngleDoubleLeft className="text-xs md:text-sm" aria-hidden="true" />
 						</PageButton>
-						<PageButton
-							onClick={previousPage}
-							disabled={!canPreviousPage || disabled}
-						>
+						<PageButton onClick={previousPage} disabled={!canPreviousPage || disabled}>
 							<span className="sr-only">Previous</span>
 							<FaChevronLeft className="text-xs" aria-hidden="true" />
 						</PageButton>
@@ -153,10 +140,7 @@ function Pagination({
 							disabled={!canNextPage || disabled}
 						>
 							<span className="sr-only">Last</span>
-							<FaAngleDoubleRight
-								className="text-xs md:text-sm"
-								aria-hidden="true"
-							/>
+							<FaAngleDoubleRight className="text-xs md:text-sm" aria-hidden="true" />
 						</PageButton>
 					</nav>
 				</div>

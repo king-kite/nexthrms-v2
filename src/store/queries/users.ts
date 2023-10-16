@@ -438,12 +438,11 @@ export function useGetUserPermissionsQuery(
 		}>['data'];
 	}
 ) {
+	const url = USER_PERMISSIONS_URL(id);
 	const query = useQuery(
-		[tags.USER_PERMISSIONS, { id, limit, offset, search }],
+		[tags.USER_PERMISSIONS, { limit, offset, search }],
 		() =>
-			axiosInstance(
-				USER_PERMISSIONS_URL(id) + `?limit=${limit}&offset=${offset}&search=${search}`
-			).then(
+			axiosInstance(url + `?limit=${limit}&offset=${offset}&search=${search}`).then(
 				(
 					response: AxiosResponse<
 						SuccessResponseType<{
