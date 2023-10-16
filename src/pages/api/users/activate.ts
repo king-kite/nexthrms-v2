@@ -4,7 +4,7 @@ import { axiosJn } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import { multipleEmailSchema } from '../../../validators';
 
-export default auth().get(async function (req, res) {
+export default auth().post(async function (req, res) {
 	const { action, emails } = req.body;
 	if (!action || !emails)
 		throw new NextErrorMessage(
