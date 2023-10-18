@@ -1,11 +1,11 @@
 import fs from 'fs';
+import NodeFormData from 'form-data';
 
 import { EMPLOYEE_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { axiosJn } from '../../../utils/axios';
+import { axiosJn, axiosAuth } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFields, getFormFiles } from '../../../utils/parseForm';
-import { getToken } from '../../../utils/tokens';
 import { createEmployeeSchema } from '../../../validators/employees';
 
 export const config = {
@@ -31,38 +31,20 @@ export default auth()
 			stripUnknown: true,
 		});
 
-		const formData = new FormData();
+		const formData = new NodeFormData();
 		formData.append('form', JSON.stringify(data));
 
 		if (files.image) {
 			const [image] = getFormFiles(files.image);
-
-			const fileBuffer = fs.readFileSync(image.filepath);
-
-			const blob = new Blob([fileBuffer], {
-				type: image.mimetype || undefined,
-			});
-
-			formData.append('image', blob);
+			formData.append('image', fs.createReadStream(image.filepath));
 		}
 
-		const token = getToken(req, 'access');
-
-		// Axios doesn't seem to work well with the form data
-		const response = await fetch(EMPLOYEE_URL((req.query.id as string).toString()), {
-			method: 'PUT',
-			body: formData,
-			headers: {
-				Authorization: 'Bearer ' + token,
-			},
-		});
-		const result = await response.json();
-
-		if (!response.ok && response.status === 200) {
-			return res.status(200).json(result);
-		}
-
-		throw new NextErrorMessage(response.status, result.message, result.data);
+		const response = await axiosAuth(req).put(
+			EMPLOYEE_URL(req.query.id as string).toString(),
+			formData,
+			formData.getHeaders()
+		);
+		return res.status(200).json(response.data);
 	})
 	.delete(async function (req, res) {
 		const response = await axiosJn(req).delete(EMPLOYEE_URL((req.query.id as string).toString()));
