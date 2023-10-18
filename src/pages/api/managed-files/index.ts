@@ -1,12 +1,12 @@
 import fs from 'fs';
+import NodeFormData from 'form-data';
 import type { File } from 'formidable';
 
 import { MANAGED_FILES_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { axiosJn } from '../../../utils/axios';
+import { axiosJn, axiosAuth } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFields, getFormFiles } from '../../../utils/parseForm';
-import { getToken } from '../../../utils/tokens';
 import {
 	deleteManagedFilesSchema,
 	managedFileCreateSchema,
@@ -46,39 +46,18 @@ export default auth()
 
 		if (data.type === 'file' && !data.file) throw new NextErrorMessage(400, 'File is required.');
 
-		const formData = new FormData();
+		const formData = new NodeFormData();
 		if (data.directory) formData.append('directory', data.directory);
 
 		formData.append('name', data.name);
 		formData.append('type', data.type);
 
 		if (data.file) {
-			const fileBuffer = fs.readFileSync((data.file as File).filepath);
-
-			const blob = new Blob([fileBuffer], {
-				type: (data.file as File).mimetype || undefined,
-			});
-
-			formData.append('file', blob);
+			formData.append('file', fs.createReadStream((data.file as File).filepath));
 		}
 
-		const token = getToken(req, 'access');
-
-		// Axios doesn't seem to work well with the form data
-		const response = await fetch(MANAGED_FILES_URL, {
-			method: 'POST',
-			body: formData,
-			headers: {
-				Authorization: 'Bearer ' + token,
-			},
-		});
-		const result = await response.json();
-
-		if (!response.ok && response.status === 201) {
-			return res.status(201).json(result);
-		}
-
-		throw new NextErrorMessage(response.status, result.message, result.data);
+		const response = await axiosAuth(req).post(MANAGED_FILES_URL, formData, formData.getHeaders());
+		return res.status(201).json(response.data);
 	})
 	.delete(async function (req, res) {
 		const { fields } = (await parseForm(req)) as { fields: any };
