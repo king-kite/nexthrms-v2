@@ -1,11 +1,11 @@
 import fs from 'fs';
+import NodeFormData from 'form-data';
 
 import { USERS_URL } from '../../../config/services';
 import { auth } from '../../../middlewares';
-import { axiosJn } from '../../../utils/axios';
+import { axiosJn, axiosAuth } from '../../../utils/axios';
 import { NextErrorMessage } from '../../../utils/classes';
 import parseForm, { getFormFields, getFormFiles } from '../../../utils/parseForm';
-import { getToken } from '../../../utils/tokens';
 import { createUserSchema } from '../../../validators/users';
 import { getRouteParams } from '../../../validators/pagination';
 
@@ -34,36 +34,14 @@ export default auth()
 			stripUnknown: true,
 		});
 
-		const formData = new FormData();
+		const formData = new NodeFormData();
 		formData.append('form', JSON.stringify(data));
 
 		if (files.image) {
 			const [image] = getFormFiles(files.image);
-
-			const fileBuffer = fs.readFileSync(image.filepath);
-
-			const blob = new Blob([fileBuffer], {
-				type: image.mimetype || undefined,
-			});
-
-			formData.append('image', blob);
+			formData.append('image', fs.createReadStream(image.filepath));
 		}
 
-		const token = getToken(req, 'access');
-
-		// Axios doesn't seem to work well with the form data
-		const response = await fetch(USERS_URL, {
-			method: 'POST',
-			body: formData,
-			headers: {
-				Authorization: 'Bearer ' + token,
-			},
-		});
-		const result = await response.json();
-
-		if (!response.ok && response.status === 201) {
-			return res.status(201).json(result);
-		}
-
-		throw new NextErrorMessage(response.status, result.message, result.data);
+		const response = await axiosAuth(req).post(USERS_URL, formData, formData.getHeaders());
+		return res.status(201).json(response.data);
 	});
