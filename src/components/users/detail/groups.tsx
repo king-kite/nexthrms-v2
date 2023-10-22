@@ -22,7 +22,7 @@ function UserGroups({
 	}>();
 	const [errorType, setErrorType] = React.useState<'single' | 'multiple'>('single');
 	const [modalVisible, setModalVisible] = React.useState(false);
-	const [limit, setLimit] = React.useState(5);
+	const [limit, setLimit] = React.useState(10);
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
@@ -35,7 +35,9 @@ function UserGroups({
 
 	const groups = React.useMemo(() => {
 		if (!data) return undefined;
-		const result = data.result.slice(offset, limit + offset);
+		const resultData = [...data.result];
+		const result = resultData.splice(offset, limit);
+		// const result = data.result.slice(offset, limit + offset);
 		return result;
 	}, [data, limit, offset]);
 
@@ -119,23 +121,26 @@ function UserGroups({
 								  }
 						}
 					/>
-					{(data?.total || groups.length) > 0 && (
-						<TablePagination
-							disabled={isFetching}
-							onChange={(pageNo: number) => {
-								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-								offset !== value && setOffset(value * limit);
-							}}
-							pageSize={limit}
-							onSizeChange={(size) => setLimit(size)}
-							totalItems={data?.total || groups.length}
-						/>
-					)}
 				</div>
 			) : (
 				<p className="text-primary-500 text-xs md:text-sm">
 					There are currently no groups for this user. Check the user&apos;s permissions instead.
 				</p>
+			)}
+			{data && data.total > 0 && (
+				<TablePagination
+					disabled={isFetching}
+					onChange={(pageNo: number) => {
+						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+						offset !== value && setOffset(value * limit);
+					}}
+					pageSize={limit}
+					onSizeChange={(size) => {
+						setLimit(size);
+						setOffset(0);
+					}}
+					totalItems={data.total}
+				/>
 			)}
 			<Modal
 				close={() => setModalVisible(false)}

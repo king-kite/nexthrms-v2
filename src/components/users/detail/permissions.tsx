@@ -29,7 +29,7 @@ function UserPermissions({
 	const [offset, setOffset] = React.useState(0);
 
 	const router = useRouter();
-	const id = router.query.id as string;
+	const id = React.useMemo(() => router.query.id as string, [router]);
 
 	const { open: showAlert } = useAlertContext();
 	const { visible: alertModalVisible, close: closeAlertModal } = useAlertModalContext();
@@ -38,8 +38,11 @@ function UserPermissions({
 
 	const permissions = React.useMemo(() => {
 		if (!data) return undefined;
-		const result = data.result.slice(offset, limit + offset);
+		const resultData = [...data.result];
+		const result = resultData.splice(offset, limit);
 		return result;
+		// const result = data.result.slice(offset, limit + offset);
+		// return result;
 	}, [data, limit, offset]);
 
 	const { mutate: editPermissions, isLoading: editLoading } = useEditUserPermissionsMutation(
@@ -125,24 +128,27 @@ function UserPermissions({
 								  }
 						}
 					/>
-					{(data?.total || permissions.length) > 0 && (
-						<TablePagination
-							disabled={isFetching}
-							onChange={(pageNo: number) => {
-								const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-								offset !== value && setOffset(value * limit);
-							}}
-							pageSize={limit}
-							onSizeChange={(size) => setLimit(size)}
-							totalItems={data?.total || permissions.length}
-						/>
-					)}
 				</div>
 			) : (
 				<p className="text-primary-500 text-xs md:text-sm">
 					There are currently no private permissions for this user. Check the user&apos;s groups
 					instead.
 				</p>
+			)}
+			{data && data.total > 0 && (
+				<TablePagination
+					disabled={isFetching}
+					onChange={(pageNo: number) => {
+						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
+						offset !== value && setOffset(value * limit);
+					}}
+					pageSize={limit}
+					onSizeChange={(size) => {
+						setLimit(size);
+						setOffset(0);
+					}}
+					totalItems={data.total}
+				/>
 			)}
 			<Modal
 				close={() => setModalVisible(false)}
