@@ -21,7 +21,7 @@ export const DEFAULT_MEDIA_PAGINAITON_SIZE = 1000;
 
 export const isServer = () => (typeof window === undefined ? true : false);
 
-export const MEDIA_LOCATION_URL = process.env.MEDIA_LOCATION_URL || '';
+export const MEDIA_LOCATION_URL = process.env.NEXT_PUBLIC_MEDIA_LOCATION_URL || '';
 export const MEDIA_URL = 'media/';
 export const MEDIA_HIDDEN_FILE_NAME = '.hidden_nomedia';
 

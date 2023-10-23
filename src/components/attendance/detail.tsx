@@ -7,7 +7,7 @@ import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useDeleteAttendanceMutation } from '../../store/queries/attendance';
 import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
 import { AttendanceType, AttendanceCreateType } from '../../types';
-import { getStringedDate, hasModelPermission } from '../../utils';
+import { getMediaUrl, getStringedDate, hasModelPermission } from '../../utils';
 
 function Details({
 	data,
@@ -27,22 +27,21 @@ function Details({
 		objectId: data.id,
 	});
 
-	const { deleteAttendance: deleteAtd, isLoading: delLoading } =
-		useDeleteAttendanceMutation({
-			onSuccess() {
-				closePanel();
-				openAlert({
-					type: 'success',
-					message: 'Attendance record was deleted successfully!',
-				});
-			},
-			onError(error) {
-				openAlert({
-					message: error.message,
-					type: 'danger',
-				});
-			},
-		});
+	const { deleteAttendance: deleteAtd, isLoading: delLoading } = useDeleteAttendanceMutation({
+		onSuccess() {
+			closePanel();
+			openAlert({
+				type: 'success',
+				message: 'Attendance record was deleted successfully!',
+			});
+		},
+		onError(error) {
+			openAlert({
+				message: error.message,
+				type: 'danger',
+			});
+		},
+	});
 
 	const [canEdit, canDelete] = React.useMemo(() => {
 		let canDelete = false;
@@ -53,15 +52,11 @@ function Details({
 			canEdit =
 				!!authData.isSuperUser ||
 				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.attendance.EDIT,
-					]));
+					hasModelPermission(authData.permissions, [permissions.attendance.EDIT]));
 			canDelete =
 				!!authData.isSuperUser ||
 				(!!authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.attendance.DELETE,
-					]));
+					hasModelPermission(authData.permissions, [permissions.attendance.DELETE]));
 		}
 
 		// If the user doesn't have model edit permissions, then check obj edit permission
@@ -78,7 +73,9 @@ function Details({
 				title: 'Employee Image',
 				type: 'image',
 				value: {
-					src: data.employee.user.profile?.image || DEFAULT_IMAGE,
+					src: data.employee.user.profile?.image
+						? getMediaUrl(data.employee.user.profile.image)
+						: DEFAULT_IMAGE,
 					alt: data.employee.user.firstName + ' ' + data.employee.user.lastName,
 				},
 			},
@@ -101,9 +98,7 @@ function Details({
 			{ title: 'Punch In', value: new Date(data.punchIn).toLocaleTimeString() },
 			{
 				title: 'Punch Out',
-				value: data.punchOut
-					? new Date(data.punchOut).toLocaleTimeString()
-					: '-------',
+				value: data.punchOut ? new Date(data.punchOut).toLocaleTimeString() : '-------',
 			},
 			// {
 			// 	title: 'Overtime',
@@ -144,10 +139,7 @@ function Details({
 									} = {
 										editId: data.id,
 										date: getStringedDate(data.date),
-										punchIn: `${punchIn
-											.getHours()
-											.toString()
-											.padStart(2, '0')}:${punchIn
+										punchIn: `${punchIn.getHours().toString().padStart(2, '0')}:${punchIn
 											.getMinutes()
 											.toString()
 											.padStart(2, '0')}`,
@@ -156,10 +148,7 @@ function Details({
 									if (data.punchOut) {
 										const punchOut = new Date(data.punchOut);
 
-										form.punchOut = `${punchOut
-											.getHours()
-											.toString()
-											.padStart(2, '0')}:${punchOut
+										form.punchOut = `${punchOut.getHours().toString().padStart(2, '0')}:${punchOut
 											.getMinutes()
 											.toString()
 											.padStart(2, '0')}`;

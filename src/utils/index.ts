@@ -15,4 +15,5 @@ export { hasModelPermission } from './permission';
 export { default as toCapitalize } from './toCapitalize';
 
 export * from './serializers';
+export * from './media';
 export * from './dates';

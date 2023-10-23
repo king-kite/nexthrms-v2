@@ -4,15 +4,11 @@ import React from 'react';
 import { FaEye, FaPen, FaTrash, FaUserShield } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
-import {
-	ATTENDANCE_OBJECT_PERMISSIONS_PAGE_URL,
-	DEFAULT_IMAGE,
-	permissions,
-} from '../../config';
+import { ATTENDANCE_OBJECT_PERMISSIONS_PAGE_URL, DEFAULT_IMAGE, permissions } from '../../config';
 import { useAlertContext, useAuthContext } from '../../store/contexts';
 import { useDeleteAttendanceMutation } from '../../store/queries/attendance';
 import { AttendanceCreateType, AttendanceType } from '../../types';
-import { getStringedDate, hasModelPermission } from '../../utils';
+import { getStringedDate, hasModelPermission, getMediaUrl } from '../../utils';
 
 const heads: TableHeadType = [
 	{
@@ -66,10 +62,7 @@ const getRows = (
 					} = {
 						editId: attendance.id,
 						date: getStringedDate(attendance.date),
-						punchIn: `${punchIn
-							.getHours()
-							.toString()
-							.padStart(2, '0')}:${punchIn
+						punchIn: `${punchIn.getHours().toString().padStart(2, '0')}:${punchIn
 							.getMinutes()
 							.toString()
 							.padStart(2, '0')}`,
@@ -78,10 +71,7 @@ const getRows = (
 					if (attendance.punchOut) {
 						const punchOut = new Date(attendance.punchOut);
 
-						form.punchOut = `${punchOut
-							.getHours()
-							.toString()
-							.padStart(2, '0')}:${punchOut
+						form.punchOut = `${punchOut.getHours().toString().padStart(2, '0')}:${punchOut
 							.getMinutes()
 							.toString()
 							.padStart(2, '0')}`;
@@ -119,7 +109,9 @@ const getRows = (
 							<TableAvatarEmailNameCell
 								email={attendance.employee.user.email}
 								image={
-									attendance.employee.user.profile?.image?.url || DEFAULT_IMAGE
+									attendance.employee.user.profile?.image
+										? getMediaUrl(attendance.employee.user.profile.image)
+										: DEFAULT_IMAGE
 								}
 								name={`${attendance.employee.user.firstName} ${attendance.employee.user.lastName}`}
 							/>
@@ -129,9 +121,7 @@ const getRows = (
 				{ value: new Date(attendance.date).toDateString() },
 				{ value: new Date(attendance.punchIn).toLocaleTimeString() },
 				{
-					value: attendance.punchOut
-						? new Date(attendance.punchOut).toLocaleTimeString()
-						: '---',
+					value: attendance.punchOut ? new Date(attendance.punchOut).toLocaleTimeString() : '---',
 				},
 				// {
 				// 	value:
@@ -174,45 +164,40 @@ const AttendanceAdminTable = ({
 		const canEdit = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.attendance.EDIT,
-					]))
+					hasModelPermission(authData.permissions, [permissions.attendance.EDIT]))
 			: false;
 		const canDelete = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.attendance.DELETE,
-					]))
+					hasModelPermission(authData.permissions, [permissions.attendance.DELETE]))
 			: false;
 		const canViewObjectPermissions = authData
 			? authData.isSuperUser ||
 			  (authData.isAdmin &&
-					hasModelPermission(authData.permissions, [
-						permissions.permissionobject.VIEW,
-					]))
+					hasModelPermission(authData.permissions, [permissions.permissionobject.VIEW]))
 			: false;
 		return [canEdit, canDelete, canViewObjectPermissions];
 	}, [authData]);
 
-	const { deleteAttendance: deleteAtd, isLoading: delLoading } =
-		useDeleteAttendanceMutation({
-			onSuccess() {
-				openAlert({
-					type: 'success',
-					message: 'Attendance record was deleted successfully!',
-				});
-			},
-			onError(error) {
-				openAlert({
-					message: error.message,
-					type: 'danger',
-				});
-			},
-		});
+	const { deleteAttendance: deleteAtd, isLoading: delLoading } = useDeleteAttendanceMutation({
+		onSuccess() {
+			openAlert({
+				type: 'success',
+				message: 'Attendance record was deleted successfully!',
+			});
+		},
+		onError(error) {
+			openAlert({
+				message: error.message,
+				type: 'danger',
+			});
+		},
+	});
 
-	const { offset: deferredOffset, attendance: deferredValue } =
-		React.useDeferredValue({ attendance, offset });
+	const { offset: deferredOffset, attendance: deferredValue } = React.useDeferredValue({
+		attendance,
+		offset,
+	});
 
 	const rows = React.useMemo(
 		() =>

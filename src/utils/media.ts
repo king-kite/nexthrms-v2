@@ -1,6 +1,6 @@
 import { MEDIA_LOCATION_URL } from '../config/app';
 
-export function getMediaUrl({ location, url }: { location: string; url?: string }) {
+export function getMediaUrl({ location, url }: { location: string; url?: string | null }) {
 	if (url) return url;
 
 	const mediaLocation = location.startsWith('/')

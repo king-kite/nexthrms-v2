@@ -31,6 +31,7 @@ import permissions, { PermissionKeyType } from '../config/permissions';
 import { DEFAULT_IMAGE } from '../config/static';
 import { useAuthContext } from '../store/contexts/auth';
 import type { AuthDataType, PermissionModelChoices } from '../types';
+import { getMediaUrl } from '../utils/media';
 import { hasModelPermission } from '../utils/permission';
 import ErrorBoundary from '../utils/components/error-boundary';
 
@@ -367,7 +368,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, PropsType>(({ setVisible, visib
 							<Image
 								className="h-full rounded-full w-full"
 								layout="fill"
-								src={data?.profile?.image?.url || DEFAULT_IMAGE}
+								src={data?.profile?.image ? getMediaUrl(data.profile.image) : DEFAULT_IMAGE}
 								alt="user"
 							/>
 						</div>

@@ -4,6 +4,7 @@ import React from 'react';
 
 import { LOGO_IMAGE, DEFAULT_IMAGE } from '../config/static';
 import { useAuthContext } from '../store/contexts/auth';
+import { getMediaUrl } from '../utils/media';
 
 const DynamicTopbarNotifications = dynamic<any>(
 	() => import('./notifications').then((mod) => mod.default),
@@ -12,11 +13,7 @@ const DynamicTopbarNotifications = dynamic<any>(
 	}
 );
 
-function getName(
-	name1: string | null,
-	name2: string | null,
-	email: string
-): string {
+function getName(name1: string | null, name2: string | null, email: string): string {
 	if (name1 && name2) return name1 + ' ' + name2;
 	if (name1) return name1;
 	if (name2) return name2;
@@ -30,12 +27,7 @@ const Topbar = () => {
 		<section className="bg-white flex items-center justify-between relative shadow-lg p-3 md:p-4 lg:p-5 xl:px-7 w-full">
 			<div className="invisible lg:flex lg:items-center lg:justify-center lg:visible">
 				<div className="h-[32px] relative w-[35px] md:h-[35px] md:w-[40px]">
-					<Image
-						className="h-full w-full"
-						layout="fill"
-						src={LOGO_IMAGE}
-						alt="kite"
-					/>
+					<Image className="h-full w-full" layout="fill" src={LOGO_IMAGE} alt="kite" />
 				</div>
 			</div>
 
@@ -44,9 +36,7 @@ const Topbar = () => {
 
 				<div className="flex flex-col justify-center text-right mx-1 pt-2 sm:mx-3">
 					<p className="capitalize font-semibold leading-tight text-primary-700 text-xs sm:leading-tighter sm:text-sm">
-						{data
-							? getName(data.firstName, data.lastName, data.email)
-							: 'Anonymous'}
+						{data ? getName(data.firstName, data.lastName, data.email) : 'Anonymous'}
 					</p>
 					<span className="capitalize pt-1 text-gray-400 text-xs">
 						{data?.employee?.job?.name || 'user'}
@@ -57,7 +47,7 @@ const Topbar = () => {
 						<Image
 							className="h-full rounded-full w-full"
 							layout="fill"
-							src={data?.profile?.image?.url || DEFAULT_IMAGE}
+							src={data?.profile?.image ? getMediaUrl(data.profile.image) : DEFAULT_IMAGE}
 							alt=""
 						/>
 					</div>
