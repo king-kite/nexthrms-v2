@@ -5,7 +5,8 @@ import { FaSearch } from 'react-icons/fa';
 import { PersonCard, TablePagination } from '../../common';
 import { DEFAULT_IMAGE, USER_PAGE_URL } from '../../../config';
 import { useAlertModalContext } from '../../../store/contexts';
-import { GroupUserType } from '../../../types';
+import type { GroupUserType } from '../../../types';
+import { getMediaUrl } from '../../../utils/media';
 
 function UsersGrid({
 	users: unFilteredUsers,
@@ -28,8 +29,7 @@ function UsersGrid({
 	const users = React.useMemo(
 		() =>
 			unFilteredUsers.filter((user) => {
-				const searchValue =
-					`${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
+				const searchValue = `${user.firstName} ${user.lastName} ${user.email}`.toLowerCase();
 				if (searchValue.includes(search)) return user;
 			}),
 		[search, unFilteredUsers]
@@ -89,8 +89,7 @@ function UsersGrid({
 							bdrColor: 'border-primary-500',
 							disabled: paginate?.loading || false,
 							icon: FaSearch,
-							onChange: ({ target: { value } }) =>
-								setSearch(value.trim().toLowerCase()),
+							onChange: ({ target: { value } }) => setSearch(value.trim().toLowerCase()),
 							placeholder: 'Search by name',
 							rounded: 'rounded-l-lg',
 							type: 'search',
@@ -105,7 +104,9 @@ function UsersGrid({
 						bg="bg-gray-100"
 						border="border-gray-300 border"
 						name={user.firstName + ' ' + user.lastName}
-						image={{ src: user.profile?.image?.url || DEFAULT_IMAGE }}
+						image={{
+							src: user.profile?.image?.url ? getMediaUrl(user.profile.image) : DEFAULT_IMAGE,
+						}}
 						actions={[
 							{
 								bg: 'bg-white hover:bg-blue-100',
@@ -131,8 +132,7 @@ function UsersGrid({
 					totalItems={paginate.totalItems}
 					onChange={(pageNo: number) => {
 						const value = pageNo - 1 <= 0 ? 0 : pageNo - 1;
-						paginate.offset !== value &&
-							paginate.setOffset(value * paginate.limit);
+						paginate.offset !== value && paginate.setOffset(value * paginate.limit);
 					}}
 					onSizeChange={(size) => paginate.setLimit(size)}
 					pageSize={paginate.limit}

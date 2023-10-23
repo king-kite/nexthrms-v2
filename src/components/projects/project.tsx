@@ -1,23 +1,19 @@
 import { Avatars, Button, Loader } from 'kite-react-tailwind';
 import Link from 'next/link';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
-import {
-	FaCheckCircle,
-	FaExclamationCircle,
-	FaEye,
-	FaPen,
-	FaTimes,
-	FaTrash,
-} from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle, FaEye, FaPen, FaTimes, FaTrash } from 'react-icons/fa';
 
 import { DEFAULT_IMAGE, PROJECT_PAGE_URL } from '../../config';
 import { useOutClick } from '../../hooks';
 import { StatusProgressBar } from '../common';
-import { ProjectType, ProjectTeamType } from '../../types';
+import type { ProjectType, ProjectTeamType } from '../../types';
+import { getMediaUrl } from '../../utils/media';
 
 const ImageBlocks = ({ team }: { team: ProjectTeamType[] }) => {
 	const images = team.slice(0, 4).map((person) => ({
-		src: person.employee.user.profile?.image?.url || DEFAULT_IMAGE,
+		src: person.employee.user.profile?.image
+			? getMediaUrl(person.employee.user.profile.image)
+			: DEFAULT_IMAGE,
 		alt: '',
 	}));
 
@@ -25,10 +21,7 @@ const ImageBlocks = ({ team }: { team: ProjectTeamType[] }) => {
 		<>
 			{team.length > 0 ? (
 				<div className="flex flex-wrap items-center mt-1">
-					<Avatars
-						images={images}
-						more={team.length > 4 ? `+${team.length - 4}` : undefined}
-					/>
+					<Avatars images={images} more={team.length > 4 ? `+${team.length - 4}` : undefined} />
 				</div>
 			) : (
 				<p className="capitalize font-semibold my-1 text-gray-500 text-sm md:text-base lg:text-sm">
@@ -44,10 +37,7 @@ export interface ProjectObjectType extends ProjectType {
 }
 
 const Project = (project: ProjectObjectType) => {
-	const { buttonRef, ref, setVisible, visible } = useOutClick<
-		HTMLDivElement,
-		HTMLSpanElement
-	>();
+	const { buttonRef, ref, setVisible, visible } = useOutClick<HTMLDivElement, HTMLSpanElement>();
 
 	return (
 		<div className="bg-white p-4 relative rounded-md shadow-lg">
@@ -67,8 +57,7 @@ const Project = (project: ProjectObjectType) => {
 			</div>
 			<div className="my-1">
 				<p className="font-semibold my-2 text-left text-sm text-gray-600 md:text-base">
-					{project.description.slice(0, 75)}{' '}
-					{project.description.length > 75 ? '...' : ''}
+					{project.description.slice(0, 75)} {project.description.length > 75 ? '...' : ''}
 				</p>
 			</div>
 			<div className="flex flex-wrap items-end my-1">
@@ -84,11 +73,7 @@ const Project = (project: ProjectObjectType) => {
 							: 'text-green-600'
 					} capitalize flex flex-wrap items-center font-semibold mx-2 text-sm md:text-base lg:text-sm`}
 				>
-					{project.priority === 'HIGH'
-						? 'High'
-						: project.priority === 'MEDIUM'
-						? 'Medium'
-						: 'Low'}
+					{project.priority === 'HIGH' ? 'High' : project.priority === 'MEDIUM' ? 'Medium' : 'Low'}
 					<span className="mx-2 pb-1">
 						<FaExclamationCircle className="text-sm" />
 					</span>
@@ -120,18 +105,13 @@ const Project = (project: ProjectObjectType) => {
 					Deadline:
 				</h6>
 				<p className="capitalize font-semibold mx-2 text-gray-500 text-sm md:text-base lg:text-sm">
-					{project.endDate
-						? new Date(project.endDate).toDateString()
-						: '----------'}
+					{project.endDate ? new Date(project.endDate).toDateString() : '----------'}
 				</p>
 			</div>
 			<div className="my-1">
 				<h6 className="font-medium text-gray-800 text-base md:text-lg lg:text-base">
 					Team Leader
-					{project.team.filter((member) => member.isLeader === true).length > 1
-						? 's'
-						: ''}
-					:
+					{project.team.filter((member) => member.isLeader === true).length > 1 ? 's' : ''}:
 				</h6>
 				<ImageBlocks
 					team={project.team.reduce((total: ProjectTeamType[], member) => {
@@ -152,12 +132,7 @@ const Project = (project: ProjectObjectType) => {
 				/>
 			</div>
 			<div className="mt-6 mb-3">
-				<StatusProgressBar
-					background="bg-green-600"
-					title="Progress"
-					result={0.4}
-					value="40%"
-				/>
+				<StatusProgressBar background="bg-green-600" title="Progress" result={0.4} value="40%" />
 			</div>
 			<div
 				ref={ref}

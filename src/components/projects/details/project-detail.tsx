@@ -5,8 +5,8 @@ import StatusProgressBar from '../../common/status-progress-bar';
 import { DEFAULT_IMAGE } from '../../../config';
 import { useAlertContext } from '../../../store/contexts';
 import { useEditProjectMutation } from '../../../store/queries/projects';
-import { ProjectType } from '../../../types';
-import { getDate } from '../../../utils';
+import type { ProjectType } from '../../../types';
+import { getDate, getMediaUrl } from '../../../utils';
 
 const ProjectDetail = ({
 	data,
@@ -23,8 +23,7 @@ const ProjectDetail = ({
 		start_date && end_date
 			? (end_date.getTime() - start_date.getTime()) / (1000 * 60 * 60)
 			: undefined;
-	const total_cost =
-		data && hours ? (data.initialCost || 0) + (data.rate || 0) * hours : 0;
+	const total_cost = data && hours ? (data.initialCost || 0) + (data.rate || 0) * hours : 0;
 	const leaders = data.team.filter((member) => member.isLeader === true);
 	const team = data.team.filter((member) => member.isLeader === false);
 
@@ -163,17 +162,15 @@ const ProjectDetail = ({
 					{leaders.length > 0 ? (
 						<ul className="pb-1 pt-3">
 							{leaders.map((leader, index) => (
-								<li
-									key={index}
-									className="flex items-start rounded-md px-1 py-2 odd:bg-gray-100"
-								>
+								<li key={index} className="flex items-start rounded-md px-1 py-2 odd:bg-gray-100">
 									<div className="w-[15%]">
 										<div className="h-[30px] mx-1 relative w-[30px] rounded-full">
 											<Image
 												className="h-[30px] rounded-full w-[30px]"
 												src={
-													leader.employee.user.profile?.image?.url ||
-													DEFAULT_IMAGE
+													leader.employee.user.profile?.image
+														? getMediaUrl(leader.employee.user.profile?.image)
+														: DEFAULT_IMAGE
 												}
 												layout="fill"
 												alt=""
@@ -192,32 +189,26 @@ const ProjectDetail = ({
 							))}
 						</ul>
 					) : (
-						<p className="text-sm text-gray-700">
-							There are no assigned leaders
-						</p>
+						<p className="text-sm text-gray-700">There are no assigned leaders</p>
 					)}
 				</div>
 			</div>
 
 			<div className="bg-white my-4 p-4 rounded-md shadow-lg w-full">
-				<h3 className="font-bold text-lg text-gray-800 tracking-wide md:text-xl">
-					Assigned Team
-				</h3>
+				<h3 className="font-bold text-lg text-gray-800 tracking-wide md:text-xl">Assigned Team</h3>
 				<ul className="grid grid-cols-1 pb-1 pt-3 sm:grid-cols-2 lg:grid-cols-1">
 					{team.length > 0 ? (
 						<ul className="pb-1 pt-3">
 							{team.map((member, index) => (
-								<li
-									key={index}
-									className="flex items-start rounded-md px-1 py-2 odd:bg-gray-100"
-								>
+								<li key={index} className="flex items-start rounded-md px-1 py-2 odd:bg-gray-100">
 									<div className="w-[15%]">
 										<div className="h-[30px] mx-1 relative w-[30px] rounded-full">
 											<Image
 												className="h-[30px] rounded-full w-[30px]"
 												src={
-													member.employee.user.profile?.image?.url ||
-													DEFAULT_IMAGE
+													member.employee.user.profile?.image
+														? getMediaUrl(member.employee.user.profile?.image)
+														: DEFAULT_IMAGE
 												}
 												layout="fill"
 												alt=""

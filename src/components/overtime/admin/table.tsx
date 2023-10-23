@@ -7,7 +7,7 @@ import { TableAvatarEmailNameCell } from '../../common';
 import { ADMIN_OVERTIME_DETAIL_PAGE_URL } from '../../../config/routes';
 import { DEFAULT_IMAGE } from '../../../config/static';
 import { OvertimeType } from '../../../types';
-import { getDate, serializeOvertime } from '../../../utils';
+import { getDate, getMediaUrl, serializeOvertime } from '../../../utils';
 
 const heads: TableHeadType = [
 	{
@@ -39,7 +39,9 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 								<TableAvatarEmailNameCell
 									email={item.employee.user.email}
 									image={
-										item.employee.user.profile?.image?.url || DEFAULT_IMAGE
+										item.employee.user.profile?.image
+											? getMediaUrl(item.employee.user.profile.image)
+											: DEFAULT_IMAGE
 									}
 									name={`${item.employee.user.firstName} ${item.employee.user.lastName}`}
 								/>
@@ -64,8 +66,7 @@ const getRows = (data: OvertimeType[]): TableRowType[] =>
 								: 'warning',
 					},
 					type: 'badge',
-					value:
-						item.status === 'PENDING' && item.expired ? 'EXPIRED' : item.status,
+					value: item.status === 'PENDING' && item.expired ? 'EXPIRED' : item.status,
 				},
 				{
 					value: item.updatedAt ? getDate(item.updatedAt, true) : '---',
@@ -90,12 +91,14 @@ type TableType = {
 };
 
 const OvertimeTable = ({ overtime, offset = 0 }: TableType) => {
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'approved' | 'denied' | 'pending'
-	>('all');
+	const [activeRow, setActiveRow] = React.useState<'all' | 'approved' | 'denied' | 'pending'>(
+		'all'
+	);
 
-	const { overtime: deferredValue, offset: deferredOffset } =
-		React.useDeferredValue({ overtime, offset });
+	const { overtime: deferredValue, offset: deferredOffset } = React.useDeferredValue({
+		overtime,
+		offset,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'denied') {

@@ -6,8 +6,9 @@ import { FaArrowRight, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { TableAvatarEmailNameCell } from '../common/table/cells';
 import { USER_PAGE_URL } from '../../config/routes';
 import { DEFAULT_IMAGE } from '../../config/static';
-import { UserType } from '../../types';
+import type { UserType } from '../../types';
 import { getStringedDate } from '../../utils/dates';
+import { getMediaUrl } from '../../utils/media';
 
 const heads: TableHeadType = [
 	{
@@ -38,7 +39,7 @@ const getRows = (data: UserType[]): TableRowType[] =>
 						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 							<TableAvatarEmailNameCell
 								email={user.email}
-								image={user.profile?.image?.url || DEFAULT_IMAGE}
+								image={user.profile?.image ? getMediaUrl(user.profile.image) : DEFAULT_IMAGE}
 								name={`${user.firstName} ${user.lastName}`}
 							/>
 						</a>
@@ -47,12 +48,7 @@ const getRows = (data: UserType[]): TableRowType[] =>
 			},
 			{
 				options: {
-					bg:
-						user.employee && user.client
-							? 'secondary'
-							: user.client
-							? 'pacify'
-							: 'danger',
+					bg: user.employee && user.client ? 'secondary' : user.client ? 'pacify' : 'danger',
 					color: user.employee && !user.client ? 'bg-purple-600' : undefined,
 				},
 				type: 'badge',
@@ -93,18 +89,14 @@ const getRows = (data: UserType[]): TableRowType[] =>
 			},
 			{
 				options: {
-					className: `${
-						user.isAdmin ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${user.isAdmin ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: user.isAdmin ? FaCheckCircle : FaTimesCircle,
 			},
 			{
 				options: {
-					className: `${
-						user.isSuperUser ? 'text-green-600' : 'text-red-600'
-					} text-sm md:text-base`,
+					className: `${user.isSuperUser ? 'text-green-600' : 'text-red-600'} text-sm md:text-base`,
 				},
 				type: 'icon',
 				icon: user.isSuperUser ? FaCheckCircle : FaTimesCircle,
@@ -138,20 +130,19 @@ const UserTable = ({ offset = 0, users }: TableType) => {
 		'all' | 'active' | 'on leave' | 'inactive' | 'clients' | 'employees'
 	>('all');
 
-	const { users: deferredValue, offset: deferredOffset } =
-		React.useDeferredValue({ users, offset });
+	const { users: deferredValue, offset: deferredOffset } = React.useDeferredValue({
+		users,
+		offset,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
 			finalList = deferredValue.filter(
-				(user) =>
-					user.employee?.leaves.length && user.employee?.leaves.length > 0
+				(user) => user.employee?.leaves.length && user.employee?.leaves.length > 0
 			);
 		} else if (activeRow === 'active') {
 			finalList = deferredValue.filter((user) =>
-				user.employee
-					? user.isActive === true && user.employee.leaves.length === 0
-					: user.isActive
+				user.employee ? user.isActive === true && user.employee.leaves.length === 0 : user.isActive
 			);
 		} else if (activeRow === 'inactive') {
 			finalList = deferredValue.filter((user) => user.isActive === false);

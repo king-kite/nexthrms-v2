@@ -14,6 +14,7 @@ import {
 } from '../../types';
 import { getStringedDate, getDate } from '../../utils/dates';
 import { axiosInstance } from '../../utils/axios';
+import { getMediaUrl } from '../../utils/media';
 import { handleAxiosErrors, handleYupErrors } from '../../validators';
 import { profileUpdateSchema } from '../../validators/auth';
 

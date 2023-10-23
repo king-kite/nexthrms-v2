@@ -14,7 +14,13 @@ import {
 	useDeleteMultipleManagedFileMutation,
 } from '../../store/queries/managed-files';
 import { ManagedFileType } from '../../types';
-import { downloadFile, getByteSize, getStringDateTime, hasModelPermission } from '../../utils';
+import {
+	downloadFile,
+	getByteSize,
+	getStringDateTime,
+	getMediaUrl,
+	hasModelPermission,
+} from '../../utils';
 
 const style = {
 	paddingLeft: '1rem',
@@ -81,7 +87,7 @@ const getRows = (
 			{
 				color: 'success',
 				icon: FaDownload,
-				onClick: () => download(file.url || file.location, name),
+				onClick: () => download(getMediaUrl(file), name),
 			},
 		];
 
@@ -150,7 +156,9 @@ const getRows = (
 							<a className="cursor-pointer inline-block px-2 w-full hover:bg-gray-100 hover:even:bg-gray-300">
 								<TableAvatarEmailNameCell
 									email={file.user ? file.user.email : '-------------'}
-									image={file.user?.profile?.image?.url || DEFAULT_IMAGE}
+									image={
+										file.user?.profile?.image ? getMediaUrl(file.user.profile.image) : DEFAULT_IMAGE
+									}
 									name={file.user ? `${file.user.firstName} ${file.user.lastName}` : 'Anonymous'}
 								/>
 							</a>

@@ -5,7 +5,8 @@ import { FaArrowRight } from 'react-icons/fa';
 
 import { TableAvatarEmailNameCell } from '../common';
 import { CLIENT_PAGE_URL, DEFAULT_IMAGE } from '../../config';
-import { ClientType } from '../../types';
+import type { ClientType } from '../../types';
+import { getMediaUrl } from '../../utils/media';
 
 const heads: TableHeadType = [
 	{
@@ -32,7 +33,11 @@ const getRows = (data: ClientType[]): TableRowType[] =>
 						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 							<TableAvatarEmailNameCell
 								email={client.contact.email}
-								image={client.contact.profile?.image?.url || DEFAULT_IMAGE}
+								image={
+									client.contact.profile?.image
+										? getMediaUrl(client.contact.profile.image)
+										: DEFAULT_IMAGE
+								}
 								name={`${client.contact.firstName} ${client.contact.lastName}`}
 							/>
 						</a>
@@ -67,22 +72,18 @@ type TableType = {
 };
 
 const ClientTable = ({ clients, offset = 0 }: TableType) => {
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'active' | 'inactive'
-	>('all');
+	const [activeRow, setActiveRow] = React.useState<'all' | 'active' | 'inactive'>('all');
 
-	const { offset: deferredOffset, clients: deferredValue } =
-		React.useDeferredValue({ offset, clients });
+	const { offset: deferredOffset, clients: deferredValue } = React.useDeferredValue({
+		offset,
+		clients,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'active') {
-			finalList = deferredValue.filter(
-				(client) => client.contact.isActive === true
-			);
+			finalList = deferredValue.filter((client) => client.contact.isActive === true);
 		} else if (activeRow === 'inactive') {
-			finalList = deferredValue.filter(
-				(client) => client.contact.isActive === false
-			);
+			finalList = deferredValue.filter((client) => client.contact.isActive === false);
 		} else {
 			finalList = deferredValue;
 		}

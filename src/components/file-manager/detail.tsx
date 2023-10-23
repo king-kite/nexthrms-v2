@@ -10,8 +10,8 @@ import {
 	useDeleteManagedFileMutation,
 } from '../../store/queries/managed-files';
 import { useGetUserObjectPermissionsQuery } from '../../store/queries/permissions';
-import { ManagedFileType } from '../../types';
-import { getByteSize, getStringDateTime } from '../../utils';
+import type { ManagedFileType } from '../../types';
+import { getByteSize, getStringDateTime, getMediaUrl } from '../../utils';
 
 function Detail(data: ManagedFileType) {
 	const [detail, setDetail] = React.useState<ManagedFileType>();
@@ -111,7 +111,7 @@ function Detail(data: ManagedFileType) {
 						title: 'User Image',
 						type: 'image',
 						value: {
-							src: file.user?.profile?.image?.location || DEFAULT_IMAGE,
+							src: file.user?.profile?.image ? getMediaUrl(file.user.profile.image) : DEFAULT_IMAGE,
 							alt: file.user ? file.user.firstName + ' ' + file.user.lastName : '----',
 						},
 					},

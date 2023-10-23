@@ -9,7 +9,7 @@ import { EMPLOYEE_PAGE_URL, permissions } from '../../../config';
 import { useAlertContext, useAuthContext } from '../../../store/contexts';
 import { useDeleteProjectFileMutation } from '../../../store/queries/projects';
 import { ProjectFileType } from '../../../types';
-import { downloadFile, hasModelPermission } from '../../../utils';
+import { downloadFile, hasModelPermission, getMediaUrl } from '../../../utils';
 
 export type ProjectFilesProps = {
 	files: ProjectFileType[];
@@ -91,7 +91,7 @@ const ProjectFiles = ({ files }: ProjectFilesProps) => {
 									<h5
 										onClick={() =>
 											downloadFile({
-												url: file.file.url || file.file.location,
+												url: getMediaUrl(file.file),
 												name: file.file.name,
 											})
 										}

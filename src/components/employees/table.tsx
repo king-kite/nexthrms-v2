@@ -6,8 +6,9 @@ import { FaArrowRight } from 'react-icons/fa';
 import { TableAvatarEmailNameCell } from '../common';
 import { EMPLOYEE_PAGE_URL } from '../../config/routes';
 import { DEFAULT_IMAGE } from '../../config/static';
-import { EmployeeType } from '../../types';
+import type { EmployeeType } from '../../types';
 import { getStringedDate } from '../../utils/dates';
+import { getMediaUrl } from '../../utils/media';
 
 const heads: TableHeadType = [
 	{
@@ -34,7 +35,11 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 						<a className="inline-block w-full hover:bg-gray-100 hover:even:bg-gray-300">
 							<TableAvatarEmailNameCell
 								email={employee.user.email}
-								image={employee.user.profile?.image?.url || DEFAULT_IMAGE}
+								image={
+									employee.user.profile?.image
+										? getMediaUrl(employee.user.profile.image)
+										: DEFAULT_IMAGE
+								}
 								name={`${employee.user.firstName} ${employee.user.lastName}`}
 							/>
 						</a>
@@ -44,25 +49,14 @@ const getRows = (data: EmployeeType[]): TableRowType[] =>
 			{ value: employee.department?.name || '---' },
 			{
 				options: {
-					bg:
-						employee.leaves.length > 0
-							? 'warning'
-							: employee.user.isActive
-							? 'green'
-							: 'danger',
+					bg: employee.leaves.length > 0 ? 'warning' : employee.user.isActive ? 'green' : 'danger',
 				},
 				type: 'badge',
 				value:
-					employee.leaves.length > 0
-						? 'on leave'
-						: employee.user.isActive
-						? 'active'
-						: 'inactive',
+					employee.leaves.length > 0 ? 'on leave' : employee.user.isActive ? 'active' : 'inactive',
 			},
 			{
-				value: employee.dateEmployed
-					? getStringedDate(employee.dateEmployed)
-					: '---',
+				value: employee.dateEmployed ? getStringedDate(employee.dateEmployed) : '---',
 			},
 			{
 				type: 'actions',
@@ -83,27 +77,24 @@ type TableType = {
 };
 
 const EmployeeTable = ({ employees, offset = 0 }: TableType) => {
-	const [activeRow, setActiveRow] = React.useState<
-		'all' | 'active' | 'on leave' | 'inactive'
-	>('all');
+	const [activeRow, setActiveRow] = React.useState<'all' | 'active' | 'on leave' | 'inactive'>(
+		'all'
+	);
 
-	const { offset: deferredOffset, employees: deferredValue } =
-		React.useDeferredValue({ employees, offset });
+	const { offset: deferredOffset, employees: deferredValue } = React.useDeferredValue({
+		employees,
+		offset,
+	});
 	const rows = React.useMemo(() => {
 		let finalList;
 		if (activeRow === 'on leave') {
-			finalList = deferredValue.filter(
-				(employee) => employee.leaves.length > 0
-			);
+			finalList = deferredValue.filter((employee) => employee.leaves.length > 0);
 		} else if (activeRow === 'active') {
 			finalList = deferredValue.filter(
-				(employee) =>
-					employee.user.isActive === true && employee.leaves.length === 0
+				(employee) => employee.user.isActive === true && employee.leaves.length === 0
 			);
 		} else if (activeRow === 'inactive') {
-			finalList = deferredValue.filter(
-				(employee) => employee.user.isActive === false
-			);
+			finalList = deferredValue.filter((employee) => employee.user.isActive === false);
 		} else {
 			finalList = deferredValue;
 		}
