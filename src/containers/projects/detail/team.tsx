@@ -23,8 +23,8 @@ import {
 	useAppointProjectTeamLeaderMutation,
 	useDeleteProjectTeamMemberMutation,
 } from '../../../store/queries/projects';
-import type { ProjectType, GetProjectTeamResponseType, SuccessResponseType } from '../../../types';
-import { hasModelPermission } from '../../../utils';
+import type { GetProjectTeamResponseType } from '../../../types';
+import { hasModelPermission, getMediaUrl } from '../../../utils';
 
 const DynamicAlert = dynamic<any>(() => import('kite-react-tailwind').then((mod) => mod.Alert), {
 	ssr: false,
@@ -229,7 +229,9 @@ const Team = ({ projectData }: { projectData: GetProjectTeamResponseType['data']
 										}
 										label={data.project.client.position || '------'}
 										image={{
-											src: data.project.client.contact.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.project.client.contact.profile?.image
+												? getMediaUrl(data.project.client.contact.profile.image)
+												: DEFAULT_IMAGE,
 										}}
 										actions={[
 											{
@@ -286,7 +288,9 @@ const Team = ({ projectData }: { projectData: GetProjectTeamResponseType['data']
 												name={leader.employee.user.firstName + ' ' + leader.employee.user.lastName}
 												label={leader.employee.job ? leader.employee.job.name : '-----'}
 												image={{
-													src: leader.employee.user.profile?.image?.url || DEFAULT_IMAGE,
+													src: leader.employee.user.profile?.image
+														? getMediaUrl(leader.employee.user.profile.image)
+														: DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
@@ -358,7 +362,9 @@ const Team = ({ projectData }: { projectData: GetProjectTeamResponseType['data']
 												name={member.employee.user.firstName + ' ' + member.employee.user.lastName}
 												label={member.employee.job ? member.employee.job.name : '------'}
 												image={{
-													src: member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
+													src: member.employee.user.profile?.image
+														? getMediaUrl(member.employee.user.profile.image)
+														: DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit

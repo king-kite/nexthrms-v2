@@ -21,13 +21,11 @@ import {
 	useEditProjectMutation,
 	useDeleteProjectMutation,
 } from '../../../store/queries/projects';
-import {
+import type {
 	CreateProjectErrorResponseType,
 	CreateProjectQueryType,
-	GetProjectFilesResponseType,
 	ProjectType,
 	SuccessResponseType,
-	UserObjPermType,
 } from '../../../types';
 import { hasModelPermission } from '../../../utils';
 

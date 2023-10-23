@@ -8,7 +8,7 @@ import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetEmployeeQuery } from '../../store/queries/employees';
 import { EmployeeType } from '../../types';
-import { getDate, toCapitalize } from '../../utils';
+import { getDate, toCapitalize, getMediaUrl } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
 	() => import('../../components/employees/detail/detail-actions').then((mod) => mod.default),
@@ -71,7 +71,7 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 					<InfoTopBar
 						email={data?.user.email}
 						full_name={toCapitalize(data.user.firstName + ' ' + data.user.lastName)}
-						image={data.user.profile?.image?.url || DEFAULT_IMAGE}
+						image={data.user.profile?.image ? getMediaUrl(data.user.profile.image) : DEFAULT_IMAGE}
 						actions={
 							<DynamicDetailActions
 								data={data}
@@ -189,7 +189,9 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: supervisor.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: supervisor.user.profile?.image
+												? getMediaUrl(supervisor.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt: supervisor.user.firstName + ' ' + supervisor.user.lastName,
 										},
 									},
@@ -221,7 +223,9 @@ const Employee = ({ employee }: { employee: EmployeeType }) => {
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.department.hod.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.department.hod.user.profile?.image
+												? getMediaUrl(data.department.hod.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt:
 												data.department.hod.user.firstName +
 												' ' +

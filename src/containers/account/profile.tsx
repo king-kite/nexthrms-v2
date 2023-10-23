@@ -10,7 +10,7 @@ import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE, LEAVES_PAGE_URL, PROFILE_URL } from '../../config';
 import { useAlertContext } from '../../store/contexts';
 import * as tags from '../../store/tagTypes';
-import { getDate, toCapitalize } from '../../utils';
+import { getDate, toCapitalize, getMediaUrl } from '../../utils';
 import { axiosInstance } from '../../utils/axios';
 import { ProfileResponseType } from '../../types';
 
@@ -22,37 +22,27 @@ const DynamicModal = dynamic<any>(
 );
 
 const DynamicChangePasswordForm = dynamic<any>(
-	() =>
-		import('../../components/profile/change-password-form').then(
-			(mod) => mod.default
-		),
+	() => import('../../components/profile/change-password-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 
 const DynamicUpdateForm = dynamic<any>(
-	() =>
-		import('../../components/profile/update-form').then((mod) => mod.default),
+	() => import('../../components/profile/update-form').then((mod) => mod.default),
 	{
 		loading: () => (
-			<p className="text-center text-gray-500 text-sm md:text-base">
-				Loading Form...
-			</p>
+			<p className="text-center text-gray-500 text-sm md:text-base">Loading Form...</p>
 		),
 		ssr: false,
 	}
 );
 
 const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
-	const [formType, setFormType] = React.useState<'profile' | 'password'>(
-		'profile'
-	);
+	const [formType, setFormType] = React.useState<'profile' | 'password'>('profile');
 	const [modalVisible, setModalVisible] = React.useState(false);
 
 	const { open: showAlert } = useAlertContext();
@@ -82,7 +72,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 			<InfoTopBar
 				email={data?.email}
 				full_name={toCapitalize(`${data?.firstName} ${data?.lastName}`)}
-				image={data?.profile?.image?.url || DEFAULT_IMAGE}
+				image={data?.profile?.image ? getMediaUrl(data.profile.image) : DEFAULT_IMAGE}
 				actions={[
 					{
 						iconLeft: FaUserEdit,
@@ -122,9 +112,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 					{ title: 'E-mail', value: data?.email || '' },
 					{
 						title: 'Birthday',
-						value: data?.profile?.dob
-							? (getDate(data.profile.dob, true) as string)
-							: '',
+						value: data?.profile?.dob ? (getDate(data.profile.dob, true) as string) : '',
 					},
 					{
 						title: 'Gender',
@@ -163,14 +151,10 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 								data.employee.leaves.length > 0
 									? `${(
 											getDate(
-												data.employee.leaves[data.employee.leaves.length - 1]
-													.startDate
+												data.employee.leaves[data.employee.leaves.length - 1].startDate
 											) as Date
 									  ).toDateString()} --- ${(
-											getDate(
-												data.employee.leaves[data.employee.leaves.length - 1]
-													.endDate
-											) as Date
+											getDate(data.employee.leaves[data.employee.leaves.length - 1].endDate) as Date
 									  ).toDateString()}`
 									: '-------',
 						},
@@ -179,23 +163,17 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							value:
 								data.employee.leaves.length > 0
 									? (new Date(
-											data.employee.leaves[
-												data.employee.leaves.length - 1
-											].endDate
+											data.employee.leaves[data.employee.leaves.length - 1].endDate
 									  ).getTime() -
 											new Date(
-												data.employee.leaves[
-													data.employee.leaves.length - 1
-												].startDate
+												data.employee.leaves[data.employee.leaves.length - 1].startDate
 											).getTime()) /
 									  (24 * 60 * 60 * 1000)
 									: '-------',
 						},
 						{
 							title: 'Date Employed',
-							value: (
-								getDate(data.employee.dateEmployed) as Date
-							).toDateString(),
+							value: (getDate(data.employee.dateEmployed) as Date).toDateString(),
 						},
 					]}
 					title="Employee information"
@@ -209,7 +187,9 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							title: 'Profile Image',
 							type: 'image',
 							value: {
-								src: supervisor.user.profile?.image?.url || DEFAULT_IMAGE,
+								src: supervisor.user.profile?.image
+									? getMediaUrl(supervisor.user.profile.image)
+									: DEFAULT_IMAGE,
 								alt: supervisor.user.firstName + ' ' + supervisor.user.lastName,
 							},
 						},
@@ -241,9 +221,9 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 							title: 'Profile Image',
 							type: 'image',
 							value: {
-								src:
-									data.employee.department.hod.user.profile?.image?.url ||
-									DEFAULT_IMAGE,
+								src: data.employee.department.hod.user.profile?.image
+									? getMediaUrl(data.employee.department.hod.user.profile.image)
+									: DEFAULT_IMAGE,
 								alt:
 									data.employee.department.hod.user.firstName +
 									' ' +
@@ -300,11 +280,7 @@ const Profile = ({ profile }: { profile: ProfileResponseType['data'] }) => {
 						: 'Fill in the form to update your profile'
 				}
 				keepVisible
-				title={
-					formType === 'password'
-						? 'Change Password'
-						: 'Update profile Information'
-				}
+				title={formType === 'password' ? 'Change Password' : 'Update profile Information'}
 				visible={modalVisible}
 			/>
 		</Container>

@@ -8,7 +8,7 @@ import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetLeaveQuery } from '../../store/queries/leaves';
 import type { LeaveType } from '../../types';
-import { getDate, getNextDate, getNoOfDays, serializeLeave } from '../../utils';
+import { getDate, getNoOfDays, serializeLeave, getMediaUrl } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
 	() => import('../../components/leaves/detail-actions').then((mod) => mod.default),
@@ -77,7 +77,11 @@ const Detail = ({ admin = false, leave }: { admin?: boolean; leave: LeaveType })
 					<InfoTopBar
 						email={data.employee.user.email}
 						full_name={data.employee.user.firstName + ' ' + data.employee.user.lastName}
-						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
+						image={
+							data.employee.user.profile?.image
+								? getMediaUrl(data.employee.user.profile.image)
+								: DEFAULT_IMAGE
+						}
 						actions={
 							<DynamicDetailActions
 								admin={admin}
@@ -163,7 +167,9 @@ const Detail = ({ admin = false, leave }: { admin?: boolean; leave: LeaveType })
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.createdBy.user.profile?.image
+												? getMediaUrl(data.createdBy.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt: data.createdBy.user.firstName + ' ' + data.createdBy.user.lastName,
 										},
 									},
@@ -199,7 +205,9 @@ const Detail = ({ admin = false, leave }: { admin?: boolean; leave: LeaveType })
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.approvedBy.user.profile?.image
+												? getMediaUrl(data.approvedBy.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt: data.approvedBy.user.firstName + ' ' + data.approvedBy.user.lastName,
 										},
 									},

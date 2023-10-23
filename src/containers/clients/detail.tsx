@@ -9,7 +9,7 @@ import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetClientQuery } from '../../store/queries/clients';
 import { ClientType } from '../../types';
-import { getDate, toCapitalize } from '../../utils';
+import { getDate, toCapitalize, getMediaUrl } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
 	() => import('../../components/clients/detail-actions').then((mod) => mod.default),
@@ -70,7 +70,9 @@ const ClientDetail = ({ client }: { client: ClientType }) => {
 					<InfoTopBar
 						email={data?.contact.email}
 						full_name={toCapitalize(`${data?.contact.firstName} ${data?.contact.lastName}`)}
-						image={data?.contact.profile?.image?.url || DEFAULT_IMAGE}
+						image={
+							data?.contact.profile?.image ? getMediaUrl(data.contact.profile.image) : DEFAULT_IMAGE
+						}
 						actions={
 							<DynamicDetailActions
 								data={data}

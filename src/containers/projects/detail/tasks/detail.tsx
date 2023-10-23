@@ -26,12 +26,8 @@ import {
 	useDeleteProjectTaskMutation,
 	useDeleteProjectTaskFollowerMutation,
 } from '../../../../store/queries/projects';
-import {
-	CreateProjectTaskErrorResponseType,
-	ProjectTaskType,
-	UserObjPermType,
-} from '../../../../types';
-import { hasModelPermission } from '../../../../utils';
+import { CreateProjectTaskErrorResponseType, ProjectTaskType } from '../../../../types';
+import { hasModelPermission, getMediaUrl } from '../../../../utils';
 
 const DynamicForm = dynamic<any>(
 	() => import('../../../../components/projects/tasks/form').then((mod) => mod.default),
@@ -381,7 +377,9 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 												}
 												label={leader.member.employee.job?.name || '-----'}
 												image={{
-													src: leader.member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
+													src: leader.member.employee.user.profile?.image
+														? getMediaUrl(leader.member.employee.user.profile.image)
+														: DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit
@@ -460,7 +458,9 @@ const Detail = ({ task }: { task: ProjectTaskType }) => {
 												}
 												label={follower.member.employee.job?.name || '-----'}
 												image={{
-													src: follower.member.employee.user.profile?.image?.url || DEFAULT_IMAGE,
+													src: follower.member.employee.user.profile?.image
+														? getMediaUrl(follower.member.employee.user.profile.image)
+														: DEFAULT_IMAGE,
 												}}
 												options={
 													canEdit

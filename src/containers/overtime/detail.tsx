@@ -7,8 +7,8 @@ import Container from '../../components/common/container';
 import InfoTopBar from '../../components/common/info-topbar';
 import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetOvertimeQuery } from '../../store/queries/overtime';
-import { OvertimeType, UserObjPermType } from '../../types';
-import { getDate, serializeOvertime } from '../../utils';
+import { OvertimeType } from '../../types';
+import { getDate, serializeOvertime, getMediaUrl } from '../../utils';
 
 const DynamicDetailActions = dynamic<any>(
 	() => import('../../components/overtime/detail-actions').then((mod) => mod.default),
@@ -77,7 +77,11 @@ const Detail = ({ admin = false, overtime }: { admin?: boolean; overtime: Overti
 					<InfoTopBar
 						email={data.employee.user.email}
 						full_name={data.employee.user.firstName + ' ' + data.employee.user.lastName}
-						image={data.employee.user.profile?.image?.url || DEFAULT_IMAGE}
+						image={
+							data.employee.user.profile?.image
+								? getMediaUrl(data.employee.user.profile.image)
+								: DEFAULT_IMAGE
+						}
 						actions={
 							<DynamicDetailActions
 								admin={admin}
@@ -159,7 +163,9 @@ const Detail = ({ admin = false, overtime }: { admin?: boolean; overtime: Overti
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.createdBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.createdBy.user.profile?.image
+												? getMediaUrl(data.createdBy.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt: data.createdBy.user.firstName + ' ' + data.createdBy.user.lastName,
 										},
 									},
@@ -195,7 +201,9 @@ const Detail = ({ admin = false, overtime }: { admin?: boolean; overtime: Overti
 										title: 'Profile Image',
 										type: 'image',
 										value: {
-											src: data.approvedBy.user.profile?.image?.url || DEFAULT_IMAGE,
+											src: data.approvedBy.user.profile?.image
+												? getMediaUrl(data.approvedBy.user.profile.image)
+												: DEFAULT_IMAGE,
 											alt: data.approvedBy.user.firstName + ' ' + data.approvedBy.user.lastName,
 										},
 									},
