@@ -10,6 +10,7 @@ import { DEFAULT_IMAGE } from '../../config/static';
 import { useGetUserQuery } from '../../store/queries/users';
 import type { UserType } from '../../types';
 import toCapitalize from '../../utils/toCapitalize';
+import { getMediaUrl } from '../../utils/media';
 
 const DynamicDetailActions = dynamic<any>(
 	() => import('../../components/users/detail/detail-actions').then((mod) => mod.default),
@@ -95,7 +96,7 @@ const User = ({ user }: { user: UserType }) => {
 					<InfoTopBar
 						email={data.email}
 						full_name={toCapitalize(data.firstName + ' ' + data.lastName)}
-						image={data.profile?.image?.url || DEFAULT_IMAGE}
+						image={data.profile?.image ? getMediaUrl(data.profile.image) : DEFAULT_IMAGE}
 						actions={
 							<DynamicDetailActions
 								data={data}
