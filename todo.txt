@@ -2,5 +2,3 @@
 2. Fix the Select2 Component so that if it touches the end of the screen it'll change direction to upwward. Do be mindful of smaller screen.
 3. Have the filters send info the database instead. To help with exporting.
 4. Reduce the time on the tokens by about 30s to 60s.
-5. Fix the media urls to use both url and location if url if not avaiable.
-6. The file name being sent using multipart/form-data is incorrect.
