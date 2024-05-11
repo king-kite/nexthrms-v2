@@ -2,10 +2,37 @@ import { PaginatedResponseType, SuccessResponseType, ValidatorErrorType } from '
 import { CreateJobType } from '../validators/jobs';
 
 export type JobType = {
-	id: string;
-	name: string;
-	updatedAt: Date | string;
-	createdAt: Date | string;
+  id: string;
+  name: string;
+  description: string | null;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
+  location: string | null;
+  type: 'FULL_TIME' | 'PART_TIME' | 'INTERNSHIP' | 'TEMPORARY' | 'OTHER';
+  department: {
+    id: string;
+    name: string;
+  } | null;
+  updatedAt: Date | string;
+  createdAt: Date | string;
+};
+
+export const jobSelect = {
+  id: true,
+  name: true,
+  description: true,
+  startDate: true,
+  endDate: true,
+  location: true,
+  type: true,
+  department: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  updatedAt: true,
+  createdAt: true,
 };
 
 export type JobCreateType = CreateJobType;

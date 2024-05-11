@@ -8,15 +8,59 @@ import { permissions, JOB_OBJECT_PERMISSIONS_PAGE_URL } from '../../config';
 import { useAlertContext, useAlertModalContext, useAuthContext } from '../../store/contexts';
 import { useDeleteJobMutation } from '../../store/queries/jobs';
 import { JobType } from '../../types/jobs';
-import { hasModelPermission } from '../../utils';
+import { getStringedDate, hasModelPermission } from '../../utils';
 
-const heads: TableHeadType = [{ value: 'name' }, { type: 'actions', value: 'edit' }];
+enum JobTypeOptions {
+  'Full Time' = 'FULL_TIME',
+  'Part Time' = 'PART_TIME',
+  'Internship' = 'INTERNSHIP',
+  'Temporary' = 'TEMPORARY',
+  'Other' = 'OTHER',
+}
+const heads: TableHeadType = [
+  { value: 'name' },
+  { value: 'department' },
+  { value: 'start date' },
+  { value: 'end date' },
+  { value: 'job type' },
+  { type: 'actions', value: 'edit' },
+];
+
+function getBadge(value: JobType['type']) {
+  switch (value) {
+    case JobTypeOptions['Full Time']:
+      return {
+        color: 'green',
+        value: 'Full Time',
+      };
+    case JobTypeOptions['Part Time']:
+      return {
+        color: 'pacify',
+        value: 'Part Time',
+      };
+    case JobTypeOptions['Internship']:
+      return {
+        color: 'warning',
+        value: 'Internship',
+      };
+    case JobTypeOptions['Temporary']:
+      return {
+        color: 'danger',
+        value: 'Temporary',
+      };
+    default:
+      return {
+        color: 'info',
+        value: 'Other',
+      };
+  }
+}
 
 const getRows = (
   data: JobType[],
   disableAction: boolean,
   canViewPermissions: boolean,
-  updateJob?: (id: string, data: { name: string }) => void,
+  updateJob?: (job: JobType) => void,
   deleteJob?: (id: string) => void
 ): TableRowType[] =>
   data.map((job) => {
@@ -32,10 +76,7 @@ const getRows = (
         color: 'primary',
         disabled: disableAction,
         icon: FaPen,
-        onClick: () =>
-          updateJob(job.id, {
-            name: job.name,
-          }),
+        onClick: () => updateJob(job),
       });
     if (deleteJob)
       actions.push({
@@ -52,10 +93,26 @@ const getRows = (
         link: JOB_OBJECT_PERMISSIONS_PAGE_URL(job.id),
       });
 
+    const badge = getBadge(job.type);
+
     return {
       id: job.id,
       rows: [
         { value: job.name },
+        { value: job.department?.name || '---' },
+        {
+          value: job.startDate ? getStringedDate(job.startDate) : '---',
+        },
+        {
+          value: job.endDate ? getStringedDate(job.endDate) : '---',
+        },
+        {
+          options: {
+            bg: badge.color,
+          },
+          type: 'badge',
+          value: badge.value,
+        },
         {
           type: 'actions',
           value: actions,
@@ -67,7 +124,7 @@ const getRows = (
 type TableType = {
   jobs: JobType[];
   offset?: number;
-  updateJob?: (id: string, data: { name: string }) => void;
+  updateJob?: (job: JobType) => void;
 };
 
 const JobTable = ({ jobs = [], offset = 0, updateJob }: TableType) => {
